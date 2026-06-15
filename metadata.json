@@ -1,0 +1,6 @@
+{
+  "name": "DRKN 本体管理",
+  "description": "面向数据语义治理的 DRKN 语义层本体模型、关系、能力绑定与变更发布工作台。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
