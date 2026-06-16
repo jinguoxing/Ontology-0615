@@ -4,7 +4,7 @@ import {
   Database, Box, FileText, Shield, ClipboardCopy, 
   Layers, AlertTriangle, Target, Play, FileCode, CheckCircle2,
   ChevronRight, Search, Settings, Star, GitMerge, Link as LinkIcon, 
-  FunctionSquare, Plus, Edit, Download, Check, Sparkles, X, Info, AlertCircle, Trash2
+  FunctionSquare, Plus, Edit, Download, Check, Sparkles, X, Info, AlertCircle, Trash2, ChevronDown, RefreshCw
 } from 'lucide-react';
 
 interface ObjectModelProps {
@@ -294,6 +294,24 @@ export default function ObjectModel({
   const [selectionMode, setSelectionMode] = useState<'standard' | 'extended'>('standard');
   const [selectedAddTargetId, setSelectedAddTargetId] = useState<string>('DataQualityRule');
 
+  // New Add Property Drawer state
+  const [isAddPropertyDrawerOpen, setIsAddPropertyDrawerOpen] = useState(false);
+  const [propName, setPropName] = useState('semantic_source');
+  const [propCnName, setPropCnName] = useState('语义来源');
+  const [propDataType, setPropDataType] = useState('Enum');
+  const [propIsRequired, setPropIsRequired] = useState(false);
+  const [propDefaultVal, setPropDefaultVal] = useState('System Inferred');
+  const [propDescription, setPropDescription] = useState('记录字段语义来源，例如系统识别、人工确认、AI 反馈。');
+  const [enumItems, setEnumItems] = useState(['System Inferred', 'Human Confirmed', 'AI Feedback', 'External Glossary']);
+  const [newEnumVal, setNewEnumVal] = useState('');
+
+  // Usage scope states
+  const [scopeKnowledgeNetwork, setScopeKnowledgeNetwork] = useState(true);
+  const [scopeAiWorkbench, setScopeAiWorkbench] = useState(true);
+  const [scopeFunctionInput, setScopeFunctionInput] = useState(true);
+  const [scopeWorkflowCondition, setScopeWorkflowCondition] = useState(true);
+  const [scopeReleaseCheck, setScopeReleaseCheck] = useState(true);
+
   // Custom Extension Object Form state
   const [customId, setCustomId] = useState('');
   const [customNameCn, setCustomNameCn] = useState('');
@@ -403,6 +421,47 @@ export default function ObjectModel({
     setCustomAttributes(customAttributes.filter((_, i) => i !== idx));
   };
 
+  // Handle saving new property to changeset
+  const handleSavePropertyToChangeset = () => {
+    if (!propName.trim() || !propCnName.trim()) {
+      alert('❌ 请输入合法的属性英文名与中文名！');
+      return;
+    }
+
+    // Check conflict
+    const isConflict = activeObj.properties.some(p => p.name.toLowerCase() === propName.toLowerCase().trim());
+    if (isConflict) {
+      alert(`❌ 命名冲突：在当前对象类型 ${activeObj.id} 中已存在名为 ${propName} 的属性元素！`);
+      return;
+    }
+
+    const descriptionText = propDataType === 'Enum' 
+      ? `${propDescription || ''} (可选枚举值: ${enumItems.join(', ')})`
+      : propDescription || '无详细描述';
+
+    const newProperty: Property = {
+      name: propName.trim(), // Keep casing as inputted or convert as needed
+      dataType: propDataType,
+      semanticType: propDataType === 'Enum' ? 'EnumConfig' : 'Primitive',
+      confidence: 1.0,
+      owner: '数据治理团队',
+      status: 'Draft',
+      description: descriptionText
+    };
+
+    const updatedObj: ObjectType = {
+      ...activeObj,
+      properties: [...activeObj.properties, newProperty],
+      status: activeObj.status === 'Published' ? 'Modified' : activeObj.status
+    };
+
+    onUpdateObjectType(updatedObj);
+    triggerToast(`✨ 成功向模型对象「${activeObj.id} (${activeObj.nameCn})」添加新属性「${propName} (${propCnName})」！已被并入当前变更沙箱 CS-2026-012 中安全管理。`);
+    
+    // Close Drawer
+    setIsAddPropertyDrawerOpen(false);
+  };
+
   // Handle drawer action "加入当前变更集"
   const handleCommitToChangeSet = () => {
     if (selectionMode === 'standard') {
@@ -492,78 +551,76 @@ export default function ObjectModel({
         </div>
       )}
 
-      {/* 面包屑 */}
-      <div className="flex items-center gap-2 text-[13px] text-slate-500 mb-6">
-        <div className="w-5 h-5 flex items-center justify-center bg-slate-200/50 rounded-md">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </div>
-        <span className="hover:text-slate-800 cursor-pointer text-slate-500" onClick={() => onNavigate('overview')}>管理中心</span>
-        <span className="text-slate-300">/</span>
-        <span className="hover:text-slate-800 cursor-pointer text-slate-500">本体管理</span>
-        <span className="text-slate-300">/</span>
-        <span className="font-bold text-slate-800">DRKN 本体管理</span>
-      </div>
-
-      {/* 标题和上下文信息 */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">对象模型</h1>
-            <Star className="w-5 h-5 text-slate-400 stroke-[1.5]" />
-          </div>
-          <p className="text-sm text-slate-500 mt-2 font-medium">
-            管理 DRKN 数据语义治理对象的类型定义与核心属性以完成实体探查
-          </p>
-        </div>
+      {/* 顶部 Header：100% 遵照设计图样式 */}
+      <div className="mb-5 space-y-1.5 shrink-0">
         
-        <div className="flex flex-col items-end gap-4 mt-4 md:mt-0">
-          <div className="flex gap-2">
-            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm">
-               <Database className="w-3.5 h-3.5 text-blue-500" />
-               <span className="text-[11px] text-slate-400 font-medium">模型域</span>
-               <span className="text-xs font-bold text-slate-700">DRKN 数据语义治理</span>
-            </div>
-            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm">
-               <Box className="w-3.5 h-3.5 text-blue-500" />
-               <span className="text-[11px] text-slate-400 font-medium">场景</span>
-               <span className="text-xs font-bold text-slate-700">默认数据治理模型</span>
-            </div>
-            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm cursor-pointer hover:bg-slate-50">
-               <FileCode className="w-3.5 h-3.5 text-blue-500" />
-               <span className="text-[11px] text-slate-400 font-medium">版本</span>
-               <span className="text-xs font-bold text-slate-700">v1.3.0 ˇ</span>
-            </div>
-            <div className="border border-blue-200 rounded-lg px-3 py-1.5 bg-blue-50 flex items-center gap-2 shadow-sm cursor-pointer hover:bg-blue-100/50">
-               <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-               <span className="text-[11px] text-blue-600/70 font-medium">状态</span>
-               <span className="text-xs font-bold text-blue-700">已发布 ˇ</span>
-            </div>
+        {/* 第一行：面包屑与常驻右侧的变更沙箱指示 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center text-[12px] text-slate-400 font-semibold tracking-wide">
+             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => onNavigate('overview')}>管理中心</span>
+             <span className="mx-2 text-slate-300">/</span>
+             <span className="hover:text-blue-600 cursor-pointer transition-colors">本体管理</span>
+             <span className="mx-2 text-slate-300">/</span>
+             <span className="hover:text-blue-600 cursor-pointer transition-colors">DRKN 本体模型管理</span>
+             <span className="mx-2 text-slate-300">/</span>
+             <span className="text-slate-800 font-black">对象模型</span>
           </div>
-          <div className="flex gap-3">
-             <button
-               onClick={() => setIsAddDrawerOpen(true)}
-               className="px-4 py-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
-             >
-               <Plus className="w-4 h-4" /> 启用 / 添加 Object Type
-             </button>
-             <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
-               + 新建变更集
-             </button>
-             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
-               <CheckCircle2 className="w-4 h-4 text-slate-400" /> 校验模型
-             </button>
-             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
-               <Download className="w-4 h-4 text-slate-400" /> 保存草稿
-             </button>
+
+          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-150 px-3 py-1 rounded-full shadow-2xs">
+             <span className="text-[10px] font-bold text-rose-500">当前变更集</span>
+             <span className="text-[11px] font-black text-rose-700 font-mono">CS-2026-012</span>
+             <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+             <span className="text-[10px] font-extrabold text-[#9a3412] bg-amber-100 px-1 py-0.2 rounded leading-none">Editing</span>
+          </div>
+        </div>
+
+        {/* 第二行：核心大标题与功能按钮面板 */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+             <div className="flex items-center gap-3">
+                <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <span>DRKN-Core 数据语义治理模型</span>
+                </h1>
+                <span className="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-50 text-blue-600 border border-blue-200 shadow-3xs leading-none">已发布</span>
+             </div>
+             <div className="flex items-center gap-4 text-[11px] text-slate-450 font-medium">
+                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">当前版本:</span> <span className="text-blue-600 font-mono font-black text-[12px]">v1.3.0</span></span>
+                <span className="text-slate-200">|</span>
+                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布于:</span> 2026-08-20 10:30:00</span>
+                <span className="text-slate-200">|</span>
+                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布人:</span> 系统管理员</span>
+             </div>
+          </div>
+
+          {/* 右侧操作交互栏 */}
+          <div className="flex items-center gap-2">
+            <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
+              <RefreshCw className="w-3.5 h-3.5 text-slate-450" /> 版本对比
+            </button>
+            <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
+              <Download className="w-3.5 h-3.5 text-slate-450" /> 导出模型
+            </button>
+            <button className="p-1.5 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all cursor-pointer">
+              <Settings className="w-4 h-4 text-slate-550" />
+            </button>
+            
+            <div className="h-6 w-px bg-slate-250 mx-1"></div>
+            
+            <button 
+              onClick={() => setIsAddDrawerOpen(true)}
+              className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
+            >
+              启用 / 添加 Object Type <ChevronDown className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 顶部 Tabs */}
-      <div className="flex gap-8 mb-6 border-b border-slate-200">
+      {/* 选项卡 Tabs 区域：100% 遵照设计图排版 */}
+      <div className="flex gap-1.5 mb-5 border-b border-slate-200/80 shrink-0">
         {[
-          '模型总览', '对象模型', '关系模型', '能力 (Function)', '动作 (Action)', 
-          '流程 (Workflow)', '权限策略', '变更与发布'
+          '模型总览', '对象模型', '关系模型', '能力绑定', '动作 (Action)', 
+          '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
         ].map((tab) => (
           <div 
             key={tab}
@@ -571,14 +628,14 @@ export default function ObjectModel({
               if (tab === '模型总览') onNavigate('overview');
               if (tab === '对象模型') onNavigate('object_model');
               if (tab === '关系模型') onNavigate('relation_model');
-              if (tab === '能力 (Function)') onNavigate('capability_binding');
+              if (tab === '能力绑定' || tab === '能力 (Function)') onNavigate('capability_binding');
               if (tab === '动作 (Action)') onNavigate('action_model');
               if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
-              if (tab === '变更与发布') onNavigate('change_release');
+              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') onNavigate('change_release');
             }}
-            className={`pb-3 text-sm font-bold cursor-pointer transition-colors ${
+            className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
               tab === '对象模型' 
-                ? 'text-blue-600 border-b-2 border-blue-600 -mb-[1px]' 
+                ? 'text-blue-600 font-black border-b-[2.5px] border-blue-600 -mb-[1px]' 
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -742,6 +799,36 @@ export default function ObjectModel({
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-extrabold text-slate-900">核心属性 <span className="text-slate-400 font-medium text-xs">({activeObj.properties.length} 个字段定义)</span></h3>
+              <button 
+                onClick={() => {
+                  if (activeObj.id === 'Field') {
+                    setPropName('semantic_source');
+                    setPropCnName('语义来源');
+                    setPropDataType('Enum');
+                    setPropIsRequired(false);
+                    setPropDefaultVal('System Inferred');
+                    setPropDescription('记录字段语义来源，例如系统识别、人工确认、AI 反馈。');
+                    setEnumItems(['System Inferred', 'Human Confirmed', 'AI Feedback', 'External Glossary']);
+                  } else {
+                    setPropName('');
+                    setPropCnName('');
+                    setPropDataType('string');
+                    setPropIsRequired(false);
+                    setPropDefaultVal('');
+                    setPropDescription('');
+                    setEnumItems(['System Inferred', 'Human Confirmed', 'AI Feedback', 'External Glossary']);
+                  }
+                  setScopeKnowledgeNetwork(true);
+                  setScopeAiWorkbench(true);
+                  setScopeFunctionInput(true);
+                  setScopeWorkflowCondition(true);
+                  setScopeReleaseCheck(true);
+                  setIsAddPropertyDrawerOpen(true);
+                }}
+                className="px-2.5 py-1 text-xs font-bold text-blue-655 hover:text-blue-700 bg-blue-50/50 hover:bg-blue-100/60 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 text-blue-600" /> 添加属性
+              </button>
             </div>
             
             <div className="overflow-x-auto">
@@ -786,7 +873,36 @@ export default function ObjectModel({
             
             <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
                <button className="px-4 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer">查看全部属性</button>
-               <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] rounded-lg transition-colors cursor-pointer">编辑属性</button>
+               <button 
+                 onClick={() => {
+                   if (activeObj.id === 'Field') {
+                     setPropName('semantic_source');
+                     setPropCnName('语义来源');
+                     setPropDataType('Enum');
+                     setPropIsRequired(false);
+                     setPropDefaultVal('System Inferred');
+                     setPropDescription('记录字段语义来源，例如系统识别、人工确认、AI 反馈。');
+                     setEnumItems(['System Inferred', 'Human Confirmed', 'AI Feedback', 'External Glossary']);
+                   } else {
+                     setPropName('');
+                     setPropCnName('');
+                     setPropDataType('string');
+                     setPropIsRequired(false);
+                     setPropDefaultVal('');
+                     setPropDescription('');
+                     setEnumItems(['System Inferred', 'Human Confirmed', 'AI Feedback', 'External Glossary']);
+                   }
+                   setScopeKnowledgeNetwork(true);
+                   setScopeAiWorkbench(true);
+                   setScopeFunctionInput(true);
+                   setScopeWorkflowCondition(true);
+                   setScopeReleaseCheck(true);
+                   setIsAddPropertyDrawerOpen(true);
+                 }}
+                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] rounded-lg transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
+               >
+                 <Plus className="w-4 h-4" /> 添加属性
+               </button>
             </div>
           </div>
 
@@ -1334,6 +1450,430 @@ export default function ObjectModel({
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer"
               >
                 加入当前变更集
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* -------------------------------------------------------------
+          添加属性 [右侧抽屉]
+         ------------------------------------------------------------- */}
+      {isAddPropertyDrawerOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex justify-end transition-all duration-300 animate-fade-in">
+          {/* Backdrop clicks close */}
+          <div className="absolute inset-0" onClick={() => setIsAddPropertyDrawerOpen(false)} />
+          
+          {/* Drawer Body (Sleek side panel: max-w-2xl for dense, readable form flows) */}
+          <div className="relative w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col z-10 border-l border-slate-200 animate-slide-in-right overflow-hidden text-left">
+            
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-slate-150 flex items-center justify-between bg-slate-50">
+              <div>
+                <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <Plus className="w-5 h-5 text-blue-600" />
+                  <span>添加属性</span>
+                </h2>
+                <p className="text-xs text-slate-450 mt-1">
+                  在变更集沙箱 CS-2026-012 中，为当前主体对象增配全新的核心元数据属性。
+                </p>
+              </div>
+              <button 
+                onClick={() => setIsAddPropertyDrawerOpen(false)}
+                className="w-8 h-8 rounded-full hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-all cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Top Context Breadcrumb-style Area */}
+            <div className="bg-slate-150/40 px-6 py-3 border-b border-slate-150 flex flex-wrap items-center gap-y-2 justify-between text-xs text-slate-650">
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-slate-450">Object Type:</span>
+                <span className="font-black font-mono text-slate-850 bg-slate-200/65 px-1.5 py-0.5 rounded">
+                  {activeObj.id}
+                </span>
+                <span className="text-slate-300">|</span>
+                <span className="font-bold text-slate-450">所属域:</span>
+                <span className="font-black text-blue-600">DRKN 本体</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-slate-450">当前版本:</span>
+                <span className="font-mono font-bold bg-slate-200/65 px-1.5 py-0.5 rounded text-slate-700">v1.3.0</span>
+                <span className="text-slate-300">|</span>
+                <span className="font-bold text-slate-455">当前变更集:</span>
+                <span className="font-mono font-black text-orange-600 bg-orange-50 border border-orange-100/50 px-1.5 py-0.5 rounded">
+                  CS-2026-012
+                </span>
+              </div>
+            </div>
+
+            {/* Inner scroll area */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              
+              {/* 第一块：属性基础信息 */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <FileText className="w-4 h-4 text-slate-500" />
+                  <h3 className="text-sm font-black text-slate-800">第一块：属性基础信息</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[11.5px] font-extrabold text-slate-600 block mb-1">
+                      属性名 Property Name *
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="例如: semantic_source"
+                      value={propName}
+                      onChange={(e) => setPropName(e.target.value.replace(/[^a-zA-Z0-9_]/g, ''))}
+                      className="w-full px-3 py-2 bg-white border border-slate-250 rounded-lg text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-slate-300 placeholder:font-sans"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11.5px] font-extrabold text-slate-600 block mb-1">
+                      中文名 *
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="例如: 语义来源"
+                      value={propCnName}
+                      onChange={(e) => setPropCnName(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-250 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11.5px] font-extrabold text-slate-600 block mb-1">
+                      数据类型
+                    </label>
+                    <select 
+                      value={propDataType}
+                      onChange={(e) => {
+                        setPropDataType(e.target.value);
+                        if (e.target.value !== 'Enum') {
+                          setPropDefaultVal('');
+                        } else {
+                          setPropDefaultVal('System Inferred');
+                        }
+                      }}
+                      className="w-full px-2.5 py-2 bg-white border border-slate-250 rounded-lg text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="string">string (字符串)</option>
+                      <option value="int">int (整型)</option>
+                      <option value="float">float (浮点型)</option>
+                      <option value="boolean">boolean (布尔值)</option>
+                      <option value="timestamp">timestamp (时间戳)</option>
+                      <option value="Enum">Enum (枚举值型)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[11.5px] font-extrabold text-slate-600 block mb-1">
+                      是否必填
+                    </label>
+                    <div className="flex gap-4 items-center h-[34px] px-1">
+                      <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-650">
+                        <input 
+                          type="radio" 
+                          name="isRequired" 
+                          checked={propIsRequired === true}
+                          onChange={() => setPropIsRequired(true)}
+                          className="text-blue-650 focus:ring-blue-500"
+                        />
+                        <span>是 (Required)</span>
+                      </label>
+                      <label className="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-650">
+                        <input 
+                          type="radio" 
+                          name="isRequired" 
+                          checked={propIsRequired === false}
+                          onChange={() => setPropIsRequired(false)}
+                          className="text-blue-655 focus:ring-blue-500"
+                        />
+                        <span>否 (Optional)</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="text-[11.5px] font-extrabold text-slate-600 block mb-1">
+                      默认值
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="指定默认填充值，例如: System Inferred"
+                      value={propDefaultVal}
+                      onChange={(e) => setPropDefaultVal(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-250 rounded-lg text-xs text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="text-[11.5px] font-extrabold text-slate-600 block mb-1">
+                      描述
+                    </label>
+                    <textarea 
+                      rows={2}
+                      placeholder="记录属性的定义和主要应用范畴..."
+                      value={propDescription}
+                      onChange={(e) => setPropDescription(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-250 rounded-lg text-xs text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 第二块：属性类型配置 */}
+              {propDataType === 'Enum' && (
+                <div className="space-y-3 bg-indigo-50/30 rounded-xl border border-indigo-150 p-4 animate-fade-in">
+                  <div className="flex items-center gap-1.5 border-b border-indigo-100 pb-2 mb-2">
+                    <Settings className="w-4 h-4 text-indigo-500" />
+                    <h3 className="text-xs font-black text-slate-850">第二块：属性类型配置（枚举值可选值配置）</h3>
+                  </div>
+
+                  <p className="text-[10.5px] text-slate-450 leading-relaxed font-semibold">
+                    请定义该枚举型属性包含的值：
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 py-2">
+                    {enumItems.map((item, idx) => (
+                      <span 
+                        key={idx} 
+                        className="inline-flex items-center gap-1.5 bg-white border border-indigo-105 text-indigo-700 font-bold font-mono text-[11px] px-2.5 py-1 rounded-lg shadow-2xs hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 transition-all group cursor-pointer"
+                        title="点击删除"
+                        onClick={() => setEnumItems(enumItems.filter(x => x !== item))}
+                      >
+                        <span>{item}</span>
+                        <X className="w-3 h-3 text-slate-400 group-hover:text-rose-500 transition-colors" />
+                      </span>
+                    ))}
+                    {enumItems.length === 0 && (
+                      <span className="text-xs text-slate-400 italic">空枚举，请输入下面的值并回车添加</span>
+                    )}
+                  </div>
+
+                  <div className="flex gap-2 max-w-sm pt-1">
+                    <input 
+                      type="text" 
+                      placeholder="输入一个新的枚举可选值值项..."
+                      value={newEnumVal}
+                      onChange={(e) => setNewEnumVal(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (newEnumVal.trim() && !enumItems.includes(newEnumVal.trim())) {
+                            setEnumItems([...enumItems, newEnumVal.trim()]);
+                            setNewEnumVal('');
+                          }
+                        }
+                      }}
+                      className="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-805 focus:outline-none"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        if (newEnumVal.trim() && !enumItems.includes(newEnumVal.trim())) {
+                          setEnumItems([...enumItems, newEnumVal.trim()]);
+                          setNewEnumVal('');
+                        }
+                      }}
+                      className="px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer"
+                    >
+                      添加值
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* 第三块：使用范围 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <Target className="w-4 h-4 text-slate-500" />
+                  <h3 className="text-sm font-black text-slate-800">第三块：使用范围 (Checkboxes)</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 pt-1">
+                  {[
+                    { id: 'scopeKnowledgeNetwork', label: '可在知识网络中展示', value: scopeKnowledgeNetwork, setter: setScopeKnowledgeNetwork, desc: '勾选后本体大图、缩略拓扑及全景图谱中将携带挂载该属性声明' },
+                    { id: 'scopeAiWorkbench', label: '可被 AI 工作台引用', value: scopeAiWorkbench, setter: setScopeAiWorkbench, desc: '系统大模型场景和 Prompt 词典检索将自动获取且运用该信息' },
+                    { id: 'scopeFunctionInput', label: '可参与 Function 输入', value: scopeFunctionInput, setter: setScopeFunctionInput, desc: '授权作为底层各种数据一致性、规则探查函数的基础入参' },
+                    { id: 'scopeWorkflowCondition', label: '可参与 Workflow 条件判断', value: scopeWorkflowCondition, setter: setScopeWorkflowCondition, desc: '授权支持工作流中的 Condition 决策引擎做分支规则路流判断' },
+                    { id: 'scopeReleaseCheck', label: '可参与发布校验', value: scopeReleaseCheck, setter: setScopeReleaseCheck, desc: '启动对该对象实例化或提交时进行沙箱与生产边界的强制比照' }
+                  ].map(scope => (
+                    <label 
+                      key={scope.id}
+                      className={`p-3 rounded-xl border flex items-start gap-2.5 cursor-pointer text-left transition-all select-none ${
+                        scope.value 
+                          ? 'bg-blue-50/25 border-blue-200 shadow-3xs' 
+                          : 'bg-white border-slate-200 hover:bg-slate-50/50'
+                      }`}
+                    >
+                      <input 
+                        type="checkbox"
+                        checked={scope.value}
+                        onChange={(e) => scope.setter(e.target.checked)}
+                        className="rounded border-slate-350 text-blue-600 focus:ring-blue-500 mt-1 shrink-0 cursor-pointer"
+                      />
+                      <div className="min-w-0">
+                        <span className="text-xs font-extrabold text-slate-800 tracking-tight block">
+                          {scope.label}
+                        </span>
+                        <span className="text-[10px] text-slate-450 block mt-0.5 leading-normal">
+                          {scope.desc}
+                        </span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* 第四块：影响分析预览 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <Layers className="w-4 h-4 text-slate-500" />
+                  <h3 className="text-sm font-black text-slate-800">第四块：影响分析预览</h3>
+                </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 text-xs leading-normal text-slate-700">
+                  <div className="flex items-center gap-2 text-blue-800 font-bold">
+                    <Info className="w-4 h-4 text-blue-500 shrink-0" />
+                    <span>自动级联影响计算提示</span>
+                  </div>
+                  
+                  <p className="text-[11px] text-slate-450 leading-relaxed font-semibold">
+                    新增此元属性之后，基于 DRKN 系统依赖网络，将可能连带影响以下实体及能力流正常计算：
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-3.5 pt-1">
+                    <div className="bg-white border border-slate-150 p-2.5 rounded-lg flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded bg-blue-50 border border-blue-150 flex items-center justify-center shrink-0">
+                        <Database className="w-3.5 h-3.5 text-blue-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] font-bold text-slate-400 block tracking-tight">影响 Object Type</span>
+                        <span className="text-[11px] font-black text-slate-800 truncate block font-mono">{activeObj.id}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 bg-white border border-slate-150 p-2.5 rounded-lg">
+                      <div className="w-7 h-7 rounded bg-amber-50 border border-amber-150 flex items-center justify-center shrink-0">
+                        <span className="text-amber-600 text-[10px] uppercase font-mono font-black">Fx</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] font-bold text-slate-400 block tracking-tight">可能影响 Function</span>
+                        <span className="text-[11px] font-black text-slate-800 truncate block font-mono">classifyFieldSemantic()</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 bg-white border border-slate-150 p-2.5 rounded-lg">
+                      <div className="w-7 h-7 rounded bg-emerald-50 border border-emerald-150 flex items-center justify-center shrink-0">
+                        <GitMerge className="w-3.5 h-3.5 text-emerald-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] font-bold text-slate-400 block tracking-tight">可能影响 Workflow</span>
+                        <span className="text-[11px] font-black text-slate-800 truncate block font-mono">SemanticReviewWorkflow</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 bg-white border border-slate-150 p-2.5 rounded-lg">
+                      <div className="w-7 h-7 rounded bg-purple-50 border border-purple-150 flex items-center justify-center shrink-0">
+                        <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] font-bold text-slate-400 block tracking-tight">可能影响 AI 场景</span>
+                        <span className="text-[11px] font-black text-slate-800 truncate block font-medium">字段解释</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 第五块：校验结果 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2">
+                  <Shield className="w-4 h-4 text-slate-500" />
+                  <h3 className="text-sm font-black text-slate-800">第五块：校验结果 (Validation Status)</h3>
+                </div>
+
+                <div className="space-y-2">
+                  {/* Validation Item 1 - Name Conflict */}
+                  {activeObj.properties.some(p => p.name.toLowerCase() === propName.toLowerCase().trim()) ? (
+                    <div className="bg-rose-50 border border-rose-100/50 rounded-xl p-3 flex items-start gap-2.5 text-rose-800">
+                      <AlertCircle className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
+                      <div className="text-xs text-left">
+                        <div className="font-extrabold text-[12px]">存在命名冲突 (Name Conflict Detected)</div>
+                        <p className="text-[10.5px] text-rose-700 font-semibold mt-0.5 leading-relaxed">
+                          当前对象模型 {activeObj.id} 中已经存在名为「{propName.trim()}」的属性元素，重名将被拒绝录入。
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-start gap-2.5 text-emerald-805">
+                      <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 bg-emerald-100/70 rounded-full p-0.5 animate-pulse" />
+                      <div className="text-xs text-left">
+                        <div className="font-extrabold text-[12px] text-emerald-900">命名无冲突</div>
+                        <p className="text-[10.5px] text-emerald-700/80 leading-relaxed font-bold mt-0.5">
+                          属性名「{propName || '<空输入>'}」在当前 {activeObj.id} 实体模型下具有全局唯一性，未与现有指标域或元属性冲突。
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Validation Item 2 - Data Type legality */}
+                  <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-start gap-2.5 text-emerald-850">
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 bg-emerald-100/70 rounded-full p-0.5" />
+                    <div className="text-xs text-left">
+                      <div className="font-extrabold text-[12px] text-emerald-900">数据类型合法 (Type Legal)</div>
+                      <p className="text-[10.5px] text-emerald-700/80 leading-relaxed font-semibold mt-0.5">
+                        「{propDataType}」类型属于数据分类标准注册集白名单，编译能正常映射解析。
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Validation Item 3 - Required Fields Checks */}
+                  <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-start gap-2.5 text-emerald-850">
+                    <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 bg-emerald-100/70 rounded-full p-0.5" />
+                    <div className="text-xs text-left">
+                      <div className="font-extrabold text-[12px] text-emerald-900">当前属性不影响已有必填项校验</div>
+                      <p className="text-[10.5px] text-emerald-700/80 leading-relaxed font-semibold mt-0.5">
+                        由于默认指定为选填，或提供了缺省机制，写入已有运行态资产节点时不会发生空对象异常错误。
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Validation Item 4 - Workflow Re-validation Alert */}
+                  <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex items-start gap-2.5 text-amber-850">
+                    <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                    <div className="text-xs text-left">
+                      <div className="font-extrabold text-[12px] text-amber-900">需要重新校验 SemanticReviewWorkflow</div>
+                      <p className="text-[10.5px] text-amber-700/80 leading-relaxed font-bold mt-0.5">
+                        发布或合并本沙箱变更时，因底层规则级联，必须启动针对核心审校流《SemanticReviewWorkflow》的探查和重新运行校验校验。
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="px-6 py-4 border-t border-slate-150 flex items-center justify-end gap-3 bg-slate-50">
+              <button 
+                onClick={() => setIsAddPropertyDrawerOpen(false)}
+                className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-250 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-xs cursor-pointer"
+              >
+                取消
+              </button>
+              <button 
+                onClick={handleSavePropertyToChangeset}
+                disabled={activeObj.properties.some(p => p.name.toLowerCase() === propName.toLowerCase().trim())}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                保存到变更集
               </button>
             </div>
 

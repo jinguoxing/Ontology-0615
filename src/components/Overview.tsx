@@ -4,7 +4,8 @@ import {
   GitMerge, Shield, CheckCircle2, Circle, Check,
   Target, AlertTriangle, Info, Bell, Search,
   Settings, ChevronRight, RefreshCw, LayoutGrid, Star,
-  Database, FileCode, Beaker, LayoutTemplate, Maximize2, X, Sparkles
+  Database, FileCode, Beaker, LayoutTemplate, Maximize2, X, Sparkles,
+  Plus, Download, ChevronDown
 } from 'lucide-react';
 
 interface OverviewProps {
@@ -18,10 +19,10 @@ interface OverviewProps {
   isLocked?: boolean;
 }
 
-export default function Overview({ onNavigate, onCreateChangeSet, onRunValidation }: OverviewProps) {
+export default function Overview({ onNavigate, onCreateChangeSet, onRunValidation, isLocked }: OverviewProps) {
   const tabs = [
-    '模型总览', '对象模型', '关系模型', '能力 (Function)', '动作 (Action)', 
-    '流程 (Workflow)', '权限策略', '变更与发布'
+    '模型总览', '对象模型', '关系模型', '能力绑定', '动作 (Action)', 
+    '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
   ];
 
   // Interactive Workspace States
@@ -382,78 +383,76 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
   return (
     <div className="min-h-full font-sans bg-transparent" id="overview-view">
       
-      {/* 面包屑 */}
-      <div className="flex items-center gap-2 text-[13px] text-slate-500 mb-6">
-        <div className="w-5 h-5 flex items-center justify-center bg-slate-200/50 rounded-md">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </div>
-        <span className="hover:text-slate-800 cursor-pointer">管理中心</span>
-        <span className="text-slate-300">/</span>
-        <span className="hover:text-slate-800 cursor-pointer">本体管理</span>
-        <span className="text-slate-300">/</span>
-        <span className="font-bold text-slate-800">DRKN 本体管理</span>
-      </div>
-
-      {/* 标题和上下文信息 */}
-      <div className="flex flex-col md:flex-row md:items-start justify-between mb-6">
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">模型总览</h1>
-            <Star className="w-5 h-5 text-slate-400 stroke-[1.5]" />
-          </div>
-          <p className="text-sm text-slate-500 mt-2 font-medium">
-            查看 DRKN 数据语义治理本体的结构、健康状态与发布情况
-          </p>
-        </div>
+      {/* 顶部 Header：100% 遵照设计图样式 */}
+      <div className="mb-5 space-y-1.5 shrink-0">
         
-        <div className="flex flex-col items-end gap-4 mt-4 md:mt-0">
-          <div className="flex gap-2">
-            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm">
-               <Database className="w-3.5 h-3.5 text-blue-500" />
-               <span className="text-[11px] text-slate-400 font-medium">模型域</span>
-               <span className="text-xs font-bold text-slate-700">DRKN 数据语义治理</span>
-            </div>
-            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm">
-               <LayoutTemplate className="w-3.5 h-3.5 text-blue-500" />
-               <span className="text-[11px] text-slate-400 font-medium">场景</span>
-               <span className="text-xs font-bold text-slate-700">默认数据治理模型</span>
-            </div>
-            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm cursor-pointer hover:bg-slate-50">
-               <FileCode className="w-3.5 h-3.5 text-blue-500" />
-               <span className="text-[11px] text-slate-400 font-medium">版本</span>
-               <span className="text-xs font-bold text-slate-700">v1.3.0 ˇ</span>
-            </div>
-            <div className="border border-blue-200 rounded-lg px-3 py-1.5 bg-blue-50 flex items-center gap-2 shadow-sm cursor-pointer hover:bg-blue-100/50">
-               <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-               <span className="text-[11px] text-blue-600/70 font-medium">状态</span>
-               <span className="text-xs font-bold text-blue-700">已发布 ˇ</span>
-            </div>
+        {/* 第一行：面包屑与常驻右侧的变更沙箱指示 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center text-[12px] text-slate-400 font-semibold tracking-wide">
+             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => onNavigate('overview')}>管理中心</span>
+             <span className="mx-2 text-slate-300">/</span>
+             <span className="hover:text-blue-600 cursor-pointer transition-colors">本体管理</span>
+             <span className="mx-2 text-slate-300">/</span>
+             <span className="hover:text-blue-600 cursor-pointer transition-colors">DRKN 本体模型管理</span>
+             <span className="mx-2 text-slate-300">/</span>
+             <span className="text-slate-800 font-black">模型总览</span>
           </div>
-          <div className="flex gap-3">
-             <button 
-               onClick={onCreateChangeSet}
-               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
-             >
-               + 新建变更集
-             </button>
-             <button 
-               onClick={onRunValidation}
-               className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
-             >
-               <CheckCircle2 className="w-4 h-4 text-slate-400" /> 校验模型
-             </button>
-             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
-               <GitMerge className="w-4 h-4 text-slate-400" /> 影响分析
-             </button>
-             <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer border border-blue-600">
-               发布新版本
-             </button>
+
+          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-150 px-3 py-1 rounded-full shadow-2xs">
+             <span className="text-[10px] font-bold text-rose-500">当前变更集</span>
+             <span className="text-[11px] font-black text-rose-700 font-mono">CS-2026-012</span>
+             <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+             <span className="text-[10px] font-extrabold text-[#9a3412] bg-amber-100 px-1 py-0.2 rounded leading-none">Editing</span>
+          </div>
+        </div>
+
+        {/* 第二行：核心大标题与功能按钮面板 */}
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+             <div className="flex items-center gap-3">
+                <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <span>DRKN-Core 数据语义治理模型</span>
+                </h1>
+                <span className="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-50 text-blue-600 border border-blue-200 shadow-3xs leading-none">已发布</span>
+             </div>
+             <div className="flex items-center gap-4 text-[11px] text-slate-450 font-medium">
+                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">当前版本:</span> <span className="text-blue-600 font-mono font-black text-[12px]">v1.3.0</span></span>
+                <span className="text-slate-200">|</span>
+                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布于:</span> 2026-08-20 10:30:00</span>
+                <span className="text-slate-200">|</span>
+                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布人:</span> 系统管理员</span>
+             </div>
+          </div>
+
+          {/* 右侧操作交互栏 */}
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={onRunValidation}
+              className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-slate-450" /> 校验模型
+            </button>
+            <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
+              <Download className="w-3.5 h-3.5 text-slate-450" /> 导出模型
+            </button>
+            <button className="p-1.5 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all cursor-pointer">
+              <Settings className="w-4 h-4 text-slate-550" />
+            </button>
+            
+            <div className="h-6 w-px bg-slate-250 mx-1"></div>
+            
+            <button 
+              onClick={onCreateChangeSet}
+              className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
+            >
+              + 新建变更集 <ChevronDown className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 顶部 Tabs */}
-      <div className="flex gap-8 mb-6 border-b border-slate-200">
+      {/* 选项卡 Tabs 区域：100% 遵照设计图排版 */}
+      <div className="flex gap-1.5 mb-5 border-b border-slate-200/80 shrink-0">
         {tabs.map((tab) => (
           <div 
             key={tab}
@@ -461,14 +460,14 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
               if (tab === '模型总览') onNavigate('overview');
               if (tab === '对象模型') onNavigate('object_model');
               if (tab === '关系模型') onNavigate('relation_model');
-              if (tab === '能力 (Function)') onNavigate('capability_binding');
+              if (tab === '能力绑定' || tab === '能力 (Function)') onNavigate('capability_binding');
               if (tab === '动作 (Action)') onNavigate('action_model');
               if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
-              if (tab === '变更与发布') onNavigate('change_release');
+              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') onNavigate('change_release');
             }}
-            className={`pb-3 text-sm font-bold cursor-pointer transition-colors ${
+            className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
               tab === '模型总览' 
-                ? 'text-blue-600 border-b-2 border-blue-600 -mb-[1px]' 
+                ? 'text-blue-600 font-black border-b-[2.5px] border-blue-600 -mb-[1px]' 
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
