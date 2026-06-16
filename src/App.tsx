@@ -21,6 +21,8 @@ import OntologyModelsList from './components/OntologyModelsList';
 import CreateChangeSetDrawer from './components/CreateChangeSetDrawer';
 import CreateModelWizard from './components/CreateModelWizard';
 import KnowledgeNetworkOverview from './components/KnowledgeNetworkOverview';
+import KnowledgeNetworkAssets from './components/KnowledgeNetworkAssets';
+import KnowledgeNetworkExplorer from './components/KnowledgeNetworkExplorer';
 
 // Icons
 import { 
@@ -400,7 +402,13 @@ export default function App() {
           )}
 
           {activeView === 'knowledge_network_assets' && (
-             <KnowledgeNetworkOverview
+             <KnowledgeNetworkAssets
+               onNavigate={handleNavigate}
+             />
+          )}
+
+          {activeView === 'knowledge_network_explorer' && (
+             <KnowledgeNetworkExplorer
                onNavigate={handleNavigate}
              />
           )}
