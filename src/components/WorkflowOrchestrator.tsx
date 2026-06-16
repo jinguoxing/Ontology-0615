@@ -1,343 +1,547 @@
 import React, { useState } from 'react';
-import { DRKNWorkflow, WorkflowNode } from '../types';
 import { 
-  Play, Settings, FileText, Compass, ClipboardCopy, 
-  Layers, ShieldAlert, Activity, FileCheck, HelpCircle,
-  Clock, CheckCircle, AlertTriangle, ArrowRight, CornerDownRight,
-  Info, Cpu, Shield, UserCheck, Search, Sparkles
+  Database, Box, Shield, Play, Code, CheckCircle2,
+  Search, Settings, Star, Info, Network,
+  Zap, GitBranch, User, LayoutGrid, Expand, ArrowRight,
+  GitMerge, Edit, Clock, FileCode, CheckCircle, XCircle
 } from 'lucide-react';
 
 interface WorkflowOrchestratorProps {
-  workflows: DRKNWorkflow[];
   onNavigate: (view: string, targetId?: string) => void;
   isEditingActive: boolean;
 }
 
 export default function WorkflowOrchestrator({
-  workflows,
   onNavigate,
   isEditingActive
 }: WorkflowOrchestratorProps) {
+  
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const [activeWfId, setActiveWfId] = useState<string>('SemanticReviewWorkflow');
-  const activeWf = workflows.find(w => w.id === activeWfId) || workflows[0];
+  const workflows = [
+    { id: 'MetadataScanWorkflow', nameCn: '元数据扫描流程', status: '已发布' },
+    { id: 'SemanticReviewWorkflow', nameCn: '语义审核流程', status: '已发布' },
+    { id: 'DQAssessmentWorkflow', nameCn: '数据质量评估流程', status: '已发布' },
+    { id: 'IssueRemediationWorkflow', nameCn: '问题整改流程', status: '编辑中' },
+    { id: 'SnapshotPublishWorkflow', nameCn: '快照发布流程', status: '已发布' },
+    { id: 'CandidatePromotionWorkflow', nameCn: '候选发布流程', status: '已发布' }
+  ];
 
-  // Selected Node in workflow diagram
-  const [selectedNodeId, setSelectedNodeId] = useState<string>('W2-N3'); // default to computeSemanticScore node
-
-  // Simulation execution state
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simulationStep, setSimulationStep] = useState<number>(-1);
-  const [simulationLogs, setSimulationLogs] = useState<string[]>([]);
-
-  const getNodeIcon = (type: string, className = "h-4 w-4 text-slate-600") => {
-    switch (type) {
-      case 'Trigger': return <Clock className={`${className} text-blue-600`} />;
-      case 'Function': return <Settings className={`${className} text-teal-600`} />;
-      case 'Action': return <Play className={`${className} text-purple-600`} />;
-      case 'Condition': return <Layers className={`${className} text-amber-600`} />;
-      case 'HumanReview': return <UserCheck className={`${className} text-orange-600`} />;
-      case 'Audit': return <Shield className={`${className} text-slate-600`} />;
-      default: return <HelpCircle className={className} />;
-    }
-  };
-
-  const getSelectedNodeDetails = () => {
-    if (!activeWf) return null;
-    const node = activeWf.nodes.find(n => n.id === selectedNodeId);
-    if (!node) return activeWf.nodes[0];
-    return node;
-  };
-
-  const activeNode = getSelectedNodeDetails();
-
-  // Run a simulated step-by-step execution!
-  const runSimulation = () => {
-    if (isSimulating) return;
-    setIsSimulating(true);
-    setSimulationStep(0);
-    setSimulationLogs(["[SYSTEM] 🟢 初始化 DRKN Workflow 调试模拟容器...", `[SYSTEM] 🔔 加载流程模板: [${activeWf.name}]`, "[SYSTEM] 🔍 检测到 1 个依赖的模型: Field"]);
-
-    const steps = activeWf.nodes;
-    let currentIdx = 0;
-
-    const interval = setInterval(() => {
-      if (currentIdx < steps.length) {
-        const node = steps[currentIdx];
-        setSimulationStep(currentIdx);
-        setSimulationLogs(prev => [
-          ...prev, 
-          `[STEP ${currentIdx + 1}/${steps.length}] 🚀 正在执行 ${node.type} 节点: ${node.label}...`,
-          `[DETAIL] ${node.description}`,
-          `[RESULT] ✅ ${node.label} 执行成功. Output: SUCCESS_COMPLETED_STATUS`
-        ]);
-        currentIdx++;
-      } else {
-        clearInterval(interval);
-        setSimulationLogs(prev => [
-          ...prev, 
-          `[SYSTEM] ✨ 流程全链跑通！运行成功率: ${activeWf.successRate}%.`,
-          `[SYSTEM] 💾 审计归档记录已登记在 Run 控制单元。`,
-          `[SYSTEM] 🔄 知识图谱 DKN 及 AI 调试网可用能力已完成增量同步。`
-        ]);
-        setIsSimulating(false);
-        setSimulationStep(steps.length);
-      }
-    }, 2000);
-  };
-
-  const handleSelectNode = (id: string) => {
-    setSelectedNodeId(id);
-  };
+  const nodes = [
+    { id: 1, type: 'Trigger', title: 'Trigger 触发器', desc: 'Field 扫描完成', icon: Zap, color: 'text-slate-600', bg: 'bg-slate-50', outline: 'border-slate-200' },
+    { id: 2, type: 'Function', title: 'Function 函数', desc: 'profileField()', icon: Code, color: 'text-blue-600', bg: 'bg-blue-50', outline: 'border-blue-200' },
+    { id: 3, type: 'Function', title: 'Function 函数', desc: 'classifyFieldSemantic()', icon: Code, color: 'text-blue-600', bg: 'bg-blue-50', outline: 'border-blue-200' },
+    { id: 4, type: 'Function', title: 'Function 函数', desc: 'computeSemanticScore()', icon: Code, color: 'text-blue-600', bg: 'bg-blue-50', outline: 'border-blue-400', active: true },
+    { id: 5, type: 'Action', title: 'Action 动作', desc: 'createSemanticAssertion', icon: Play, color: 'text-emerald-600', bg: 'bg-emerald-50', outline: 'border-emerald-200' },
+    { id: 6, type: 'Condition', title: 'Condition 条件', desc: '置信度判断', icon: GitBranch, color: 'text-purple-600', bg: 'bg-purple-50', outline: 'border-purple-200', extra: true },
+    { id: 7, type: 'HumanReview', title: 'Human Review 人工审核', desc: '人工审核', icon: User, color: 'text-orange-600', bg: 'bg-orange-50', outline: 'border-orange-200' },
+    { id: 8, type: 'Action', title: 'Action 动作', desc: 'confirmAssertion / markUnknown / ignoreAssertion', icon: Play, color: 'text-emerald-600', bg: 'bg-emerald-50', outline: 'border-emerald-200' },
+    { id: 9, type: 'Action', title: 'Action 动作', desc: '写入 Snapshot Candidate', icon: Play, color: 'text-emerald-600', bg: 'bg-emerald-50', outline: 'border-emerald-200' },
+    { id: 10, type: 'Audit', title: 'Audit 审计', desc: '记录审计', icon: Shield, color: 'text-slate-500', bg: 'bg-slate-50', outline: 'border-slate-200' },
+  ];
 
   return (
-    <div className="space-y-6" id="workflow-workspace">
+    <div className="min-h-full font-sans bg-transparent" id="workflow-workspace">
       
-      {/* 顶部标题与快操作 */}
-      <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h2 className="text-sm font-bold text-slate-900">DRKN 语义治理确定性流程定义 (Workflow Def)</h2>
-          <p className="text-xs text-slate-500">
-            不同于一般基于 Prompt 的不确定性 AI Agent，治理流程由高度确定的条件判断、算式计算、人工审核和审计动作共同定义。
+      {/* 面包屑 */}
+      <div className="flex items-center gap-2 text-[13px] text-slate-500 mb-6">
+        <div className="w-5 h-5 flex items-center justify-center bg-slate-200/50 rounded-md">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <span className="hover:text-slate-800 cursor-pointer text-slate-500" onClick={() => onNavigate('overview')}>管理中心</span>
+        <span className="text-slate-300">/</span>
+        <span className="hover:text-slate-800 cursor-pointer text-slate-500">本体管理</span>
+        <span className="text-slate-300">/</span>
+        <span className="font-bold text-slate-800">DRKN 本体管理</span>
+      </div>
+
+      {/* 标题和上下文信息 */}
+      <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 pb-6 border-b border-slate-200">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">流程编排</h1>
+            <Star className="w-5 h-5 text-slate-400 stroke-[1.5]" />
+          </div>
+          <p className="text-sm text-slate-500 mt-2 font-medium">
+            将对象能力组织为可审计、可发布的治理流程
           </p>
         </div>
+        
+        <div className="flex flex-col items-end gap-4 mt-4 md:mt-0">
+          <div className="flex gap-2">
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
+               <Database className="w-3.5 h-3.5 text-blue-500" />
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-slate-400 font-medium leading-none mb-0.5">模型域</span>
+                 <span className="text-[13px] font-extrabold text-slate-800 leading-none">DRKN 数据语义治理</span>
+               </div>
+            </div>
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
+               <Box className="w-3.5 h-3.5 text-blue-500" />
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-slate-400 font-medium leading-none mb-0.5">场景</span>
+                 <span className="text-[13px] font-extrabold text-slate-800 leading-none flex items-center gap-1">默认数据治理模型</span>
+               </div>
+            </div>
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
+               <FileCode className="w-3.5 h-3.5 text-blue-500" />
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-slate-400 font-medium leading-none mb-0.5">版本</span>
+                 <span className="text-[13px] font-extrabold text-slate-800 leading-none flex items-center gap-1">v1.3.0 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 group-hover:text-slate-600"><path d="m6 9 6 6 6-6"/></svg></span>
+               </div>
+            </div>
+            <div className="border border-blue-200 rounded-lg px-3 py-1.5 bg-blue-50 flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-blue-300 transition-colors">
+               <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0"></div>
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-blue-600/70 font-bold leading-none mb-0.5">状态</span>
+                 <span className="text-[13px] font-extrabold text-blue-700 leading-none flex items-center gap-1">已发布 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500 group-hover:text-blue-700"><path d="m6 9 6 6 6-6"/></svg></span>
+               </div>
+            </div>
+          </div>
+          <div className="flex gap-3">
+             <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               + 新建变更集
+             </button>
+             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               <Play className="w-4 h-4 text-slate-400" /> 模拟运行
+             </button>
+             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               <GitMerge className="w-4 h-4 text-slate-400" /> 影响分析
+             </button>
+             <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer border border-blue-600 flex items-center gap-1.5">
+               <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points=%2217 8 12 3 7 8%22/><line x1='12' y1='3' x2='12' y2='15'/></svg>" alt="publish" className="w-4 h-4" />
+               发布
+             </button>
+          </div>
+        </div>
+      </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={runSimulation}
-            disabled={isSimulating}
-            className={`px-4 py-2 text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center gap-1.5 ${
-              isSimulating 
-                ? 'bg-amber-100 text-amber-700 cursor-not-allowed animate-pulse' 
-                : 'bg-slate-900 hover:bg-slate-800 text-slate-100 cursor-pointer'
+      {/* 顶部 Tabs */}
+      <div className="flex gap-8 mb-6 border-b border-slate-200">
+        {[
+          '模型总览', '对象模型', '关系模型', '能力 (Function)', '动作 (Action)', 
+          '流程 (Workflow)', '权限策略', '变更与发布'
+        ].map((tab) => (
+          <div 
+            key={tab}
+            onClick={() => {
+              if (tab === '模型总览') onNavigate('overview');
+              if (tab === '对象模型') onNavigate('object_model');
+              if (tab === '关系模型') onNavigate('relation_model');
+              if (tab === '能力 (Function)') onNavigate('capability_binding');
+              if (tab === '动作 (Action)') onNavigate('action_model');
+              if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
+              if (tab === '变更与发布') onNavigate('change_release');
+            }}
+            className={`pb-3 text-sm font-bold cursor-pointer transition-colors ${
+              tab === '流程 (Workflow)' 
+                ? 'text-blue-600 border-b-[3px] border-blue-600 -mb-[2px]' 
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Play className="h-4.5 w-4.5 fill-current" />
-            {isSimulating ? '流程模拟演练中...' : '启动沙箱模拟演练'}
-          </button>
-        </div>
+            {tab}
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="flex gap-6 pb-12 items-stretch">
         
-        {/* 左栏：工作流分类 */}
-        <div className="lg:col-span-3 bg-white border border-slate-205 rounded-xl p-4 shadow-sm space-y-4">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
-            治理流程资产 (Workflows)
-          </h3>
-
-          <div className="space-y-1.5">
-            {workflows.map((wf) => (
-              <div
-                key={wf.id}
-                onClick={() => {
-                  setActiveWfId(wf.id);
-                  setSelectedNodeId(wf.nodes[0]?.id || '');
-                  // Clear simulation
-                  setIsSimulating(false);
-                  setSimulationStep(-1);
-                  setSimulationLogs([]);
-                }}
-                className={`p-3 rounded-lg flex flex-col gap-1 cursor-pointer transition-all border ${
-                  wf.id === activeWf.id
-                    ? 'bg-blue-50 border-blue-200 text-blue-900 shadow-xs'
-                    : 'hover:bg-slate-50 border-transparent text-slate-700'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold font-mono">{wf.name}</span>
-                  <span className="text-[10px] bg-emerald-50 text-emerald-700 px-1 py-0.2 rounded font-semibold uppercase">
-                    Active
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-400 font-normal leading-normal line-clamp-2">
-                  {wf.description}
-                </p>
-                
-                <div className="flex items-center justify-between text-[10px] text-slate-450 border-t border-slate-100/50 mt-1.5 pt-1.5 font-medium">
-                  <span>运行 {wf.runCount} 次</span>
-                  <span>成功率 {wf.successRate}%</span>
-                </div>
-              </div>
-            ))}
+        {/* 左栏：Workflow 列表 */}
+        <div className="w-80 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col shrink-0 h-[920px]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-extrabold text-slate-900">Workflow 列表</h3>
           </div>
-        </div>
-
-        {/* 中栏：流程可视画布（垂直树模型） */}
-        <div className="lg:col-span-6 bg-white border border-slate-205 rounded-xl p-6 shadow-sm min-h-[500px] flex flex-col justify-between">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-50 pb-2">
-              <h3 className="text-sm font-bold text-slate-905 font-mono">
-                {activeWf.name} 主流程拓扑
-              </h3>
-              <p className="text-xs text-slate-500">
-                包含 {activeWf.nodes.length} 个核心配置控制节点 (点击节点查看变量定义)
-              </p>
-            </div>
-
-            {/* Vertical Flow Diagram */}
-            <div className="border border-dashed border-slate-200 rounded-xl bg-slate-50/50 p-6 min-h-[360px] flex flex-col items-center gap-4 py-8">
-              {activeWf.nodes.map((node, idx) => {
-                const isSelected = node.id === selectedNodeId;
-                const isExecutedInSimulation = idx <= simulationStep;
-                
-                return (
-                  <React.Fragment key={node.id}>
-                    {/* Node block */}
-                    <div
-                      onClick={() => handleSelectNode(node.id)}
-                      className={`w-72 p-3 rounded-lg border-2 text-left cursor-pointer transition-all flex items-start gap-2.5 relative group ${
-                        isSelected
-                          ? 'bg-blue-50 border-blue-600 shadow-md transform -translate-y-0.5'
-                          : isExecutedInSimulation
-                          ? 'bg-emerald-50/70 border-emerald-500 text-slate-700'
-                          : 'bg-white border-slate-200 hover:border-slate-350 text-slate-700'
-                      }`}
-                    >
-                      {/* Connection indices */}
-                      <span className="absolute -left-7 top-1/2 -translate-y-1/2 h-5 w-5 bg-slate-250 text-slate-700 border border-slate-300 text-[10px] font-bold rounded-full flex items-center justify-center pointer-events-none">
-                        {idx + 1}
-                      </span>
-
-                      {/* Simulation checkbox status indicator */}
-                      {isSimulating && isExecutedInSimulation && (
-                        <span className="absolute -right-3 -top-1 bg-emerald-500 text-white p-0.5 rounded-full shadow-xs">
-                          <CheckCircle className="h-3 w-3" />
-                        </span>
-                      )}
-
-                      <div className="p-1.5 bg-slate-50 rounded shrink-0 group-hover:bg-slate-100">
-                        {getNodeIcon(node.type, "h-4.5 w-4.5")}
-                      </div>
-
-                      <div className="space-y-0.5 truncate">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-slate-900 truncate group-hover:text-blue-600">{node.label}</span>
-                        </div>
-                        <p className="text-[10px] text-slate-400 truncate">{node.type} Node</p>
-                      </div>
-                    </div>
-
-                    {/* Sequential Connector */}
-                    {idx < activeWf.nodes.length - 1 && (
-                      <div className="w-0.5 h-6 bg-slate-200 relative flex items-center justify-center">
-                        <div className="absolute top-1 border-r-[6px] border-r-transparent border-l-[6px] border-l-transparent border-t-[8px] border-t-slate-300"></div>
-                      </div>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-350 flex items-center gap-1">
-            <span>💡 点击任意节点，在右侧面板上查看输入源、输出格式与执行角色条件。</span>
-          </div>
-        </div>
-
-        {/* 右栏：所选节点的属性/变量解析 */}
-        <div className="lg:col-span-3 space-y-6">
           
-          <div className="bg-white border border-slate-205 rounded-xl p-5 shadow-sm space-y-5">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-2">
-              节点参数定义 (Inspector)
-            </h3>
-
-            {activeNode ? (
-              <div className="space-y-4 text-xs">
-                <div>
-                  <span className="px-2 py-0.5 text-[9px] font-bold bg-slate-100 text-slate-700 rounded-sm uppercase tracking-wide">
-                    {activeNode.type} 节点配置
-                  </span>
-                  <h4 className="text-sm font-bold text-slate-900 mt-1">{activeNode.label}</h4>
-                </div>
-
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-lg text-slate-650 leading-relaxed space-y-1">
-                  <p className="text-slate-400 font-semibold uppercase text-[9px]">节点作用定位:</p>
-                  <p className="text-slate-700">{activeNode.description}</p>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="space-y-0.5">
-                    <p className="text-slate-450 uppercase font-bold text-[9px]">输入数据或触发模式:</p>
-                    <p className="p-2 bg-slate-50 border border-slate-100 font-mono text-slate-810 rounded">
-                      {activeNode.type === 'Trigger' ? 'Event: ObjectLifecycleTrigger' : 'Context: active_field_properties'}
-                    </p>
-                  </div>
-
-                  <div className="space-y-0.5">
-                    <p className="text-slate-450 uppercase font-bold text-[9px]">输出及执行状态:</p>
-                    <p className="p-2 bg-slate-50 border border-slate-100 font-mono text-slate-810 rounded">
-                      {activeNode.type === 'Condition' ? 'Branch: Approved_Flow | Escalate_Flow' : 'Payload: SUCCESS_CALLBACK_DTO'}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2 border-t border-slate-100 pt-2.5">
-                    <div className="flex items-center justify-between text-[11px] text-slate-600">
-                      <span>失败容错策略:</span>
-                      <span className="font-semibold text-rose-700 font-mono">中断并分拨人工任务</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-600">
-                      <span>要求最少执行人:</span>
-                      <span className="font-semibold text-slate-800">系统内部任务队列</span>
-                    </div>
-                  </div>
-                </div>
-
-                {activeNode.type === 'Function' && (
-                  <button 
-                    onClick={() => onNavigate('capability_binding', 'Field')}
-                    className="w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg border border-blue-150 transition-colors flex items-center justify-center gap-1 font-semibold text-[11px] cursor-pointer"
-                  >
-                    跳转修改绑定的 Function 详情
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400 py-6 text-center">暂未选择节点</p>
-            )}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="搜索 Workflow"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+            />
           </div>
 
-          {/* 模拟运行调试控制台 */}
-          {(isSimulating || simulationLogs.length > 0) && (
-            <div className="bg-slate-900 text-slate-100 rounded-xl p-4 shadow-lg space-y-3 font-mono text-[10.5px]">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <span className="text-amber-400 font-bold flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                  沙箱运行控制台
-                </span>
-                <button 
-                  onClick={() => {
-                    setIsSimulating(false);
-                    setSimulationStep(-1);
-                    setSimulationLogs([]);
-                  }}
-                  className="text-slate-400 hover:text-white"
+          <div className="space-y-2 pt-2 flex-col overflow-y-auto pb-4">
+            {workflows.filter(w => w.id.toLowerCase().includes(searchTerm.toLowerCase())).map((wf, idx) => {
+              const isActive = wf.id === 'SemanticReviewWorkflow'; 
+              const isEditing = wf.status === '编辑中';
+              return (
+                <div 
+                  key={idx}
+                  className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                    isActive 
+                      ? 'bg-blue-50/50 border-blue-200 shadow-sm' 
+                      : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                  }`}
                 >
-                  清除
-                </button>
-              </div>
+                  <div className="flex items-start gap-3">
+                     <div className={`mt-0.5 p-1.5 rounded-lg shrink-0 ${isActive ? 'bg-blue-100 text-blue-600' : 'bg-blue-50 text-blue-500'}`}>
+                       <Network className="w-4 h-4" />
+                     </div>
+                     <div className="flex-1 min-w-0">
+                       <div className={`text-[13px] font-bold font-mono truncate ${isActive ? 'text-blue-800' : 'text-slate-800'}`}>{wf.id}</div>
+                       <div className={`text-[11px] font-medium mt-1 truncate ${isActive ? 'text-blue-600/80' : 'text-slate-500'}`}>{wf.nameCn}</div>
+                     </div>
+                  </div>
+                  <div className="mt-3 flex justify-end">
+                     {isEditing ? (
+                       <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100">编辑中</span>
+                     ) : (
+                       <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">已发布</span>
+                     )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-              {/* Logs area */}
-              <div className="space-y-2 h-44 overflow-y-auto leading-relaxed scrollbar-thin scrollbar-thumb-slate-800">
-                {simulationLogs.map((log, idx) => (
-                  <p key={idx} className={
-                    log.startsWith('[SYSTEM]') ? 'text-blue-400' :
-                    log.startsWith('[STEP') ? 'text-purple-300 font-bold' :
-                    log.startsWith('[DETAIL]') ? 'text-slate-400 pl-4' : 'text-emerald-400 font-medium pl-4'
-                  }>
-                    {log}
-                  </p>
-                ))}
-              </div>
-            </div>
-          )}
-
+          <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[13px] font-medium shrink-0">
+             <span>共 6 项</span>
+             <div className="w-8 h-8 rounded border border-slate-200 flex items-center justify-center hover:bg-slate-50 cursor-pointer transition-colors">
+               <Settings className="w-4 h-4" />
+             </div>
+          </div>
         </div>
 
-      </div>
+        {/* 右侧：主体工作区 */}
+        <div className="flex-1 flex flex-col gap-6">
+          
+          {/* 上半部分：流程图与详情 */}
+          <div className="flex gap-6 h-[580px]">
+            
+            {/* 中间：流程画布 */}
+            <div className="flex-[5] bg-white border border-slate-200 rounded-2xl shadow-sm relative overflow-hidden flex flex-col">
+              
+              {/* 画布 Topbar */}
+              <div className="absolute top-5 left-5 z-10 flex items-center gap-3">
+                 <h2 className="text-slate-900 font-extrabold text-lg tracking-tight">SemanticReviewWorkflow</h2>
+                 <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">已发布</span>
+                 <Info className="w-4 h-4 text-slate-400 cursor-pointer hover:text-slate-600 transition-colors" />
+              </div>
 
+              <div className="absolute top-5 right-5 z-10 flex items-center gap-1 bg-white border border-slate-200 rounded-lg shadow-sm p-1">
+                 <div className="px-2 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 transition-colors"><LayoutGrid className="w-4 h-4" /></div>
+                 <div className="px-2 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 transition-colors"><Network className="w-4 h-4" /></div>
+                 <div className="w-px h-4 bg-slate-200 mx-1"></div>
+                 <div className="px-2 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 transition-colors">—</div>
+                 <div className="px-2 h-8 flex items-center justify-center font-medium text-[13px] text-slate-600">100%</div>
+                 <div className="px-2 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 transition-colors">+</div>
+                 <div className="w-px h-4 bg-slate-200 mx-1"></div>
+                 <div className="px-2 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 transition-colors"><Expand className="w-4 h-4" /></div>
+              </div>
+
+              {/* 画布主体 */}
+              <div className="flex-1 overflow-y-auto bg-slate-50/50 p-10 pt-20 flex justify-center">
+                 
+                 <div className="relative w-full max-w-[400px]">
+                    {/* The core vertical line */}
+                    <div className="absolute left-[15px] top-[24px] bottom-[24px] w-[2px] bg-slate-200 z-0"></div>
+
+                    <div className="space-y-0 relative z-10 pb-10">
+                      {nodes.map((node, i) => {
+                        const Icon = node.icon;
+                        return (
+                          <div key={node.id} className="relative group">
+                            
+                            <div className="flex items-center gap-4 py-2">
+                               <div className={`w-8 h-8 rounded-full border bg-white flex items-center justify-center font-mono text-[11px] shrink-0 z-10 transition-colors ${node.active ? 'border-blue-400 text-blue-600 shadow-[0_0_0_3px_rgba(59,130,246,0.1)]' : 'border-slate-200 text-slate-400 group-hover:border-slate-300 group-hover:text-slate-500'}`}>
+                                 {node.id}
+                               </div>
+                               <div className={`flex-1 border ${node.outline} bg-white rounded-xl shadow-sm flex items-center p-0 overflow-hidden transition-all ${node.active ? 'shadow-[0_0_0_3px_rgba(59,130,246,0.05)]' : 'hover:border-slate-300'}`}>
+                                  {/* Left color bar / icon area */}
+                                  <div className={`w-12 self-stretch flex items-center justify-center ${node.bg} ${node.color} border-r border-slate-100 shrink-0`}>
+                                     <Icon className="w-5 h-5" />
+                                  </div>
+                                  <div className="p-3 pl-4">
+                                     <div className={`text-[11px] font-extrabold uppercase mb-0.5 flex items-center gap-1.5 ${node.color}`}>
+                                        {node.title}
+                                     </div>
+                                     <div className="text-[13px] font-medium text-slate-800 font-mono">
+                                        {node.desc}
+                                     </div>
+                                  </div>
+                               </div>
+                            </div>
+                            
+                            {/* Down Arrow / Connectors gap */}
+                            {i < nodes.length - 1 && !node.extra && (
+                              <div className="h-6"></div>
+                            )}
+
+                            {/* Extra UI for Condition Branches */}
+                            {node.extra && (
+                              <div className="pl-[3.5rem] pr-4 py-1 flex items-center justify-between relative mt-1 mb-2">
+                                 {/* Draw lines exiting condition */}
+                                 <div className="absolute -top-3 left-[3.5rem] w-[2px] h-3 bg-slate-200"></div>
+                                 <span className="text-[11px] font-bold text-slate-500 bg-white px-2 py-0.5 border border-slate-200 rounded shadow-sm relative -ml-2 z-10">置信度 &ge; 阈值</span>
+                                 <span className="text-[11px] font-bold text-slate-500 bg-white px-2 py-0.5 border border-slate-200 rounded shadow-sm relative mr-6 z-10">置信度 &lt; 阈值</span>
+                              </div>
+                            )}
+
+                             {/* Little arrows on the main line */}
+                             {i < nodes.length - 1 && (
+                               <div className="absolute left-[9px] -bottom-[4px] text-slate-300 bg-white rounded-full z-10 w-3 h-3 flex items-center justify-center pointer-events-none">
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                               </div>
+                             )}
+
+                          </div>
+                        );
+                      })}
+                    </div>
+                 </div>
+
+              </div>
+            </div>
+
+            {/* 右侧：节点详情 */}
+            <div className="flex-[3] bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col">
+              <div className="flex items-center justify-between mb-8">
+                 <h3 className="text-base font-extrabold text-slate-900 border-l-4 border-blue-600 pl-2 -ml-2">节点详情</h3>
+                 <button className="flex items-center gap-1.5 text-[13px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer">
+                   <Edit className="w-3.5 h-3.5" /> 编辑
+                 </button>
+              </div>
+
+              <div className="flex items-center justify-between mb-8 pb-4 border-b border-dashed border-slate-200">
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                      <div className="italic font-bold text-[18px]">fx</div>
+                   </div>
+                   <div className="font-mono text-lg font-bold text-slate-900 leading-none">computeSemanticScore()</div>
+                </div>
+                <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 flex items-center h-6 rounded border border-blue-100 ml-2 whitespace-nowrap">Function Step</span>
+              </div>
+
+              <div className="space-y-4 text-[13px] border-b border-slate-100 pb-6 mb-6">
+                <div className="flex">
+                  <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide">节点类型</span>
+                  <span className="text-slate-800 font-mono">Function Step</span>
+                </div>
+                <div className="flex">
+                  <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide">用途</span>
+                  <span className="text-slate-800 font-medium">计算字段语义置信度得分</span>
+                </div>
+                <div className="flex">
+                  <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide">输入</span>
+                  <span className="text-slate-800 font-mono">Evidence Set</span>
+                </div>
+                <div className="flex">
+                  <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide">输出</span>
+                  <span className="text-slate-800 font-mono">Score <span className="text-slate-400 text-xs ml-1 font-sans">(0 ~ 1)</span></span>
+                </div>
+                <div className="flex">
+                  <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide">是否改变状态</span>
+                  <span className="text-slate-800 font-medium">否 <span className="text-slate-400 text-xs ml-1">(只计算，不修改对象状态)</span></span>
+                </div>
+                <div className="flex">
+                  <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide">失败处理</span>
+                  <span className="text-slate-800 font-medium">进入人工审核</span>
+                </div>
+                <div className="flex">
+                  <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide">使用权限</span>
+                  <span className="text-slate-800 font-medium">系统任务 / 数据治理人员</span>
+                </div>
+                <div className="flex">
+                  <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide">被哪些流程使用</span>
+                  <span className="text-blue-600 font-medium font-mono cursor-pointer hover:underline">SemanticReviewWorkflow</span>
+                </div>
+                <div className="flex flex-col gap-1.5 pt-2">
+                  <span className="text-slate-500 shrink-0 font-medium tracking-wide">描述</span>
+                  <span className="text-slate-700 leading-relaxed font-medium">基于证据集合计算字段语义置信度得分，用于后续置信度判断与路由分支。</span>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <h4 className="text-sm font-extrabold text-slate-900 mb-4 border-l-4 border-slate-300 pl-2 -ml-2">相关信息</h4>
+                <div className="space-y-4 text-[13px]">
+                   <div className="flex items-start">
+                     <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide flex items-center h-5">调用 Function</span>
+                     <span className="text-slate-800 font-medium flex items-center h-5">无</span>
+                   </div>
+                   <div className="flex items-start">
+                     <span className="w-28 text-slate-500 shrink-0 font-medium flex gap-1 items-center h-5 tracking-wide">依赖对象 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                     <div className="flex gap-1.5 flex-wrap">
+                        <span className="bg-slate-100 text-slate-600 px-2 flex py-0.5 rounded text-[11px] font-mono border border-slate-200 shadow-sm">Field</span>
+                        <span className="bg-slate-100 text-slate-600 px-2 flex py-0.5 rounded text-[11px] font-mono border border-slate-200 shadow-sm">Evidence</span>
+                        <span className="bg-slate-100 text-slate-600 px-2 flex py-0.5 rounded text-[11px] font-mono border border-slate-200 shadow-sm">SemanticAssertion</span>
+                     </div>
+                   </div>
+                   <div className="flex items-start">
+                     <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide flex items-center h-5">产出对象</span>
+                     <div className="flex items-center h-5">
+                       <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px] font-mono border border-slate-200 shadow-sm">Score</span>
+                     </div>
+                   </div>
+                   <div className="flex items-start">
+                     <span className="w-28 text-slate-500 shrink-0 font-medium tracking-wide flex items-center h-5">可用环境</span>
+                     <span className="text-slate-800 font-medium flex items-center h-5">AI 工作台、Workflow 执行环境</span>
+                   </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* 下半部分：运行记录与影响分析 */}
+          <div className="flex gap-6 h-[316px]">
+            
+            {/* 运行记录 */}
+            <div className="flex-[4] bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col overflow-hidden">
+               <div className="flex items-center justify-between mb-6 shrink-0">
+                  <div className="flex items-baseline gap-2 border-l-4 border-blue-600 pl-2 -ml-2">
+                    <h3 className="text-base font-extrabold text-slate-900">运行记录</h3>
+                    <span className="text-[12px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 ml-2">(最近 30 天)</span>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-4 gap-4 mb-6 shrink-0">
+                  <div className="flex items-center gap-3 bg-slate-50/50 p-2 border border-slate-100 rounded-xl">
+                     <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/50">
+                        <Play className="w-4 h-4 ml-0.5" />
+                     </div>
+                     <div>
+                        <div className="text-[12px] font-bold text-slate-500 mb-0.5">运行次数</div>
+                        <div className="text-2xl font-black text-slate-900 leading-none">128 <span className="text-[13px] font-bold text-slate-500 ml-0.5">次</span></div>
+                     </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-slate-50/50 p-2 border border-slate-100 rounded-xl">
+                     <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100/50">
+                        <CheckCircle className="w-4 h-4" />
+                     </div>
+                     <div>
+                        <div className="text-[12px] font-bold text-slate-500 mb-0.5">成功率</div>
+                        <div className="text-2xl font-black text-slate-900 leading-none">98.6<span className="text-[18px]">%</span></div>
+                     </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-slate-50/50 p-2 border border-slate-100 rounded-xl">
+                     <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/50">
+                        <Clock className="w-4 h-4" />
+                     </div>
+                     <div>
+                        <div className="text-[12px] font-bold text-slate-500 mb-0.5">平均耗时</div>
+                        <div className="text-2xl font-black text-slate-900 leading-none">1.28 <span className="text-[13px] font-bold text-slate-500 ml-0.5">分钟</span></div>
+                     </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-slate-50/50 p-2 border border-slate-100 rounded-xl">
+                     <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 border border-rose-100/50">
+                        <XCircle className="w-4 h-4" />
+                     </div>
+                     <div>
+                        <div className="text-[12px] font-bold text-slate-500 mb-0.5">失败次数</div>
+                        <div className="text-2xl font-black text-slate-900 leading-none">2 <span className="text-[13px] font-bold text-slate-500 ml-0.5">次</span></div>
+                     </div>
+                  </div>
+               </div>
+
+               <div className="flex-1 overflow-auto -mx-2 px-2 pb-2">
+                 <table className="w-full text-left text-[12px]">
+                    <thead className="sticky top-0 bg-white z-10 shadow-[0_1px_0_rgba(241,245,249,1)]">
+                      <tr className="text-slate-500 font-bold bg-white">
+                        <th className="pb-3 px-2 font-medium">运行时间</th>
+                        <th className="pb-3 px-2 font-medium">发起人</th>
+                        <th className="pb-3 px-2 font-medium">状态</th>
+                        <th className="pb-3 px-2 font-medium">耗时</th>
+                        <th className="pb-3 px-2 font-medium">结果摘要</th>
+                        <th className="pb-3 px-2 text-right font-medium">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-slate-700 font-medium">
+                      <tr className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                         <td className="py-2.5 px-2 font-mono text-slate-800">2025-05-24 10:32:21</td>
+                         <td className="py-2.5 px-2 font-mono text-slate-500">system</td>
+                         <td className="py-2.5 px-2"><span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-100/50">成功</span></td>
+                         <td className="py-2.5 px-2">1.16 分钟</td>
+                         <td className="py-2.5 px-2 text-slate-500 truncate max-w-[200px]" title="处理 Field 2,842 个，生成 Assertion 1,236 个">处理 Field 2,842 个，生成 Assertion 1,236 个</td>
+                         <td className="py-2.5 px-2 text-right"><span className="text-blue-600 hover:underline cursor-pointer font-bold">查看详情</span></td>
+                      </tr>
+                      <tr className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                         <td className="py-2.5 px-2 font-mono text-slate-800">2025-05-24 09:15:43</td>
+                         <td className="py-2.5 px-2 font-mono text-slate-500">system</td>
+                         <td className="py-2.5 px-2"><span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-100/50">成功</span></td>
+                         <td className="py-2.5 px-2">1.34 分钟</td>
+                         <td className="py-2.5 px-2 text-slate-500 truncate max-w-[200px]" title="处理 Field 2,756 个，生成 Assertion 1,112 个">处理 Field 2,756 个，生成 Assertion 1,112 个</td>
+                         <td className="py-2.5 px-2 text-right"><span className="text-blue-600 hover:underline cursor-pointer font-bold">查看详情</span></td>
+                      </tr>
+                      <tr className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                         <td className="py-2.5 px-2 font-mono text-slate-800">2025-05-24 08:02:11</td>
+                         <td className="py-2.5 px-2 font-mono text-slate-500">system</td>
+                         <td className="py-2.5 px-2"><span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold border border-emerald-100/50">成功</span></td>
+                         <td className="py-2.5 px-2">1.22 分钟</td>
+                         <td className="py-2.5 px-2 text-slate-500 truncate max-w-[200px]" title="处理 Field 2,631 个，生成 Assertion 1,045 个">处理 Field 2,631 个，生成 Assertion 1,045 个</td>
+                         <td className="py-2.5 px-2 text-right"><span className="text-blue-600 hover:underline cursor-pointer font-bold">查看详情</span></td>
+                      </tr>
+                    </tbody>
+                 </table>
+               </div>
+            </div>
+
+            {/* 影响分析 */}
+            <div className="flex-[3] bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col">
+               <div className="flex items-center justify-between mb-6 shrink-0">
+                  <div className="flex items-baseline gap-2 border-l-4 border-purple-600 pl-2 -ml-2">
+                    <h3 className="text-base font-extrabold text-slate-900">影响分析</h3>
+                    <span className="text-[12px] text-slate-500 font-medium ml-2">(基于当前流程变更)</span>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-4">
+                     <div className="text-[12px] font-bold text-slate-500 mb-2">影响对象类型</div>
+                     <div className="text-xl font-black text-slate-800 mb-2.5 flex items-center gap-1">4 <span className="text-sm font-medium text-slate-500">个</span> <ArrowRight className="w-3.5 h-3.5 ml-1 text-slate-300 -rotate-45" /></div>
+                     <div className="flex gap-1.5 flex-wrap">
+                       <span className="text-[10px] font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 shadow-sm">Field</span>
+                       <span className="text-[10px] font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 shadow-sm">SemanticAssertion</span>
+                       <span className="text-[10px] font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 shadow-sm">Evidence</span>
+                       <span className="text-[10px] font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 shadow-sm">Snapshot</span>
+                     </div>
+                  </div>
+                  <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-4">
+                     <div className="text-[12px] font-bold text-slate-500 mb-2">影响实例数 (预估)</div>
+                     <div className="text-2xl font-black text-slate-800 mb-2.5 flex items-center gap-1 mt-1">12,842 <ArrowRight className="w-4 h-4 ml-1 text-slate-300 -rotate-45" /></div>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-2 gap-4 mb-5">
+                  <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-4">
+                     <div className="text-[12px] font-bold text-slate-500 mb-2 flex items-center justify-between">影响 AI 场景 </div>
+                     <div className="text-lg font-black text-slate-800 mb-2.5 flex items-center gap-1">1 <span className="text-sm font-medium text-slate-500">个</span> <ArrowRight className="w-3.5 h-3.5 ml-1 text-slate-300 -rotate-45" /></div>
+                     <div className="flex gap-1.5 flex-wrap">
+                       <span className="text-[10px] bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-medium shadow-sm">字段语义编织助手</span>
+                     </div>
+                  </div>
+                  <div className="bg-slate-50/80 border border-slate-100 rounded-xl p-4">
+                     <div className="text-[12px] font-bold text-slate-500 mb-2 flex items-center justify-between">影响 DKN Mapping </div>
+                     <div className="text-lg font-black text-slate-800 mb-2.5 flex items-center gap-1">2 <span className="text-sm font-medium text-slate-500">个</span> <ArrowRight className="w-3.5 h-3.5 ml-1 text-slate-300 -rotate-45" /></div>
+                     <div className="flex gap-1.5 flex-wrap">
+                       <span className="text-[10px] bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-medium shadow-sm">字段语义映射</span>
+                       <span className="text-[10px] bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-medium shadow-sm">质量规则映射</span>
+                     </div>
+                  </div>
+               </div>
+               
+               <div className="mt-auto grid grid-cols-3 gap-4 border-t border-slate-100 pt-5">
+                  <div>
+                    <div className="text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">影响级别</div>
+                    <div className="text-[13px] font-extrabold text-slate-800 flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-orange-500"></span> 中</div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">潜在风险</div>
+                    <div className="text-[13px] font-extrabold text-slate-800 flex items-center gap-1.5">低 <span className="text-[11px] font-medium text-slate-500 ml-1">(0 错误 / 1 警告)</span></div>
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-bold text-slate-500 mb-1.5 tracking-wide">建议操作</div>
+                    <div className="text-[11px] font-medium text-slate-600 leading-tight">变更后建议进行模拟运行以验证流程行为</div>
+                  </div>
+               </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }

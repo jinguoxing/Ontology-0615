@@ -16,20 +16,23 @@ import RelationModel from './components/RelationModel';
 import CapabilityBinding from './components/CapabilityBinding';
 import WorkflowOrchestrator from './components/WorkflowOrchestrator';
 import ChangeRelease from './components/ChangeRelease';
+import ActionModel from './components/ActionModel';
 import OntologyModelsList from './components/OntologyModelsList';
 import CreateChangeSetDrawer from './components/CreateChangeSetDrawer';
 import CreateModelWizard from './components/CreateModelWizard';
+import KnowledgeNetworkOverview from './components/KnowledgeNetworkOverview';
 
 // Icons
 import { 
   LayoutDashboard, Layers, Link2, Code, Workflow, 
   GitPullRequest, Search, CheckCircle, AlertTriangle, 
-  Compass, HelpCircle, User, Cpu, ChevronDown, Lock, Unlock, Sparkles, Database
+  Compass, HelpCircle, User, Cpu, ChevronDown, Lock, Unlock, Sparkles, Database,
+  Settings, GitBranch, Network, ClipboardList
 } from 'lucide-react';
 
 export default function App() {
   // Navigation active view state
-  const [activeView, setActiveView] = useState<string>('ontology_models');
+  const [activeView, setActiveView] = useState<string>('knowledge_network');
   // Selected Object Type for ObjectModel and Capability views
   const [selectedObjectId, setSelectedObjectId] = useState<string>('Field');
 
@@ -82,6 +85,40 @@ export default function App() {
   const handleUpdateObjectType = (updatedObj: ObjectType) => {
     const updated = objectTypes.map(o => o.id === updatedObj.id ? updatedObj : o);
     setObjectTypes(updated);
+  };
+
+  const handleAddObjectType = (newObj: ObjectType) => {
+    const exists = objectTypes.some(o => o.id === newObj.id);
+    let updatedTypes = [];
+    if (exists) {
+      updatedTypes = objectTypes.map(o => o.id === newObj.id ? { ...newObj, status: 'Modified' as const } : o);
+    } else {
+      updatedTypes = [...objectTypes, { ...newObj, status: 'Draft' as const }];
+    }
+    setObjectTypes(updatedTypes);
+    setSelectedObjectId(newObj.id);
+
+    // Automatically append to CS-2026-012 changeset
+    const updatedCS = changeSets.map(cs => {
+      if (cs.id === 'CS-2026-012') {
+        const hasChange = cs.changes.some(ch => ch.target === newObj.id && ch.type === 'add_object');
+        if (hasChange) return cs;
+        return {
+          ...cs,
+          changes: [
+            ...cs.changes,
+            { 
+              type: 'add_object' as const, 
+              target: newObj.id, 
+              description: `启用 / 新增了 Object Type: ${newObj.id} (${newObj.nameCn})，并注入核心属性。` 
+            }
+          ]
+        };
+      }
+      return cs;
+    });
+    setChangeSets(updatedCS);
+    setIsLocked(false); // Automatically transition lock state as well
   };
 
   const handleUpdateLinkTypes = (updatedLinks: LinkType[]) => {
@@ -243,85 +280,112 @@ export default function App() {
       {/* 2. 主页面结构（左侧导航 + 右侧模块视图） */}
       <div className="flex-1 flex overflow-hidden relative">
         
-        {/* 左侧垂直导航菜单：六个页面菜单规划 */}
+        {/* 左侧垂直导航菜单 */}
         {activeView !== 'create_model' && (
-        <aside className="w-60 shrink-0 bg-slate-900 border-r border-slate-800 p-4 space-y-6 flex flex-col justify-between overflow-y-auto">
-          
-          <div className="space-y-5">
+        <aside className="w-[200px] shrink-0 bg-slate-50 border-r border-slate-200 p-4 space-y-6 flex flex-col justify-between overflow-y-auto">
+          <div className="space-y-6">
             
-            {/* 顶栏类别 */}
-            <div className="space-y-2">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-2">本体管理</p>
-              <nav className="space-y-1">
-                {[
-                  { id: 'ontology_models', label: 'DRKN 本体模型', icon: <Database className="h-4 w-4" /> },
-                  { id: 'overview', label: '模型总览 (Overview)', icon: <LayoutDashboard className="h-4 w-4" /> },
-                  { id: 'object_model', label: '对象模型 (Objects)', icon: <Layers className="h-4 w-4" /> },
-                  { id: 'relation_model', label: '关系模型 (Links)', icon: <Link2 className="h-4 w-4" /> },
-                  { id: 'capability_binding', label: '能力绑定 (Capabilities)', icon: <Code className="h-4 w-4" /> },
-                  { id: 'workflow_orchestration', label: '流程编排 (Workflow)', icon: <Workflow className="h-4 w-4" /> },
-                  { id: 'change_release', label: '变更发布 (Release)', icon: <GitPullRequest className="h-4 w-4" />, badge: 'CS-012' }
-                ].map((item) => {
-                  const isActive = activeView === item.id;
-                  return (
+            {/* Logo */}
+            <div className="flex items-center gap-2 pl-2">
+              <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+              </div>
+              <span className="font-extrabold text-[18px] text-slate-800 tracking-tight" style={{fontFamily: "'Inter', sans-serif"}}>AI · Insight</span>
+            </div>
+
+            {/* Menu */}
+            <nav className="space-y-1">
+              {[
+                { id: 'desktop', label: 'AI工作台', icon: <Cpu className="w-4 h-4" /> },
+                { id: 'tasks', label: '任务中心', icon: <ClipboardList className="w-4 h-4" /> },
+                { id: 'semantics', label: '语义治理', icon: <Network className="w-4 h-4" /> },
+                { 
+                  id: 'knowledge_network_group', 
+                  label: '知识网络', 
+                  icon: <GitBranch className="w-4 h-4" />,
+                  children: [
+                    { id: 'knowledge_network', label: '网络总览' },
+                    { id: 'ontology_models', label: '本体管理' },
+                    { id: 'knowledge_network_assets', label: '网络资产' }
+                  ]
+                },
+                { id: 'admin', label: '管理中心', icon: <Settings className="w-4 h-4" /> }
+              ].map((item) => {
+                const isGroupActive = item.id === 'knowledge_network_group' && ['knowledge_network', 'knowledge_network_assets', 'ontology_models', 'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'].includes(activeView);
+                const isActive = activeView === item.id || isGroupActive;
+                
+                return (
+                  <div key={item.id} className="space-y-1">
                     <button
-                      key={item.id}
-                      onClick={() => handleNavigate(item.id)}
-                      className={`w-full p-2.5 rounded-lg flex items-center justify-between text-xs font-medium text-left transition-all duration-200 cursor-pointer ${
+                      onClick={() => {
+                        if (item.children) {
+                          handleNavigate(item.children[0].id);
+                        } else {
+                          handleNavigate(item.id);
+                        }
+                      }}
+                      className={`w-full px-3 py-3 rounded-xl flex items-center justify-between text-[14px] font-medium transition-all cursor-pointer ${
                         isActive
-                          ? 'bg-blue-600/10 text-blue-400 border-l-4 border-blue-500 shadow-sm'
-                          : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : 'text-slate-600 hover:bg-blue-50/50 hover:text-blue-700'
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span className={isActive ? 'font-bold' : ''}>{item.label}</span>
                       </div>
-                      
-                      {item.badge && (
-                        <span className={`text-[9.5px] px-1.5 py-0.5 rounded-full font-bold ${
-                          isActive ? 'bg-blue-500/20 text-blue-300' : 'bg-slate-800 text-slate-400'
-                        }`}>
-                          {item.badge}
-                        </span>
+                      {item.children && (
+                        <ChevronDown className={`w-4 h-4 transition-transform ${isGroupActive ? 'rotate-180' : ''}`} />
                       )}
                     </button>
-                  );
-                })}
-              </nav>
-            </div>
-
-            {/* 快捷校验提示卡 */}
-            <div className="p-3.5 bg-slate-800/40 border border-slate-800/80 rounded-xl text-xs space-y-1.5 shadow-inner">
-              <div className="flex items-center justify-between font-bold text-slate-200 text-[11px]">
-                <span>自动健康校验</span>
-                <span className="text-emerald-400 flex items-center gap-1 font-medium">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  正常运行
-                </span>
-              </div>
-              <p className="text-slate-400 leading-normal text-[10.5px]">
-                检测到全量 10 个核心 Data Models 中：
-              </p>
-              <div className="flex items-center justify-between text-[10px] text-slate-350 bg-slate-900/60 border border-slate-800 p-1.5 rounded font-mono">
-                <span>0 编译物理死锁</span>
-                <span>2 逻辑警告</span>
-              </div>
-            </div>
-
+                    
+                    {/* Submenu rendering */}
+                    {item.children && isGroupActive && (
+                      <div className="pl-4 pr-2 pt-1 pb-2 space-y-1">
+                        {item.children.map(child => {
+                          let isChildActive = activeView === child.id;
+                          if (child.id === 'ontology_models' && ['ontology_models', 'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'].includes(activeView)) {
+                            isChildActive = true;
+                          }
+                          return (
+                            <button
+                              key={child.id}
+                              onClick={() => handleNavigate(child.id)}
+                              className={`w-full px-3 py-2 rounded-lg flex items-center text-[13px] font-medium transition-colors cursor-pointer ${
+                                isChildActive
+                                  ? 'bg-blue-50 text-blue-700 font-bold'
+                                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                              }`}
+                            >
+                              <div className="w-1.5 h-1.5 rounded-full mr-2.5 opacity-50 bg-current"></div>
+                              <span>{child.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </nav>
           </div>
 
-          {/* 底部信息与版权 */}
-          <div className="space-y-3 text-[10.5px]">
-            <div className="p-3 bg-slate-800/30 border border-slate-800/50 rounded-xl text-xs space-y-1">
-              <p className="font-bold uppercase tracking-wider text-[9px] text-slate-400">操作提示</p>
-              <p className="text-slate-400 text-[10px] leading-relaxed">
-                在“变更与发布”中点击“一键发布”，模型会升版至 v1.4.0 并重新编撰 DKN 索引与大模型能力，完成完整治理闭环！
-              </p>
-            </div>
-            <p className="text-slate-500 font-medium px-2">&copy; 2026 DRKN Semantic.</p>
+          {/* Bottom */}
+          <div className="space-y-1 pt-4 border-t border-slate-200/60 mt-auto">
+            <button className="w-full px-3 py-2.5 flex items-center gap-3 text-[14px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer">
+              <HelpCircle className="w-4 h-4" />
+              <span>帮助中心</span>
+            </button>
+            <button className="w-full px-3 py-2.5 flex items-center justify-between text-[14px] font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer group">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner">
+                  <User className="w-3.5 h-3.5" />
+                </div>
+                <span>管理员</span>
+              </div>
+              <ChevronDown className="w-4 h-4 opacity-50 group-hover:opacity-100 transition-opacity" />
+            </button>
           </div>
-
         </aside>
         )}
 
@@ -329,6 +393,18 @@ export default function App() {
         <main className="flex-1 p-6 overflow-y-auto scrollbar-thin">
           
           {/* Conditional Router views rendering */}
+          {activeView === 'knowledge_network' && (
+            <KnowledgeNetworkOverview
+              onNavigate={handleNavigate}
+            />
+          )}
+
+          {activeView === 'knowledge_network_assets' && (
+             <KnowledgeNetworkOverview
+               onNavigate={handleNavigate}
+             />
+          )}
+
           {activeView === 'ontology_models' && (
             <OntologyModelsList
               onNavigate={handleNavigate}
@@ -359,6 +435,7 @@ export default function App() {
               onNavigate={handleNavigate}
               isEditingActive={!isLocked}
               onUpdateObjectType={handleUpdateObjectType}
+              onAddObjectType={handleAddObjectType}
             />
           )}
 
@@ -383,9 +460,18 @@ export default function App() {
             />
           )}
 
+          {activeView === 'action_model' && (
+            <ActionModel
+              objectTypes={objectTypes}
+              selectedObjectId={selectedObjectId}
+              onSelectObject={setSelectedObjectId}
+              onNavigate={handleNavigate}
+              isEditingActive={!isLocked}
+            />
+          )}
+
           {activeView === 'workflow_orchestration' && (
             <WorkflowOrchestrator
-              workflows={workflows}
               onNavigate={handleNavigate}
               isEditingActive={!isLocked}
             />
@@ -393,12 +479,7 @@ export default function App() {
 
           {activeView === 'change_release' && (
             <ChangeRelease
-              changeSets={changeSets}
-              validationItems={validationItems}
-              isLocked={isLocked}
               onNavigate={handleNavigate}
-              onUpdateChangeSets={setChangeSets}
-              onClearActiveDraft={clearActiveDraftMode}
             />
           )}
 

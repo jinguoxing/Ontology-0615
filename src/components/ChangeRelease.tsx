@@ -1,424 +1,480 @@
 import React, { useState } from 'react';
-import { ChangeSet, ValidationItem } from '../types';
 import { 
-  GitCommit, AlertTriangle, CheckCircle2, ShieldCheck, 
-  RefreshCw, Clock, ArrowRight, ClipboardList, Layers, 
-  Compass, Eye, Sparkles, Send, Ban, Check, FileCheck
+  Database, Box, FileCode, CheckCircle, Search, Settings, Star, Info, Network,
+  Zap, GitBranch, User, LayoutGrid, Expand, ArrowRight,
+  GitMerge, Edit, Clock, ShieldCheck, Play, Send, RotateCcw, RefreshCw, XCircle, ChevronDown, Check,
+  ChevronLeft, ChevronRight, FileText, Link2, Code, Shield, AlertTriangle, Monitor, FilePlus, PenTool, Rocket, FileCheck
 } from 'lucide-react';
 
 interface ChangeReleaseProps {
-  changeSets: ChangeSet[];
-  validationItems: ValidationItem[];
-  isLocked: boolean;
   onNavigate: (view: string, targetId?: string) => void;
-  onUpdateChangeSets: (updated: ChangeSet[]) => void;
-  onClearActiveDraft: () => void;
 }
 
 export default function ChangeRelease({
-  changeSets,
-  validationItems,
-  isLocked,
-  onNavigate,
-  onUpdateChangeSets,
-  onClearActiveDraft
+  onNavigate
 }: ChangeReleaseProps) {
+  
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Current active chosen changeset ID
-  const [activeCsId, setActiveCsId] = useState<string>('CS-2026-012');
-  const activeCs = changeSets.find(cs => cs.id === activeCsId) || changeSets[0];
+  const changeSets = [
+    { id: 'CS-2026-012', name: '语义字段模型优化', author: '张敏', time: '2026-06-14 10:35', count: 12, status: '待审核' },
+    { id: 'CS-2026-011', name: '数据质量规则调整', author: '李伟', time: '2026-06-05 14:22', count: 8, status: '已发布' },
+    { id: 'CS-2026-010', name: 'Snapshot 发布配置变更', author: '王芳', time: '2026-05-28 09:18', count: 6, status: '已归档' },
+    { id: 'CS-2026-009', name: '治理任务调度优化', author: '刘强', time: '2026-05-20 16:40', count: 9, status: '已发布' }
+  ];
 
-  // Action status indicators
-  const [verifyStatus, setVerifyStatus] = useState<'idle' | 'running' | 'success'>('idle');
-  const [publishSuccessDialog, setPublishSuccessDialog] = useState(false);
-
-  // Filter out statistics
-  const errors = validationItems.filter(item => item.type === 'error');
-  const warnings = validationItems.filter(item => item.type === 'warning');
-  const infos = validationItems.filter(item => item.type === 'info');
-
-  const handleVerify = () => {
-    setVerifyStatus('running');
-    setTimeout(() => {
-      setVerifyStatus('success');
-    }, 1500);
-  };
-
-  const handleSubmitForReview = () => {
-    if (activeCs.status !== 'editing') return;
-    const updated = changeSets.map(cs => {
-      if (cs.id === activeCs.id) {
-        return { ...cs, status: 'pending_review' as const };
-      }
-      return cs;
-    });
-    onUpdateChangeSets(updated);
-    alert(`🎉 变更集 [${activeCs.id}] 已成功提交至架构演进委员会，当前状态更新为 “待审核”！`);
-  };
-
-  const handleApprove = () => {
-    if (activeCs.status !== 'pending_review') return;
-    const updated = changeSets.map(cs => {
-      if (cs.id === activeCs.id) {
-        return { ...cs, status: 'approved' as const };
-      }
-      return cs;
-    });
-    onUpdateChangeSets(updated);
-    alert(`🎉 架构委员会已成功审批通过 [${activeCs.id}] 语义模型变更！`);
-  };
-
-  const handlePublish = () => {
-    if (activeCs.status !== 'approved' && activeCs.status !== 'editing') {
-      alert("仅限已通过审核或编辑中的变更集可以直接执行安全发布流程！");
-      return;
-    }
-    const updated = changeSets.map(cs => {
-      if (cs.id === activeCs.id) {
-        return { ...cs, status: 'published' as const, date: new Date().toISOString().split('T')[0] };
-      }
-      return cs;
-    });
-    onUpdateChangeSets(updated);
-    setPublishSuccessDialog(true);
-    // Unlocks workspace additions
-    onClearActiveDraft();
-  };
+  const changes = [
+    { type: 'Property', icon: <div className="text-blue-600 font-bold italic font-serif">P</div>, title: '修改 Property', desc: '修改 Field.semantic_type 属性说明', detail: '更新字段语义类型的定义描述与取值说明。', tag: '修改', tagColor: 'text-amber-600 bg-amber-50 border-amber-100' },
+    { type: 'Link Type', icon: <Link2 className="w-5 h-5 text-blue-600" />, title: '新增 Link Type', desc: '新增 Link Type: Field maps_to DomainMapping', detail: '定义字段映射到领域映射的关系，用于语义对齐。', tag: '新增', tagColor: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
+    { type: 'Function', icon: <div className="text-blue-600 font-bold italic font-serif">fx</div>, title: '新增 Function 绑定', desc: '新增 Function 绑定: detectForeignKey()', detail: '绑定 detectForeignKey() 到 Field 对象，用于外键识别。', tag: '新增', tagColor: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
+    { type: 'Workflow', icon: <Network className="w-5 h-5 text-blue-600" />, title: '修改 Workflow', desc: '修改 SemanticReviewWorkflow 条件阈值', detail: '将语义置信度阈值由 0.70 调整为 0.75。', tag: '修改', tagColor: 'text-amber-600 bg-amber-50 border-amber-100' }
+  ];
 
   return (
-    <div className="space-y-6" id="release-workspace">
+    <div className="min-h-full font-sans bg-transparent" id="change-release-workspace">
       
-      {/* 顶部版本元数据控制 */}
-      <div className="bg-white rounded-xl border border-slate-100 p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 text-xs font-bold bg-purple-50 text-purple-700 rounded-sm">版本进化论</span>
-            <h2 className="text-lg font-bold text-slate-900">DRKN 模型语义发布与回滚控制环</h2>
+      {/* 面包屑 */}
+      <div className="flex items-center gap-2 text-[13px] text-slate-500 mb-6">
+        <div className="w-5 h-5 flex items-center justify-center bg-slate-200/50 rounded-md">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <span className="hover:text-slate-800 cursor-pointer text-slate-500" onClick={() => onNavigate('overview')}>管理中心</span>
+        <span className="text-slate-300">/</span>
+        <span className="hover:text-slate-800 cursor-pointer text-slate-500">本体管理</span>
+        <span className="text-slate-300">/</span>
+        <span className="font-bold text-slate-800">DRKN 本体管理</span>
+      </div>
+
+      {/* 标题和上下文信息 */}
+      <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 pb-6 border-b border-slate-200">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">变更与发布</h1>
+            <Star className="w-5 h-5 text-slate-400 stroke-[1.5]" />
           </div>
-          <p className="text-xs text-slate-500">
-            模型修改必须遵循严格的变更集模型隔离，通过校验、影响分析、三方会签和安全一键合并发布方能部署至工作台。
+          <p className="text-sm text-slate-500 mt-2 font-medium">
+            通过变更集、校验、影响分析和审核控制 DRKN 模型发布
           </p>
         </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={handleVerify}
-            className="px-3.5 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-205 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${verifyStatus === 'running' ? 'animate-spin text-blue-600' : 'text-slate-500'}`} />
-            {verifyStatus === 'running' ? '编译预校验中...' : '自动语法编译校验'}
-          </button>
-
-          {activeCs.status === 'editing' && (
-            <button
-              onClick={handleSubmitForReview}
-              className="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-            >
-              <Send className="h-3.5 w-3.5" />
-              提交会签审核
-            </button>
-          )}
-
-          {activeCs.status === 'pending_review' && (
-            <button
-              onClick={handleApprove}
-              className="px-4 py-2 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
-            >
-              <ShieldCheck className="h-4 w-4" />
-              架构委员会一键同意
-            </button>
-          )}
-
-          {(activeCs.status === 'approved' || (activeCs.status === 'editing' && verifyStatus === 'success')) && (
-            <button
-              onClick={handlePublish}
-              className="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer animate-none"
-            >
-              <FileCheck className="h-4 w-4" />
-              执行一键正式发布
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* 左：变更集列表 */}
-        <div className="lg:col-span-3 bg-white border border-slate-205 rounded-xl p-4 shadow-sm space-y-3">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
-            历史及活跃变更集 (Transactions)
-          </h3>
-
-          <div className="space-y-1.5">
-            {changeSets.map((cs) => (
-              <div
-                key={cs.id}
-                onClick={() => {
-                  setActiveCsId(cs.id);
-                  setVerifyStatus('idle');
-                }}
-                className={`p-3 rounded-lg flex flex-col gap-1 cursor-pointer transition-all border ${
-                  cs.id === activeCs.id
-                    ? 'bg-blue-50 border-blue-200 text-blue-900 shadow-xs'
-                    : 'hover:bg-slate-50 border-transparent text-slate-700'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold font-mono">{cs.id}</span>
-                  <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
-                    cs.status === 'published' 
-                      ? 'bg-emerald-50 text-emerald-700' 
-                      : cs.status === 'editing'
-                      ? 'bg-blue-50 text-blue-700 animate-pulse'
-                      : cs.status === 'approved'
-                      ? 'bg-purple-50 text-purple-700'
-                      : 'bg-amber-50 text-amber-700'
-                  }`}>
-                    {cs.status === 'published' && '已合并'}
-                    {cs.status === 'editing' && '本地草稿'}
-                    {cs.status === 'approved' && '待发布'}
-                    {cs.status === 'pending_review' && '待审核'}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-800 font-bold leading-normal truncate">{cs.title}</p>
-                <span className="text-[9px] text-slate-405 self-start mt-1 font-medium">{cs.date}</span>
-              </div>
-            ))}
+        <div className="flex flex-col items-end gap-4 mt-4 md:mt-0">
+          <div className="flex gap-2">
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
+               <Database className="w-3.5 h-3.5 text-blue-500" />
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-slate-400 font-medium leading-none mb-0.5">模型域</span>
+                 <span className="text-[13px] font-extrabold text-slate-800 leading-none">DRKN 数据语义治理</span>
+               </div>
+            </div>
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
+               <Box className="w-3.5 h-3.5 text-blue-500" />
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-slate-400 font-medium leading-none mb-0.5">场景</span>
+                 <span className="text-[13px] font-extrabold text-slate-800 leading-none flex items-center gap-1">默认数据治理模型 <ChevronDown className="w-3 h-3 text-slate-400" /></span>
+               </div>
+            </div>
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-slate-400 font-medium leading-none mb-0.5">当前版本</span>
+                 <span className="text-[13px] font-extrabold text-slate-800 leading-none flex items-center gap-1">v1.3.0 <ChevronDown className="w-3 h-3 text-slate-400" /> <span className="text-[10px] bg-blue-50 text-blue-600 px-1 py-0.5 rounded ml-1 font-bold">已发布</span></span>
+               </div>
+            </div>
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-slate-300 transition-colors">
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-slate-400 font-medium leading-none mb-0.5">目标版本</span>
+                 <span className="text-[13px] font-extrabold text-slate-800 leading-none flex items-center gap-1">v1.4.0 <ChevronDown className="w-3 h-3 text-slate-400" /></span>
+               </div>
+            </div>
+            <div className="border border-amber-200 rounded-lg px-3 py-1.5 bg-amber-50 flex items-center gap-2 shadow-sm relative group cursor-pointer hover:border-amber-300 transition-colors">
+               <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></div>
+               <div className="flex flex-col">
+                 <span className="text-[10px] text-amber-600/70 font-bold leading-none mb-0.5">状态</span>
+                 <span className="text-[13px] font-extrabold text-amber-700 leading-none flex items-center gap-1">待审核 <ChevronDown className="w-3 h-3 text-amber-500 group-hover:text-amber-700" /></span>
+               </div>
+            </div>
+          </div>
+          <div className="flex gap-3">
+             <button className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               <Send className="w-4 h-4" /> 提交审核
+             </button>
+             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               <Play className="w-4 h-4 text-slate-400" /> 发布
+             </button>
+             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               <RotateCcw className="w-4 h-4 text-slate-400" /> 回滚
+             </button>
+             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               <RefreshCw className="w-4 h-4 text-slate-400" /> 刷新知识网络
+             </button>
           </div>
         </div>
+      </div>
 
-        {/* 中：变更内容卡片 */}
-        <div className="lg:col-span-6 bg-white border border-slate-205 rounded-xl p-6 shadow-sm flex flex-col justify-between min-h-[460px]">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-55 pb-2">
-              <div className="flex items-center gap-1.5">
-                <ClipboardList className="h-4.5 w-4.5 text-blue-600" />
-                <h3 className="text-sm font-bold text-slate-900 font-mono">
-                  变更内容 Diffs: {activeCs.id}
-                </h3>
-              </div>
-              <span className="text-xs text-slate-400">含有 {activeCs.changes.length} 项逻辑改动</span>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-slate-800">{activeCs.title}</h4>
-              <p className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
-                {activeCs.description}
-              </p>
-            </div>
-
-            {/* List changed configurations with high-fidelity visual elements */}
-            <div className="space-y-2.5 pt-2">
-              <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">具体模型变更参数拓扑列表</p>
-              
-              <div className="space-y-2 max-h-64 overflow-y-auto">
-                {activeCs.changes.map((change, idx) => (
-                  <div key={idx} className="p-3 bg-slate-50/70 border border-slate-100 rounded-lg flex items-start gap-2 text-xs">
-                    <span className="h-5 w-5 rounded bg-blue-50 text-blue-700 flex items-center justify-center font-bold text-[10px] shrink-0 inline-block">
-                      {idx + 1}
-                    </span>
-                    <div className="space-y-1">
-                      <p className="font-bold text-slate-900 font-mono">
-                        {change.type === 'modify_property' && `修改属性定义 [${change.target}]`}
-                        {change.type === 'add_link' && `新增关系Link [${change.target}]`}
-                        {change.type === 'bind_capability' && `函数能力绑定 [${change.target}]`}
-                        {change.type === 'modify_workflow' && `修改时序条件 [${change.target}]`}
-                        {change.type === 'add_object' && `添加本体对象 [${change.target}]`}
-                      </p>
-                      <p className="text-slate-600 leading-relaxed font-normal text-[11px]">{change.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* 顶部 Tabs */}
+      <div className="flex gap-8 mb-6 border-b border-slate-200">
+        {[
+          '模型总览', '对象模型', '关系模型', '能力 (Function)', '动作 (Action)', 
+          '流程 (Workflow)', '权限策略', '变更与发布'
+        ].map((tab) => (
+          <div 
+            key={tab}
+            onClick={() => {
+              if (tab === '模型总览') onNavigate('overview');
+              if (tab === '对象模型') onNavigate('object_model');
+              if (tab === '关系模型') onNavigate('relation_model');
+              if (tab === '能力 (Function)') onNavigate('capability_binding');
+              if (tab === '动作 (Action)') onNavigate('action_model');
+              if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
+              if (tab === '变更与发布') onNavigate('change_release');
+            }}
+            className={`pb-3 text-sm font-bold cursor-pointer transition-colors ${
+              tab === '变更与发布' 
+                ? 'text-blue-600 border-b-[3px] border-blue-600 -mb-[2px]' 
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            {tab}
           </div>
+        ))}
+      </div>
 
-          <div className="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between bg-slate-50/50 p-3 rounded">
-            <span>当前处于: <b>{activeCs.status === 'published' ? '模型不可撰写态 (只读归档)' : '可修改发布周期草案'}</b></span>
-            {activeCs.status !== 'published' && (
-              <span className="text-[11px] font-bold text-blue-600 flex items-center gap-1">
-                <span>校验建议通过</span>
-              </span>
-            )}
+      <div className="grid grid-cols-1 xl:grid-cols-[320px_1fr_400px] gap-6 pb-6">
+        
+        {/* 左栏：变更集列表 */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col h-[760px]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-extrabold text-slate-900">变更集列表</h3>
           </div>
-        </div>
-
-        {/* 右：校验与影响分析 */}
-        <div className="lg:col-span-3 space-y-6">
           
-          {/* 自动编译诊断 */}
-          <div className="bg-white border border-slate-205 rounded-xl p-5 shadow-sm space-y-3.5">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-2 flex items-center justify-between">
-              <span>自动语法编译诊断</span>
-              {verifyStatus === 'success' && (
-                <span className="text-[9px] bg-emerald-50 text-emerald-700 font-bold px-1 rounded">Passed</span>
-              )}
-            </h3>
+          <div className="flex gap-2 mb-4">
+             <div className="relative flex-1">
+               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+               <input 
+                 type="text" 
+                 placeholder="搜索变更集"
+                 value={searchTerm}
+                 onChange={(e) => setSearchTerm(e.target.value)}
+                 className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+               />
+             </div>
+             <button className="px-3 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-700 bg-white shadow-sm flex items-center gap-1 hover:bg-slate-50">
+               全部状态 <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+             </button>
+          </div>
 
-            <div className="space-y-2">
-              <div className="flex text-xs justify-between">
-                <span className="text-slate-500">发现错误 (Errors):</span>
-                <span className="font-bold text-rose-600">0 ⚠️</span>
-              </div>
-              <div className="flex text-xs justify-between">
-                <span className="text-slate-500">逻辑警告 (Warnings):</span>
-                <span className="font-bold text-amber-600">{activeCs.status === 'published' ? 0 : warnings.length} 条</span>
-              </div>
-              <div className="flex text-xs justify-between">
-                <span className="text-slate-500">审计提示 (Infos):</span>
-                <span className="font-bold text-blue-600">{activeCs.status === 'published' ? 1 : infos.length} 条</span>
-              </div>
-
-              {/* Compilation feedback simulations */}
-              {verifyStatus === 'success' ? (
-                <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-[11px] leading-relaxed text-emerald-800 rounded-lg space-y-1">
-                  <div className="flex items-center gap-1 font-bold">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                    <span>模型结构校验完美通过！</span>
+          <div className="space-y-3 pt-2 flex-col overflow-y-auto pb-4">
+            {changeSets.map((cs, idx) => {
+              const isActive = cs.id === 'CS-2026-012'; 
+              return (
+                <div 
+                  key={idx}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                    isActive 
+                      ? 'bg-blue-50/50 border-blue-200 shadow-sm' 
+                      : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50 shadow-sm'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                     <span className={`text-[15px] font-bold font-mono ${isActive ? 'text-blue-800' : 'text-slate-800'}`}>{cs.id}</span>
+                     {cs.status === '待审核' && <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">待审核</span>}
+                     {cs.status === '已发布' && <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">已发布</span>}
+                     {cs.status === '已归档' && <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">已归档</span>}
                   </div>
-                  <p className="text-slate-650 font-normal">0个物理死锁，0个无根连线。各Object Type 绑定计算方法的输入参数和输出荷载完全对齐。保障100%安全合并运行。</p>
+                  <div className={`text-[13px] font-bold mb-3 truncate ${isActive ? 'text-blue-900' : 'text-slate-800'}`}>{cs.name}</div>
+                  <div className="flex items-center justify-between text-[11px] font-medium text-slate-500 mb-2">
+                     <div className="flex items-center gap-3">
+                       <span>{cs.author}</span>
+                       <span>{cs.time}</span>
+                     </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+                     <FileText className="w-3.5 h-3.5" /> {cs.count} 项变更
+                  </div>
                 </div>
-              ) : verifyStatus === 'running' ? (
-                <div className="p-4 flex items-center justify-center gap-2 text-xs text-slate-500">
-                  <RefreshCw className="h-4 w-4 animate-spin text-blue-600" />
-                  <span>编译树校验演习跑批中...</span>
-                </div>
-              ) : activeCs.status !== 'published' ? (
-                <div className="space-y-1.5 pt-1">
-                  {validationItems.slice(0, 2).map((item, idx) => (
-                    <div key={idx} className="p-2 bg-amber-50/50 border border-amber-100 rounded text-[10.5px] leading-snug text-amber-800 flex items-start gap-1">
-                      <AlertTriangle className="h-3.5 w-3.5 text-amber-500 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-semibold font-mono">{item.source}</p>
-                        <p className="text-slate-600 text-[10px]">{item.message}</p>
+              );
+            })}
+          </div>
+
+          <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[13px] font-medium">
+             <span>共 8 条</span>
+             <div className="flex items-center gap-1">
+               <button className="w-7 h-7 flex items-center justify-center rounded text-slate-400 hover:text-slate-700 hover:bg-slate-50"><ChevronLeft className="w-4 h-4" /></button>
+               <button className="w-7 h-7 flex items-center justify-center rounded bg-blue-50 text-blue-600 font-bold border border-blue-100">1</button>
+               <button className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:bg-slate-50 font-bold">2</button>
+               <button className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:text-slate-700 hover:bg-slate-50"><ChevronRight className="w-4 h-4" /></button>
+             </div>
+          </div>
+        </div>
+
+        {/* 中间：变更内容明细 */}
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col h-[760px]">
+          <div className="flex items-center gap-3 mb-6">
+             <h3 className="text-lg font-extrabold text-slate-900 tracking-tight">变更内容明细</h3>
+             <span className="text-[13px] text-slate-500 font-mono">(CS-2026-012)</span>
+          </div>
+
+          <div className="text-[13px] font-bold text-slate-700 mb-4 pb-3 border-b border-slate-100">
+             本次变更共包含 12 项变更
+          </div>
+
+          <div className="space-y-3 flex-1 overflow-y-auto mb-6">
+             {changes.map((change, i) => (
+                <div key={i} className="border border-slate-100 rounded-xl p-4 bg-white hover:border-slate-200 transition-colors shadow-sm flex items-start gap-4">
+                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/50">
+                      {change.icon}
+                   </div>
+                   <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1.5">
+                         <div className="text-[13px] font-bold text-blue-700">{change.title}</div>
+                         <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${change.tagColor}`}>{change.tag}</span>
                       </div>
-                    </div>
-                  ))}
+                      <div className="text-[14px] font-bold text-slate-900 mb-1.5">{change.desc}</div>
+                      <div className="text-[12px] font-medium text-slate-500">{change.detail}</div>
+                   </div>
                 </div>
-              ) : (
-                <p className="text-[10px] text-slate-400 py-3 text-center">本变更集已正式合并，无待处理警告项</p>
-              )}
-            </div>
+             ))}
           </div>
 
-          {/* 跨层映射对下游的影响分析 */}
-          <div className="bg-white border border-slate-205 rounded-xl p-5 shadow-sm space-y-4">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-2">
-              全图谱影响深度演习
-            </h3>
-
-            {activeCs.status === 'published' ? (
-              <p className="text-xs text-slate-400 py-4 text-center">本变更集已融入 v1.3.0 模型中。</p>
-            ) : (
-              <div className="space-y-2.5 text-xs">
-                <div className="p-2.5 bg-indigo-50/50 border border-indigo-100 rounded-lg flex items-start gap-2 text-indigo-900 leading-normal">
-                  <Sparkles className="h-4 w-4 text-indigo-500 shrink-0 mt-0.5" />
-                  <div>
-                    <h5 className="font-bold text-[11px]">AI 工作台与图依赖</h5>
-                    <p className="text-slate-600 text-[10.5px] mt-0.5">
-                      本配置调整后，大语言模型对 Field.semantic_type 的判定可读格式信度将顺位上提 <b>5%</b>。
-                    </p>
-                  </div>
+          {/* 变更摘要 */}
+          <div className="bg-slate-50/80 rounded-xl border border-slate-100 p-5 shrink-0">
+             <h4 className="text-[13px] font-extrabold text-slate-900 mb-4 tracking-wide">变更摘要</h4>
+             <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-[13px]">
+                <div className="flex items-center">
+                   <span className="text-slate-500 w-20 shrink-0 font-medium tracking-wide">影响对象</span>
+                   <div className="flex gap-1.5 flex-wrap">
+                      <span className="text-[11px] font-mono bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-600 shadow-sm">Field</span>
+                      <span className="text-[11px] font-mono bg-white border border-slate-200 px-2 py-0.5 rounded text-slate-600 shadow-sm">SemanticAssertion</span>
+                   </div>
                 </div>
-
-                <div className="space-y-1 bg-slate-50 p-2.5 rounded border border-slate-100">
-                  <div className="flex items-center justify-between py-0.5 font-semibold text-slate-800">
-                    <span>受影响 Object Type：</span>
-                    <span className="font-mono text-blue-750">2 个 (Field)</span>
-                  </div>
-                  <div className="flex items-center justify-between py-0.5 font-semibold text-slate-800">
-                    <span>受影响 Link Type：</span>
-                    <span className="font-mono text-blue-750">1 个 (maps_to)</span>
-                  </div>
-                  <div className="flex items-center justify-between py-0.5 font-semibold text-slate-800">
-                    <span>受影响 Workflow：</span>
-                    <span className="font-semibold text-indigo-700">SemanticReview</span>
-                  </div>
-                  <div className="flex items-center justify-between py-0.5 font-semibold text-slate-800 border-t border-slate-150/40 mt-1 pt-1 text-[11px]">
-                    <span>映射 Downstream:</span>
-                    <span className="text-slate-500">DRKN语义网络 / 纠错流</span>
-                  </div>
+                <div className="flex items-center">
+                   <span className="text-slate-500 w-20 shrink-0 font-medium tracking-wide">当前阶段</span>
+                   <span className="text-[11px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">审核中</span>
                 </div>
-              </div>
-            )}
+                <div className="flex items-center">
+                   <span className="text-slate-500 w-20 shrink-0 font-medium tracking-wide">变更发起人</span>
+                   <span className="text-slate-900 font-bold">张敏</span>
+                </div>
+                <div className="flex items-center">
+                   <span className="text-slate-500 w-20 shrink-0 font-medium tracking-wide">变更类型</span>
+                   <span className="text-slate-900 font-bold">模型变更</span>
+                </div>
+                <div className="flex items-center">
+                   <span className="text-slate-500 w-20 shrink-0 font-medium tracking-wide">创建时间</span>
+                   <span className="text-slate-900 font-mono font-medium">2026-06-14 10:35</span>
+                </div>
+                <div className="flex items-center">
+                   <span className="text-slate-500 w-20 shrink-0 font-medium tracking-wide">预计发布版本</span>
+                   <span className="text-slate-900 font-mono font-bold">v1.4.0</span>
+                </div>
+             </div>
           </div>
-
         </div>
 
-      </div>
-
-      {/* 底部发布流程时间线 */}
-      <div className="bg-white border border-slate-205 rounded-xl p-5 shadow-sm space-y-4 font-normal">
-        <h3 className="text-xs font-bold text-slate-450 uppercase tracking-widest px-1">
-          当前变更发布闭环控制轴
-        </h3>
-
-        {/* 流程时间线 */}
-        <div className="flex flex-wrap items-center justify-between gap-2 overflow-x-auto p-2" id="release-pipeline">
-          {[
-            { label: '新建变更集', status: 'done', desc: 'CS-2026-012 已建立' },
-            { label: '编辑模型', status: 'done', desc: '属性功能绑定就绪' },
-            { label: '自动校验', status: verifyStatus === 'success' ? 'done' : 'active', desc: '等待编译检验' },
-            { label: '影响分析', status: verifyStatus === 'success' ? 'done' : 'next', desc: '分析下游依赖' },
-            { label: '提交会签', status: activeCs.status !== 'editing' ? 'done' : 'next', desc: '架构会核准中' },
-            { label: '审批通过', status: (activeCs.status === 'approved' || activeCs.status === 'published') ? 'done' : 'next', desc: '完成多方数字鉴权' },
-            { label: '发布新版本', status: activeCs.status === 'published' ? 'done' : 'next', desc: '合并至 v1.4.0' },
-            { label: '刷新图网络', status: activeCs.status === 'published' ? 'done' : 'next', desc: '更新下游DKN映射' },
-            { label: 'AI 工作台启用', status: activeCs.status === 'published' ? 'done' : 'next', desc: '可用能力推送' }
-          ].map((step, idx) => (
-            <div key={idx} className="flex flex-col items-center gap-1 flex-1 min-w-[90px] text-center relative">
-              {/* Node dot */}
-              <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center text-[10px] font-bold ${
-                step.status === 'done'
-                  ? 'bg-emerald-500 border-emerald-600 text-white shadow-xs'
-                  : step.status === 'active'
-                  ? 'bg-blue-600 border-blue-705 text-white animate-pulse'
-                  : 'bg-white border-slate-205 text-slate-400'
-              }`}>
-                {step.status === 'done' ? <Check className="h-3.5 w-3.5" /> : idx + 1}
-              </div>
-              <p className="text-[11px] font-semibold text-slate-805 leading-none mt-1">{step.label}</p>
-              <p className="text-[9px] text-slate-400 whitespace-nowrap mt-0.5">{step.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Release Success Modal dialog popup */}
-      {publishSuccessDialog && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onClick={() => setPublishSuccessDialog(false)}></div>
+        {/* 右侧：校验与影响分析 */}
+        <div className="flex flex-col gap-6 h-[760px]">
           
-          <div className="relative bg-white border border-slate-205 max-w-md w-full mx-4 rounded-xl p-6 shadow-2xl text-center space-y-4" id="success-publish-modal">
-            <div className="h-12 w-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="h-7 w-7" />
-            </div>
+          {/* 校验结果 */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col shrink-0">
+             <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                   <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                   <h3 className="text-[15px] font-extrabold text-slate-900">校验结果</h3>
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
+                   校验时间: 2026-06-14 11:02 <RefreshCw className="w-3.5 h-3.5 ml-0.5 cursor-pointer hover:text-slate-700" />
+                </div>
+             </div>
 
-            <div className="space-y-1.5">
-              <h3 className="text-base font-bold text-slate-900">🎉 DRKN 模型一键安全发布成功！</h3>
-              <p className="text-xs text-slate-500 leading-relaxed font-normal">
-                变更集 <b>{activeCs.id}</b> 已完美通过一整闭环审批和密码签名校验。
-              </p>
-            </div>
+             <div className="grid grid-cols-3 gap-0 border-y border-slate-100 py-4 mb-5">
+                <div className="text-center border-r border-slate-100 last:border-r-0">
+                   <div className="text-3xl font-black text-slate-800 mb-1">0</div>
+                   <div className="flex items-center justify-center gap-1 text-[12px] font-bold text-slate-600">
+                     <XCircle className="w-3.5 h-3.5 text-rose-500" /> 错误
+                   </div>
+                </div>
+                <div className="text-center border-r border-slate-100 last:border-r-0">
+                   <div className="text-3xl font-black text-slate-800 mb-1">2</div>
+                   <div className="flex items-center justify-center gap-1 text-[12px] font-bold text-slate-600">
+                     <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> 警告
+                   </div>
+                </div>
+                <div className="text-center">
+                   <div className="text-3xl font-black text-slate-800 mb-1">5</div>
+                   <div className="flex items-center justify-center gap-1 text-[12px] font-bold text-slate-600">
+                     <Info className="w-3.5 h-3.5 text-blue-500" /> 提示
+                   </div>
+                </div>
+             </div>
 
-            <div className="p-3 bg-slate-50 border border-slate-100 rounded-lg text-xs text-left leading-relaxed space-y-1 font-normal text-slate-650">
-              <p className="font-semibold text-slate-800">🔥 下游渠道触发联动：</p>
-              <p>1. <b>核心物理语义快照生成：</b> 固化为版本号 <span className="font-mono font-bold text-blue-700">v1.4.0</span>。</p>
-              <p>2. <b>刷新 DKN 知识图谱网络索引：</b> 下游图谱跨视图 mapping 完成一触增量刷新。</p>
-              <p>3. <b>AI 工作台能力热刷新：</b> classifyFieldSemantic()、computeSemanticScore() 等与 Field 对象绑定的无状态计算方法已在智能终端环境热重载上架！</p>
-            </div>
-
-            <div className="pt-2">
-              <button
-                onClick={() => setPublishSuccessDialog(false)}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-xs cursor-pointer"
-              >
-                好的，刷新并返回
-              </button>
-            </div>
+             <div className="mb-2">
+               <h4 className="text-[12px] font-bold text-slate-500 mb-3 tracking-wide">警告明细</h4>
+               <div className="space-y-3">
+                  <div className="bg-amber-50/40 border border-amber-100 rounded-lg p-3 hover:bg-amber-50 transition-colors cursor-pointer group flex justify-between items-center">
+                     <div className="flex gap-2.5 items-start">
+                        <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                           <div className="text-[13px] font-bold text-slate-800 mb-1.5">detectForeignKey() 影响 2 个 Workflow</div>
+                           <div className="text-[11px] font-medium text-slate-500 flex gap-1 items-center">
+                             关联 Workflow: <span className="font-mono bg-white border border-slate-200 px-1 py-0.5 rounded shadow-sm text-[10px]">SemanticReviewWorkflow</span> <span className="font-mono bg-white border border-slate-200 px-1 py-0.5 rounded shadow-sm text-[10px]">DQAssessmentWorkflow</span>
+                           </div>
+                        </div>
+                     </div>
+                     <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                  </div>
+                  
+                  <div className="bg-amber-50/40 border border-amber-100 rounded-lg p-3 hover:bg-amber-50 transition-colors cursor-pointer group flex justify-between items-center">
+                     <div className="flex gap-2.5 items-start">
+                        <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                        <div>
+                           <div className="text-[13px] font-bold text-slate-800 mb-1.5">maps_to 关系会影响 3 个 DKN Mapping</div>
+                           <div className="text-[11px] font-medium text-slate-500 flex gap-1 items-center">
+                             关联 Mapping: <span className="bg-white border border-slate-200 px-1 py-0.5 rounded shadow-sm text-[10px]">领域映射</span> <span className="bg-white border border-slate-200 px-1 py-0.5 rounded shadow-sm text-[10px]">术语映射</span> <span className="bg-white border border-slate-200 px-1 py-0.5 rounded shadow-sm text-[10px]">指标映射</span>
+                           </div>
+                        </div>
+                     </div>
+                     <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500" />
+                  </div>
+               </div>
+               
+               <div className="mt-4 flex justify-end">
+                 <button className="text-[12px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer">
+                   查看全部 2 条警告 <ChevronRight className="w-3.5 h-3.5" />
+                 </button>
+               </div>
+             </div>
           </div>
+
+          {/* 影响分析 */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col flex-1">
+             <div className="flex items-center gap-2 mb-6">
+                <div className="w-6 h-6 rounded bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0"><Network className="w-3.5 h-3.5" /></div>
+                <h3 className="text-[15px] font-extrabold text-slate-900">影响分析</h3>
+             </div>
+
+             <div className="space-y-4 mb-6">
+                <div className="flex items-baseline justify-between border-b border-slate-50 pb-3">
+                   <div className="text-[13px] font-bold text-slate-700 w-32 shrink-0">影响 Object Type</div>
+                   <div className="flex-1 flex items-center justify-between">
+                     <span className="text-[12px] font-mono text-slate-500">Field、SemanticAssertion</span>
+                     <span className="text-[13px] font-medium text-slate-500 text-right w-8">2 个</span>
+                   </div>
+                </div>
+                <div className="flex items-baseline justify-between border-b border-slate-50 pb-3">
+                   <div className="text-[13px] font-bold text-slate-700 w-32 shrink-0">影响 Link Type</div>
+                   <div className="flex-1 flex items-center justify-between">
+                     <span className="text-[12px] font-mono text-slate-500">maps_to、has_assertion</span>
+                     <span className="text-[13px] font-medium text-slate-500 text-right w-8">2 个</span>
+                   </div>
+                </div>
+                <div className="flex items-baseline justify-between border-b border-slate-50 pb-3">
+                   <div className="text-[13px] font-bold text-slate-700 w-32 shrink-0">影响 Function</div>
+                   <div className="flex-1 flex items-center justify-between">
+                     <span className="text-[12px] font-mono text-slate-500">detectForeignKey()</span>
+                     <span className="text-[13px] font-medium text-slate-500 text-right w-8">1 个</span>
+                   </div>
+                </div>
+                <div className="flex items-baseline justify-between border-b border-slate-50 pb-3">
+                   <div className="text-[13px] font-bold text-slate-700 w-32 shrink-0">影响 Workflow</div>
+                   <div className="flex-1 flex items-center justify-between">
+                     <span className="text-[12px] font-mono text-slate-500">SemanticReviewWorkflow</span>
+                     <span className="text-[13px] font-medium text-slate-500 text-right w-8">1 个</span>
+                   </div>
+                </div>
+                <div className="flex items-baseline justify-between border-b border-slate-50 pb-3">
+                   <div className="text-[13px] font-bold text-slate-700 w-32 shrink-0">影响知识网络视图</div>
+                   <div className="flex-1 flex items-center justify-between">
+                     <span className="text-[12px] font-medium text-slate-500">DRKN 网络、跨层映射网络</span>
+                     <span className="text-[13px] font-medium text-slate-500 text-right w-8">2 个</span>
+                   </div>
+                </div>
+                <div className="flex items-baseline justify-between pb-1">
+                   <div className="text-[13px] font-bold text-slate-700 w-32 shrink-0">影响 AI 场景</div>
+                   <div className="flex-1 flex items-center justify-between">
+                     <span className="text-[12px] font-medium text-slate-500">字段解释、语义纠错</span>
+                     <span className="text-[13px] font-medium text-slate-500 text-right w-8">2 个</span>
+                   </div>
+                </div>
+             </div>
+
+             <div className="mt-auto flex justify-end">
+               <button className="text-[12px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer">
+                 查看完整影响分析报告 <ChevronRight className="w-3.5 h-3.5" />
+               </button>
+             </div>
+          </div>
+
         </div>
-      )}
+
+      </div>
+
+      {/* 底部：发布流程时间线 */}
+      <div className="bg-white border border-slate-200 rounded-2xl shadow-sm px-8 py-6 mb-8 mt-2">
+         <h3 className="text-[14px] font-extrabold text-slate-900 mb-8 tracking-wide">发布流程 <span className="text-[13px] font-medium text-slate-500 ml-1">(模型变更发布闭环)</span></h3>
+         
+         <div className="flex items-start justify-between relative px-4">
+            {/* Background connecting line */}
+            <div className="absolute top-4 left-10 right-10 h-0.5 bg-slate-100 z-0"></div>
+
+            {[
+              { idx: 1, label: '新建变更集', author: '张敏', time: '2026-06-14 10:35', state: 'done', icon: <FilePlus className="w-4 h-4" /> },
+              { idx: 2, label: '编辑模型', author: '张敏', time: '2026-06-14 10:41', state: 'done', icon: <Code className="w-4 h-4" /> },
+              { idx: 3, label: '自动校验', author: '系统', time: '2026-06-14 11:02', state: 'done', icon: <ShieldCheck className="w-4 h-4" /> },
+              { idx: 4, label: '影响分析', author: '系统', time: '2026-06-14 11:05', state: 'done', icon: <Network className="w-4 h-4" /> },
+              { idx: 5, label: '提交审核', desc1: '当前步骤', desc2: '等待提交', state: 'current', icon: <FileCheck className="w-5 h-5" /> },
+              { idx: 6, label: '审批通过', desc1: '待审批', state: 'pending', icon: <User className="w-4 h-4" /> },
+              { idx: 7, label: '发布新版本', desc1: '待发布', state: 'pending', icon: <Rocket className="w-4 h-4" /> },
+              { idx: 8, label: '刷新知识网络', desc1: '待刷新', state: 'pending', icon: <RefreshCw className="w-4 h-4" /> },
+              { idx: 9, label: 'AI 工作台使用', desc1: '待生效', state: 'pending', icon: <Monitor className="w-4 h-4" /> }
+            ].map((step, i) => (
+               <div key={i} className="flex flex-col items-center relative z-10 w-28">
+                  {/* The connected lines overlapping mechanism for done steps */}
+                  {i > 0 && (step.state === 'done' || step.state === 'current') && (
+                     <div className="absolute top-4 -left-[calc(50%+1.5rem)] right-1/2 h-0.5 bg-blue-600 -z-10 w-[calc(100%-3rem)] ml-[1.5rem]"></div>
+                  )}
+
+                  {step.state === 'done' && (
+                     <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center mb-3 shadow-[0_0_0_4px_rgba(255,255,255,1)]">
+                        <Check className="w-4 h-4" strokeWidth={3} />
+                     </div>
+                  )}
+                  {step.state === 'current' && (
+                     <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center mb-2 shadow-[0_0_0_4px_rgba(255,255,255,1),_0_0_0_8px_rgba(37,99,235,0.1)] relative -top-1">
+                        {step.icon}
+                     </div>
+                  )}
+                  {step.state === 'pending' && (
+                     <div className="w-8 h-8 rounded-full bg-white border-2 border-slate-200 text-slate-400 flex items-center justify-center mb-3 shadow-[0_0_0_4px_rgba(255,255,255,1)]">
+                        <span className="text-[12px] font-bold">{step.idx}</span>
+                     </div>
+                  )}
+
+                  <div className={`text-[13px] font-extrabold mb-1.5 ${step.state === 'current' ? 'text-blue-600' : (step.state === 'done' ? 'text-slate-900' : 'text-slate-500')}`}>
+                     {step.label}
+                  </div>
+                  
+                  {step.state === 'done' && (
+                     <div className="text-center font-mono">
+                        <div className="text-[11px] text-slate-500">{step.time}</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">{step.author}</div>
+                     </div>
+                  )}
+                  
+                  {step.state === 'current' && (
+                     <div className="text-center">
+                        <div className="text-[12px] font-bold text-blue-600">{step.desc1}</div>
+                        <div className="text-[11px] text-blue-500 mt-0.5 font-medium">{step.desc2}</div>
+                     </div>
+                  )}
+
+                  {step.state === 'pending' && (
+                     <div className="text-center">
+                        <div className="text-[12px] text-slate-400 font-medium">{step.desc1}</div>
+                     </div>
+                  )}
+               </div>
+            ))}
+         </div>
+      </div>
 
     </div>
   );

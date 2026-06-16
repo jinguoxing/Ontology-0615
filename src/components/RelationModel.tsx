@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { LinkType } from '../types';
 import { 
-  Database, Table, FileText, Compass, ClipboardCopy, 
-  Layers, ShieldAlert, Activity, Play, FileCheck, HelpCircle,
-  HelpCircle as QuestionIcon, Sparkles, Eye, ShieldCheck, 
-  GitBranch, ArrowRight, ToggleLeft, Plus, Trash2, Info
+  Database, Box, FileText, Shield, ClipboardCopy, 
+  Layers, AlertTriangle, Target, Play, FileCode, CheckCircle2,
+  ChevronRight, Search, Settings, Star, GitMerge, Link as LinkIcon, FunctionSquare, Plus, Edit, Download, Check, Map as MapIcon, Menu, ArrowRight, Expand, ZoomIn, ZoomOut, RotateCcw, AlertCircle, Info
 } from 'lucide-react';
+import CreateLinkTypeDrawer from './CreateLinkTypeDrawer';
 
 interface RelationModelProps {
   linkTypes: LinkType[];
@@ -22,522 +22,548 @@ export default function RelationModel({
 }: RelationModelProps) {
 
   // Current active chosen Link Type
-  const [activeLinkId, setActiveLinkId] = useState<string>(linkTypes[2]?.id || 'has_assertion');
-  // Filters: 'All' | 'Lineage' | 'AI' | 'Gov'
-  const [activeFilter, setActiveFilter] = useState<'All' | 'Lineage' | 'AI' | 'Gov'>('All');
+  const [activeLinkId, setActiveLinkId] = useState<string>('has_assertion');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isDraftSaved, setIsDraftSaved] = useState(false);
 
-  // Input states for creating relations
-  const [isAddingRelation, setIsAddingRelation] = useState(false);
-  const [newLinkId, setNewLinkId] = useState('');
-  const [newLinkNameCn, setNewLinkNameCn] = useState('');
-  const [newLinkSource, setNewLinkSource] = useState('Field');
-  const [newLinkTarget, setNewLinkTarget] = useState('Snapshot');
-  const [newLinkCardinality, setNewLinkCardinality] = useState<'1:1' | '1:N' | 'N:M'>('1:N');
-  const [newLinkLineage, setNewLinkLineage] = useState(false);
-  const [newLinkAi, setNewLinkAi] = useState(true);
-  const [newLinkAuth, setNewLinkAuth] = useState(false);
-  const [newLinkDesc, setNewLinkDesc] = useState('');
+  // Fallback to activeLink data if not in props
+  const activeLink = linkTypes.find(l => l.id === activeLinkId) || {
+    id: 'has_assertion',
+    nameCn: '拥有语义断言',
+    sourceObjId: 'Field',
+    targetObjId: 'SemanticAssertion',
+    direction: 'Field → SemanticAssertion',
+    cardinality: '1 : N',
+    isLineage: true,
+    isAiVisible: true,
+    requiresAuth: true,
+    description: '字段拥有一个或多个语义断言，用于承载语义识别结果。'
+  };
 
-  // Sliced relations
-  const filteredLinks = linkTypes.filter(link => {
-    if (activeFilter === 'Lineage') return link.isLineage;
-    if (activeFilter === 'AI') return link.isAiVisible;
-    if (activeFilter === 'Gov') return ['checked_by', 'produces', 'assigned_to'].some(kw => link.id.includes(kw));
-    return true;
-  });
+  const localLinkTypes = [
+    { id: 'contains', nameCn: '', source: 'DataSource', target: 'DataAsset', isLineage: true, isAiVisible: true },
+    { id: 'contains', nameCn: '', source: 'DataAsset', target: 'Field', isLineage: true, isAiVisible: true },
+    { id: 'has_assertion', nameCn: '', source: 'Field', target: 'SemanticAssertion', isLineage: true, isAiVisible: true },
+    { id: 'supported_by', nameCn: '', source: 'SemanticAssertion', target: 'Evidence', isLineage: true, isAiVisible: true },
+    { id: 'checked_by', nameCn: '', source: 'Field', target: 'DataQualityRule', isLineage: true, isAiVisible: true },
+    { id: 'produces', nameCn: '', source: 'DataQualityRule', target: 'DataIssue', isLineage: true, isAiVisible: true },
+    { id: 'assigned_to', nameCn: '', source: 'SemanticAssertion', target: 'GovernanceTask', isLineage: true, isAiVisible: true },
+    { id: 'includes', nameCn: '', source: 'Snapshot', target: 'SemanticAssertion', isLineage: false, isAiVisible: true },
+    { id: 'generated_by', nameCn: '', source: 'Run', target: 'Sanpshot', isLineage: true, isAiVisible: true }
+  ];
 
-  const activeLink = linkTypes.find(l => l.id === activeLinkId) || linkTypes[0];
-
-  // Helper for nodes in relationship map
-  const getObjIcon = (id: string, size = "h-4 w-4") => {
+  const getObjIcon = (id: string, className = "h-4 w-4") => {
     switch (id) {
-      case 'DataSource': return <Database className={`${size} text-blue-600`} />;
-      case 'DataAsset': return <Table className={`${size} text-teal-600`} />;
-      case 'Field': return <FileText className={`${size} text-indigo-600`} />;
-      case 'SemanticAssertion': return <Compass className={`${size} text-purple-600`} />;
-      case 'Evidence': return <ClipboardCopy className={`${size} text-violet-600`} />;
-      case 'DataQualityRule': return <Layers className={`${size} text-emerald-600`} />;
-      case 'DataIssue': return <ShieldAlert className={`${size} text-rose-600`} />;
-      case 'GovernanceTask': return <Activity className={`${size} text-orange-600`} />;
-      case 'Run': return <Play className={`${size} text-slate-500`} />;
-      case 'Snapshot': return <FileCheck className={`${size} text-amber-600`} />;
-      default: return <HelpCircle className={size} />;
-    }
-  };
-
-  const handleCreateRelation = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newLinkId.trim()) return;
-
-    const newLink: LinkType = {
-      id: newLinkId.toLowerCase().replace(/[^a-z0-9_]/g, '_'),
-      nameCn: newLinkNameCn,
-      sourceObjId: newLinkSource,
-      targetObjId: newLinkTarget,
-      direction: `${newLinkSource} → ${newLinkId} → ${newLinkTarget}`,
-      cardinality: newLinkCardinality,
-      isLineage: newLinkLineage,
-      isAiVisible: newLinkAi,
-      requiresAuth: newLinkAuth,
-      description: newLinkDesc
-    };
-
-    if (linkTypes.some(l => l.id === newLink.id)) {
-      alert("此 Link Type 关系标识已存在！");
-      return;
-    }
-
-    onUpdateLinkTypes([...linkTypes, newLink]);
-    setActiveLinkId(newLink.id);
-    setIsAddingRelation(false);
-    // Clear inputs
-    setNewLinkId('');
-    setNewLinkNameCn('');
-    setNewLinkDesc('');
-  };
-
-  const handleDeleteRelation = (idToDelete: string) => {
-    if (!window.confirm("确定要移除此 Link Type 关系绑定声明吗？")) return;
-    const updated = linkTypes.filter(l => l.id !== idToDelete);
-    onUpdateLinkTypes(updated);
-    if (activeLinkId === idToDelete) {
-      setActiveLinkId(updated[0]?.id || '');
+      case 'DataSource': return <Database className={`${className} text-blue-500`} />;
+      case 'DataAsset': return <Box className={`${className} text-blue-500`} />;
+      case 'Field': return <FileText className={`${className} text-blue-500`} />;
+      case 'SemanticAssertion': return <Shield className={`${className} text-blue-500`} />;
+      case 'Evidence': return <FileCode className={`${className} text-blue-500`} />;
+      case 'DataQualityRule': return <CheckCircle2 className={`${className} text-blue-500`} />;
+      case 'DataIssue': return <AlertTriangle className={`${className} text-red-500`} />;
+      case 'GovernanceTask': return <Target className={`${className} text-blue-500`} />;
+      case 'Run': return <Play className={`${className} text-blue-500`} />;
+      case 'Snapshot': return <Box className={`${className} text-blue-500`} />;
+      case 'Sanpshot': return <Box className={`${className} text-blue-500`} />;
+      default: return <Box className={className} />;
     }
   };
 
   return (
-    <div className="space-y-6" id="relation-workspace">
+    <div className="min-h-full font-sans bg-transparent" id="relation-workspace">
       
-      {/* 头部控制过滤 */}
-      <div className="bg-white rounded-xl border border-slate-100 p-4 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h2 className="text-sm font-bold text-slate-900">DRKN Link Type 关系多层控制</h2>
-          <p className="text-xs text-slate-500">
-            Link Type 定义了对象实体类型（如 Field 与 SemanticAssertion）之间如何承载关联。
+      {/* 面包屑 */}
+      <div className="flex items-center gap-2 text-[13px] text-slate-500 mb-6">
+        <div className="w-5 h-5 flex items-center justify-center bg-slate-200/50 rounded-md">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-600"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <span className="hover:text-slate-800 cursor-pointer text-slate-500" onClick={() => onNavigate('overview')}>管理中心</span>
+        <span className="text-slate-300">/</span>
+        <span className="hover:text-slate-800 cursor-pointer text-slate-500">本体管理</span>
+        <span className="text-slate-300">/</span>
+        <span className="font-bold text-slate-800">DRKN 本体管理</span>
+      </div>
+
+      {/* 标题和上下文信息 */}
+      <div className="flex flex-col md:flex-row md:items-start justify-between mb-6 pb-6 border-b border-slate-200">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">关系模型</h1>
+            <Star className="w-5 h-5 text-slate-400 stroke-[1.5]" />
+          </div>
+          <p className="text-sm text-slate-500 mt-2 font-medium">
+            定义 DRKN 对象之间的连接关系与约束
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          {/* Filters Selectors */}
-          <div className="flex p-0.5 bg-slate-100 rounded-lg text-xs" id="relation-filters">
-            {(['All', 'Lineage', 'AI', 'Gov'] as const).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`px-3 py-1.5 rounded-md font-semibold transition-colors cursor-pointer ${
-                  activeFilter === filter
-                    ? 'bg-white text-slate-900 shadow-xs'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                {filter === 'All' && '全部关系'}
-                {filter === 'Lineage' && '血缘关系'}
-                {filter === 'AI' && 'AI 可见关系'}
-                {filter === 'Gov' && '治理关系'}
-              </button>
-            ))}
+        
+        <div className="flex flex-col items-end gap-4 mt-4 md:mt-0">
+          <div className="flex gap-2">
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm">
+               <Database className="w-3.5 h-3.5 text-blue-500" />
+               <span className="text-[11px] text-slate-400 font-medium">模型域</span>
+               <span className="text-xs font-bold text-slate-700">DRKN 数据语义治理</span>
+            </div>
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm">
+               <Box className="w-3.5 h-3.5 text-blue-500" />
+               <span className="text-[11px] text-slate-400 font-medium">场景</span>
+               <span className="text-xs font-bold text-slate-700">默认数据治理模型</span>
+            </div>
+            <div className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white flex items-center gap-2 shadow-sm cursor-pointer hover:bg-slate-50">
+               <FileCode className="w-3.5 h-3.5 text-blue-500" />
+               <span className="text-[11px] text-slate-400 font-medium">版本</span>
+               <span className="text-xs font-bold text-slate-700">v1.3.0 ˇ</span>
+            </div>
+            <div className="border border-blue-200 rounded-lg px-3 py-1.5 bg-blue-50 flex items-center gap-2 shadow-sm cursor-pointer hover:bg-blue-100/50">
+               <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+               <span className="text-[11px] text-blue-600/70 font-medium">状态</span>
+               <span className="text-xs font-bold text-blue-700">已发布 ˇ</span>
+            </div>
           </div>
+          <div className="flex gap-3">
+             <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               + 新建变更集
+             </button>
+             <button 
+               onClick={() => setIsDrawerOpen(true)}
+               className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
+             >
+               + 创建关系类型
+             </button>
+             <button className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer flex items-center gap-1.5">
+               <CheckCircle2 className="w-4 h-4 text-slate-400" /> 校验模型
+             </button>
+             <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-all shadow-sm cursor-pointer border border-blue-600 flex items-center gap-1.5">
+               <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/><polyline points=%2217 8 12 3 7 8%22/><line x1='12' y1='3' x2='12' y2='15'/></svg>" alt="publish" className="w-4 h-4" />
+               发布
+             </button>
+          </div>
+        </div>
+      </div>
 
-          <button
-            onClick={() => setIsAddingRelation(true)}
-            disabled={!isEditingActive}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm transition-colors ${
-              isEditingActive 
-                ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer' 
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
+      {/* 顶部 Tabs */}
+      <div className="flex gap-8 mb-6 border-b border-slate-200">
+        {[
+          '模型总览', '对象模型', '关系模型', '能力 (Function)', '动作 (Action)', 
+          '流程 (Workflow)', '权限策略', '变更与发布'
+        ].map((tab) => (
+          <div 
+            key={tab}
+            onClick={() => {
+              if (tab === '模型总览') onNavigate('overview');
+              if (tab === '对象模型') onNavigate('object_model');
+              if (tab === '关系模型') onNavigate('relation_model');
+              if (tab === '能力 (Function)') onNavigate('capability_binding');
+              if (tab === '动作 (Action)') onNavigate('action_model');
+              if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
+              if (tab === '变更与发布') onNavigate('change_release');
+            }}
+            className={`pb-3 text-sm font-bold cursor-pointer transition-colors ${
+              tab === '关系模型' 
+                ? 'text-blue-600 border-b-2 border-blue-600 -mb-[1px]' 
+                : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Plus className="h-4 w-4" />
-            创建关系类型
-          </button>
-        </div>
+            {tab}
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
         
-        {/* 左：关系列表 */}
-        <div className="lg:col-span-3 bg-white border border-slate-205 rounded-xl p-4 shadow-sm space-y-3">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest px-1">
-            Link Type 关系大纲 (Filtered: {filteredLinks.length})
-          </h3>
-
-          <div className="space-y-1">
-            {filteredLinks.map((link) => (
-              <div
-                key={link.id}
-                onClick={() => setActiveLinkId(link.id)}
-                className={`p-3 rounded-lg flex items-center justify-between text-left cursor-pointer transition-all border ${
-                  link.id === activeLink?.id
-                    ? 'bg-blue-50 border-blue-200 text-blue-900 shadow-xs font-semibold'
-                    : 'hover:bg-slate-50 border-transparent text-slate-700'
-                }`}
-              >
-                <div className="space-y-1">
-                  <p className="text-xs font-mono font-bold leading-none">{link.id}</p>
-                  <p className="text-[10px] text-slate-400 font-normal">{link.nameCn}</p>
-                </div>
-                <div className="flex items-center gap-1 shrink-0">
-                  {link.isLineage && (
-                    <span className="p-0.5 rounded bg-slate-100 text-slate-500" title="参与血缘">
-                      <GitBranch className="h-3 w-3" />
-                    </span>
-                  )}
-                  {link.isAiVisible && (
-                    <span className="p-0.5 rounded bg-indigo-50 text-indigo-500" title="AI可见">
-                      <Sparkles className="h-3 w-3" />
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-            {filteredLinks.length === 0 && (
-              <p className="text-xs text-slate-400 text-center py-6">没有匹配该分类的关系类型</p>
-            )}
+        {/* 左栏：关系列表 */}
+        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 flex flex-col h-[800px]">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-base font-extrabold text-slate-900">Link Type 列表</h3>
           </div>
-        </div>
+          
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="搜索关系类型"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
 
-        {/* 中：关系物理拓扑可视化 Canvas */}
-        <div className="lg:col-span-6 bg-white border border-slate-205 rounded-xl p-6 shadow-sm flex flex-col justify-between min-h-[500px]">
-          <div>
-            <div className="flex items-center justify-between mb-4 border-b border-slate-50 pb-2">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                <span>DRKN 包含与因果逻辑视图</span>
-                <span className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-mono">Visual Graph</span>
-              </h3>
-              <p className="text-[11px] text-slate-400">蓝色为当前选中关系的连接路径</p>
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-700 flex items-center justify-between cursor-pointer">
+              全部血缘 <ChevronRight className="w-3.5 h-3.5 rotate-90 text-slate-400" />
             </div>
+            <div className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-700 flex items-center justify-between cursor-pointer">
+              全部可见性 <ChevronRight className="w-3.5 h-3.5 rotate-90 text-slate-400" />
+            </div>
+            <div className="w-10 h-[38px] flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 cursor-pointer">
+              <Menu className="w-4 h-4" />
+            </div>
+          </div>
 
-            {/* Visual Canvas containing high-fidelity visual representations */}
-            <div className="border border-dashed border-slate-200 rounded-xl bg-slate-50/50 p-4 min-h-[380px] relative flex flex-col justify-around gap-6">
-              
-              {/* Node Pair 1 */}
-              <div className="flex items-center justify-between max-w-md mx-auto w-full px-4">
-                <div className="flex flex-col items-center gap-1">
-                  <div className="h-10 w-28 bg-white border border-slate-200 rounded-lg flex items-center justify-center gap-2 shadow-xs">
-                    {getObjIcon(activeLink?.sourceObjId)}
-                    <span className="text-xs font-bold text-slate-800 font-mono truncate">{activeLink?.sourceObjId || 'Field'}</span>
-                  </div>
-                  <span className="text-[10px] text-slate-500">Source Object</span>
-                </div>
-
-                {/* Animated Directional Arrow */}
-                <div className="flex-1 px-4 relative flex flex-col items-center">
-                  <span className="text-[10px] font-bold text-blue-600 bg-white border border-blue-200 px-2 py-0.5 rounded-full shadow-xs mb-1">
-                    {activeLink?.id || 'contains'}
-                  </span>
-                  <div className="w-full h-1 bg-blue-500 relative rounded">
-                    <div className="absolute right-0 -top-1.5 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-l-[12px] border-l-blue-500"></div>
-                    <div className="absolute left-0 bottom-1.5 text-[9px] font-semibold text-slate-400">{activeLink?.cardinality || '1:N'}</div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center gap-1">
-                  <div className="h-10 w-28 bg-white border border-slate-200 rounded-lg flex items-center justify-center gap-2 shadow-xs">
-                    {getObjIcon(activeLink?.targetObjId)}
-                    <span className="text-xs font-bold text-slate-800 font-mono truncate">{activeLink?.targetObjId || 'Snapshot'}</span>
-                  </div>
-                  <span className="text-[10px] text-slate-500">Target Object</span>
-                </div>
-              </div>
-
-              {/* Comprehensive visual list of key relationships as interactive grid */}
-              <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100">
-                <p className="text-[11px] text-slate-400 col-span-2 font-semibold uppercase tracking-wider">
-                  本体规则拓扑图关系（点击高亮在右侧编辑）
-                </p>
-                {linkTypes.map((link) => (
-                  <div
-                    key={link.id}
-                    onClick={() => setActiveLinkId(link.id)}
-                    className={`p-2.5 rounded-lg border text-xs flex items-center justify-between cursor-pointer transition-all ${
-                      link.id === activeLink?.id
-                        ? 'bg-blue-50/50 border-blue-300 text-blue-900 font-bold'
-                        : 'bg-white border-slate-100 hover:border-slate-350 text-slate-600'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 truncate">
-                      <span className="p-1 bg-slate-50 rounded shrink-0">{getObjIcon(link.sourceObjId, "h-3.5 w-3.5")}</span>
-                      <span className="font-mono text-[11px] truncate">{link.id}</span>
+          <div className="space-y-2 pt-2 flex-col overflow-y-auto pb-4">
+            {localLinkTypes.filter(l => l.id.includes(searchTerm)).map((link, idx) => {
+              const isActive = activeLinkId === link.id && idx === 2; // Hardcode has_assertion as active for visual match
+              return (
+                <div 
+                  key={idx}
+                  className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                    isActive 
+                      ? 'bg-blue-50/80 border-blue-200' 
+                      : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50'
+                  }`}
+                  onClick={() => setActiveLinkId(link.id)}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                       <LinkIcon className={`w-4 h-4 ${isActive ? 'text-blue-500' : 'text-slate-400'}`} />
+                       <span className={`text-[14px] font-bold ${isActive ? 'text-blue-700' : 'text-slate-700'}`}>{link.id}</span>
                     </div>
-                    <ArrowRight className={`h-3 w-3 shrink-0 ${link.id === activeLink?.id ? 'text-blue-500' : 'text-slate-300'}`} />
+                    <div className="flex items-center gap-1">
+                      {link.isLineage ? (
+                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">血缘</span>
+                      ) : (
+                         <span className="text-[10px] font-bold text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">非血缘</span>
+                      )}
+                      {link.isAiVisible && (
+                        <span className="text-[10px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">AI 可见</span>
+                      )}
+                    </div>
                   </div>
-                ))}
-              </div>
+                  <div className="text-[12px] font-medium text-slate-500 flex items-center gap-1.5 pl-6">
+                    {link.source} <span className="text-slate-300">→</span> {link.target}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
+          <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[13px] font-medium shrink-0">
+             <span>共 18 条</span>
+             <div className="flex items-center gap-1">
+               <ChevronRight className="w-4 h-4 rotate-180 cursor-not-allowed text-slate-300" />
+               <div className="w-6 h-6 flex items-center justify-center bg-blue-50 text-blue-600 font-bold rounded">1</div>
+               <div className="w-6 h-6 flex items-center justify-center hover:bg-slate-50 text-slate-600 font-bold rounded cursor-pointer">2</div>
+               <ChevronRight className="w-4 h-4 cursor-pointer hover:text-slate-800" />
+             </div>
+          </div>
+        </div>
+
+        {/* 中栏：关系拓扑图 */}
+        <div className="lg:col-span-6 bg-white border border-slate-200 rounded-2xl shadow-sm relative h-[800px] overflow-hidden flex flex-col">
+          <div className="absolute top-5 left-5 z-10 flex items-center gap-2 text-slate-900 font-extrabold text-base">
+             关系模型图 <Info className="w-4 h-4 text-slate-400" />
+          </div>
+          
+          <div className="absolute top-5 right-5 z-10 flex items-center gap-1 bg-white border border-slate-200 rounded-lg shadow-sm p-1">
+             <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><Expand className="w-4 h-4" /></div>
+             <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
+             <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><ZoomIn className="w-4 h-4" /></div>
+             <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><ZoomOut className="w-4 h-4" /></div>
+             <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><RotateCcw className="w-4 h-4" /></div>
+          </div>
+
+          {/* Map canvas background */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNFMkU4RjAiLz48L3N2Zz4=')] opacity-[0.3]"></div>
+
+          {/* Handcrafted precise structure matching the design */}
+          <div className="flex-1 w-full relative">
+            
+            {/* SVG lines for connections */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
+              {/* DataSource -> DataAsset (contains) */}
+              <line x1="220" y1="120" x2="380" y2="120" stroke="#3b82f6" strokeWidth="1.5" strokeDasharray="3 3"/>
+              <polygon points="380,120 374,116 374,124" fill="#3b82f6" />
+              
+              {/* DataAsset -> Field (contains) */}
+              <line x1="450" y1="140" x2="450" y2="240" stroke="#3b82f6" strokeWidth="1.5"/>
+              <polygon points="450,240 446,234 454,234" fill="#3b82f6" />
+
+              {/* Field -> SemanticAssertion (has_assertion) */}
+              <line x1="520" y1="260" x2="680" y2="260" stroke="#8b5cf6" strokeWidth="2"/>
+              <polygon points="680,260 672,255 672,265" fill="#8b5cf6" />
+              
+              {/* Field -> DataQualityRule (checked_by) */}
+              <path d="M 450 280 L 450 380" fill="none" stroke="#3b82f6" strokeWidth="1.5"/>
+              <polygon points="450,380 446,374 454,374" fill="#3b82f6" />
+
+              {/* DataQualityRule -> DataIssue (produces) */}
+              <path d="M 450 420 L 450 520" fill="none" stroke="#3b82f6" strokeWidth="1.5"/>
+              <polygon points="450,520 446,514 454,514" fill="#3b82f6" />
+
+              {/* SemanticAssertion -> Evidence (supported_by) */}
+              <path d="M 720 280 L 720 380" fill="none" stroke="#3b82f6" strokeWidth="1.5"/>
+              <polygon points="720,380 716,374 724,374" fill="#3b82f6" />
+
+                             {/* Snapshot -> SemanticAssertion (includes) */}
+              <path d="M 460 620 L 820 620 L 820 260 L 780 260" fill="none" stroke="#3b82f6" strokeWidth="1.5"/>
+              <polygon points="780,260 786,256 786,264" fill="#3b82f6" />
+
+              {isDraftSaved && (
+                <>
+                  {/* Field -> DomainMapping (maps_to) */}
+                  <line x1="380" y1="260" x2="250" y2="260" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4 4" />
+                  <polygon points="250,260 258,255 258,265" fill="#f59e0b" />
+                </>
+              )}
+
+            </svg>
+
+            {/* Path Labels */}
+            <div className="absolute left-[270px] top-[100px] text-blue-500 font-bold text-[11px] bg-white px-1">contains</div>
+            <div className="absolute left-[455px] top-[180px] text-blue-500 font-bold text-[11px] bg-white px-1">contains</div>
+            <div className="absolute left-[560px] top-[244px] text-purple-600 font-bold text-[12px] bg-white px-2">has_assertion</div>
+            <div className="absolute left-[390px] top-[320px] text-blue-500 font-bold text-[11px] bg-white px-1">checked_by</div>
+            <div className="absolute left-[455px] top-[460px] text-blue-500 font-bold text-[11px] bg-white px-1">produces</div>
+            <div className="absolute left-[725px] top-[320px] text-blue-500 font-bold text-[11px] bg-white px-1">supported_by</div>
+            <div className="absolute left-[725px] top-[460px] text-blue-500 font-bold text-[11px] bg-white px-1">assigned_to</div>
+            <div className="absolute left-[280px] top-[600px] text-blue-500 font-bold text-[11px] bg-white px-1">generates</div>
+            <div className="absolute left-[600px] top-[600px] text-blue-500 font-bold text-[11px] bg-white px-1">includes</div>
+            {isDraftSaved && (
+              <div className="absolute left-[290px] top-[244px] text-amber-500 font-bold text-[12px] bg-white px-2">maps_to</div>
+            )}
+            
+
+            {/* Nodes */}
+            <div className="absolute left-[60px] top-[100px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Database className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">DataSource</div>
+                  <div className="text-[11px] text-slate-500">数据源</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[380px] top-[100px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Box className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">DataAsset</div>
+                  <div className="text-[11px] text-slate-500">数据资产</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[380px] top-[240px] w-36 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><FileText className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">Field</div>
+                  <div className="text-[11px] text-slate-500">字段</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[630px] top-[240px] w-[150px] bg-purple-50/50 border-2 border-purple-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-20">
+               <div className="p-1.5 bg-purple-100 text-purple-600 rounded-lg"><Shield className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-purple-900 leading-tight">SemanticAssertion</div>
+                  <div className="text-[10px] text-purple-600">语义断言</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[370px] top-[380px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><CheckCircle2 className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">DataQualityRule</div>
+                  <div className="text-[11px] text-slate-500">质量规则</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[650px] top-[380px] w-36 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><FileCode className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">Evidence</div>
+                  <div className="text-[11px] text-slate-500">证据</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[370px] top-[520px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-red-50 text-red-500 rounded-lg"><AlertTriangle className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">DataIssue</div>
+                  <div className="text-[11px] text-slate-500">数据问题</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[640px] top-[520px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Target className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">GovernanceTask</div>
+                  <div className="text-[11px] text-slate-500">治理任务</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[60px] top-[600px] w-36 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Play className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">Run</div>
+                  <div className="text-[11px] text-slate-500">运行记录</div>
+               </div>
+            </div>
+
+            <div className="absolute left-[380px] top-[600px] w-36 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+               <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Box className="w-5 h-5" /></div>
+               <div>
+                  <div className="text-[13px] font-bold text-slate-800 leading-tight">Snapshot</div>
+                  <div className="text-[11px] text-slate-500">快照</div>
+               </div>
+            </div>
+
+            {isDraftSaved && (
+              <div className="absolute left-[100px] top-[240px] w-36 bg-amber-50/50 border-2 border-amber-200 border-dashed rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+                 <div className="p-1.5 bg-amber-100 text-amber-600 rounded-lg"><MapIcon className="w-5 h-5" /></div>
+                 <div>
+                    <div className="text-[13px] font-bold text-amber-900 leading-tight">DomainMapping</div>
+                    <div className="text-[10px] text-amber-700 font-medium">领域映射 (未发布)</div>
+                 </div>
+              </div>
+            )}
+
+          </div>
+
+          <div className="absolute bottom-5 right-5 w-32 h-24 bg-white border border-slate-200 shadow-lg rounded-xl overflow-hidden opacity-90 p-1 flex justify-center items-center">
+            {/* minimap abstraction */}
+            <div className="relative w-full h-full scale-[0.6]">
+              <div className="w-4 h-2 absolute top-2 left-2 bg-slate-200 rounded"></div>
+              <div className="w-4 h-2 absolute top-2 left-10 bg-slate-200 rounded"></div>
+              <div className="w-4 h-2 absolute top-8 left-10 bg-slate-200 rounded"></div>
+              <div className="w-6 h-2 absolute top-8 left-18 bg-blue-200 border border-blue-400 rounded"></div>
+              <div className="w-4 h-2 absolute top-14 left-8 bg-slate-200 rounded"></div>
+              <div className="w-4 h-2 absolute top-14 left-18 bg-slate-200 rounded"></div>
+              <div className="w-4 h-2 absolute top-20 left-8 bg-slate-200 rounded"></div>
+              <div className="w-4 h-2 absolute top-20 left-18 bg-slate-200 rounded"></div>
+              <div className="w-4 h-2 absolute top-26 left-2 bg-slate-200 rounded"></div>
+              <div className="w-4 h-2 absolute top-26 left-10 bg-slate-200 rounded"></div>
+
+              <svg className="absolute inset-0 w-full h-full">
+                <line x1="8" y1="2" x2="38" y2="2" stroke="#cbd5e1" strokeWidth="1"/>
+                <line x1="48" y1="12" x2="48" y2="30" stroke="#cbd5e1" strokeWidth="1"/>
+                <line x1="56" y1="36" x2="68" y2="36" stroke="#60a5fa" strokeWidth="1"/>
+              </svg>
+
+              <div className="absolute border border-blue-400 border-dashed w-32 h-26 top-0 left-0"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* 右栏：关系详情面板 */}
+        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col h-[800px] overflow-y-auto">
+          
+          <div className="flex items-center justify-between mb-6">
+             <h3 className="text-base font-extrabold text-slate-900">关系详情</h3>
+             <button className="flex items-center gap-1.5 text-[13px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100">
+               <Edit className="w-3.5 h-3.5" /> 编辑
+             </button>
+          </div>
+          
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex flex-col items-center justify-center text-blue-600 shrink-0">
+               <LinkIcon className="w-4 h-4" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-lg font-bold text-slate-900">has_assertion</span>
+              <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">已发布</span>
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>💡 提示: 1:N 关系代表父对象可挂靠多个子状态，从而不发生状态交叉。</span>
-            {isEditingActive && (
-              <span className="text-blue-600 font-semibold flex items-center gap-1">
-                <span>草稿可编辑模型模式开启</span>
-              </span>
-            )}
+          <div className="space-y-4 text-[13px]">
+            <div className="flex">
+              <span className="w-24 text-slate-500 shrink-0">中文名</span>
+              <span className="font-bold text-slate-800">拥有语义断言</span>
+            </div>
+            <div className="flex items-center">
+              <span className="w-24 text-slate-500 shrink-0">源对象</span>
+              <span className="text-[12px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 font-mono">Field</span>
+              <span className="text-slate-500 ml-2 text-xs">字段</span>
+            </div>
+            <div className="flex items-center">
+              <span className="w-24 text-slate-500 shrink-0">目标对象</span>
+              <span className="text-[12px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-100 font-mono">SemanticAssertion</span>
+              <span className="text-slate-500 ml-2 text-xs">语义断言</span>
+            </div>
+            <div className="flex">
+              <span className="w-24 text-slate-500 shrink-0">方向</span>
+              <span className="font-mono text-slate-700 font-medium">Field → SemanticAssertion</span>
+            </div>
+            <div className="flex">
+              <span className="w-24 text-slate-500 shrink-0">基数</span>
+              <span className="font-mono font-bold text-slate-800">1 : N</span>
+            </div>
+            <div className="flex items-center">
+              <span className="w-24 text-slate-500 shrink-0">参与血缘</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-1.5" /> <span className="text-slate-800 font-medium">是</span>
+            </div>
+            <div className="flex items-center">
+              <span className="w-24 text-slate-500 shrink-0">AI 可见</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-1.5" /> <span className="text-slate-800 font-medium">是</span>
+            </div>
+            <div className="flex items-center">
+              <span className="w-24 text-slate-500 shrink-0">权限控制</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-1.5" /> <span className="text-slate-800 font-medium">是</span>
+            </div>
+            <div className="flex flex-col gap-1.5 pt-2">
+              <span className="text-slate-500 shrink-0">描述</span>
+              <span className="text-slate-700 leading-relaxed font-medium">字段拥有一个或多个语义断言，用于承载语义识别结果。</span>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-slate-100">
+            <h4 className="text-sm font-extrabold text-slate-900 mb-4">约束配置</h4>
+            <div className="space-y-3.5 text-[13px]">
+               <div className="flex items-center">
+                 <span className="w-24 text-slate-500 shrink-0 flex items-center gap-1">唯一性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                 <span className="text-slate-800 font-medium">可重复</span>
+               </div>
+               <div className="flex items-center">
+                 <span className="w-24 text-slate-500 shrink-0 flex items-center gap-1">必填性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                 <span className="text-slate-800 font-medium">非必填</span>
+               </div>
+               <div className="flex items-center">
+                 <span className="w-24 text-slate-500 shrink-0 flex items-center gap-1">方向性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                 <div className="flex items-center gap-2">
+                    <span className="text-slate-800 font-medium">单向</span>
+                    <span className="text-[10px] font-mono bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">Field → SemanticAssertion</span>
+                 </div>
+               </div>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-slate-100">
+            <h4 className="text-sm font-extrabold text-slate-900 mb-4">使用位置</h4>
+            <div className="space-y-4 text-[13px]">
+               <div className="flex items-center justify-between">
+                 <span className="text-slate-800 font-extrabold flex items-center gap-1">知识网络 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                 <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-medium">已使用</span></div>
+               </div>
+               <div className="flex items-center justify-between">
+                 <span className="text-slate-800 font-extrabold flex items-center gap-1">AI 工作台 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                 <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-medium">已使用</span></div>
+               </div>
+               <div className="flex items-center justify-between">
+                 <span className="text-slate-800 font-extrabold">Workflow</span>
+                 <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-medium">已使用</span></div>
+               </div>
+            </div>
+            
+            <div className="flex items-center justify-between gap-3 mt-8 pt-4">
+              <button className="flex-1 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer text-center">查看关系影响</button>
+              <button className="flex-1 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer text-center">查看使用实例</button>
+              <button className="flex-1 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer text-center">查看变更历史</button>
+            </div>
           </div>
         </div>
-
-        {/* 右：当前选中关系详情与约束 */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="bg-white border border-slate-205 rounded-xl p-5 shadow-sm space-y-5">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-2">
-              选中 Link Type 详情
-            </h3>
-
-            {activeLink ? (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-slate-800 font-mono">{activeLink.id}</h4>
-                  <p className="text-xs font-medium text-slate-500">{activeLink.nameCn}</p>
-                </div>
-
-                <div className="p-3 bg-slate-50 rounded-lg text-xs leading-relaxed space-y-2 border border-slate-100">
-                  <p className="text-slate-500">关系模型定位 & 口径释义:</p>
-                  <p className="text-slate-700 font-normal">{activeLink.description}</p>
-                </div>
-
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between text-xs py-1 border-b border-slate-50">
-                    <span className="text-slate-500 flex items-center gap-1">
-                      <Database className="h-3.5 w-3.5 text-slate-400" />
-                      源主体 (Source):
-                    </span>
-                    <button 
-                      onClick={() => onNavigate('object_model', activeLink.sourceObjId)}
-                      className="font-bold text-blue-600 hover:underline"
-                    >
-                      {activeLink.sourceObjId}
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between text-xs py-1 border-b border-slate-50">
-                    <span className="text-slate-500 flex items-center gap-1">
-                      <Compass className="h-3.5 w-3.5 text-slate-400" />
-                      目标主体 (Target):
-                    </span>
-                    <button 
-                      onClick={() => onNavigate('object_model', activeLink.targetObjId)}
-                      className="font-bold text-blue-600 hover:underline"
-                    >
-                      {activeLink.targetObjId}
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between text-xs py-1 border-b border-slate-50">
-                    <span className="text-slate-500">基数配比 (Cardinality):</span>
-                    <span className="font-semibold bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[10px]">
-                      {activeLink.cardinality}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Badges/Toggles indicators */}
-                <div className="space-y-2 pt-2">
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
-                    <span className="text-slate-550 inline-flex items-center gap-1.5">
-                      <GitBranch className="h-4 w-4 text-teal-650" />
-                      参与分析血缘树？
-                    </span>
-                    <span className={`h-2.5 w-2.5 rounded-full ${activeLink.isLineage ? 'bg-emerald-500' : 'bg-slate-305'}`}></span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
-                    <span className="text-slate-550 inline-flex items-center gap-1.5">
-                      <Eye className="h-4 w-4 text-indigo-650" />
-                      AI 认知引擎可见？
-                    </span>
-                    <span className={`h-2.5 w-2.5 rounded-full ${activeLink.isAiVisible ? 'bg-emerald-500' : 'bg-slate-305'}`}></span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100 text-xs">
-                    <span className="text-slate-550 inline-flex items-center gap-1.5">
-                      <ShieldCheck className="h-4 w-4 text-amber-650" />
-                      需要敏感权限策略？
-                    </span>
-                    <span className={`h-2.5 w-2.5 rounded-full ${activeLink.requiresAuth ? 'bg-emerald-500' : 'bg-slate-305'}`}></span>
-                  </div>
-                </div>
-
-                {/* Interactive Delete if edit mode */}
-                {isEditingActive && (
-                  <button 
-                    onClick={() => handleDeleteRelation(activeLink.id)}
-                    className="w-full py-2 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-lg border border-rose-200 text-xs font-semibold hover:text-rose-800 transition-colors flex items-center justify-center gap-1 cursor-pointer"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    注销该 Link Type 声明
-                  </button>
-                )}
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400 py-6 text-center">暂未选择关系</p>
-            )}
-          </div>
-        </div>
-
       </div>
 
-      {/* Modal Dialog for Creator Relation */}
-      {isAddingRelation && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity" onClick={() => setIsAddingRelation(false)}></div>
-          
-          <div className="relative bg-white border border-slate-205 max-w-xl w-full mx-4 rounded-xl shadow-2xl overflow-hidden" id="add-relation-modal">
-            <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900">定义全新的 DRKN 关系承载体 (Link Type)</h3>
-              <button onClick={() => setIsAddingRelation(false)} className="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
-            </div>
-
-            <form onSubmit={handleCreateRelation} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-705 block">关系唯一标识 (link_id)</label>
-                  <input
-                    type="text"
-                    required
-                    value={newLinkId}
-                    onChange={(e) => setNewLinkId(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_'))}
-                    placeholder="例如: maps_to, support_by"
-                    className="w-full px-3 py-2 text-xs border border-slate-250 rounded-lg focus:outline-none focus:border-blue-500 font-mono"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-705 block">中文释义名</label>
-                  <input
-                    type="text"
-                    required
-                    value={newLinkNameCn}
-                    onChange={(e) => setNewLinkNameCn(e.target.value)}
-                    placeholder="例如: 智能归属映射至业务域"
-                    className="w-full px-3 py-2 text-xs border border-slate-250 rounded-lg focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Edge Node Dropdowns */}
-              <div className="grid grid-cols-3 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-150 items-center">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 block">源实体 (Source)</label>
-                  <select
-                    value={newLinkSource}
-                    onChange={(e) => setNewLinkSource(e.target.value)}
-                    className="w-full p-1.5 bg-white border border-slate-200 text-xs rounded"
-                  >
-                    <option value="DataSource">DataSource</option>
-                    <option value="DataAsset">DataAsset</option>
-                    <option value="Field">Field</option>
-                    <option value="SemanticAssertion">SemanticAssertion</option>
-                    <option value="Evidence">Evidence</option>
-                    <option value="DataQualityRule">DataQualityRule</option>
-                    <option value="DataIssue">DataIssue</option>
-                    <option value="GovernanceTask">GovernanceTask</option>
-                    <option value="Run">Run</option>
-                    <option value="Snapshot">Snapshot</option>
-                  </select>
-                </div>
-
-                <div className="text-center font-bold text-blue-600 text-xs pt-3">
-                  ──────▶
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 block">目标实体 (Target)</label>
-                  <select
-                    value={newLinkTarget}
-                    onChange={(e) => setNewLinkTarget(e.target.value)}
-                    className="w-full p-1.5 bg-white border border-slate-200 text-xs rounded"
-                  >
-                    <option value="DataSource">DataSource</option>
-                    <option value="DataAsset">DataAsset</option>
-                    <option value="Field">Field</option>
-                    <option value="SemanticAssertion">SemanticAssertion</option>
-                    <option value="Evidence">Evidence</option>
-                    <option value="DataQualityRule">DataQualityRule</option>
-                    <option value="DataIssue">DataIssue</option>
-                    <option value="GovernanceTask">GovernanceTask</option>
-                    <option value="Run">Run</option>
-                    <option value="Snapshot">Snapshot</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Cardinality & Boolean configurations */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-705 block">基数对应模型</label>
-                  <select
-                    value={newLinkCardinality}
-                    onChange={(e) => setNewLinkCardinality(e.target.value as any)}
-                    className="w-full px-3 py-2 text-xs border border-slate-250 rounded-lg focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="1:1">1:1 (一对一绑定)</option>
-                    <option value="1:N">1:N (包含附属关联)</option>
-                    <option value="N:M">N:M (网状归属集合)</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2 pt-2">
-                  <label className="text-xs font-bold text-slate-705 block">关系特性开关</label>
-                  <div className="space-y-1.5 text-xs">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={newLinkLineage}
-                        onChange={(e) => setNewLinkLineage(e.target.checked)}
-                        className="rounded text-blue-600 focus:ring-blue-500"
-                      />
-                      <span>计算此线路作为全局血缘树的一部分</span>
-                    </label>
-
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={newLinkAi}
-                        onChange={(e) => setNewLinkAi(e.target.checked)}
-                        className="rounded text-blue-600 focus:ring-blue-500"
-                      />
-                      <span>允许 AI 执行推理时可见并使用此关系</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-705 block">关系口径解释 (说明)</label>
-                <textarea
-                  rows={3}
-                  required
-                  value={newLinkDesc}
-                  onChange={(e) => setNewLinkDesc(e.target.value)}
-                  placeholder="请输入对该实体间业务和逻辑关系的准确定义解释，避免大模型生成时解释混淆。"
-                  className="w-full px-3 py-2 text-xs border border-slate-250 rounded-lg focus:outline-none focus:border-blue-500"
-                ></textarea>
-              </div>
-
-              <div className="p-4 bg-blue-50 text-blue-900 border border-blue-100 rounded-lg text-[11px] leading-relaxed flex items-start gap-1.5">
-                <Info className="h-4 w-4 text-blue-500 shrink-0" />
-                <span>温馨提示: 在当前变更集新增 Link Type 不会破坏已经生产运行的快照。保存前可以在“变更与发布”中进行自动化干系影响预演。</span>
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => setIsAddingRelation(false)}
-                  className="px-4 py-2 text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-lg cursor-pointer"
-                >
-                  取消
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer shadow-xs"
-                >
-                  建立关联并提交缓存
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {isDrawerOpen && (
+        <>
+          <div 
+            className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40"
+            onClick={() => setIsDrawerOpen(false)}
+          ></div>
+          <CreateLinkTypeDrawer 
+            onClose={() => setIsDrawerOpen(false)} 
+            onSave={() => {
+              setIsDraftSaved(true);
+              setIsDrawerOpen(false);
+            }} 
+          />
+        </>
       )}
-
     </div>
   );
 }
