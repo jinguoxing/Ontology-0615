@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
-import { 
-  INITIAL_OBJECT_TYPES, 
-  INITIAL_LINK_TYPES, 
-  INITIAL_CAPABILITIES, 
-  INITIAL_WORKFLOWS, 
-  INITIAL_CHANGE_SETS, 
-  INITIAL_VALIDATION_ITEMS 
-} from './data';
-import { ObjectType, LinkType, Capability, DRKNWorkflow, ChangeSet, ValidationItem } from './types';
+import {
+  useObjectTypes,
+  useLinkTypes,
+  useCapabilities,
+  useChangeSets,
+  useValidationItems,
+  useUpdateObjectType,
+  useAddObjectType,
+  useReplaceLinkTypes,
+  useReplaceCapabilities,
+  useActivateDraftChangeSet,
+} from './hooks/useOntology';
+import { ObjectType, LinkType, Capability } from './types';
+import { useApp } from './context/AppContext';
+import { useUiStore } from './store/uiStore';
+import { useRouteSync } from './hooks/useRouteSync';
+import { Badge } from './components/ui/Badge';
 
 // Importing page components
 import Overview from './components/Overview';
@@ -33,50 +40,58 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  // Navigation active view state
-  const [activeView, setActiveView] = useState<string>('knowledge_network');
-  // Selected Object Type for ObjectModel and Capability views
-  const [selectedObjectId, setSelectedObjectId] = useState<string>('Field');
+  const { user, aiVersion, aiReady } = useApp();
 
-  // Core application states
-  const [objectTypes, setObjectTypes] = useState<ObjectType[]>(INITIAL_OBJECT_TYPES);
-  const [linkTypes, setLinkTypes] = useState<LinkType[]>(INITIAL_LINK_TYPES);
-  const [capabilities, setCapabilities] = useState<Capability[]>(INITIAL_CAPABILITIES);
-  const [workflows, setWorkflows] = useState<DRKNWorkflow[]>(INITIAL_WORKFLOWS);
-  const [changeSets, setChangeSets] = useState<ChangeSet[]>(INITIAL_CHANGE_SETS);
-  const [validationItems, setValidationItems] = useState<ValidationItem[]>(INITIAL_VALIDATION_ITEMS);
+  // Keep the URL (react-router) in sync with the UI store's active view +
+  // selected object, and vice versa (deep links / back / refresh).
+  useRouteSync();
 
-  // Changeset Active Editing state lock
-  const [isLocked, setIsLocked] = useState<boolean>(true); // initially locked to simulate Palantir transaction edit locking
-  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState<boolean>(false);
+  // UI state — sourced from the global UI store (no prop drilling).
+  const {
+    activeView,
+    selectedObjectId,
+    isLocked,
+    globalSearch,
+    showSearchResults,
+    isCreateDrawerOpen,
+    navigate: navigateStore,
+    setActiveView,
+    setSelectedObjectId,
+    setLocked,
+    setGlobalSearch,
+    setShowSearchResults,
+    setCreateDrawerOpen,
+  } = useUiStore();
 
-  // Global search query
-  const [globalSearch, setGlobalSearch] = useState('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  // Server/domain data — sourced from React Query (the data layer).
+  const {data: objectTypes = []} = useObjectTypes();
+  const {data: linkTypes = []} = useLinkTypes();
+  const {data: capabilities = []} = useCapabilities();
+  const {data: changeSets = []} = useChangeSets();
+  const {data: validationItems = []} = useValidationItems();
+  // workflows/workflows are not yet consumed via props in this view but kept
+  // available through useWorkflows() for downstream pages.
 
-  // Hanlde routing navigate with optional preselected targets
+  // Mutations — write ops + cache invalidation live in hooks.
+  const updateObjectTypeMutation = useUpdateObjectType();
+  const addObjectTypeMutation = useAddObjectType();
+  const replaceLinkTypesMutation = useReplaceLinkTypes();
+  const replaceCapabilitiesMutation = useReplaceCapabilities();
+  const activateDraftChangeSetMutation = useActivateDraftChangeSet();
+
+  // Handle routing navigate with optional preselected targets
   const handleNavigate = (view: string, targetId?: string) => {
-    setActiveView(view);
-    if (targetId) {
-      setSelectedObjectId(targetId);
-    }
+    navigateStore(view, targetId);
   };
 
-  // Turn on editing changeset (Unlock mode)
+  // Turn on editing changeset (Unlock mode): promote draft CS + unlock UI.
   const submitCreateChangeSet = () => {
-    setIsLocked(false);
-    // Find CS-2026-012 (the editing draft) and make it active editing
-    const updated = changeSets.map(cs => {
-      if (cs.id === 'CS-2026-012') {
-        return { ...cs, status: 'editing' as const };
-      }
-      return cs;
-    });
-    setChangeSets(updated);
+    activateDraftChangeSetMutation.mutate();
+    setLocked(false);
   };
 
   const openCreateChangeSet = () => {
-    setIsCreateDrawerOpen(true);
+    setCreateDrawerOpen(true);
   };
 
   // Re-run simulation validations
@@ -85,87 +100,30 @@ export default function App() {
   };
 
   const handleUpdateObjectType = (updatedObj: ObjectType) => {
-    const updated = objectTypes.map(o => o.id === updatedObj.id ? updatedObj : o);
-    setObjectTypes(updated);
+    updateObjectTypeMutation.mutate(updatedObj);
   };
 
   const handleAddObjectType = (newObj: ObjectType) => {
-    const exists = objectTypes.some(o => o.id === newObj.id);
-    let updatedTypes = [];
-    if (exists) {
-      updatedTypes = objectTypes.map(o => o.id === newObj.id ? { ...newObj, status: 'Modified' as const } : o);
-    } else {
-      updatedTypes = [...objectTypes, { ...newObj, status: 'Draft' as const }];
-    }
-    setObjectTypes(updatedTypes);
+    addObjectTypeMutation.mutate(newObj);
     setSelectedObjectId(newObj.id);
-
-    // Automatically append to CS-2026-012 changeset
-    const updatedCS = changeSets.map(cs => {
-      if (cs.id === 'CS-2026-012') {
-        const hasChange = cs.changes.some(ch => ch.target === newObj.id && ch.type === 'add_object');
-        if (hasChange) return cs;
-        return {
-          ...cs,
-          changes: [
-            ...cs.changes,
-            { 
-              type: 'add_object' as const, 
-              target: newObj.id, 
-              description: `启用 / 新增了 Object Type: ${newObj.id} (${newObj.nameCn})，并注入核心属性。` 
-            }
-          ]
-        };
-      }
-      return cs;
-    });
-    setChangeSets(updatedCS);
-    setIsLocked(false); // Automatically transition lock state as well
+    setLocked(false); // Automatically transition lock state as well
   };
 
   const handleUpdateLinkTypes = (updatedLinks: LinkType[]) => {
-    setLinkTypes(updatedLinks);
-    // Append a transaction log draft to changeset automatically
-    const updatedCS = changeSets.map(cs => {
-      if (cs.id === 'CS-2026-012') {
-        return {
-          ...cs,
-          changes: [
-            ...cs.changes,
-            { type: 'add_link' as const, target: `Relation Model`, description: `新建或解绑了特定的 Link Type 关系承载。` }
-          ]
-        };
-      }
-      return cs;
-    });
-    setChangeSets(updatedCS);
+    replaceLinkTypesMutation.mutate(updatedLinks);
   };
 
   const handleUpdateCapabilities = (updatedCaps: Capability[]) => {
-    setCapabilities(updatedCaps);
-    // Append log draft to changeset
-    const updatedCS = changeSets.map(cs => {
-      if (cs.id === 'CS-2026-012') {
-        return {
-          ...cs,
-          changes: [
-            ...cs.changes,
-            { type: 'bind_capability' as const, target: `Capability Binding`, description: `为领域实体多级绑定了特定的 Function / Action 计算或修改决策方法。` }
-          ]
-        };
-      }
-      return cs;
-    });
-    setChangeSets(updatedCS);
+    replaceCapabilitiesMutation.mutate(updatedCaps);
   };
 
   const clearActiveDraftMode = () => {
-    setIsLocked(true);
+    setLocked(true);
   };
 
   // Global search filtering
-  const matchingObjects = objectTypes.filter(obj => 
-    obj.id.toLowerCase().includes(globalSearch.toLowerCase()) || 
+  const matchingObjects = objectTypes.filter(obj =>
+    obj.id.toLowerCase().includes(globalSearch.toLowerCase()) ||
     obj.nameCn.toLowerCase().includes(globalSearch.toLowerCase()) ||
     obj.description.toLowerCase().includes(globalSearch.toLowerCase())
   );
@@ -260,18 +218,18 @@ export default function App() {
 
         {/* 右侧：操作人身份与AI平台 */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 text-xs text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 font-medium">
+          <Badge variant="subtle" size="md" className="font-medium">
             <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-            <span>AI 状态：<b>已就绪 (v1.3.0)</b></span>
-          </div>
+            <span>AI 状态：<b>{aiReady ? '已就绪' : '离线'} ({aiVersion})</b></span>
+          </Badge>
 
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-slate-600">
               <User className="h-4 w-4" />
             </div>
             <div className="hidden lg:block text-left text-xs leading-none">
-              <p className="font-bold text-slate-705">linzhang0222</p>
-              <p className="text-[9px] text-slate-400 font-normal mt-0.5">超级系统管理员</p>
+              <p className="font-bold text-slate-705">{user.displayName}</p>
+              <p className="text-[9px] text-slate-400 font-normal mt-0.5">{user.role}</p>
             </div>
             <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
           </div>
@@ -497,7 +455,7 @@ export default function App() {
 
       <CreateChangeSetDrawer 
         isOpen={isCreateDrawerOpen} 
-        onClose={() => setIsCreateDrawerOpen(false)} 
+        onClose={() => setCreateDrawerOpen(false)} 
         onSubmit={submitCreateChangeSet} 
       />
 

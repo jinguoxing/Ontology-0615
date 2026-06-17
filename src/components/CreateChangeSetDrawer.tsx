@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
 import { X, AlertTriangle, Check, Search, Shield, Settings, Cpu, Layers, Link2, BookOpen, AlertCircle, Info } from 'lucide-react';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from './ui/Drawer';
+import { Button } from './ui/Button';
 
 interface CreateChangeSetDrawerProps {
   isOpen: boolean;
@@ -24,8 +32,6 @@ export default function CreateChangeSetDrawer({ isOpen, onClose, onSubmit }: Cre
     '能力绑定变更'
   ]);
 
-  if (!isOpen) return null;
-
   const toggleType = (type: string) => {
     if (selectedTypes.includes(type)) {
       setSelectedTypes(selectedTypes.filter(t => t !== type));
@@ -45,26 +51,12 @@ export default function CreateChangeSetDrawer({ isOpen, onClose, onSubmit }: Cre
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end font-sans">
-      {/* Backend Overlay */}
-      <div 
-        className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* Drawer */}
-      <div className="relative w-full max-w-[480px] bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-        
+    <Drawer open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DrawerContent maxWidth="max-w-[480px]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="text-lg font-bold text-slate-800">新建变更集</h2>
-          <button 
-            onClick={onClose}
-            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+        <DrawerHeader>
+          <DrawerTitle>新建变更集</DrawerTitle>
+        </DrawerHeader>
 
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin">
@@ -290,25 +282,22 @@ export default function CreateChangeSetDrawer({ isOpen, onClose, onSubmit }: Cre
         </div>
 
         {/* Footer actions */}
-        <div className="px-6 py-4 border-t border-slate-100 bg-white flex items-center justify-end gap-3 shrink-0">
-          <button 
-            onClick={onClose}
-            className="px-5 py-2.5 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-xs"
-          >
+        <DrawerFooter>
+          <Button variant="secondary" onClick={onClose}>
             取消
-          </button>
-          <button 
+          </Button>
+          <Button
+            variant="primary"
             onClick={() => {
               onSubmit(formData);
               onClose();
             }}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
           >
             创建变更集
-          </button>
-        </div>
+          </Button>
+        </DrawerFooter>
 
-      </div>
-    </div>
+      </DrawerContent>
+    </Drawer>
   );
 }
