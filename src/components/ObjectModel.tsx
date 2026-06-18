@@ -1093,39 +1093,7 @@ export default function ObjectModel() {
               </div>
             )}
             
-            <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
-               <button className="px-4 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer">查看全部属性</button>
-               <button 
-                 onClick={() => {
-                   if (activeObj.id === 'Field') {
-                     setPropName('semantic_source');
-                     setPropCnName('语义来源');
-                     setPropDataType('Enum');
-                     setPropIsRequired(false);
-                     setPropDefaultVal('System Inferred');
-                     setPropDescription('记录字段语义来源，例如系统识别、人工确认、AI 反馈。');
-                     setEnumItems(['System Inferred', 'Human Confirmed', 'AI Feedback', 'External Glossary']);
-                   } else {
-                     setPropName('');
-                     setPropCnName('');
-                     setPropDataType('string');
-                     setPropIsRequired(false);
-                     setPropDefaultVal('');
-                     setPropDescription('');
-                     setEnumItems(['System Inferred', 'Human Confirmed', 'AI Feedback', 'External Glossary']);
-                   }
-                   setScopeKnowledgeNetwork(true);
-                   setScopeAiWorkbench(true);
-                   setScopeFunctionInput(true);
-                   setScopeWorkflowCondition(true);
-                   setScopeReleaseCheck(true);
-                   setIsAddPropertyDrawerOpen(true);
-                 }}
-                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[13px] rounded-lg transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
-               >
-                 <Plus className="w-4 h-4" /> 添加属性
-               </button>
-            </div>
+
           </div>
 
         </div>
