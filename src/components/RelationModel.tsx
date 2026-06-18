@@ -21,6 +21,7 @@ export default function RelationModel() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDraftSaved, setIsDraftSaved] = useState(false);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
 
   // Fallback to activeLink data if not in props
   const activeLink = linkTypes.find(l => l.id === activeLinkId) || {
@@ -158,7 +159,7 @@ export default function RelationModel() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
         
         {/* 左栏：关系列表 */}
-        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 flex flex-col h-[800px]">
+        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4 flex flex-col h-[800px]">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-base font-extrabold text-slate-900">Link Type 列表</h3>
           </div>
@@ -192,7 +193,7 @@ export default function RelationModel() {
               return (
                 <div 
                   key={idx}
-                  className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
                     isActive 
                       ? 'bg-blue-50/80 border-blue-200' 
                       : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50'
@@ -235,12 +236,19 @@ export default function RelationModel() {
         </div>
 
         {/* 中栏：关系拓扑图 */}
-        <div className="lg:col-span-6 bg-white border border-slate-200 rounded-2xl shadow-sm relative h-[800px] overflow-hidden flex flex-col">
+        <div className={`bg-white border border-slate-200 rounded-lg shadow-sm relative h-[800px] overflow-hidden flex flex-col transition-all duration-300 ${isRightSidebarOpen ? 'lg:col-span-6' : 'lg:col-span-9'}`}>
           <div className="absolute top-5 left-5 z-10 flex items-center gap-2 text-slate-900 font-extrabold text-base">
              关系模型图 <Info className="w-4 h-4 text-slate-400" />
           </div>
           
           <div className="absolute top-5 right-5 z-10 flex items-center gap-1 bg-white border border-slate-200 rounded-lg shadow-sm p-1">
+             <button
+               onClick={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+               className="h-8 px-2.5 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 text-[11px] font-bold gap-1 transition-all"
+             >
+               {isRightSidebarOpen ? "收起右栏" : "展开右栏"}
+             </button>
+             <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
              <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><Expand className="w-4 h-4" /></div>
              <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
              <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><ZoomIn className="w-4 h-4" /></div>
@@ -310,7 +318,7 @@ export default function RelationModel() {
             
 
             {/* Nodes */}
-            <div className="absolute left-[60px] top-[100px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[60px] top-[100px] w-40 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Database className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">DataSource</div>
@@ -318,7 +326,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[380px] top-[100px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[380px] top-[100px] w-40 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Box className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">DataAsset</div>
@@ -326,7 +334,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[380px] top-[240px] w-36 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[380px] top-[240px] w-36 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><FileText className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">Field</div>
@@ -334,7 +342,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[630px] top-[240px] w-[150px] bg-purple-50/50 border-2 border-purple-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-20">
+            <div className="absolute left-[630px] top-[240px] w-[150px] bg-purple-50/50 border-2 border-purple-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-20">
                <div className="p-1.5 bg-purple-100 text-purple-600 rounded-lg"><Shield className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-purple-900 leading-tight">SemanticAssertion</div>
@@ -342,7 +350,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[370px] top-[380px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[370px] top-[380px] w-40 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><CheckCircle2 className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">DataQualityRule</div>
@@ -350,7 +358,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[650px] top-[380px] w-36 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[650px] top-[380px] w-36 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><FileCode className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">Evidence</div>
@@ -358,7 +366,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[370px] top-[520px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[370px] top-[520px] w-40 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-red-50 text-red-500 rounded-lg"><AlertTriangle className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">DataIssue</div>
@@ -366,7 +374,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[640px] top-[520px] w-40 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[640px] top-[520px] w-40 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Target className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">GovernanceTask</div>
@@ -374,7 +382,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[60px] top-[600px] w-36 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[60px] top-[600px] w-36 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Play className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">Run</div>
@@ -382,7 +390,7 @@ export default function RelationModel() {
                </div>
             </div>
 
-            <div className="absolute left-[380px] top-[600px] w-36 bg-white border border-slate-200 rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+            <div className="absolute left-[380px] top-[600px] w-36 bg-white border border-slate-200 rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Box className="w-5 h-5" /></div>
                <div>
                   <div className="text-[13px] font-bold text-slate-800 leading-tight">Snapshot</div>
@@ -391,7 +399,7 @@ export default function RelationModel() {
             </div>
 
             {isDraftSaved && (
-              <div className="absolute left-[100px] top-[240px] w-36 bg-amber-50/50 border-2 border-amber-200 border-dashed rounded-xl p-3 shadow-sm flex items-center gap-3 z-10">
+              <div className="absolute left-[100px] top-[240px] w-36 bg-amber-50/50 border-2 border-amber-200 border-dashed rounded-lg p-3 shadow-sm flex items-center gap-3 z-10">
                  <div className="p-1.5 bg-amber-100 text-amber-600 rounded-lg"><MapIcon className="w-5 h-5" /></div>
                  <div>
                     <div className="text-[13px] font-bold text-amber-900 leading-tight">DomainMapping</div>
@@ -402,7 +410,7 @@ export default function RelationModel() {
 
           </div>
 
-          <div className="absolute bottom-5 right-5 w-32 h-24 bg-white border border-slate-200 shadow-lg rounded-xl overflow-hidden opacity-90 p-1 flex justify-center items-center">
+          <div className="absolute bottom-5 right-5 w-32 h-24 bg-white border border-slate-200 shadow-lg rounded-lg overflow-hidden opacity-90 p-1 flex justify-center items-center">
             {/* minimap abstraction */}
             <div className="relative w-full h-full scale-[0.6]">
               <div className="w-4 h-2 absolute top-2 left-2 bg-slate-200 rounded"></div>
@@ -428,7 +436,8 @@ export default function RelationModel() {
         </div>
 
         {/* 右栏：关系详情面板 */}
-        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col h-[800px] overflow-y-auto">
+        {isRightSidebarOpen && (
+          <div className="lg:col-span-3 bg-white border border-slate-200 rounded-lg shadow-sm p-6 flex flex-col h-[800px] overflow-y-auto animate-fade-in animate-duration-200">
           
           <div className="flex items-center justify-between mb-6">
              <h3 className="text-base font-extrabold text-slate-900">关系详情</h3>
@@ -530,9 +539,10 @@ export default function RelationModel() {
               <button className="flex-1 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer text-center">查看关系影响</button>
               <button className="flex-1 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer text-center">查看使用实例</button>
               <button className="flex-1 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer text-center">查看变更历史</button>
-            </div>
           </div>
         </div>
+          </div>
+      )}
       </div>
 
       <CreateLinkTypeDrawer

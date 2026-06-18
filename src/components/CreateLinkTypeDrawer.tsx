@@ -137,7 +137,7 @@ export default function CreateLinkTypeDrawer({ open, onClose, onSave }: CreateLi
       <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
         
         {/* Block 1: 关系基础信息 */}
-        <section className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-3xs space-y-4">
+        <section className="bg-white border border-slate-200/90 rounded-lg p-5 shadow-3xs space-y-4">
           <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
             <span className="w-1.5 h-3 bg-blue-600 rounded-full block"></span>
             <h3 className="text-xs font-black text-slate-800">第一块：关系基础信息</h3>
@@ -216,7 +216,7 @@ export default function CreateLinkTypeDrawer({ open, onClose, onSave }: CreateLi
         </section>
 
         {/* Block 2: 源对象与目标对象 */}
-        <section className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-3xs space-y-4">
+        <section className="bg-white border border-slate-200/90 rounded-lg p-5 shadow-3xs space-y-4">
           <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
             <span className="w-1.5 h-3 bg-blue-600 rounded-full block"></span>
             <h3 className="text-xs font-black text-slate-800">第二块：源对象与目标对象</h3>
@@ -305,7 +305,7 @@ export default function CreateLinkTypeDrawer({ open, onClose, onSave }: CreateLi
         </section>
 
         {/* Block 3: 关系约束 */}
-        <section className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-3xs space-y-4">
+        <section className="bg-white border border-slate-200/90 rounded-lg p-5 shadow-3xs space-y-4">
           <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
             <span className="w-1.5 h-3 bg-blue-600 rounded-full block"></span>
             <h3 className="text-xs font-black text-slate-800">第三块：关系约束</h3>
@@ -348,7 +348,7 @@ export default function CreateLinkTypeDrawer({ open, onClose, onSave }: CreateLi
         </section>
 
         {/* Block 4: 权限与展示 */}
-        <section className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-3xs space-y-4">
+        <section className="bg-white border border-slate-200/90 rounded-lg p-5 shadow-3xs space-y-4">
           <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
             <span className="w-1.5 h-3 bg-blue-600 rounded-full block"></span>
             <h3 className="text-xs font-black text-slate-800">第四块：权限与展示</h3>
@@ -438,7 +438,7 @@ export default function CreateLinkTypeDrawer({ open, onClose, onSave }: CreateLi
         </section>
 
         {/* Block 5: 校验与影响分析 */}
-        <section className="bg-indigo-50/20 border border-slate-200/95 p-5 rounded-2xl shadow-3xs space-y-4">
+        <section className="bg-indigo-50/20 border border-slate-200/95 p-5 rounded-lg shadow-3xs space-y-4">
           <div className="flex items-center gap-2 mb-2 border-b border-indigo-100/40 pb-2">
             <Layers className="w-4.5 h-4.5 text-indigo-600" />
             <h3 className="text-xs font-black text-slate-850">第五块：校验与影响分析</h3>
