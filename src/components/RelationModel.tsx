@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LinkType } from '../types';
 import {
   Database, Box, FileText, Shield, ClipboardCopy,
   Layers, AlertTriangle, Target, Play, FileCode, CheckCircle2,
   ChevronRight, Search, Settings, Star, GitMerge, Link as LinkIcon, FunctionSquare, Plus, Edit, Download, Check, Map as MapIcon, Menu, ArrowRight, Expand, ZoomIn, ZoomOut, RotateCcw, AlertCircle, Info,
-  RefreshCw, ChevronDown
+  RefreshCw, ChevronDown, X
 } from 'lucide-react';
 import CreateLinkTypeDrawer from './CreateLinkTypeDrawer';
-import {useLinkTypes} from '../hooks/useOntology';
+import {useLinkTypes, useReplaceLinkTypes} from '../hooks/useOntology';
 import {useUiStore} from '../store/uiStore';
 import {PageHeader} from './ui/PageHeader';
 
 export default function RelationModel() {
   const {data: linkTypes = []} = useLinkTypes();
+  const replaceLinkTypesMutation = useReplaceLinkTypes();
   const navigate = useUiStore((s) => s.navigate);
   const isEditingActive = !useUiStore((s) => s.isLocked);
 
@@ -22,6 +23,16 @@ export default function RelationModel() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isDraftSaved, setIsDraftSaved] = useState(false);
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Form states for editing relation details
+  const [isEditingDetails, setIsEditingDetails] = useState(false);
+  const [editNameCn, setEditNameCn] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editCardinality, setEditCardinality] = useState<'1:1' | '1:N' | 'N:M'>('1:N');
+  const [editIsLineage, setEditIsLineage] = useState(false);
+  const [editIsAiVisible, setEditIsAiVisible] = useState(false);
+  const [editRequiresAuth, setEditRequiresAuth] = useState(false);
 
   // Fallback to activeLink data if not in props
   const activeLink = linkTypes.find(l => l.id === activeLinkId) || {
@@ -30,11 +41,67 @@ export default function RelationModel() {
     sourceObjId: 'Field',
     targetObjId: 'SemanticAssertion',
     direction: 'Field → SemanticAssertion',
-    cardinality: '1 : N',
+    cardinality: '1:N' as const,
     isLineage: true,
     isAiVisible: true,
     requiresAuth: true,
     description: '字段拥有一个或多个语义断言，用于承载语义识别结果。'
+  };
+
+  useEffect(() => {
+    setIsEditingDetails(false);
+  }, [activeLinkId]);
+
+  const triggerToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4500);
+  };
+
+  const startEditing = () => {
+    setEditNameCn(activeLink.nameCn);
+    setEditDescription(activeLink.description || '');
+    setEditCardinality(activeLink.cardinality);
+    setEditIsLineage(activeLink.isLineage);
+    setEditIsAiVisible(activeLink.isAiVisible);
+    setEditRequiresAuth(activeLink.requiresAuth);
+    setIsEditingDetails(true);
+  };
+
+  const handleCancelDetails = () => {
+    setIsEditingDetails(false);
+  };
+
+  const handleSaveDetails = () => {
+    if (!editNameCn.trim()) {
+      alert('❌ 请输入合法的中文名！');
+      return;
+    }
+    const updatedLink: LinkType = {
+      ...activeLink,
+      nameCn: editNameCn.trim(),
+      description: editDescription.trim(),
+      cardinality: editCardinality,
+      isLineage: editIsLineage,
+      isAiVisible: editIsAiVisible,
+      requiresAuth: editRequiresAuth,
+    };
+    const nextLinkTypes = linkTypes.map(l => l.id === activeLinkId ? updatedLink : l);
+    replaceLinkTypesMutation.mutate(nextLinkTypes, {
+      onSuccess: () => {
+        triggerToast(`✨ 成功更新关系类型「${activeLinkId}」的详细配置！`);
+        setIsEditingDetails(false);
+      },
+      onError: (err) => {
+        alert(`❌ 更新失败: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    });
+  };
+
+  const selectLink = (id: string) => {
+    setActiveLinkId(id);
+    setIsRightSidebarOpen(true);
   };
 
   const localLinkTypes = [
@@ -66,9 +133,28 @@ export default function RelationModel() {
     }
   };
 
+  const filteredLinks = linkTypes.filter(l => 
+    l.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    l.nameCn.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-full font-sans bg-transparent" id="relation-workspace">
       
+      {/* Dynamic Action Toast Notifications */}
+      {toastMessage && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-slate-905 border border-slate-700 text-white rounded-md px-5 py-3 shadow-lg flex items-center gap-3 max-w-md animate-fade-in">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+          <div className="text-left flex-1 min-w-0">
+            <p className="text-xs font-extrabold text-slate-205 font-sans">系统数据变更成功</p>
+            <p className="text-[11px] text-slate-400 font-medium mt-0.5 leading-relaxed truncate font-sans">{toastMessage}</p>
+          </div>
+          <button onClick={() => setToastMessage(null)} className="text-slate-500 hover:text-slate-300 transition-colors ml-2 shrink-0 cursor-pointer">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* 顶部 Header */}
       <PageHeader
         breadcrumbs={[
@@ -188,17 +274,17 @@ export default function RelationModel() {
           </div>
 
           <div className="space-y-2 pt-2 flex-col overflow-y-auto pb-4">
-            {localLinkTypes.filter(l => l.id.includes(searchTerm)).map((link, idx) => {
-              const isActive = activeLinkId === link.id && idx === 2; // Hardcode has_assertion as active for visual match
+            {filteredLinks.map((link) => {
+              const isActive = activeLinkId === link.id;
               return (
                 <div 
-                  key={idx}
+                  key={link.id}
                   className={`p-3 rounded-lg border cursor-pointer transition-all ${
                     isActive 
                       ? 'bg-blue-50/80 border-blue-200' 
                       : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50'
                   }`}
-                  onClick={() => setActiveLinkId(link.id)}
+                  onClick={() => selectLink(link.id)}
                 >
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-2">
@@ -217,19 +303,23 @@ export default function RelationModel() {
                     </div>
                   </div>
                   <div className="text-[12px] font-medium text-slate-500 flex items-center gap-1.5 pl-6">
-                    {link.source} <span className="text-slate-300">→</span> {link.target}
+                    {link.sourceObjId} <span className="text-slate-300">→</span> {link.targetObjId}
                   </div>
+                  {link.nameCn && (
+                    <div className="text-[11px] text-slate-400 pl-6 mt-0.5 font-medium truncate">
+                      {link.nameCn}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
 
           <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[13px] font-medium shrink-0">
-             <span>共 18 条</span>
+             <span>共 {filteredLinks.length} 条</span>
              <div className="flex items-center gap-1">
                <ChevronRight className="w-4 h-4 rotate-180 cursor-not-allowed text-slate-300" />
                <div className="w-6 h-6 flex items-center justify-center bg-blue-50 text-blue-600 font-bold rounded">1</div>
-               <div className="w-6 h-6 flex items-center justify-center hover:bg-slate-50 text-slate-600 font-bold rounded cursor-pointer">2</div>
                <ChevronRight className="w-4 h-4 cursor-pointer hover:text-slate-800" />
              </div>
           </div>
@@ -303,17 +393,103 @@ export default function RelationModel() {
             </svg>
 
             {/* Path Labels */}
-            <div className="absolute left-[270px] top-[100px] text-blue-500 font-bold text-[11px] bg-white px-1">contains</div>
-            <div className="absolute left-[455px] top-[180px] text-blue-500 font-bold text-[11px] bg-white px-1">contains</div>
-            <div className="absolute left-[560px] top-[244px] text-purple-600 font-bold text-[12px] bg-white px-2">has_assertion</div>
-            <div className="absolute left-[390px] top-[320px] text-blue-500 font-bold text-[11px] bg-white px-1">checked_by</div>
-            <div className="absolute left-[455px] top-[460px] text-blue-500 font-bold text-[11px] bg-white px-1">produces</div>
-            <div className="absolute left-[725px] top-[320px] text-blue-500 font-bold text-[11px] bg-white px-1">supported_by</div>
-            <div className="absolute left-[725px] top-[460px] text-blue-500 font-bold text-[11px] bg-white px-1">assigned_to</div>
-            <div className="absolute left-[280px] top-[600px] text-blue-500 font-bold text-[11px] bg-white px-1">generates</div>
-            <div className="absolute left-[600px] top-[600px] text-blue-500 font-bold text-[11px] bg-white px-1">includes</div>
+            <div 
+              onClick={() => selectLink('contains_ds_da')}
+              className={`absolute left-[270px] top-[100px] font-bold text-[11px] bg-white px-2 py-0.5 rounded border transition-all cursor-pointer select-none z-30 ${
+                activeLinkId === 'contains_ds_da' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm scale-105' 
+                  : 'text-blue-500 border-slate-200 hover:border-blue-400 hover:bg-blue-50/50'
+              }`}
+            >
+              contains
+            </div>
+            <div 
+              onClick={() => selectLink('contains_da_fi')}
+              className={`absolute left-[455px] top-[180px] font-bold text-[11px] bg-white px-2 py-0.5 rounded border transition-all cursor-pointer select-none z-30 ${
+                activeLinkId === 'contains_da_fi' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm scale-105' 
+                  : 'text-blue-500 border-slate-200 hover:border-blue-400 hover:bg-blue-50/50'
+              }`}
+            >
+              contains
+            </div>
+            <div 
+              onClick={() => selectLink('has_assertion')}
+              className={`absolute left-[560px] top-[244px] font-bold text-[12px] bg-white px-2 py-0.5 rounded border transition-all cursor-pointer select-none z-30 ${
+                activeLinkId === 'has_assertion' 
+                  ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-sm scale-105' 
+                  : 'text-purple-600 border-slate-200 hover:border-purple-400 hover:bg-purple-50/50'
+              }`}
+            >
+              has_assertion
+            </div>
+            <div 
+              onClick={() => selectLink('checked_by')}
+              className={`absolute left-[390px] top-[320px] font-bold text-[11px] bg-white px-2 py-0.5 rounded border transition-all cursor-pointer select-none z-30 ${
+                activeLinkId === 'checked_by' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm scale-105' 
+                  : 'text-blue-500 border-slate-200 hover:border-blue-400 hover:bg-blue-50/50'
+              }`}
+            >
+              checked_by
+            </div>
+            <div 
+              onClick={() => selectLink('produces')}
+              className={`absolute left-[455px] top-[460px] font-bold text-[11px] bg-white px-2 py-0.5 rounded border transition-all cursor-pointer select-none z-30 ${
+                activeLinkId === 'produces' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm scale-105' 
+                  : 'text-blue-500 border-slate-200 hover:border-blue-400 hover:bg-blue-50/50'
+              }`}
+            >
+              produces
+            </div>
+            <div 
+              onClick={() => selectLink('supported_by')}
+              className={`absolute left-[725px] top-[320px] font-bold text-[11px] bg-white px-2 py-0.5 rounded border transition-all cursor-pointer select-none z-30 ${
+                activeLinkId === 'supported_by' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm scale-105' 
+                  : 'text-blue-500 border-slate-200 hover:border-blue-400 hover:bg-blue-50/50'
+              }`}
+            >
+              supported_by
+            </div>
+            <div 
+              onClick={() => selectLink('assigned_to')}
+              className={`absolute left-[725px] top-[460px] font-bold text-[11px] bg-white px-2 py-0.5 rounded border transition-all cursor-pointer select-none z-30 ${
+                activeLinkId === 'assigned_to' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm scale-105' 
+                  : 'text-blue-500 border-slate-200 hover:border-blue-400 hover:bg-blue-50/50'
+              }`}
+            >
+              assigned_to
+            </div>
+            <div 
+              className="absolute left-[280px] top-[600px] text-slate-400 font-bold text-[11px] bg-white px-2 py-0.5 rounded border border-transparent select-none z-30"
+              title="暂无对应 Link Type 定义"
+            >
+              generates
+            </div>
+            <div 
+              onClick={() => selectLink('includes_version')}
+              className={`absolute left-[600px] top-[600px] font-bold text-[11px] bg-white px-2 py-0.5 rounded border transition-all cursor-pointer select-none z-30 ${
+                activeLinkId === 'includes_version' 
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm scale-105' 
+                  : 'text-blue-500 border-slate-200 hover:border-blue-400 hover:bg-blue-50/50'
+              }`}
+            >
+              includes
+            </div>
             {isDraftSaved && (
-              <div className="absolute left-[290px] top-[244px] text-amber-500 font-bold text-[12px] bg-white px-2">maps_to</div>
+              <div 
+                onClick={() => selectLink('maps_to')}
+                className={`absolute left-[290px] top-[244px] text-amber-500 font-bold text-[12px] bg-white px-2 py-0.5 rounded border border-dashed transition-all cursor-pointer select-none z-30 ${
+                  activeLinkId === 'maps_to' 
+                    ? 'border-amber-500 bg-amber-50 text-amber-800 shadow-sm scale-105' 
+                    : 'border-slate-200 hover:border-amber-400 hover:bg-amber-50/50'
+                }`}
+              >
+                maps_to
+              </div>
             )}
             
 
@@ -408,9 +584,7 @@ export default function RelationModel() {
               </div>
             )}
 
-          </div>
-
-          <div className="absolute bottom-5 right-5 w-32 h-24 bg-white border border-slate-200 shadow-lg rounded-lg overflow-hidden opacity-90 p-1 flex justify-center items-center">
+            <div className="absolute bottom-5 right-5 w-32 h-24 bg-white border border-slate-200 shadow-lg rounded-lg overflow-hidden opacity-90 p-1 flex justify-center items-center">
             {/* minimap abstraction */}
             <div className="relative w-full h-full scale-[0.6]">
               <div className="w-4 h-2 absolute top-2 left-2 bg-slate-200 rounded"></div>
@@ -434,16 +608,22 @@ export default function RelationModel() {
             </div>
           </div>
         </div>
+      </div>
 
         {/* 右栏：关系详情面板 */}
         {isRightSidebarOpen && (
           <div className="lg:col-span-3 bg-white border border-slate-200 rounded-lg shadow-sm p-6 flex flex-col h-[800px] overflow-y-auto space-y-6 animate-fade-in animate-duration-200 scrollbar-none">
           
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-               <h3 className="text-base font-extrabold text-slate-900">关系详情</h3>
-               <button className="flex items-center gap-1.5 text-[12px] font-bold text-blue-600 bg-blue-50/60 px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100/80 transition-colors">
-                 <Edit className="w-3.5 h-3.5" /> 编辑
-               </button>
+               <h3 className="text-base font-extrabold text-slate-900">{isEditingDetails ? "编辑关系" : "关系详情"}</h3>
+               {!isEditingDetails && (
+                 <button 
+                   onClick={startEditing}
+                   className="flex items-center gap-1.5 text-[12px] font-bold text-blue-600 bg-blue-50/60 px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100/80 transition-colors cursor-pointer"
+                 >
+                   <Edit className="w-3.5 h-3.5" /> 编辑
+                 </button>
+               )}
             </div>
             
             <div className="flex items-center gap-3 bg-slate-50/50 border border-slate-100 p-3 rounded-lg">
@@ -451,100 +631,258 @@ export default function RelationModel() {
                  <LinkIcon className="w-4.5 h-4.5" />
               </div>
               <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="font-mono text-sm font-black text-slate-800 truncate">has_assertion</span>
+                <span className="font-mono text-sm font-black text-slate-805 truncate">{activeLink.id}</span>
                 <span className="text-[9.5px] font-extrabold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100 leading-none w-fit">已发布</span>
               </div>
             </div>
 
-            <div className="space-y-4.5 text-[12px] border-b border-slate-100 pb-5">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-semibold shrink-0">中文名</span>
-                <span className="font-bold text-slate-805">拥有语义断言</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-semibold shrink-0">源对象</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 font-mono">Field</span>
-                  <span className="text-slate-450 font-medium text-xs">字段</span>
+            {isEditingDetails ? (
+              <div className="space-y-4 text-[12px]">
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 font-extrabold block">中文名 *</label>
+                  <input
+                    type="text"
+                    value={editNameCn}
+                    onChange={(e) => setEditNameCn(e.target.value)}
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs shadow-3xs transition-colors"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-slate-500 font-extrabold block mb-1">源对象 (只读)</label>
+                    <input 
+                      type="text" 
+                      value={activeLink.sourceObjId} 
+                      disabled 
+                      className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200/60 rounded-lg text-slate-500 font-mono focus:outline-none cursor-not-allowed text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-slate-500 font-extrabold block mb-1">目标对象 (只读)</label>
+                    <input 
+                      type="text" 
+                      value={activeLink.targetObjId} 
+                      disabled 
+                      className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200/60 rounded-lg text-slate-500 font-mono focus:outline-none cursor-not-allowed text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 font-extrabold block">基数 (Cardinality)</label>
+                  <div className="flex bg-slate-50 rounded-lg border border-slate-200 p-0.5 shadow-3xs">
+                    {(['1:1', '1:N', 'N:M'] as const).map(card => (
+                      <button 
+                        key={card}
+                        type="button"
+                        onClick={() => setEditCardinality(card)}
+                        className={`flex-1 py-1 font-mono text-[11.5px] font-bold rounded-md transition-all cursor-pointer ${
+                          editCardinality === card 
+                            ? 'bg-blue-600 text-white shadow-2xs' 
+                            : 'text-slate-500 hover:text-slate-850 hover:bg-white/50'
+                        }`}
+                      >
+                        {card}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <label className="text-slate-500 font-extrabold block">属性约束配置</label>
+                  <div className="space-y-2">
+                    {[
+                      { id: 'isLineage', label: '参与血缘', value: editIsLineage, setter: setEditIsLineage, desc: '参与并影响底层数据治理及血缘大图展现' },
+                      { id: 'isAiVisible', label: 'AI 可见', value: editIsAiVisible, setter: setEditIsAiVisible, desc: '是否暴露给 AI Studio 工作场景及 Prompt 集' },
+                      { id: 'requiresAuth', label: '权限控制', value: editRequiresAuth, setter: setEditRequiresAuth, desc: '读取或写入此关系是否需要对应的角色权限校验' }
+                    ].map(item => (
+                      <label 
+                        key={item.id}
+                        className={`p-2.5 rounded-lg border flex items-start gap-2 cursor-pointer text-left transition-all select-none ${
+                          item.value 
+                            ? 'bg-blue-50/20 border-blue-200 shadow-3xs text-blue-900' 
+                            : 'bg-white border-slate-200 hover:bg-slate-50/50 text-slate-650'
+                        }`}
+                      >
+                        <input 
+                          type="checkbox"
+                          checked={item.value}
+                          onChange={(e) => item.setter(e.target.checked)}
+                          className="rounded border-slate-350 text-blue-600 focus:ring-blue-500 mt-0.5 shrink-0 cursor-pointer"
+                        />
+                        <div className="min-w-0">
+                          <span className="text-[11px] font-bold block leading-tight">
+                            {item.label}: <span className="font-bold underline">{item.value ? '是' : '否'}</span>
+                          </span>
+                          <span className="text-[9.5px] text-slate-450 block mt-0.5 leading-normal">
+                            {item.desc}
+                          </span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-slate-500 font-extrabold block">功能定位与描述说明</label>
+                  <textarea 
+                    rows={3} 
+                    value={editDescription} 
+                    onChange={(e) => setEditDescription(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs leading-normal resize-none font-medium shadow-3xs transition-colors"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                  <button 
+                    onClick={handleCancelDetails}
+                    className="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-md font-bold text-[11.5px] cursor-pointer transition-all shadow-3xs"
+                  >
+                    取消
+                  </button>
+                  <button 
+                    onClick={handleSaveDetails}
+                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-[11.5px] cursor-pointer transition-all shadow-xs"
+                  >
+                    保存修改
+                  </button>
                 </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-semibold shrink-0">目标对象</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-100 font-mono">SemanticAssertion</span>
-                  <span className="text-slate-450 font-medium text-xs">语义断言</span>
+            ) : (
+              <>
+                <div className="space-y-4.5 text-[12px] border-b border-slate-100 pb-5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold shrink-0">中文名</span>
+                    <span className="font-bold text-slate-805">{activeLink.nameCn || '（未命名关系）'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold shrink-0">源对象</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 font-mono">{activeLink.sourceObjId}</span>
+                      <span className="text-slate-450 font-medium text-xs">
+                        {activeLink.sourceObjId === 'DataSource' ? '数据源' : 
+                         activeLink.sourceObjId === 'DataAsset' ? '数据资产' : 
+                         activeLink.sourceObjId === 'Field' ? '字段' : 
+                         activeLink.sourceObjId === 'SemanticAssertion' ? '语义断言' : 
+                         activeLink.sourceObjId === 'DataQualityRule' ? '质量规则' : 
+                         activeLink.sourceObjId === 'Snapshot' ? '快照' : 
+                         activeLink.sourceObjId === 'Run' ? '运行记录' : '对象'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold shrink-0">目标对象</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-100 font-mono">{activeLink.targetObjId}</span>
+                      <span className="text-slate-450 font-medium text-xs">
+                        {activeLink.targetObjId === 'DataAsset' ? '数据资产' : 
+                         activeLink.targetObjId === 'Field' ? '字段' : 
+                         activeLink.targetObjId === 'SemanticAssertion' ? '语义断言' : 
+                         activeLink.targetObjId === 'Evidence' ? '证据' : 
+                         activeLink.targetObjId === 'DataQualityRule' ? '质量规则' : 
+                         activeLink.targetObjId === 'DataIssue' ? '数据问题' : 
+                         activeLink.targetObjId === 'GovernanceTask' ? '治理任务' : 
+                         activeLink.targetObjId === 'Snapshot' ? '快照' : '对象'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold shrink-0">方向</span>
+                    <span className="font-mono text-slate-750 font-bold bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+                      {activeLink.direction || `${activeLink.sourceObjId} → ${activeLink.id} → ${activeLink.targetObjId}`}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold shrink-0">基数</span>
+                    <span className="font-mono font-black text-slate-805 text-[12px] bg-slate-50 px-2 py-0.5 rounded border border-slate-100">{activeLink.cardinality}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold shrink-0">参与血缘</span>
+                    <div className="flex items-center gap-1">
+                      {activeLink.isLineage ? (
+                        <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-705 font-bold">是</span></>
+                      ) : (
+                        <><AlertCircle className="w-4 h-4 text-slate-400" /> <span className="text-slate-500 font-medium">否</span></>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold shrink-0">AI 可见</span>
+                    <div className="flex items-center gap-1">
+                      {activeLink.isAiVisible ? (
+                        <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-705 font-bold">是</span></>
+                      ) : (
+                        <><AlertCircle className="w-4 h-4 text-slate-400" /> <span className="text-slate-500 font-medium">否</span></>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400 font-semibold shrink-0">权限控制</span>
+                    <div className="flex items-center gap-1">
+                      {activeLink.requiresAuth ? (
+                        <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-705 font-bold">是</span></>
+                      ) : (
+                        <><AlertCircle className="w-4 h-4 text-slate-400" /> <span className="text-slate-500 font-medium">否</span></>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5 pt-1">
+                    <span className="text-slate-400 font-semibold shrink-0">描述</span>
+                    <span className="text-slate-650 leading-relaxed font-semibold bg-slate-50/50 p-2.5 rounded-lg border border-slate-100">
+                      {activeLink.description || '暂无描述。'}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-semibold shrink-0">方向</span>
-                <span className="font-mono text-slate-700 font-bold bg-slate-50 px-2 py-0.5 rounded border border-slate-100">Field → SemanticAssertion</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-semibold shrink-0">基数</span>
-                <span className="font-mono font-black text-slate-805 text-[12px] bg-slate-50 px-2 py-0.5 rounded border border-slate-100">1 : N</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-semibold shrink-0">参与血缘</span>
-                <div className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-700 font-semibold">是</span></div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-semibold shrink-0">AI 可见</span>
-                <div className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-700 font-semibold">是</span></div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400 font-semibold shrink-0">权限控制</span>
-                <div className="flex items-center gap-1"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-700 font-semibold">是</span></div>
-              </div>
-              <div className="flex flex-col gap-1.5 pt-1">
-                <span className="text-slate-400 font-semibold shrink-0">描述</span>
-                <span className="text-slate-650 leading-relaxed font-semibold bg-slate-50/50 p-2.5 rounded-lg border border-slate-100">字段拥有一个或多个语义断言，用于承载语义识别结果。</span>
-              </div>
-            </div>
 
-            <div className="border-b border-slate-100 pb-5">
-              <h4 className="text-[12px] font-black text-slate-900 mb-3.5 uppercase tracking-wide">约束配置</h4>
-              <div className="space-y-4 text-[12px]">
-                 <div className="flex justify-between items-center">
-                   <span className="text-slate-400 font-semibold shrink-0 flex items-center gap-1">唯一性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
-                   <span className="text-slate-700 font-semibold">可重复</span>
-                 </div>
-                 <div className="flex justify-between items-center">
-                   <span className="text-slate-400 font-semibold shrink-0 flex items-center gap-1">必填性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
-                   <span className="text-slate-700 font-semibold">非必填</span>
-                 </div>
-                 <div className="flex justify-between items-center">
-                   <span className="text-slate-400 font-semibold shrink-0 flex items-center gap-1">方向性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
-                   <div className="flex items-center gap-1.5">
-                      <span className="text-slate-700 font-semibold">单向</span>
-                      <span className="text-[10px] font-mono bg-slate-50 text-slate-500 px-2 py-0.5 rounded border border-slate-100">Field → SemanticAssertion</span>
-                   </div>
-                 </div>
-              </div>
-            </div>
+                <div className="border-b border-slate-100 pb-5">
+                  <h4 className="text-[12px] font-black text-slate-900 mb-3.5 uppercase tracking-wide">约束配置</h4>
+                  <div className="space-y-4 text-[12px]">
+                     <div className="flex justify-between items-center">
+                       <span className="text-slate-400 font-semibold shrink-0 flex items-center gap-1">唯一性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                       <span className="text-slate-700 font-semibold">可重复</span>
+                     </div>
+                     <div className="flex justify-between items-center">
+                       <span className="text-slate-400 font-semibold shrink-0 flex items-center gap-1">必填性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                       <span className="text-slate-700 font-semibold">非必填</span>
+                     </div>
+                     <div className="flex justify-between items-center">
+                       <span className="text-slate-400 font-semibold shrink-0 flex items-center gap-1">方向性 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                       <div className="flex items-center gap-1.5">
+                          <span className="text-slate-700 font-semibold">单向</span>
+                          <span className="text-[10px] font-mono bg-slate-50 text-slate-500 px-2 py-0.5 rounded border border-slate-100 font-semibold">
+                            {activeLink.sourceObjId} → {activeLink.targetObjId}
+                          </span>
+                       </div>
+                     </div>
+                  </div>
+                </div>
 
-            <div>
-              <h4 className="text-[12px] font-black text-slate-900 mb-3.5 uppercase tracking-wide">使用位置</h4>
-              <div className="space-y-4 text-[12px]">
-                 <div className="flex items-center justify-between">
-                   <span className="text-slate-400 font-semibold flex items-center gap-1">知识网络 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
-                   <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-semibold">已使用</span></div>
-                 </div>
-                 <div className="flex items-center justify-between">
-                   <span className="text-slate-400 font-semibold flex items-center gap-1">AI 工作台 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
-                   <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-semibold">已使用</span></div>
-                 </div>
-                 <div className="flex items-center justify-between">
-                   <span className="text-slate-400 font-semibold">Workflow</span>
-                   <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-semibold">已使用</span></div>
-                 </div>
-              </div>
-              
-              <div className="flex flex-col gap-2.5 mt-6 pt-4 border-t border-slate-100">
-                <button className="w-full py-2 bg-white border border-blue-200 hover:border-blue-500 text-blue-600 hover:bg-blue-50 font-bold text-[12px] rounded-lg transition-colors cursor-pointer text-center shadow-3xs">查看关系影响</button>
-                <button className="w-full py-2 bg-white border border-blue-200 hover:border-blue-500 text-blue-600 hover:bg-blue-50 font-bold text-[12px] rounded-lg transition-colors cursor-pointer text-center shadow-3xs">查看使用实例</button>
-                <button className="w-full py-2 bg-white border border-blue-200 hover:border-blue-500 text-blue-600 hover:bg-blue-50 font-bold text-[12px] rounded-lg transition-colors cursor-pointer text-center shadow-3xs">查看变更历史</button>
-              </div>
-            </div>
+                <div>
+                  <h4 className="text-[12px] font-black text-slate-900 mb-3.5 uppercase tracking-wide">使用位置</h4>
+                  <div className="space-y-4 text-[12px]">
+                     <div className="flex items-center justify-between">
+                       <span className="text-slate-400 font-semibold flex items-center gap-1">知识网络 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                       <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-semibold">已使用</span></div>
+                     </div>
+                     <div className="flex items-center justify-between">
+                       <span className="text-slate-400 font-semibold flex items-center gap-1">AI 工作台 <Info className="w-3.5 h-3.5 text-slate-300" /></span>
+                       <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-semibold">已使用</span></div>
+                     </div>
+                     <div className="flex items-center justify-between">
+                       <span className="text-slate-400 font-semibold">Workflow</span>
+                       <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-slate-600 font-semibold">已使用</span></div>
+                     </div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2.5 mt-6 pt-4 border-t border-slate-100">
+                    <button className="w-full py-2 bg-white border border-blue-200 hover:border-blue-500 text-blue-600 hover:bg-blue-50 font-bold text-[12px] rounded-lg transition-colors cursor-pointer text-center shadow-3xs">查看关系影响</button>
+                    <button className="w-full py-2 bg-white border border-blue-200 hover:border-blue-500 text-blue-600 hover:bg-blue-50 font-bold text-[12px] rounded-lg transition-colors cursor-pointer text-center shadow-3xs">查看使用实例</button>
+                    <button className="w-full py-2 bg-white border border-blue-200 hover:border-blue-500 text-blue-600 hover:bg-blue-50 font-bold text-[12px] rounded-lg transition-colors cursor-pointer text-center shadow-3xs">查看变更历史</button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
