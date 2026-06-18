@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { 
+import {
   Plus, Search, ChevronDown, CheckCircle2, MoreHorizontal, Settings, Info, Filter, ArrowRight,
   Database, Layers, Type, Compass, ShieldCheck, CheckSquare, AlertTriangle, Play, Camera,
   X, ExternalLink, RefreshCw, Download, GitBranch, ArrowUpRight, HelpCircle,
@@ -7,14 +7,8 @@ import {
 } from 'lucide-react';
 import type { ObjectType } from '../types';
 import CreateActionDrawer from './CreateActionDrawer';
-
-interface ActionModelProps {
-  objectTypes: ObjectType[];
-  selectedObjectId: string;
-  onSelectObject: (id: string) => void;
-  onNavigate: (view: string) => void;
-  isEditingActive: boolean;
-}
+import {useObjectTypes} from '../hooks/useOntology';
+import {useUiStore} from '../store/uiStore';
 
 interface ActionDetailData {
   name: string;
@@ -33,14 +27,13 @@ interface ActionDetailData {
   postEffects: string[];
 }
 
-export default function ActionModel({
-  objectTypes,
-  selectedObjectId,
-  onSelectObject,
-  onNavigate,
-  isEditingActive
-}: ActionModelProps) {
-  
+export default function ActionModel() {
+  const {data: objectTypes = []} = useObjectTypes();
+  const navigate = useUiStore((s) => s.navigate);
+  const isEditingActive = !useUiStore((s) => s.isLocked);
+  const selectedObjectId = useUiStore((s) => s.selectedObjectId);
+  const onSelectObject = useUiStore((s) => s.setSelectedObjectId);
+
   // Tabs mapped from mockup image
   const tabs = [
     '模型总览', '对象模型', '关系模型', '能力绑定', '动作 (Action)', 
@@ -532,14 +525,14 @@ export default function ActionModel({
           <div 
             key={tab}
             onClick={() => {
-              if (tab === '模型总览') onNavigate('overview');
-              if (tab === '对象模型') onNavigate('object_model');
-              if (tab === '关系模型') onNavigate('relation_model');
-              if (tab === '能力绑定') onNavigate('capability_binding');
-              if (tab === '动作 (Action)') onNavigate('action_model');
-              if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
-              if (tab === '版本与发布') onNavigate('change_release');
-              if (tab === '变更集') onNavigate('change_release');
+              if (tab === '模型总览') navigate('overview');
+              if (tab === '对象模型') navigate('object_model');
+              if (tab === '关系模型') navigate('relation_model');
+              if (tab === '能力绑定') navigate('capability_binding');
+              if (tab === '动作 (Action)') navigate('action_model');
+              if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
+              if (tab === '版本与发布') navigate('change_release');
+              if (tab === '变更集') navigate('change_release');
             }}
             className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
               tab === '动作 (Action)' 
@@ -1034,22 +1027,15 @@ export default function ActionModel({
          )}
       </div>
 
-      {isDrawerOpen && (
-         <>
-            <div 
-               className="fixed inset-0 bg-slate-950/25 backdrop-blur-xs z-40 transition-all"
-               onClick={() => setIsDrawerOpen(false)}
-            ></div>
-            <CreateActionDrawer 
-               onClose={() => setIsDrawerOpen(false)} 
-               onSave={() => {
-                 setIsDrawerOpen(false);
-                 alert("🌟 新开发的动作行为已保存进 CS-2026-012 变更集中待核验发布！");
-               }} 
-               selectedObject={selectedObjectId || 'SemanticAssertion'}
-            />
-         </>
-      )}
+      <CreateActionDrawer
+         open={isDrawerOpen}
+         onClose={() => setIsDrawerOpen(false)}
+         onSave={() => {
+           setIsDrawerOpen(false);
+           alert("🌟 新开发的动作行为已保存进 CS-2026-012 变更集中待核验发布！");
+         }}
+         selectedObject={selectedObjectId || 'SemanticAssertion'}
+      />
 
     </div>
   );

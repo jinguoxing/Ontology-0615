@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  Database, Search, Plus, Upload, History, Info, ChevronRight, 
-  ExternalLink, Code, Workflow, BarChart2, CheckCircle, 
+import {
+  Database, Search, Plus, Upload, History, Info, ChevronRight,
+  ExternalLink, Code, Workflow, BarChart2, CheckCircle,
   AlertTriangle, Filter, RefreshCw, XCircle, FileText, Settings, User, Eye, Sparkles, Cpu
 } from 'lucide-react';
+import {useUiStore} from '../store/uiStore';
 
 interface ModelItem {
   id: string;
@@ -25,19 +26,15 @@ interface ModelItem {
   lastUpdated: string;
 }
 
-interface OntologyModelsListProps {
-  onNavigate: (view: string, targetId?: string) => void;
-  onCreateChangeSet: () => void;
-  onRunValidation: () => void;
-  isLocked: boolean;
-}
+export default function OntologyModelsList() {
+  const navigate = useUiStore((s) => s.navigate);
+  const isLocked = useUiStore((s) => s.isLocked);
+  const setCreateDrawerOpen = useUiStore((s) => s.setCreateDrawerOpen);
 
-export default function OntologyModelsList({
-  onNavigate,
-  onCreateChangeSet,
-  onRunValidation,
-  isLocked
-}: OntologyModelsListProps) {
+  const onCreateChangeSet = () => setCreateDrawerOpen(true);
+  const onRunValidation = () => {
+    alert("🔍 开始扫描逻辑一致性... \n一式 10 个 Object Type, 8 个 Link Type, 8 个绑定能力全链节点扫描完成！状态完美正常，检验无破坏。");
+  };
   // Preset models conforming exactly to the user specification
   const initialModels: ModelItem[] = [
     {
@@ -148,7 +145,7 @@ export default function OntologyModelsList({
 
   // Handlers
   const handleAddNewModel = () => {
-    onNavigate('create_model');
+    navigate('create_model');
   };
 
   const handleImportModel = () => {
@@ -214,7 +211,7 @@ export default function OntologyModelsList({
           </button>
 
           <button 
-            onClick={() => onNavigate('change_release')}
+            onClick={() => navigate('change_release')}
             className="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg shadow-xs text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
           >
             <History className="h-4 w-4 text-slate-500" />
@@ -530,7 +527,7 @@ export default function OntologyModelsList({
                         <div 
                           onClick={(e) => {
                             e.stopPropagation();
-                            onNavigate('change_release');
+                            navigate('change_release');
                           }}
                           className={`inline-flex items-center gap-1 text-[10.5px] hover:underline ${
                             item.errors > 0 ? 'text-rose-600' : 'text-slate-600'
@@ -555,7 +552,7 @@ export default function OntologyModelsList({
                         <div 
                           onClick={(e) => {
                             e.stopPropagation();
-                            onNavigate('change_release');
+                            navigate('change_release');
                           }}
                           className="text-[10.5px] text-slate-600 hover:text-blue-600 hover:underline font-semibold flex items-center gap-0.5"
                         >
@@ -581,7 +578,7 @@ export default function OntologyModelsList({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onNavigate('overview');
+                              navigate('overview');
                             }}
                             className="text-[10.5px] font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                           >
@@ -593,7 +590,7 @@ export default function OntologyModelsList({
                             onClick={(e) => {
                               e.stopPropagation();
                               onCreateChangeSet();
-                              onNavigate('change_release');
+                              navigate('change_release');
                             }}
                             className="text-[10.5px] font-semibold text-slate-600 hover:text-slate-900 hover:underline cursor-pointer"
                           >
@@ -604,7 +601,7 @@ export default function OntologyModelsList({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onNavigate('change_release');
+                              navigate('change_release');
                             }}
                             className="text-[10.5px] text-slate-400 hover:text-slate-600 cursor-pointer text-right shrink-0"
                           >
@@ -700,7 +697,7 @@ export default function OntologyModelsList({
               <div className="space-y-2 pt-2 border-t border-slate-100">
                 {/* 1. View Detail */}
                 <button 
-                  onClick={() => onNavigate('overview')}
+                  onClick={() => navigate('overview')}
                   className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:-translate-y-0.5"
                 >
                   <Eye className="h-3.5 w-3.5" />
@@ -711,7 +708,7 @@ export default function OntologyModelsList({
                 <button 
                   onClick={() => {
                     onCreateChangeSet();
-                    onNavigate('change_release');
+                    navigate('change_release');
                   }}
                   className="w-full py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 rounded-lg shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                 >
@@ -721,7 +718,7 @@ export default function OntologyModelsList({
 
                 {/* 3. Impact analysis */}
                 <button 
-                  onClick={() => onNavigate('change_release')}
+                  onClick={() => navigate('change_release')}
                   className="w-full py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 rounded-lg shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                 >
                   <BarChart2 className="h-3.5 w-3.5 text-purple-500" />
@@ -768,7 +765,7 @@ export default function OntologyModelsList({
             最近发布记录
           </h3>
           <button 
-            onClick={() => onNavigate('change_release')}
+            onClick={() => navigate('change_release')}
             className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-0.5 cursor-pointer"
           >
             查看全部发布记录

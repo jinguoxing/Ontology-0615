@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
-import { 
+import {
   X, HelpCircle, CheckCircle2, Info, ArrowRight, Settings, ChevronDown, Check
 } from 'lucide-react';
+import {Drawer, DrawerContent} from './ui/Drawer';
 
 interface CreateActionDrawerProps {
+  open: boolean;
   onClose: () => void;
   onSave?: () => void;
   selectedObject: string;
 }
 
-export default function CreateActionDrawer({ onClose, onSave, selectedObject }: CreateActionDrawerProps) {
+export default function CreateActionDrawer({ open, onClose, onSave, selectedObject }: CreateActionDrawerProps) {
   const [selectedTemplate, setSelectedTemplate] = useState('confirmAssertion');
-  
+
   return (
-    <div className="fixed inset-y-0 right-0 w-[42%] min-w-[560px] bg-white shadow-2xl flex flex-col z-50 animate-in slide-in-from-right duration-300 border-l border-slate-200">
-      
+    <Drawer open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DrawerContent maxWidth="max-w-none" className="w-[42%] min-w-[560px] border-l border-slate-200">
+
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 shrink-0">
         <div className="flex items-center gap-3">
@@ -364,7 +367,8 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
           保存到变更集
         </button>
       </div>
-      
-    </div>
+
+      </DrawerContent>
+    </Drawer>
   );
 }

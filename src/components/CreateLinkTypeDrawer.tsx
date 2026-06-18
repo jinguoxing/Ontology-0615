@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { 
-  X, HelpCircle, AlertTriangle, ChevronDown, CheckCircle2, 
-  Link as LinkIcon, AlertCircle, Info, ArrowRight, Shield, 
+import {
+  X, HelpCircle, AlertTriangle, ChevronDown, CheckCircle2,
+  Link as LinkIcon, AlertCircle, Info, ArrowRight, Shield,
   Sparkles, Layers, Check, Users, Eye, Play, Sparkle, Target, Database, GitMerge
 } from 'lucide-react';
+import {Drawer, DrawerContent} from './ui/Drawer';
 
 interface CreateLinkTypeDrawerProps {
+  open: boolean;
   onClose: () => void;
   onSave?: () => void;
 }
 
-export default function CreateLinkTypeDrawer({ onClose, onSave }: CreateLinkTypeDrawerProps) {
+export default function CreateLinkTypeDrawer({ open, onClose, onSave }: CreateLinkTypeDrawerProps) {
   // --- Form States ---
   // Block 1: 关系基础信息
   const [linkTypeName, setLinkTypeName] = useState('maps_to');
@@ -85,8 +87,9 @@ export default function CreateLinkTypeDrawer({ onClose, onSave }: CreateLinkType
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[640px] bg-white shadow-2xl flex flex-col z-50 animate-in slide-in-from-right duration-300 border-l border-slate-200 text-left">
-      
+    <Drawer open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DrawerContent maxWidth="max-w-[640px]" className="border-l border-slate-200 text-left">
+
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 bg-slate-50 shrink-0">
         <div className="flex items-center gap-3">
@@ -533,7 +536,8 @@ export default function CreateLinkTypeDrawer({ onClose, onSave }: CreateLinkType
           保存到变更集
         </button>
       </div>
-      
-    </div>
+
+      </DrawerContent>
+    </Drawer>
   );
 }

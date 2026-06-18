@@ -1,21 +1,13 @@
 import React, { useState } from 'react';
 import { ObjectType, Property, ObjectGroup } from '../types';
-import { 
-  Database, Box, FileText, Shield, ClipboardCopy, 
+import {
+  Database, Box, FileText, Shield, ClipboardCopy,
   Layers, AlertTriangle, Target, Play, FileCode, CheckCircle2,
-  ChevronRight, Search, Settings, Star, GitMerge, Link as LinkIcon, 
+  ChevronRight, Search, Settings, Star, GitMerge, Link as LinkIcon,
   FunctionSquare, Plus, Edit, Download, Check, Sparkles, X, Info, AlertCircle, Trash2, ChevronDown, RefreshCw
 } from 'lucide-react';
-
-interface ObjectModelProps {
-  objectTypes: ObjectType[];
-  selectedObjectId: string;
-  onSelectObject: (id: string) => void;
-  onNavigate: (view: string, targetId?: string) => void;
-  isEditingActive: boolean;
-  onUpdateObjectType: (updated: ObjectType) => void;
-  onAddObjectType: (newObj: ObjectType) => void;
-}
+import {useObjectTypes, useUpdateObjectType, useAddObjectType} from '../hooks/useOntology';
+import {useUiStore} from '../store/uiStore';
 
 // -------------------------------------------------------------
 // 六大标准治理实体模版数据
@@ -272,15 +264,29 @@ const PREVIEW_RESOURCES: Record<string, {
   }
 };
 
-export default function ObjectModel({
-  objectTypes,
-  selectedObjectId,
-  onSelectObject,
-  onNavigate,
-  isEditingActive,
-  onUpdateObjectType,
-  onAddObjectType
-}: ObjectModelProps) {
+export default function ObjectModel() {
+  // Server/domain data — sourced from React Query (the data layer).
+  const {data: objectTypes = []} = useObjectTypes();
+  // Mutations — write ops + cache invalidation live in hooks.
+  const updateObjectTypeMutation = useUpdateObjectType();
+  const addObjectTypeMutation = useAddObjectType();
+  // UI state — sourced from the global UI store (no prop drilling).
+  const navigate = useUiStore((s) => s.navigate);
+  const isEditingActive = !useUiStore((s) => s.isLocked);
+  const selectedObjectId = useUiStore((s) => s.selectedObjectId);
+  const onSelectObject = useUiStore((s) => s.setSelectedObjectId);
+  const setLocked = useUiStore((s) => s.setLocked);
+
+  // Wrap mutations to preserve original behavior (addObject had the side
+  // effect of selecting the new object + opening the edit sandbox).
+  const onUpdateObjectType = (updated: ObjectType) => updateObjectTypeMutation.mutate(updated);
+  const onAddObjectType = (newObj: ObjectType) =>
+    addObjectTypeMutation.mutate(newObj, {
+      onSuccess: () => {
+        onSelectObject(newObj.id);
+        setLocked(false);
+      },
+    });
 
   // Find currently selected object structure, fallback to Field.
   // May be undefined while the objectTypes query is still loading (React Query).
@@ -568,7 +574,7 @@ export default function ObjectModel({
         {/* 第一行：面包屑与常驻右侧的变更沙箱指示 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center text-[12px] text-slate-400 font-semibold tracking-wide">
-             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => onNavigate('overview')}>管理中心</span>
+             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => navigate('overview')}>管理中心</span>
              <span className="mx-2 text-slate-300">/</span>
              <span className="hover:text-blue-600 cursor-pointer transition-colors">本体管理</span>
              <span className="mx-2 text-slate-300">/</span>
@@ -636,13 +642,13 @@ export default function ObjectModel({
           <div 
             key={tab}
             onClick={() => {
-              if (tab === '模型总览') onNavigate('overview');
-              if (tab === '对象模型') onNavigate('object_model');
-              if (tab === '关系模型') onNavigate('relation_model');
-              if (tab === '能力绑定' || tab === '能力 (Function)') onNavigate('capability_binding');
-              if (tab === '动作 (Action)') onNavigate('action_model');
-              if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
-              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') onNavigate('change_release');
+              if (tab === '模型总览') navigate('overview');
+              if (tab === '对象模型') navigate('object_model');
+              if (tab === '关系模型') navigate('relation_model');
+              if (tab === '能力绑定' || tab === '能力 (Function)') navigate('capability_binding');
+              if (tab === '动作 (Action)') navigate('action_model');
+              if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
+              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') navigate('change_release');
             }}
             className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
               tab === '对象模型' 

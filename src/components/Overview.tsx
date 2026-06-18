@@ -1,23 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, Link as LinkIcon, FunctionSquare, Play, 
+import {
+  Box, Link as LinkIcon, FunctionSquare, Play,
   GitMerge, Shield, CheckCircle2, Circle, Check,
   Target, AlertTriangle, Info, Bell, Search,
   Settings, ChevronRight, RefreshCw, LayoutGrid, Star,
   Database, FileCode, Beaker, LayoutTemplate, Maximize2, X, Sparkles,
   Plus, Download, ChevronDown
 } from 'lucide-react';
-
-interface OverviewProps {
-  onNavigate: (view: string, targetId?: string) => void;
-  objectTypes?: any[];
-  linkTypes?: any[];
-  changeSets?: any[];
-  validationItems?: any[];
-  onCreateChangeSet?: () => void;
-  onRunValidation?: () => void;
-  isLocked?: boolean;
-}
+import {useUiStore} from '../store/uiStore';
 
 const nodeMetrics: Record<string, { count: string, color?: string }> = {
   DataSource: { count: '142' },
@@ -124,7 +114,13 @@ const panoramaConnections = [
   { from: 'Snapshot', to: 'SemanticAssertion' }
 ];
 
-export default function Overview({ onNavigate, onCreateChangeSet, onRunValidation, isLocked }: OverviewProps) {
+export default function Overview() {
+  const navigate = useUiStore((s) => s.navigate);
+  const setCreateDrawerOpen = useUiStore((s) => s.setCreateDrawerOpen);
+  const onCreateChangeSet = () => setCreateDrawerOpen(true);
+  const onRunValidation = () => {
+    alert("🔍 开始扫描逻辑一致性... \n一式 10 个 Object Type, 8 个 Link Type, 8 个绑定能力全链节点扫描完成！状态完美正常，检验无破坏。");
+  };
   const tabs = [
     '模型总览', '对象模型', '关系模型', '能力绑定', '动作 (Action)', 
     '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
@@ -383,7 +379,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
       <div 
         onMouseEnter={() => setHoveredNodeId(title)}
         onMouseLeave={() => setHoveredNodeId(null)}
-        onClick={() => onNavigate('object_model', title)}
+        onClick={() => navigate('object_model', title)}
         className={`absolute rounded-xl py-2 pl-4 pr-3 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] border cursor-pointer select-none transition-all duration-300 ${nodeClass} ${className || ''}`}
         style={style}
       >
@@ -505,7 +501,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
         {/* 第一行：面包屑与常驻右侧的变更沙箱指示 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center text-[12px] text-slate-400 font-semibold tracking-wide">
-             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => onNavigate('overview')}>管理中心</span>
+             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => navigate('overview')}>管理中心</span>
              <span className="mx-2 text-slate-300">/</span>
              <span className="hover:text-blue-600 cursor-pointer transition-colors">本体管理</span>
              <span className="mx-2 text-slate-300">/</span>
@@ -573,13 +569,13 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
           <div 
             key={tab}
             onClick={() => {
-              if (tab === '模型总览') onNavigate('overview');
-              if (tab === '对象模型') onNavigate('object_model');
-              if (tab === '关系模型') onNavigate('relation_model');
-              if (tab === '能力绑定' || tab === '能力 (Function)') onNavigate('capability_binding');
-              if (tab === '动作 (Action)') onNavigate('action_model');
-              if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
-              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') onNavigate('change_release');
+              if (tab === '模型总览') navigate('overview');
+              if (tab === '对象模型') navigate('object_model');
+              if (tab === '关系模型') navigate('relation_model');
+              if (tab === '能力绑定' || tab === '能力 (Function)') navigate('capability_binding');
+              if (tab === '动作 (Action)') navigate('action_model');
+              if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
+              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') navigate('change_release');
             }}
             className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
               tab === '模型总览' 
@@ -611,7 +607,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
               </button>
               <div 
                 className="text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer border border-slate-200 px-2.5 py-1.5 rounded-lg flex items-center transition-all bg-white shadow-sm"
-                onClick={() => onNavigate('relation_model')}
+                onClick={() => navigate('relation_model')}
               >
                 <span>关系模型</span>
                 <ChevronRight className="w-3 h-3" />
@@ -1358,7 +1354,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
                       <button 
                         onClick={() => {
                           setIsPanoramaOpen(false);
-                          onNavigate('object_model', selectedPanoramaNodeId);
+                          navigate('object_model', selectedPanoramaNodeId);
                         }}
                         className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
                       >

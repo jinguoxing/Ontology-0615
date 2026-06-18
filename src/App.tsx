@@ -1,16 +1,4 @@
-import {
-  useObjectTypes,
-  useLinkTypes,
-  useCapabilities,
-  useChangeSets,
-  useValidationItems,
-  useUpdateObjectType,
-  useAddObjectType,
-  useReplaceLinkTypes,
-  useReplaceCapabilities,
-  useActivateDraftChangeSet,
-} from './hooks/useOntology';
-import { ObjectType, LinkType, Capability } from './types';
+import {useObjectTypes, useActivateDraftChangeSet} from './hooks/useOntology';
 import { useApp } from './context/AppContext';
 import { useUiStore } from './store/uiStore';
 import { useRouteSync } from './hooks/useRouteSync';
@@ -49,14 +37,12 @@ export default function App() {
   // UI state — sourced from the global UI store (no prop drilling).
   const {
     activeView,
-    selectedObjectId,
     isLocked,
     globalSearch,
     showSearchResults,
     isCreateDrawerOpen,
     navigate: navigateStore,
     setActiveView,
-    setSelectedObjectId,
     setLocked,
     setGlobalSearch,
     setShowSearchResults,
@@ -64,22 +50,16 @@ export default function App() {
   } = useUiStore();
 
   // Server/domain data — sourced from React Query (the data layer).
+  // Only objectTypes is consumed here (header global search). Each page now
+  // pulls its own data via the useOntology hooks.
   const {data: objectTypes = []} = useObjectTypes();
-  const {data: linkTypes = []} = useLinkTypes();
-  const {data: capabilities = []} = useCapabilities();
-  const {data: changeSets = []} = useChangeSets();
-  const {data: validationItems = []} = useValidationItems();
-  // workflows/workflows are not yet consumed via props in this view but kept
-  // available through useWorkflows() for downstream pages.
 
-  // Mutations — write ops + cache invalidation live in hooks.
-  const updateObjectTypeMutation = useUpdateObjectType();
-  const addObjectTypeMutation = useAddObjectType();
-  const replaceLinkTypesMutation = useReplaceLinkTypes();
-  const replaceCapabilitiesMutation = useReplaceCapabilities();
+  // Activate the draft changeset when the Create-ChangeSet drawer is submitted.
   const activateDraftChangeSetMutation = useActivateDraftChangeSet();
 
-  // Handle routing navigate with optional preselected targets
+  // Handle routing navigate with optional preselected targets (used by the
+  // header search results, the sidebar nav, and the three Knowledge Network
+  // pages which still receive onNavigate).
   const handleNavigate = (view: string, targetId?: string) => {
     navigateStore(view, targetId);
   };
@@ -88,37 +68,6 @@ export default function App() {
   const submitCreateChangeSet = () => {
     activateDraftChangeSetMutation.mutate();
     setLocked(false);
-  };
-
-  const openCreateChangeSet = () => {
-    setCreateDrawerOpen(true);
-  };
-
-  // Re-run simulation validations
-  const handleRunValidation = () => {
-    alert("🔍 开始扫描逻辑一致性... \n一式 10 个 Object Type, 8 个 Link Type, 8 个绑定能力全链节点扫描完成！状态完美正常，检验无破坏。");
-  };
-
-  const handleUpdateObjectType = (updatedObj: ObjectType) => {
-    updateObjectTypeMutation.mutate(updatedObj);
-  };
-
-  const handleAddObjectType = (newObj: ObjectType) => {
-    addObjectTypeMutation.mutate(newObj);
-    setSelectedObjectId(newObj.id);
-    setLocked(false); // Automatically transition lock state as well
-  };
-
-  const handleUpdateLinkTypes = (updatedLinks: LinkType[]) => {
-    replaceLinkTypesMutation.mutate(updatedLinks);
-  };
-
-  const handleUpdateCapabilities = (updatedCaps: Capability[]) => {
-    replaceCapabilitiesMutation.mutate(updatedCaps);
-  };
-
-  const clearActiveDraftMode = () => {
-    setLocked(true);
   };
 
   // Global search filtering
@@ -372,81 +321,35 @@ export default function App() {
           )}
 
           {activeView === 'ontology_models' && (
-            <OntologyModelsList
-              onNavigate={handleNavigate}
-              onCreateChangeSet={openCreateChangeSet}
-              onRunValidation={handleRunValidation}
-              isLocked={isLocked}
-            />
+            <OntologyModelsList />
           )}
 
           {activeView === 'overview' && (
-            <Overview
-              onNavigate={handleNavigate}
-              objectTypes={objectTypes}
-              linkTypes={linkTypes}
-              changeSets={changeSets}
-              validationItems={validationItems}
-              onCreateChangeSet={openCreateChangeSet}
-              onRunValidation={handleRunValidation}
-              isLocked={isLocked}
-            />
+            <Overview />
           )}
 
           {activeView === 'object_model' && (
-            <ObjectModel
-              objectTypes={objectTypes}
-              selectedObjectId={selectedObjectId}
-              onSelectObject={setSelectedObjectId}
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-              onUpdateObjectType={handleUpdateObjectType}
-              onAddObjectType={handleAddObjectType}
-            />
+            <ObjectModel />
           )}
 
           {activeView === 'relation_model' && (
-            <RelationModel
-              linkTypes={linkTypes}
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-              onUpdateLinkTypes={handleUpdateLinkTypes}
-            />
+            <RelationModel />
           )}
 
           {activeView === 'capability_binding' && (
-            <CapabilityBinding
-              capabilities={capabilities}
-              objectTypes={objectTypes}
-              selectedObjectId={selectedObjectId}
-              onSelectObject={setSelectedObjectId}
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-              onUpdateCapabilities={handleUpdateCapabilities}
-            />
+            <CapabilityBinding />
           )}
 
           {activeView === 'action_model' && (
-            <ActionModel
-              objectTypes={objectTypes}
-              selectedObjectId={selectedObjectId}
-              onSelectObject={setSelectedObjectId}
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-            />
+            <ActionModel />
           )}
 
           {activeView === 'workflow_orchestration' && (
-            <WorkflowOrchestrator
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-            />
+            <WorkflowOrchestrator />
           )}
 
           {activeView === 'change_release' && (
-            <ChangeRelease
-              onNavigate={handleNavigate}
-            />
+            <ChangeRelease />
           )}
 
         </main>

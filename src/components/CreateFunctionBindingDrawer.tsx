@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { 
+import {
   X, HelpCircle, CheckCircle2, Info, ArrowRight, Settings, ChevronDown, Check, Code, Play
 } from 'lucide-react';
+import {Drawer, DrawerContent} from './ui/Drawer';
 
 interface CreateFunctionBindingDrawerProps {
+  open: boolean;
   onClose: () => void;
   onSave?: () => void;
   selectedObject: string;
 }
 
-export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedObject }: CreateFunctionBindingDrawerProps) {
+export default function CreateFunctionBindingDrawer({ open, onClose, onSave, selectedObject }: CreateFunctionBindingDrawerProps) {
   const [selectedFunction, setSelectedFunction] = useState('detectForeignKey()');
   const [testRun, setTestRun] = useState(false);
 
@@ -23,7 +25,8 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
   ];
   
   return (
-    <div className="fixed inset-y-0 right-0 w-[42%] min-w-[560px] bg-white shadow-2xl flex flex-col z-50 animate-in slide-in-from-right duration-300 border-l border-slate-200">
+    <Drawer open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DrawerContent maxWidth="max-w-none" className="w-[42%] min-w-[560px] border-l border-slate-200">
       
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 shrink-0">
@@ -287,7 +290,8 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
           保存到变更集
         </button>
       </div>
-      
-    </div>
+
+      </DrawerContent>
+    </Drawer>
   );
 }

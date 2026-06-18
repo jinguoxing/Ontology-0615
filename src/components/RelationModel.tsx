@@ -1,26 +1,20 @@
 import React, { useState } from 'react';
 import { LinkType } from '../types';
-import { 
-  Database, Box, FileText, Shield, ClipboardCopy, 
+import {
+  Database, Box, FileText, Shield, ClipboardCopy,
   Layers, AlertTriangle, Target, Play, FileCode, CheckCircle2,
   ChevronRight, Search, Settings, Star, GitMerge, Link as LinkIcon, FunctionSquare, Plus, Edit, Download, Check, Map as MapIcon, Menu, ArrowRight, Expand, ZoomIn, ZoomOut, RotateCcw, AlertCircle, Info,
   RefreshCw, ChevronDown
 } from 'lucide-react';
 import CreateLinkTypeDrawer from './CreateLinkTypeDrawer';
+import {useLinkTypes} from '../hooks/useOntology';
+import {useUiStore} from '../store/uiStore';
+import {PageHeader} from './ui/PageHeader';
 
-interface RelationModelProps {
-  linkTypes: LinkType[];
-  onNavigate: (view: string, targetId?: string) => void;
-  isEditingActive: boolean;
-  onUpdateLinkTypes: (updated: LinkType[]) => void;
-}
-
-export default function RelationModel({
-  linkTypes,
-  onNavigate,
-  isEditingActive,
-  onUpdateLinkTypes
-}: RelationModelProps) {
+export default function RelationModel() {
+  const {data: linkTypes = []} = useLinkTypes();
+  const navigate = useUiStore((s) => s.navigate);
+  const isEditingActive = !useUiStore((s) => s.isLocked);
 
   // Current active chosen Link Type
   const [activeLinkId, setActiveLinkId] = useState<string>('has_assertion');
@@ -74,70 +68,64 @@ export default function RelationModel({
   return (
     <div className="min-h-full font-sans bg-transparent" id="relation-workspace">
       
-      {/* 顶部 Header：100% 遵照设计图样式 */}
-      <div className="mb-5 space-y-1.5 shrink-0">
-        
-        {/* 第一行：面包屑与常驻右侧的变更沙箱指示 */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center text-[12px] text-slate-400 font-semibold tracking-wide">
-             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => onNavigate('overview')}>管理中心</span>
-             <span className="mx-2 text-slate-300">/</span>
-             <span className="hover:text-blue-600 cursor-pointer transition-colors">本体管理</span>
-             <span className="mx-2 text-slate-300">/</span>
-             <span className="hover:text-blue-600 cursor-pointer transition-colors">DRKN 本体模型管理</span>
-             <span className="mx-2 text-slate-300">/</span>
-             <span className="text-slate-800 font-black">关系模型</span>
-          </div>
-
+      {/* 顶部 Header */}
+      <PageHeader
+        breadcrumbs={[
+          {label: '管理中心', onClick: () => navigate('overview')},
+          {label: '本体管理'},
+          {label: 'DRKN 本体模型管理'},
+          {label: '关系模型'},
+        ]}
+        topRight={
           <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-150 px-3 py-1 rounded-full shadow-2xs">
              <span className="text-[10px] font-bold text-rose-500">当前变更集</span>
              <span className="text-[11px] font-black text-rose-700 font-mono">CS-2026-012</span>
              <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
              <span className="text-[10px] font-extrabold text-[#9a3412] bg-amber-100 px-1 py-0.2 rounded leading-none">Editing</span>
           </div>
-        </div>
+        }
+        titleRow={
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+               <div className="flex items-center gap-3">
+                  <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <span>DRKN-Core 数据语义治理模型</span>
+                  </h1>
+                  <span className="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-50 text-blue-600 border border-blue-200 shadow-3xs leading-none">已发布</span>
+               </div>
+               <div className="flex items-center gap-4 text-[11px] text-slate-450 font-medium">
+                  <span className="flex items-center gap-1"><span className="font-bold text-slate-650">当前版本:</span> <span className="text-blue-600 font-mono font-black text-[12px]">v1.3.0</span></span>
+                  <span className="text-slate-200">|</span>
+                  <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布于:</span> 2026-08-20 10:30:00</span>
+                  <span className="text-slate-200">|</span>
+                  <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布人:</span> 系统管理员</span>
+               </div>
+            </div>
 
-        {/* 第二行：核心大标题与功能按钮面板 */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-             <div className="flex items-center gap-3">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>DRKN-Core 数据语义治理模型</span>
-                </h1>
-                <span className="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-50 text-blue-600 border border-blue-200 shadow-3xs leading-none">已发布</span>
-             </div>
-             <div className="flex items-center gap-4 text-[11px] text-slate-450 font-medium">
-                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">当前版本:</span> <span className="text-blue-600 font-mono font-black text-[12px]">v1.3.0</span></span>
-                <span className="text-slate-200">|</span>
-                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布于:</span> 2026-08-20 10:30:00</span>
-                <span className="text-slate-200">|</span>
-                <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布人:</span> 系统管理员</span>
-             </div>
-          </div>
+            {/* 右侧操作交互栏 */}
+            <div className="flex items-center gap-2">
+              <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
+                <RefreshCw className="w-3.5 h-3.5 text-slate-450" /> 版本对比
+              </button>
+              <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
+                <Download className="w-3.5 h-3.5 text-slate-450" /> 导出模型
+              </button>
+              <button className="p-1.5 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all cursor-pointer">
+                <Settings className="w-4 h-4 text-slate-550" />
+              </button>
 
-          {/* 右侧操作交互栏 */}
-          <div className="flex items-center gap-2">
-            <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
-              <RefreshCw className="w-3.5 h-3.5 text-slate-450" /> 版本对比
-            </button>
-            <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
-              <Download className="w-3.5 h-3.5 text-slate-450" /> 导出模型
-            </button>
-            <button className="p-1.5 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all cursor-pointer">
-              <Settings className="w-4 h-4 text-slate-550" />
-            </button>
-            
-            <div className="h-6 w-px bg-slate-250 mx-1"></div>
-            
-            <button 
-              onClick={() => setIsDrawerOpen(true)}
-              className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
-            >
-              创建关系类型 <ChevronDown className="w-3.5 h-3.5" />
-            </button>
+              <div className="h-6 w-px bg-slate-250 mx-1"></div>
+
+              <button
+                onClick={() => setIsDrawerOpen(true)}
+                className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
+              >
+                创建关系类型 <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* 选项卡 Tabs 区域：100% 遵照设计图排版 */}
       <div className="flex gap-1.5 mb-5 border-b border-slate-200/80 shrink-0">
@@ -148,13 +136,13 @@ export default function RelationModel({
           <div 
             key={tab}
             onClick={() => {
-              if (tab === '模型总览') onNavigate('overview');
-              if (tab === '对象模型') onNavigate('object_model');
-              if (tab === '关系模型') onNavigate('relation_model');
-              if (tab === '能力绑定' || tab === '能力 (Function)') onNavigate('capability_binding');
-              if (tab === '动作 (Action)') onNavigate('action_model');
-              if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
-              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') onNavigate('change_release');
+              if (tab === '模型总览') navigate('overview');
+              if (tab === '对象模型') navigate('object_model');
+              if (tab === '关系模型') navigate('relation_model');
+              if (tab === '能力绑定' || tab === '能力 (Function)') navigate('capability_binding');
+              if (tab === '动作 (Action)') navigate('action_model');
+              if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
+              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') navigate('change_release');
             }}
             className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
               tab === '关系模型' 
@@ -547,21 +535,14 @@ export default function RelationModel({
         </div>
       </div>
 
-      {isDrawerOpen && (
-        <>
-          <div 
-            className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40"
-            onClick={() => setIsDrawerOpen(false)}
-          ></div>
-          <CreateLinkTypeDrawer 
-            onClose={() => setIsDrawerOpen(false)} 
-            onSave={() => {
-              setIsDraftSaved(true);
-              setIsDrawerOpen(false);
-            }} 
-          />
-        </>
-      )}
+      <CreateLinkTypeDrawer
+        open={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onSave={() => {
+          setIsDraftSaved(true);
+          setIsDrawerOpen(false);
+        }}
+      />
     </div>
   );
 }
