@@ -923,46 +923,6 @@ export default function ObjectModel() {
             </div>
           </div>
 
-          {/* 3. 生命周期卡片 (DYNAMIC) */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center gap-1.5 mb-6">
-              <h3 className="text-sm font-extrabold text-slate-900">生命周期流</h3>
-              <Settings className="w-4 h-4 text-slate-400" />
-            </div>
-            
-            <div className="flex flex-wrap items-start justify-between w-full max-w-lg mx-auto relative px-4 gap-y-4">
-              {activeObj.lifecycle && activeObj.lifecycle.length > 0 ? (
-                activeObj.lifecycle.map((state, idx) => {
-                  const isCurrent = idx === activeObj.lifecycle.length - 2; 
-                  return (
-                    <div key={state} className="flex flex-col items-center gap-2 min-w-[70px] flex-1">
-                      <div className={`w-10 h-10 rounded-full bg-white border-2 flex items-center justify-center z-10 transition-all ${
-                        isCurrent 
-                          ? 'border-blue-600 bg-blue-600 text-white shadow-sm' 
-                          : 'border-blue-500 text-blue-500'
-                      }`}>
-                        {isCurrent ? <Target className="w-5 h-5" /> : <Check className="w-5 h-5" />}
-                      </div>
-                      <div className={`text-[12px] font-bold ${isCurrent ? 'text-blue-600' : 'text-slate-700'}`}>{state}</div>
-                    </div>
-                  );
-                })
-              ) : (
-                <p className="text-center text-xs text-slate-400 py-2 w-full font-semibold">该自定义对象类型使用通用的 Draft 治理流生命周期形态。</p>
-              )}
-            </div>
-          </div>
-
-          {/* 4. 对象说明卡片 */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm relative">
-            <h3 className="text-sm font-extrabold text-slate-900 mb-3">治理定位与说明</h3>
-            <div className="absolute top-6 right-6 cursor-pointer text-slate-400 hover:text-blue-600 transition-colors">
-              <Edit className="w-4 h-4" />
-            </div>
-            <p className="text-[13px] text-slate-500 leading-relaxed font-semibold">
-              {activeObj.description}
-            </p>
-          </div>
         </div>
 
         {/* 右栏：能力与影响摘要 */}
