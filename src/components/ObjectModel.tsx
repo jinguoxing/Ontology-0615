@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ObjectType, Property, ObjectGroup } from '../types';
 import {
   Database, Box, FileText, Shield, ClipboardCopy,
@@ -341,6 +341,52 @@ export default function ObjectModel() {
     { name: 'severity_code', dataType: 'string', isRequired: false, description: '严重评级代号' }
   ]);
 
+  // Basic info editing states
+  const [isEditingBasicInfo, setIsEditingBasicInfo] = useState(false);
+  const [editNameCn, setEditNameCn] = useState('');
+  const [editOwner, setEditOwner] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editStatus, setEditStatus] = useState<'Published' | 'Draft' | 'Modified' | 'Deprecated'>('Draft');
+
+  // Right sidebar and properties pagination states
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const [currentPropertyPage, setCurrentPropertyPage] = useState(1);
+
+  // Sync / reset states on active object switch
+  useEffect(() => {
+    setIsEditingBasicInfo(false);
+    setCurrentPropertyPage(1);
+  }, [activeObj.id]);
+
+  const startEditingBasicInfo = () => {
+    setEditNameCn(activeObj.nameCn);
+    setEditOwner(activeObj.owner || '数据治理团队');
+    setEditDescription(activeObj.description);
+    setEditStatus(activeObj.status);
+    setIsEditingBasicInfo(true);
+  };
+
+  const handleSaveBasicInfo = () => {
+    if (!editNameCn.trim()) {
+      alert('❌ 请输入合法的中文名！');
+      return;
+    }
+    const updatedObj: ObjectType = {
+      ...activeObj,
+      nameCn: editNameCn.trim(),
+      owner: editOwner.trim(),
+      description: editDescription.trim(),
+      status: editStatus
+    };
+    onUpdateObjectType(updatedObj);
+    triggerToast(`✨ 成功更新模型对象「${activeObj.id}」的基础信息！`);
+    setIsEditingBasicInfo(false);
+  };
+
+  const handleCancelBasicInfo = () => {
+    setIsEditingBasicInfo(false);
+  };
+
   // Dynamic grouping logic to include standard enabled objects AND custom ones
   const knownKeys = ['DataSource', 'DataAsset', 'Field', 'SemanticAssertion', 'Evidence', 'AIFeedback', 'CandidateSignal', 'DataQualityRule', 'DataIssue', 'GovernanceTask', 'Run', 'Snapshot', 'PromotionRecord'];
   const customObjs = objectTypes.filter(obj => !knownKeys.includes(obj.id));
@@ -410,6 +456,12 @@ export default function ObjectModel() {
   };
 
   const currentStats = getMockStats(activeObj.id);
+
+  const PROPERTIES_PAGE_SIZE = 5;
+  const totalProperties = activeObj.properties.length;
+  const totalPages = Math.ceil(totalProperties / PROPERTIES_PAGE_SIZE);
+  const startIndex = (currentPropertyPage - 1) * PROPERTIES_PAGE_SIZE;
+  const paginatedProperties = activeObj.properties.slice(startIndex, startIndex + PROPERTIES_PAGE_SIZE);
 
   // Trigger brief alert-styled toast message
   const triggerToast = (msg: string) => {
@@ -556,13 +608,13 @@ export default function ObjectModel() {
       
       {/* Dynamic Action Toast Notifications */}
       {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-950 border border-emerald-500/30 text-white rounded-lg px-6 py-4 shadow-2xl flex items-center gap-3.5 max-w-xl animate-fade-in">
-          <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />
-          <div className="text-left">
-            <p className="text-[13px] font-bold tracking-tight text-emerald-200">系统数据变更成功</p>
-            <p className="text-[11px] text-slate-300 font-medium mt-0.5 leading-relaxed">{toastMessage}</p>
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-slate-700 text-white rounded-md px-5 py-3 shadow-lg flex items-center gap-3 max-w-md animate-fade-in">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+          <div className="text-left flex-1 min-w-0">
+            <p className="text-xs font-extrabold text-slate-200">系统数据变更成功</p>
+            <p className="text-[11px] text-slate-400 font-medium mt-0.5 leading-relaxed truncate">{toastMessage}</p>
           </div>
-          <button onClick={() => setToastMessage(null)} className="text-slate-400 hover:text-white transition-colors ml-4 shrink-0">
+          <button onClick={() => setToastMessage(null)} className="text-slate-500 hover:text-slate-300 transition-colors ml-2 shrink-0 cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -758,58 +810,173 @@ export default function ObjectModel() {
         </div>
 
         {/* 中栏：对象详情主区域 */}
-        <div className="lg:col-span-6 space-y-6">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-extrabold text-slate-900 font-mono tracking-tight">{activeObj.id} <span className="text-slate-500 text-base font-medium font-sans">({activeObj.nameCn})</span></h2>
-            <span className={`text-[11px] font-bold px-2 py-1 rounded border ${
-              activeObj.status === 'Published' 
-                ? 'text-emerald-600 bg-emerald-50 border-emerald-100' 
-                : 'text-amber-600 bg-amber-50 border-amber-100'
-            }`}>
-              {activeObj.status}
-            </span>
+        <div className={`space-y-6 transition-all duration-300 ${isRightSidebarOpen ? 'lg:col-span-6' : 'lg:col-span-9'}`}>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-extrabold text-slate-900 font-mono tracking-tight">{activeObj.id} <span className="text-slate-500 text-base font-medium font-sans">({activeObj.nameCn})</span></h2>
+              <span className={`text-[11px] font-bold px-2 py-1 rounded border ${
+                activeObj.status === 'Published' 
+                  ? 'text-emerald-600 bg-emerald-50 border-emerald-100' 
+                  : 'text-amber-600 bg-amber-50 border-amber-100'
+              }`}>
+                {activeObj.status}
+              </span>
+            </div>
+            
+            <button
+              onClick={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg text-xs font-black text-slate-655 shadow-3xs cursor-pointer transition-all"
+            >
+              {isRightSidebarOpen ? "收起右栏" : "展开右栏"}
+            </button>
           </div>
 
           {/* 1. 基础信息卡片 */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm relative animate-fade-in">
-            <div className="absolute top-6 right-6 cursor-pointer text-slate-400 hover:text-blue-600 transition-colors">
-              <Edit className="w-4 h-4" />
-            </div>
-            
-            <h3 className="text-sm font-extrabold text-slate-900 mb-5">基础信息</h3>
-            
-            <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-[13px]">
-              <div className="flex border-b border-slate-50 pb-2">
-                <span className="text-slate-500 w-24 shrink-0 font-medium">Object Type</span>
-                <span className="font-bold text-slate-800 font-mono">{activeObj.id}</span>
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm relative animate-fade-in animate-duration-200">
+            {isEditingBasicInfo ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                  <h3 className="text-sm font-extrabold text-slate-900">编辑基础信息</h3>
+                  <span className="text-[10px] text-slate-400 font-mono font-bold">{activeObj.id}</span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 text-[12px] leading-relaxed">
+                  <div>
+                    <label className="text-slate-500 font-extrabold block mb-1">Object ID (只读)</label>
+                    <input 
+                      type="text" 
+                      value={activeObj.id} 
+                      disabled 
+                      className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-500 font-mono focus:outline-none cursor-not-allowed text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-500 font-extrabold block mb-1">生命周期状态</label>
+                    <select
+                      value={editStatus}
+                      onChange={(e) => setEditStatus(e.target.value as any)}
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs"
+                    >
+                      <option value="Draft">Draft (草稿)</option>
+                      <option value="Modified">Modified (已修改)</option>
+                      <option value="Published">Published (已发布)</option>
+                      <option value="Deprecated">Deprecated (已弃用)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-500 font-extrabold block mb-1">显示中文名称 *</label>
+                    <input 
+                      type="text" 
+                      value={editNameCn} 
+                      onChange={(e) => setEditNameCn(e.target.value)} 
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-500 font-extrabold block mb-1">治理 Owner *</label>
+                    <input 
+                      type="text" 
+                      value={editOwner} 
+                      onChange={(e) => setEditOwner(e.target.value)} 
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-semibold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-500 font-extrabold block mb-1">所属域 (只读)</label>
+                    <input 
+                      type="text" 
+                      value="DRKN本体域" 
+                      disabled 
+                      className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-500 focus:outline-none cursor-not-allowed text-xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-500 font-extrabold block mb-1">注册创建时间 (只读)</label>
+                    <input 
+                      type="text" 
+                      value="2024-05-10 14:32:21" 
+                      disabled 
+                      className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-500 focus:outline-none cursor-not-allowed text-xs"
+                    />
+                  </div>
+
+                  <div className="col-span-2">
+                    <label className="text-slate-500 font-extrabold block mb-1">功能定位与描述说明</label>
+                    <textarea 
+                      rows={2.5} 
+                      value={editDescription} 
+                      onChange={(e) => setEditDescription(e.target.value)} 
+                      className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs leading-normal"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                  <button 
+                    onClick={handleCancelBasicInfo}
+                    className="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-md font-bold text-[11.5px] cursor-pointer transition-all shadow-3xs"
+                  >
+                    取消
+                  </button>
+                  <button 
+                    onClick={handleSaveBasicInfo}
+                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-[11.5px] cursor-pointer transition-all shadow-xs"
+                  >
+                    保存修改
+                  </button>
+                </div>
               </div>
-              <div className="flex border-b border-slate-50 pb-2">
-                <span className="text-slate-500 w-24 shrink-0 font-medium">状态</span>
-                <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-mono">{activeObj.status}</span>
-              </div>
-              <div className="flex border-b border-slate-50 pb-2">
-                <span className="text-slate-500 w-24 shrink-0 font-medium">中文名</span>
-                <span className="font-bold text-slate-800">{activeObj.nameCn}</span>
-              </div>
-              <div className="flex border-b border-slate-50 pb-2">
-                <span className="text-slate-500 w-24 shrink-0 font-medium">Owner</span>
-                <span className="font-bold text-slate-700">{activeObj.owner || '数据治理团队'}</span>
-              </div>
-              <div className="flex border-b border-slate-50 pb-2">
-                <span className="text-slate-500 w-24 shrink-0 font-medium">所属域</span>
-                <span className="font-bold text-slate-800 font-mono">DRKN本体域</span>
-              </div>
-              <div className="flex border-b border-slate-50 pb-2">
-                <span className="text-slate-500 w-24 shrink-0 font-medium">创建时间</span>
-                <span className="font-medium text-slate-700">2024-05-10 14:32:21</span>
-              </div>
-              <div className="flex col-span-2 pt-1 border-t border-slate-50">
-                <span className="text-slate-500 w-24 shrink-0 mt-0.5 font-medium">描述说明</span>
-                <span className="font-semibold text-slate-500 leading-relaxed max-w-[90%] text-xs">
-                  {activeObj.description}
-                </span>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div 
+                  onClick={startEditingBasicInfo}
+                  className="absolute top-6 right-6 cursor-pointer text-slate-400 hover:text-blue-600 transition-colors"
+                  title="编辑基础信息"
+                >
+                  <Edit className="w-4 h-4" />
+                </div>
+                
+                <h3 className="text-sm font-extrabold text-slate-900 mb-5">基础信息</h3>
+                
+                <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-[13px]">
+                  <div className="flex border-b border-slate-50 pb-2">
+                    <span className="text-slate-500 w-24 shrink-0 font-medium">Object Type</span>
+                    <span className="font-bold text-slate-800 font-mono">{activeObj.id}</span>
+                  </div>
+                  <div className="flex border-b border-slate-50 pb-2">
+                    <span className="text-slate-500 w-24 shrink-0 font-medium">状态</span>
+                    <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-mono">{activeObj.status}</span>
+                  </div>
+                  <div className="flex border-b border-slate-50 pb-2">
+                    <span className="text-slate-500 w-24 shrink-0 font-medium">中文名</span>
+                    <span className="font-bold text-slate-800">{activeObj.nameCn}</span>
+                  </div>
+                  <div className="flex border-b border-slate-50 pb-2">
+                    <span className="text-slate-500 w-24 shrink-0 font-medium">Owner</span>
+                    <span className="font-bold text-slate-700">{activeObj.owner || '数据治理团队'}</span>
+                  </div>
+                  <div className="flex border-b border-slate-50 pb-2">
+                    <span className="text-slate-500 w-24 shrink-0 font-medium">所属域</span>
+                    <span className="font-bold text-slate-800 font-mono">DRKN本体域</span>
+                  </div>
+                  <div className="flex border-b border-slate-50 pb-2">
+                    <span className="text-slate-500 w-24 shrink-0 font-medium">创建时间</span>
+                    <span className="font-medium text-slate-700">2024-05-10 14:32:21</span>
+                  </div>
+                  <div className="flex col-span-2 pt-1 border-t border-slate-50">
+                    <span className="text-slate-500 w-24 shrink-0 mt-0.5 font-medium">描述说明</span>
+                    <span className="font-semibold text-slate-500 leading-relaxed max-w-[90%] text-xs">
+                      {activeObj.description}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* 2. 核心属性卡片 (FULLY DYNAMIC BASED ON CURRENT OPTION PROPERTIES) */}
@@ -859,24 +1026,27 @@ export default function ObjectModel() {
                   </tr>
                 </thead>
                 <tbody className="text-slate-700">
-                  {activeObj.properties.map((prop, idx) => (
-                    <tr key={prop.name} className="border-b border-slate-50 h-11 hover:bg-slate-50/40">
-                      <td className="px-2 font-bold font-mono text-slate-800">{prop.name}</td>
-                      <td className="px-2 font-mono text-slate-500">{prop.dataType}</td>
-                      <td className="px-2">
-                        <div className="flex justify-center mt-0.5">
-                          {idx < 3 ? (
-                            <div className="w-4 h-4 rounded-full border border-emerald-500 flex items-center justify-center text-emerald-500">
-                              <Check className="w-3 h-3" />
-                            </div>
-                          ) : (
-                            <span className="text-slate-300 font-semibold text-xs">—</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-2 text-slate-500 max-w-[200px] truncate" title={prop.description}>{prop.description}</td>
-                    </tr>
-                  ))}
+                  {paginatedProperties.map((prop, index) => {
+                    const idx = startIndex + index;
+                    return (
+                      <tr key={prop.name} className="border-b border-slate-50 h-11 hover:bg-slate-50/40">
+                        <td className="px-2 font-bold font-mono text-slate-800">{prop.name}</td>
+                        <td className="px-2 font-mono text-slate-500">{prop.dataType}</td>
+                        <td className="px-2">
+                          <div className="flex justify-center mt-0.5">
+                            {idx < 3 ? (
+                              <div className="w-4 h-4 rounded-full border border-emerald-500 flex items-center justify-center text-emerald-500">
+                                <Check className="w-3 h-3" />
+                              </div>
+                            ) : (
+                              <span className="text-slate-300 font-semibold text-xs">—</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-2 text-slate-500 max-w-[200px] truncate" title={prop.description}>{prop.description}</td>
+                      </tr>
+                    );
+                  })}
                   {activeObj.properties.length === 0 && (
                     <tr>
                       <td colSpan={4} className="py-8 text-center text-slate-405 text-xs font-semibold">
@@ -887,6 +1057,41 @@ export default function ObjectModel() {
                 </tbody>
               </table>
             </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between mt-4 px-2 text-xs font-semibold text-slate-500">
+                <span>共 {totalProperties} 条属性 (当前第 {currentPropertyPage}/{totalPages} 页)</span>
+                <div className="flex items-center gap-1">
+                  <button 
+                    disabled={currentPropertyPage === 1}
+                    onClick={() => setCurrentPropertyPage(prev => Math.max(prev - 1, 1))}
+                    className="p-1 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed cursor-pointer transition-all"
+                  >
+                    <ChevronRight className="w-4 h-4 rotate-180" />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPropertyPage(page)}
+                      className={`w-6 h-6 flex items-center justify-center font-bold rounded cursor-pointer transition-all ${
+                        currentPropertyPage === page 
+                          ? 'bg-blue-600 text-white' 
+                          : 'hover:bg-slate-100 text-slate-650'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <button 
+                    disabled={currentPropertyPage === totalPages}
+                    onClick={() => setCurrentPropertyPage(prev => Math.min(prev + 1, totalPages))}
+                    className="p-1 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed cursor-pointer transition-all"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
                <button className="px-4 py-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 font-bold text-[13px] rounded-lg transition-colors cursor-pointer">查看全部属性</button>
@@ -926,69 +1131,71 @@ export default function ObjectModel() {
         </div>
 
         {/* 右栏：能力与影响摘要 */}
-        <div className="lg:col-span-3 space-y-6">
-          
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
-            <h3 className="text-base font-extrabold text-slate-900">能力与影响摘要</h3>
+        {isRightSidebarOpen && (
+          <div className="lg:col-span-3 space-y-6 animate-fade-in animate-duration-200">
             
-            <div className="grid grid-cols-2 gap-3">
-              <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
-                <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><LinkIcon className="w-5 h-5 text-blue-500 rounded-md bg-blue-100 p-1" /> 相关关系</div>
-                <div className="text-2xl font-black text-slate-800">{currentStats.rels}</div>
-              </div>
-              <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
-                <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><div className="w-5 h-5 rounded-md bg-blue-100 text-blue-600 italic font-bold flex items-center justify-center text-[10px]">fx</div> 绑定 Function</div>
-                <div className="text-2xl font-black text-slate-800">2</div>
-              </div>
-              <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
-                <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><Play className="w-5 h-5 text-orange-500 rounded-md bg-orange-100 p-1" /> 绑定 Action</div>
-                <div className="text-2xl font-black text-slate-800">3</div>
-              </div>
-              <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
-                <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><GitMerge className="w-5 h-5 text-orange-500 rounded-md bg-orange-100 p-1" /> 相关 Workflow</div>
-                <div className="text-2xl font-black text-slate-800">2</div>
+            <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
+              <h3 className="text-base font-extrabold text-slate-900">能力与影响摘要</h3>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
+                  <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><LinkIcon className="w-5 h-5 text-blue-500 rounded-md bg-blue-100 p-1" /> 相关关系</div>
+                  <div className="text-2xl font-black text-slate-800">{currentStats.rels}</div>
+                </div>
+                <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
+                  <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><div className="w-5 h-5 rounded-md bg-blue-100 text-blue-600 italic font-bold flex items-center justify-center text-[10px]">fx</div> 绑定 Function</div>
+                  <div className="text-2xl font-black text-slate-800">2</div>
+                </div>
+                <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
+                  <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><Play className="w-5 h-5 text-orange-500 rounded-md bg-orange-100 p-1" /> 绑定 Action</div>
+                  <div className="text-2xl font-black text-slate-800">3</div>
+                </div>
+                <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
+                  <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><GitMerge className="w-5 h-5 text-orange-500 rounded-md bg-orange-100 p-1" /> 相关 Workflow</div>
+                  <div className="text-2xl font-black text-slate-800">2</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-extrabold text-slate-900">关系摘要</h3>
-            
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between text-[13px] bg-slate-50 p-2 rounded-lg border border-slate-100">
-                <span className="font-mono font-bold text-slate-600">checked_by</span>
-                <span className="text-slate-300">→</span>
-                <span className="font-medium text-slate-800">DataQualityRule</span>
+            <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
+              <h3 className="text-sm font-extrabold text-slate-900">关系摘要</h3>
+              
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between text-[13px] bg-slate-50 p-2 rounded-lg border border-slate-100">
+                  <span className="font-mono font-bold text-slate-600">checked_by</span>
+                  <span className="text-slate-300">→</span>
+                  <span className="font-medium text-slate-800">DataQualityRule</span>
+                </div>
+                <div className="flex items-center justify-between text-[13px] bg-slate-50 p-2 rounded-lg border border-slate-100">
+                  <span className="font-mono font-bold text-slate-600">belongs_to</span>
+                  <span className="text-slate-300">→</span>
+                  <span className="font-medium text-slate-800">DataAsset</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-[13px] bg-slate-50 p-2 rounded-lg border border-slate-100">
-                <span className="font-mono font-bold text-slate-600">belongs_to</span>
-                <span className="text-slate-300">→</span>
-                <span className="font-medium text-slate-800">DataAsset</span>
+              
+              <div className="pt-2 text-right">
+                <span className="text-xs font-bold text-blue-600 cursor-pointer hover:underline flex items-center justify-end gap-0.5">
+                  查看全部关系 <ChevronRight className="w-3.5 h-3.5" />
+                </span>
               </div>
             </div>
-            
-            <div className="pt-2 text-right">
-              <span className="text-xs font-bold text-blue-600 cursor-pointer hover:underline flex items-center justify-end gap-0.5">
-                查看全部关系 <ChevronRight className="w-3.5 h-3.5" />
-              </span>
-            </div>
-          </div>
 
-          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
-            <h3 className="text-sm font-extrabold text-slate-900">快捷操作</h3>
-            
-            <div className="space-y-2">
-               <button className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md text-sm font-bold text-slate-700 transition-colors cursor-pointer">
-                 <div className="flex items-center gap-2"><LinkIcon className="w-4 h-4 text-blue-500" /> 查看关联关系</div>
-                 <ChevronRight className="w-4 h-4 text-slate-400" />
-               </button>
-               <button className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md text-sm font-bold text-slate-700 transition-colors cursor-pointer">
-                 <div className="flex items-center gap-2"><GitMerge className="w-4 h-4 text-blue-500" /> 查看调优工作流</div>
-                 <ChevronRight className="w-4 h-4 text-slate-400" />
-               </button>
+            <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
+              <h3 className="text-sm font-extrabold text-slate-900">快捷操作</h3>
+              
+              <div className="space-y-2">
+                 <button className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md text-sm font-bold text-slate-700 transition-colors cursor-pointer">
+                   <div className="flex items-center gap-2"><LinkIcon className="w-4 h-4 text-blue-500" /> 查看关联关系</div>
+                   <ChevronRight className="w-4 h-4 text-slate-400" />
+                 </button>
+                 <button className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md text-sm font-bold text-slate-700 transition-colors cursor-pointer">
+                   <div className="flex items-center gap-2"><GitMerge className="w-4 h-4 text-blue-500" /> 查看调优工作流</div>
+                   <ChevronRight className="w-4 h-4 text-slate-400" />
+                 </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* -------------------------------------------------------------
