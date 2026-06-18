@@ -292,16 +292,6 @@ export default function ObjectModel() {
   // May be undefined while the objectTypes query is still loading (React Query).
   const activeObj = objectTypes.find(o => o.id === selectedObjectId) || objectTypes.find(o => o.id === 'Field') || objectTypes[0];
 
-  // Data not loaded yet — render a lightweight placeholder instead of crashing
-  // when downstream code dereferences activeObj.properties.
-  if (!activeObj) {
-    return (
-      <div className="flex items-center justify-center h-64 text-slate-400 text-sm">
-        正在加载本体模型…
-      </div>
-    );
-  }
-
   // State elements
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
@@ -356,7 +346,17 @@ export default function ObjectModel() {
   useEffect(() => {
     setIsEditingBasicInfo(false);
     setCurrentPropertyPage(1);
-  }, [activeObj.id]);
+  }, [activeObj?.id]);
+
+  // Data not loaded yet — render a lightweight placeholder instead of crashing
+  // when downstream code dereferences activeObj.properties.
+  if (!activeObj) {
+    return (
+      <div className="flex items-center justify-center h-64 text-slate-400 text-sm">
+        正在加载本体模型…
+      </div>
+    );
+  }
 
   const startEditingBasicInfo = () => {
     setEditNameCn(activeObj.nameCn);
