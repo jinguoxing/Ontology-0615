@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box, Link as LinkIcon, FunctionSquare, Play,
   GitMerge, Shield, CheckCircle2, Circle, Check,
   Target, AlertTriangle, Info, Bell, Search,
   Settings, ChevronRight, RefreshCw, LayoutGrid, Star,
   Database, FileCode, Beaker, LayoutTemplate, Maximize2, X, Sparkles,
-  Plus, Download, ChevronDown
+  Plus, Download, ChevronDown, PanelRightOpen, PanelRightClose
 } from 'lucide-react';
 import {useUiStore} from '../store/uiStore';
 
@@ -49,29 +49,46 @@ const connectedRingColors: Record<string, string> = {
   red: 'ring-1 ring-rose-300 border-rose-300 bg-rose-50/10 shadow-[0_0_6px_rgba(244,63,94,0.1)]',
 };
 
-const getPathD = (nodeA: string, nodeB: string): string => {
-  if (nodeA === 'DataSource' && nodeB === 'DataAsset') return 'M 220 80 L 220 100';
-  if (nodeA === 'DataAsset' && nodeB === 'Field') return 'M 220 164 L 220 184';
-  if (nodeA === 'Field' && nodeB === 'SemanticAssertion') return 'M 220 248 C 220 262, 100 259, 100 273';
-  if (nodeA === 'Field' && nodeB === 'DataQualityRule') return 'M 220 248 C 220 262, 340 259, 340 273';
-  if (nodeA === 'SemanticAssertion' && nodeB === 'Evidence') return 'M 100 337 L 100 373';
-  if (nodeA === 'DataQualityRule' && nodeB === 'DataIssue') return 'M 340 337 L 340 373';
-  if (nodeA === 'Evidence' && nodeB === 'GovernanceTask') return 'M 100 437 C 100 455, 220 455, 220 473';
-  if (nodeA === 'DataIssue' && nodeB === 'GovernanceTask') return 'M 340 437 C 340 455, 220 455, 220 473';
-  if (nodeA === 'Run' && nodeB === 'Snapshot') return 'M 400 164 L 400 184';
-  return '';
+// NODE_W / NODE_H: the pixel dimensions of each canvas node card
+const NODE_W = 136;
+const NODE_H = 64;
+
+// Dynamic path between two nodes given their top-left positions
+const getDynamicPath = (
+  posA: { x: number; y: number },
+  posB: { x: number; y: number }
+): string => {
+  // Entry/exit points: bottom-center of A -> top-center of B
+  const ax = posA.x + NODE_W / 2;
+  const ay = posA.y + NODE_H;
+  const bx = posB.x + NODE_W / 2;
+  const by = posB.y;
+  const cy = (ay + by) / 2;
+  return `M ${ax} ${ay} C ${ax} ${cy}, ${bx} ${cy}, ${bx} ${by}`;
 };
 
-const labelPositions: Record<string, { x: number, y: number, text: string, textAnchor?: string }> = {
-  'DataSource-DataAsset': { x: 226, y: 93, text: 'contains', textAnchor: 'start' },
-  'DataAsset-Field': { x: 226, y: 177, text: 'contains', textAnchor: 'start' },
-  'Field-SemanticAssertion': { x: 130, y: 258, text: 'has_assertion', textAnchor: 'end' },
-  'Field-DataQualityRule': { x: 310, y: 258, text: 'checked_by', textAnchor: 'start' },
-  'SemanticAssertion-Evidence': { x: 106, y: 358, text: 'supported_by', textAnchor: 'start' },
-  'DataQualityRule-DataIssue': { x: 346, y: 358, text: 'produces', textAnchor: 'start' },
-  'Evidence-GovernanceTask': { x: 120, y: 454, text: 'assigned_to', textAnchor: 'start' },
-  'DataIssue-GovernanceTask': { x: 320, y: 454, text: 'assigned_to', textAnchor: 'end' },
-  'Run-Snapshot': { x: 406, y: 177, text: 'generates', textAnchor: 'start' }
+// Midpoint label position
+const getLabelPos = (
+  posA: { x: number; y: number },
+  posB: { x: number; y: number }
+): { x: number; y: number } => {
+  const ax = posA.x + NODE_W / 2;
+  const ay = posA.y + NODE_H;
+  const bx = posB.x + NODE_W / 2;
+  const by = posB.y;
+  return { x: (ax + bx) / 2 + 6, y: (ay + by) / 2 };
+};
+
+const connectionLabels: Record<string, string> = {
+  'DataSource-DataAsset': 'contains',
+  'DataAsset-Field': 'contains',
+  'Field-SemanticAssertion': 'has_assertion',
+  'Field-DataQualityRule': 'checked_by',
+  'SemanticAssertion-Evidence': 'supported_by',
+  'DataQualityRule-DataIssue': 'produces',
+  'Evidence-GovernanceTask': 'assigned_to',
+  'DataIssue-GovernanceTask': 'assigned_to',
+  'Run-Snapshot': 'generates',
 };
 
 const getPanoramaPathD = (nodeA: string, nodeB: string): string => {
@@ -125,6 +142,78 @@ export default function Overview() {
     '模型总览', '对象模型', '关系模型', '能力绑定', '动作 (Action)', 
     '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
   ];
+
+  // Canvas node positions (top-left pixel coords)
+  const [nodePositions, setNodePositions] = useState<Record<string, { x: number; y: number }>>(() => ({
+    DataSource:       { x: 152, y: 16 },
+    DataAsset:        { x: 152, y: 100 },
+    Field:            { x: 152, y: 184 },
+    SemanticAssertion:{ x: 32,  y: 273 },
+    DataQualityRule:  { x: 272, y: 273 },
+    Evidence:         { x: 32,  y: 373 },
+    DataIssue:        { x: 272, y: 373 },
+    GovernanceTask:   { x: 152, y: 473 },
+    Run:              { x: 332, y: 100 },
+    Snapshot:         { x: 332, y: 184 },
+  }));
+
+  // Drag state
+  const draggingRef = useRef<{ nodeId: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number } | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+
+  // Hover tooltip
+  const [tooltipNode, setTooltipNode] = useState<string | null>(null);
+  const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleNodeMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const pos = nodePositions[nodeId];
+    draggingRef.current = {
+      nodeId,
+      startMouseX: e.clientX,
+      startMouseY: e.clientY,
+      startNodeX: pos.x,
+      startNodeY: pos.y,
+    };
+    setDraggingId(nodeId);
+    setTooltipNode(null); // hide tooltip while dragging
+  }, [nodePositions]);
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!draggingRef.current) return;
+      const { nodeId, startMouseX, startMouseY, startNodeX, startNodeY } = draggingRef.current;
+      const dx = e.clientX - startMouseX;
+      const dy = e.clientY - startMouseY;
+      setNodePositions(prev => ({
+        ...prev,
+        [nodeId]: { x: startNodeX + dx, y: startNodeY + dy },
+      }));
+    };
+    const onMouseUp = () => {
+      draggingRef.current = null;
+      setDraggingId(null);
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, []);
+
+  const handleNodeMouseEnter = useCallback((nodeId: string) => {
+    setHoveredNodeId(nodeId);
+    if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
+    tooltipTimeout.current = setTimeout(() => setTooltipNode(nodeId), 300);
+  }, []);
+
+  const handleNodeMouseLeave = useCallback(() => {
+    setHoveredNodeId(null);
+    if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
+    setTooltipNode(null);
+  }, []);
 
   // Interactive Workspace States
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
@@ -341,16 +430,14 @@ export default function Overview() {
     title, 
     subtitle, 
     icon: Icon, 
-    color, 
-    className, 
-    style 
+    color,
+    className,
   }: { 
     title: string, 
     subtitle: string, 
     icon?: any, 
-    color: string, 
-    className?: string, 
-    style?: React.CSSProperties 
+    color: string,
+    className?: string,
   }) => {
     const iconColors: Record<string, string> = {
       blue: 'text-blue-600 bg-blue-50/60 ring-1 ring-blue-100/50',
@@ -366,25 +453,30 @@ export default function Overview() {
     const isConnected = hoveredNodeId ? areConnected(title, hoveredNodeId) : false;
     const isMuted = hasHover && !isSelf && !isConnected;
     const metric = nodeMetrics[title];
+    const pos = nodePositions[title];
+    const isDragging = draggingId === title;
 
-    const nodeClass = isMuted
-      ? 'opacity-20 scale-[0.95] blur-[0.2px] border-slate-100 bg-white/50'
-      : isSelf
-        ? `-translate-y-1 z-25 bg-white shadow-lg border-transparent ${hoverRingColors[color]}`
-        : isConnected
-          ? `scale-[1.02] z-20 ${connectedRingColors[color]}`
-          : 'hover:shadow-md hover:-translate-y-0.5 bg-white/95 backdrop-blur-sm border-slate-200/80 hover:border-slate-350';
+    const nodeClass = isDragging
+      ? `z-50 shadow-xl scale-[1.04] bg-white border-transparent ${hoverRingColors[color]}`
+      : isMuted
+        ? 'opacity-25 scale-[0.95] blur-[0.2px] border-slate-100 bg-white/50'
+        : isSelf
+          ? `-translate-y-1 z-25 bg-white shadow-lg border-transparent ${hoverRingColors[color]}`
+          : isConnected
+            ? `scale-[1.02] z-20 ${connectedRingColors[color]}`
+            : 'hover:shadow-md hover:-translate-y-0.5 bg-white/95 backdrop-blur-sm border-slate-200/80 hover:border-slate-350';
 
     return (
       <div 
-        onMouseEnter={() => setHoveredNodeId(title)}
-        onMouseLeave={() => setHoveredNodeId(null)}
-        onClick={() => navigate('object_model', title)}
-        className={`absolute rounded-xl py-2 pl-4 pr-3 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] border cursor-pointer select-none transition-all duration-300 ${nodeClass} ${className || ''}`}
-        style={style}
+        onMouseEnter={() => handleNodeMouseEnter(title)}
+        onMouseLeave={handleNodeMouseLeave}
+        onMouseDown={(e) => handleNodeMouseDown(e, title)}
+        onClick={() => { if (!isDragging) navigate('object_model', title); }}
+        className={`absolute rounded-md py-2 pl-4 pr-3 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] border ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none transition-all duration-200 ${nodeClass} ${className || ''}`}
+        style={{ left: pos.x, top: pos.y }}
       >
         {/* Left Category Accent Stripe */}
-        <div className={`absolute left-0 top-0 bottom-0 w-[4px] rounded-l-xl ${leftStripeColors[color]}`} />
+        <div className={`absolute left-0 top-0 bottom-0 w-[4px] rounded-l-md ${leftStripeColors[color]}`} />
         
         {/* Live Metric Badge */}
         {metric && (
@@ -462,7 +554,7 @@ export default function Overview() {
     return (
       <div 
         onClick={() => setSelectedPanoramaNodeId(id)}
-        className={`absolute rounded-xl py-2.5 pl-4 pr-3 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] border cursor-pointer select-none transition-all duration-300 ${nodeClass}`}
+        className={`absolute rounded-md py-2.5 pl-4 pr-3 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] border cursor-pointer select-none transition-all duration-300 ${nodeClass}`}
         style={style}
       >
         {/* Left Category Accent Stripe */}
@@ -588,11 +680,55 @@ export default function Overview() {
         ))}
       </div>
 
-      {/* 主体三列工作区 */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      {/* 顶部横向：待处理事项与风险 */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="flex items-center justify-between p-4 rounded-md border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-colors shadow-sm cursor-pointer group">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform"><Box className="w-4 h-4" /></div>
+            <div>
+              <div className="text-[13px] font-bold text-slate-800 tracking-tight">2 个 Object Type</div>
+              <div className="text-[11px] text-slate-500">有未发布变更</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+        <div className="flex items-center justify-between p-4 rounded-md border border-orange-100 bg-orange-50/50 hover:bg-orange-50 transition-colors shadow-sm cursor-pointer group">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform"><GitMerge className="w-4 h-4" /></div>
+            <div>
+              <div className="text-[13px] font-bold text-slate-800 tracking-tight">1 个 Workflow</div>
+              <div className="text-[11px] text-slate-500">受影响</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-orange-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+        <div className="flex items-center justify-between p-4 rounded-md border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-colors shadow-sm cursor-pointer group">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold italic group-hover:scale-110 transition-transform">fx</div>
+            <div>
+              <div className="text-[13px] font-bold text-slate-800 tracking-tight">3 个 Function</div>
+              <div className="text-[11px] text-slate-500">需要重新测试</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+        <div className="flex items-center justify-between p-4 rounded-md border border-orange-100 bg-orange-50/50 hover:bg-orange-50 transition-colors shadow-sm cursor-pointer group">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform"><Shield className="w-4 h-4" /></div>
+            <div>
+              <div className="text-[13px] font-bold text-slate-800 tracking-tight">1 个 AI 场景</div>
+              <div className="text-[11px] text-slate-500">需要重新校验</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-orange-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+      </div>
+
+      {/* 主体二列工作区 */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 transition-all duration-500">
         
         {/* 左栏：核心对象结构 */}
-        <div className="md:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col">
+        <div className="md:col-span-7 bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
               核心对象结构 <Info className="w-4 h-4 text-slate-400 cursor-pointer" />
@@ -615,22 +751,30 @@ export default function Overview() {
             </div>
           </div>
           
-          <div className="flex-1 min-h-[560px] flex items-center justify-center p-2 bg-slate-50/30 rounded-2xl border border-slate-200/50 shadow-inner mt-2 relative">
-            {/* Visual Grid Backdrop */}
-            <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1.5px,transparent_1.5px)] opacity-70 [background-size:20px_20px] pointer-events-none rounded-2xl"></div>
+          <div className="flex-1 min-h-[560px] flex items-center justify-center p-2 bg-slate-50/30 rounded-lg border border-slate-200/50 shadow-inner mt-2 relative overflow-hidden group">
+            {/* Ambient glowing orbs */}
+            <div className="absolute -top-20 -left-20 w-72 h-72 bg-blue-400/20 rounded-full blur-[80px] pointer-events-none group-hover:bg-blue-400/30 transition-colors duration-1000" style={{ animation: 'float-slow 8s ease-in-out infinite' }}></div>
+            <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-emerald-400/20 rounded-full blur-[80px] pointer-events-none group-hover:bg-emerald-400/30 transition-colors duration-1000" style={{ animation: 'float-slow 12s ease-in-out infinite reverse' }}></div>
             
-            <div className="relative w-[440px] h-[540px] shrink-0 overflow-hidden z-10 animate-fade-in">
-              <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+            {/* Visual Grid Backdrop - static */}
+            <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] opacity-60 [background-size:24px_24px] pointer-events-none rounded-lg group-hover:opacity-80 transition-opacity duration-1000"></div>
+            
+            <div className="relative w-[460px] h-[580px] shrink-0 overflow-visible z-10 animate-fade-in">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible" style={{ zIndex: 0 }}>
                 <defs>
                   <style>{`
+                    @keyframes float-slow {
+                      0%, 100% { transform: translateY(0) scale(1); }
+                      50% { transform: translateY(-20px) scale(1.05); }
+                    }
                     @keyframes flow-dash {
                       to {
                         stroke-dashoffset: -40;
                       }
                     }
                     .flow-active-trail {
-                      stroke-dasharray: 6 14;
-                      animation: flow-dash 1.2s linear infinite;
+                      stroke-dasharray: 4 16;
+                      animation: flow-dash 1.5s linear infinite;
                     }
                   `}</style>
                   <marker id="arrowhead-slate" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
@@ -650,7 +794,7 @@ export default function Overview() {
                   </marker>
                 </defs>
 
-                {/* Render All Connections */}
+                {/* Render All Connections - dynamic paths from nodePositions */}
                 {[
                   ['DataSource', 'DataAsset'],
                   ['DataAsset', 'Field'],
@@ -662,14 +806,14 @@ export default function Overview() {
                   ['DataIssue', 'GovernanceTask'],
                   ['Run', 'Snapshot']
                 ].map(([nodeA, nodeB]) => {
-                  const pathD = getPathD(nodeA, nodeB);
-                  if (!pathD) return null;
-                  
-                  const lineProps = getLineProps(nodeA, nodeB);
+                  const posA = nodePositions[nodeA];
+                  const posB = nodePositions[nodeB];
+                  if (!posA || !posB) return null;
+                  const pathD = getDynamicPath(posA, posB);
+                  const labelPos = getLabelPos(posA, posB);
+                  const labelText = connectionLabels[`${nodeA}-${nodeB}`];
                   const textProps = getTextProps(nodeA, nodeB);
                   const key = `${nodeA}-${nodeB}`;
-                  const label = labelPositions[key];
-                  
                   const hasHover = hoveredNodeId !== null;
                   const isRelated = hoveredNodeId === nodeA || hoveredNodeId === nodeB;
                   const col = getLineColor(nodeA, nodeB);
@@ -681,51 +825,44 @@ export default function Overview() {
                         d={pathD}
                         fill="none"
                         stroke={hasHover ? (isRelated ? col : '#cbd5e1') : '#cbd5e1'}
-                        strokeWidth={isRelated ? 3.5 : 2}
-                        opacity={hasHover ? (isRelated ? 0.35 : 0.15) : 0.7}
-                        className="transition-all duration-300"
+                        strokeWidth={isRelated ? 2.5 : 1}
+                        opacity={hasHover ? (isRelated ? 0.3 : 0.1) : 0.5}
                         style={{
-                          filter: isRelated ? `drop-shadow(0 0 3px ${col})` : 'none'
+                          filter: isRelated ? `drop-shadow(0 0 4px ${col})` : 'none'
                         }}
                       />
-                      
                       {/* Main connection path */}
                       <path
                         d={pathD}
                         fill="none"
                         stroke={hasHover ? (isRelated ? col : '#e2e8f0') : '#cbd5e1'}
-                        strokeWidth={isRelated ? 2 : 1.5}
+                        strokeWidth={isRelated ? 1.5 : 1}
                         opacity={hasHover ? (isRelated ? 1 : 0.2) : 1}
-                        markerEnd={hasHover ? (isRelated ? getActiveMarker(nodeA, nodeB) : "url(#arrowhead-slate)") : "url(#arrowhead-slate)"}
-                        className="transition-all duration-300"
+                        markerEnd={hasHover ? (isRelated ? getActiveMarker(nodeA, nodeB) : 'url(#arrowhead-slate)') : 'url(#arrowhead-slate)'}
                       />
-                      
                       {/* Active Light Trail Overlay */}
                       {isRelated && (
                         <path
                           d={pathD}
                           fill="none"
                           stroke={col}
-                          strokeWidth={2}
+                          strokeWidth={1.5}
                           strokeLinecap="round"
                           className="flow-active-trail"
-                          style={{
-                            filter: `drop-shadow(0 0 2px ${col})`
-                          }}
+                          style={{ filter: `drop-shadow(0 0 2px ${col})` }}
                         />
                       )}
-                      
-                      {/* Text Label */}
-                      {label && (
+                      {/* Edge Label */}
+                      {labelText && (
                         <text
-                          x={label.x}
-                          y={label.y}
-                          textAnchor={label.textAnchor || 'middle'}
+                          x={labelPos.x}
+                          y={labelPos.y}
+                          textAnchor="start"
                           {...textProps}
-                          fontSize="9.5"
+                          fontSize="9"
                           fontFamily="monospace"
                         >
-                          {label.text}
+                          {labelText}
                         </text>
                       )}
                     </g>
@@ -733,28 +870,95 @@ export default function Overview() {
                 })}
               </svg>
 
-              {/* Nodes Positioning exactly using pixel style */}
-              <Node title="DataSource" subtitle="数据源" icon={Database} color="blue" style={{ left: '152px', top: '16px' }} />
-              <Node title="DataAsset" subtitle="数据资产" icon={Box} color="blue" style={{ left: '152px', top: '100px' }} />
-              <Node title="Field" subtitle="字段" icon={LayoutGrid} color="blue" style={{ left: '152px', top: '184px' }} />
+              {/* Nodes - positions are now managed by nodePositions state */}
+              <Node title="DataSource" subtitle="数据源" icon={Database} color="blue" />
+              <Node title="DataAsset" subtitle="数据资产" icon={Box} color="blue" />
+              <Node title="Field" subtitle="字段" icon={LayoutGrid} color="blue" />
               
-              <Node title="SemanticAssertion" subtitle="语义断言" icon={Shield} color="green" style={{ left: '32px', top: '273px' }} />
-              <Node title="DataQualityRule" subtitle="质量规则" icon={CheckCircle2} color="green" style={{ left: '272px', top: '273px' }} />
+              <Node title="SemanticAssertion" subtitle="语义断言" icon={Shield} color="green" />
+              <Node title="DataQualityRule" subtitle="质量规则" icon={CheckCircle2} color="green" />
               
-              <Node title="Evidence" subtitle="证据" icon={FileCode} color="teal" style={{ left: '32px', top: '373px' }} />
-              <Node title="DataIssue" subtitle="数据问题" icon={AlertTriangle} color="red" style={{ left: '272px', top: '373px' }} />
+              <Node title="Evidence" subtitle="证据" icon={FileCode} color="teal" />
+              <Node title="DataIssue" subtitle="数据问题" icon={AlertTriangle} color="red" />
               
-              <Node title="GovernanceTask" subtitle="治理任务" icon={Target} color="purple" style={{ left: '152px', top: '473px' }} />
+              <Node title="GovernanceTask" subtitle="治理任务" icon={Target} color="purple" />
               
-              {/* Floating Side Nodes */}
-              <Node title="Run" subtitle="检测记录" icon={Play} color="blue" style={{ left: '332px', top: '100px' }} />
-              <Node title="Snapshot" subtitle="状态快照" icon={Box} color="orange" style={{ left: '332px', top: '184px' }} />
+              <Node title="Run" subtitle="检测记录" icon={Play} color="blue" />
+              <Node title="Snapshot" subtitle="状态快照" icon={Box} color="orange" />
+
+              {/* Hover Tooltip Panel */}
+              {tooltipNode && PANORAMA_NODE_DETAILS[tooltipNode] && (() => {
+                const pos = nodePositions[tooltipNode];
+                const detail = PANORAMA_NODE_DETAILS[tooltipNode];
+                const colorMap: Record<string, string> = {
+                  DataSource: 'blue', DataAsset: 'blue', Field: 'blue', Run: 'blue',
+                  SemanticAssertion: 'green', Evidence: 'teal',
+                  DataQualityRule: 'green', DataIssue: 'red',
+                  GovernanceTask: 'purple', Snapshot: 'orange',
+                };
+                const c = colorMap[tooltipNode] || 'blue';
+                const accentMap: Record<string, string> = {
+                  blue: 'border-l-blue-500 bg-blue-50/80 text-blue-700',
+                  green: 'border-l-emerald-500 bg-emerald-50/80 text-emerald-700',
+                  teal: 'border-l-teal-500 bg-teal-50/80 text-teal-700',
+                  orange: 'border-l-orange-500 bg-orange-50/80 text-orange-700',
+                  purple: 'border-l-purple-500 bg-purple-50/80 text-purple-700',
+                  red: 'border-l-rose-500 bg-rose-50/80 text-rose-700',
+                };
+                // Place tooltip to the right of the node, fallback to left
+                const tooltipLeft = pos.x + NODE_W + 12;
+                const tooltipTop = pos.y;
+                return (
+                  <div
+                    key={tooltipNode}
+                    className="absolute z-50 w-56 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-lg shadow-xl p-3 pointer-events-none animate-fade-in"
+                    style={{ left: tooltipLeft, top: tooltipTop }}
+                  >
+                    {/* Header */}
+                    <div className={`border-l-4 pl-2.5 rounded-sm mb-2.5 ${accentMap[c]}`}>
+                      <div className="text-[11px] font-extrabold tracking-tight leading-tight">{detail.title}</div>
+                      <div className="text-[9px] font-semibold opacity-70 mt-0.5">{detail.group}</div>
+                    </div>
+
+                    {/* Quick stats */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex-1 bg-slate-50 border border-slate-100 rounded p-1.5 text-center">
+                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wide">实例规模</div>
+                        <div className="text-[10px] font-extrabold text-slate-700 mt-0.5">{detail.instanceCount}</div>
+                      </div>
+                      <div className="flex-1 bg-slate-50 border border-slate-100 rounded p-1.5 text-center">
+                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wide">责任域</div>
+                        <div className="text-[10px] font-extrabold text-slate-700 mt-0.5 truncate" title={detail.owner}>{detail.owner}</div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-[10px] text-slate-600 leading-relaxed line-clamp-3 mb-2">{detail.description}</p>
+
+                    {/* Properties */}
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">核心属性</div>
+                    <div className="flex flex-wrap gap-1">
+                      {detail.properties.slice(0, 3).map(p => (
+                        <span key={p} className="text-[9px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200 truncate max-w-[100px]" title={p}>{p.split(' ')[0]}</span>
+                      ))}
+                    </div>
+
+                    {/* Lifecycle */}
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-2 mb-1">生命周期</div>
+                    <div className="flex gap-0.5">
+                      {detail.lifecycle.slice(0, 4).map((lc, i) => (
+                        <div key={i} className={`flex-1 h-1 rounded-full ${i === 0 ? 'bg-emerald-400' : i === 1 ? 'bg-blue-400' : i === 2 ? 'bg-orange-400' : 'bg-slate-200'}`} title={lc} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
 
         {/* 中栏：模型健康状态 */}
-        <div className="md:col-span-4 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col">
+        <div className="md:col-span-5 bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
               模型健康状态 <Info className="w-4 h-4 text-slate-400 cursor-pointer" />
@@ -762,41 +966,41 @@ export default function Overview() {
           </div>
           
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600"><Box className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Object Type</div><div className="text-xl font-black text-slate-800">10</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600"><LinkIcon className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Link Type</div><div className="text-xl font-black text-slate-800">18</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold italic">fx</div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Function</div><div className="text-xl font-black text-slate-800">12</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600"><Play className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Action</div><div className="text-xl font-black text-slate-800">16</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600"><GitMerge className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Workflow</div><div className="text-xl font-black text-slate-800">6</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600"><Shield className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">校验结果</div><div className="text-[15px] font-black tracking-tight"><span className="text-emerald-500">0</span> <span className="text-slate-400 font-medium text-[11px]">错误</span> / <span className="text-orange-500">2</span> <span className="text-slate-400 font-medium text-[11px]">警告</span></div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600"><Target className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">AI 使用场景</div><div className="text-xl font-black text-slate-800">3</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600"><Settings className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">知识网络视图</div><div className="text-xl font-black text-slate-800">5</div></div>
             </div>
           </div>
 
-          <div className="mt-auto border border-slate-100 bg-slate-50 rounded-xl p-5 flex items-center gap-6">
+          <div className="mt-auto border border-slate-100 bg-slate-50 rounded-md p-5 flex items-center gap-6">
             <div className="relative w-[72px] h-[72px] shrink-0">
                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                  <circle cx="50" cy="50" r="42" stroke="#e2e8f0" strokeWidth="8" fill="none" />
@@ -816,77 +1020,7 @@ export default function Overview() {
           </div>
         </div>
 
-        {/* 右栏：待处理事项与风险 */}
-        <div className="md:col-span-3 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
-              待处理事项与风险 <Info className="w-4 h-4 text-slate-400 cursor-pointer" />
-            </h2>
-          </div>
 
-          <div className="space-y-3 flex-1">
-             <div className="flex items-center justify-between p-4 rounded-xl border border-rose-100 bg-rose-50 cursor-pointer hover:bg-rose-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500"><Box className="w-4 h-4" /></div>
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-800 tracking-tight">2 个 Object Type</div>
-                    <div className="text-[11px] text-slate-500">有未发布变更</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-rose-600 font-black text-lg">2 <ChevronRight className="w-4 h-4" /></div>
-             </div>
-
-             <div className="flex items-center justify-between p-4 rounded-xl border border-orange-100 bg-orange-50 cursor-pointer hover:bg-orange-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-500"><GitMerge className="w-4 h-4" /></div>
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-800 tracking-tight">1 个 Workflow</div>
-                    <div className="text-[11px] text-slate-500">受影响</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-orange-600 font-black text-lg">1 <ChevronRight className="w-4 h-4" /></div>
-             </div>
-
-             <div className="flex items-center justify-between p-4 rounded-xl border border-rose-100 bg-rose-50 cursor-pointer hover:bg-rose-100/50">
-               <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold italic">fx</div>
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-800 tracking-tight">3 个 Function</div>
-                    <div className="text-[11px] text-slate-500">需要重新测试</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-rose-600 font-black text-lg">3 <ChevronRight className="w-4 h-4" /></div>
-             </div>
-
-             <div className="flex items-center justify-between p-4 rounded-xl border border-orange-100 bg-orange-50 cursor-pointer hover:bg-orange-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500"><Shield className="w-4 h-4" /></div>
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-800 tracking-tight">1 个 AI 场景</div>
-                    <div className="text-[11px] text-slate-500">需要重新校验</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-orange-600 font-black text-lg">1 <ChevronRight className="w-4 h-4" /></div>
-             </div>
-          </div>
-
-          {/* Bottom simple stats */}
-          <div className="mt-6 pt-5 border-t border-slate-100 space-y-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-500 font-medium">最近一次发布</span>
-              <div className="text-right">
-                <div className="font-bold text-slate-800">2 天前</div>
-                <div className="text-[10px] text-slate-400">v1.3.0</div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-500 font-medium">发布风险等级</span>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-100 text-orange-700 rounded-md font-bold text-[12px]">
-                 <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div> 中 <ChevronRight className="w-3.5 h-3.5 -ml-0.5" />
-              </div>
-            </div>
-          </div>
-        </div>
 
       </div>
 
@@ -894,7 +1028,7 @@ export default function Overview() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pb-12">
         
         {/* 最近变更 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-extrabold text-slate-900">最近变更</h2>
             <div className="text-xs font-bold text-blue-600 cursor-pointer hover:underline flex items-center gap-0.5">
@@ -961,7 +1095,7 @@ export default function Overview() {
         </div>
 
         {/* 发布记录 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-extrabold text-slate-900">发布记录</h2>
             <div className="text-xs font-bold text-blue-600 cursor-pointer hover:underline flex items-center gap-0.5">
@@ -1021,12 +1155,12 @@ export default function Overview() {
       */}
       {isPanoramaOpen && (
         <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-8 animate-fade-in font-sans">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden shadow-2xl text-slate-100">
+          <div className="bg-slate-900 border border-slate-800 rounded-lg w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden shadow-2xl text-slate-100">
             
             {/* Modal Header */}
             <div className="px-6 py-4 bg-slate-950/40 border-b border-slate-800 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                <div className="w-10 h-10 rounded-md bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
@@ -1063,7 +1197,7 @@ export default function Overview() {
               {/* Close Button */}
               <button 
                 onClick={() => setIsPanoramaOpen(false)}
-                className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 hover:text-white text-slate-400 flex items-center justify-center transition-colors cursor-pointer border border-slate-800 shadow-inner"
+                className="w-10 h-10 rounded-md bg-slate-800 hover:bg-slate-700 hover:text-white text-slate-400 flex items-center justify-center transition-colors cursor-pointer border border-slate-800 shadow-inner"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1121,7 +1255,7 @@ export default function Overview() {
               {/* Central Topological Canvas */}
               <div className="flex-1 bg-slate-950/40 relative h-full flex items-center justify-center overflow-hidden">
                 {/* Visual Grid Backdrop */}
-                <div className="absolute inset-0 bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] opacity-35 [background-size:20px_20px] pointer-events-none rounded-2xl"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] opacity-35 [background-size:20px_20px] pointer-events-none rounded-lg"></div>
 
                 <div className="relative w-[880px] h-[450px] shrink-0 z-10">
                   {/* SVG paths representing highlighted lines */}
@@ -1356,7 +1490,7 @@ export default function Overview() {
                           setIsPanoramaOpen(false);
                           navigate('object_model', selectedPanoramaNodeId);
                         }}
-                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <span>进入此对象配置中心</span>
                         <ChevronRight className="w-4 h-4" />

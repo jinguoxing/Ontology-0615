@@ -556,7 +556,7 @@ export default function ObjectModel() {
       
       {/* Dynamic Action Toast Notifications */}
       {toastMessage && (
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-950 border border-emerald-500/30 text-white rounded-2xl px-6 py-4 shadow-2xl flex items-center gap-3.5 max-w-xl animate-fade-in">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-950 border border-emerald-500/30 text-white rounded-lg px-6 py-4 shadow-2xl flex items-center gap-3.5 max-w-xl animate-fade-in">
           <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />
           <div className="text-left">
             <p className="text-[13px] font-bold tracking-tight text-emerald-200">系统数据变更成功</p>
@@ -665,7 +665,7 @@ export default function ObjectModel() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
         
         {/* 左栏：Object Type 列表 */}
-        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-base font-extrabold text-slate-900">对象类型列表</h3>
             <Settings className="w-4 h-4 text-slate-400 cursor-pointer hover:text-slate-600" />
@@ -674,7 +674,7 @@ export default function ObjectModel() {
           {/* Dotted border trigger inside list view */}
           <button 
             onClick={() => setIsAddDrawerOpen(true)}
-            className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 border-2 border-dashed border-blue-200 hover:border-blue-500 hover:bg-blue-50/20 text-blue-600 hover:text-blue-700 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer mb-2"
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 border-2 border-dashed border-blue-200 hover:border-blue-500 hover:bg-blue-50/20 text-blue-600 hover:text-blue-700 rounded-md text-xs font-bold transition-all shadow-xs cursor-pointer mb-2"
           >
             <Plus className="w-4.5 h-4.5" />
             <span>启用 / 添加 Object Type</span>
@@ -718,7 +718,7 @@ export default function ObjectModel() {
                         <div 
                           key={obj.id}
                           onClick={() => onSelectObject(obj.id)}
-                          className={`p-3 rounded-xl border cursor-pointer select-none transition-all ${
+                          className={`p-3 rounded-md border cursor-pointer select-none transition-all ${
                             isActive 
                               ? 'bg-blue-50/50 border-blue-200' 
                               : 'bg-white border-transparent hover:border-slate-200 hover:bg-slate-50'
@@ -771,7 +771,7 @@ export default function ObjectModel() {
           </div>
 
           {/* 1. 基础信息卡片 */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm relative animate-fade-in">
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm relative animate-fade-in">
             <div className="absolute top-6 right-6 cursor-pointer text-slate-400 hover:text-blue-600 transition-colors">
               <Edit className="w-4 h-4" />
             </div>
@@ -813,7 +813,7 @@ export default function ObjectModel() {
           </div>
 
           {/* 2. 核心属性卡片 (FULLY DYNAMIC BASED ON CURRENT OPTION PROPERTIES) */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-extrabold text-slate-900">核心属性 <span className="text-slate-400 font-medium text-xs">({activeObj.properties.length} 个字段定义)</span></h3>
               <button 
@@ -924,7 +924,7 @@ export default function ObjectModel() {
           </div>
 
           {/* 3. 生命周期卡片 (DYNAMIC) */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
             <div className="flex items-center gap-1.5 mb-6">
               <h3 className="text-sm font-extrabold text-slate-900">生命周期流</h3>
               <Settings className="w-4 h-4 text-slate-400" />
@@ -954,7 +954,7 @@ export default function ObjectModel() {
           </div>
 
           {/* 4. 对象说明卡片 */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm relative">
+          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm relative">
             <h3 className="text-sm font-extrabold text-slate-900 mb-3">治理定位与说明</h3>
             <div className="absolute top-6 right-6 cursor-pointer text-slate-400 hover:text-blue-600 transition-colors">
               <Edit className="w-4 h-4" />
@@ -968,30 +968,30 @@ export default function ObjectModel() {
         {/* 右栏：能力与影响摘要 */}
         <div className="lg:col-span-3 space-y-6">
           
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
             <h3 className="text-base font-extrabold text-slate-900">能力与影响摘要</h3>
             
             <div className="grid grid-cols-2 gap-3">
-              <div className="border border-slate-100 bg-slate-50 rounded-xl p-3 flex flex-col justify-between h-[88px]">
+              <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
                 <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><LinkIcon className="w-5 h-5 text-blue-500 rounded-md bg-blue-100 p-1" /> 相关关系</div>
                 <div className="text-2xl font-black text-slate-800">{currentStats.rels}</div>
               </div>
-              <div className="border border-slate-100 bg-slate-50 rounded-xl p-3 flex flex-col justify-between h-[88px]">
+              <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
                 <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><div className="w-5 h-5 rounded-md bg-blue-100 text-blue-600 italic font-bold flex items-center justify-center text-[10px]">fx</div> 绑定 Function</div>
                 <div className="text-2xl font-black text-slate-800">2</div>
               </div>
-              <div className="border border-slate-100 bg-slate-50 rounded-xl p-3 flex flex-col justify-between h-[88px]">
+              <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
                 <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><Play className="w-5 h-5 text-orange-500 rounded-md bg-orange-100 p-1" /> 绑定 Action</div>
                 <div className="text-2xl font-black text-slate-800">3</div>
               </div>
-              <div className="border border-slate-100 bg-slate-50 rounded-xl p-3 flex flex-col justify-between h-[88px]">
+              <div className="border border-slate-100 bg-slate-50 rounded-md p-3 flex flex-col justify-between h-[88px]">
                 <div className="flex items-center gap-2 text-[12px] text-slate-600 font-bold"><GitMerge className="w-5 h-5 text-orange-500 rounded-md bg-orange-100 p-1" /> 相关 Workflow</div>
                 <div className="text-2xl font-black text-slate-800">2</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-extrabold text-slate-900">关系摘要</h3>
             
             <div className="space-y-3 pt-2">
@@ -1014,15 +1014,15 @@ export default function ObjectModel() {
             </div>
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+          <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-extrabold text-slate-900">快捷操作</h3>
             
             <div className="space-y-2">
-               <button className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-sm font-bold text-slate-700 transition-colors cursor-pointer">
+               <button className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md text-sm font-bold text-slate-700 transition-colors cursor-pointer">
                  <div className="flex items-center gap-2"><LinkIcon className="w-4 h-4 text-blue-500" /> 查看关联关系</div>
                  <ChevronRight className="w-4 h-4 text-slate-400" />
                </button>
-               <button className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-xl text-sm font-bold text-slate-700 transition-colors cursor-pointer">
+               <button className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md text-sm font-bold text-slate-700 transition-colors cursor-pointer">
                  <div className="flex items-center gap-2"><GitMerge className="w-4 h-4 text-blue-500" /> 查看调优工作流</div>
                  <ChevronRight className="w-4 h-4 text-slate-400" />
                </button>
@@ -1070,7 +1070,7 @@ export default function ObjectModel() {
                   {/* 标准卡片 */}
                   <div 
                     onClick={() => setSelectionMode('standard')}
-                    className={`p-4 rounded-xl border border-dashed text-left cursor-pointer transition-all select-none ${
+                    className={`p-4 rounded-md border border-dashed text-left cursor-pointer transition-all select-none ${
                       selectionMode === 'standard' 
                         ? 'bg-blue-50/40 border-blue-500 ring-1 ring-blue-500' 
                         : 'bg-white border-slate-200 hover:bg-slate-50/50'
@@ -1092,7 +1092,7 @@ export default function ObjectModel() {
                   {/* 扩展自定义卡片 */}
                   <div 
                     onClick={() => setSelectionMode('extended')}
-                    className={`p-4 rounded-xl border border-dashed text-left cursor-pointer transition-all select-none ${
+                    className={`p-4 rounded-md border border-dashed text-left cursor-pointer transition-all select-none ${
                       selectionMode === 'extended' 
                         ? 'bg-indigo-50/40 border-indigo-500 ring-1 ring-indigo-500' 
                         : 'bg-white border-slate-200 hover:bg-slate-50/50'
@@ -1131,7 +1131,7 @@ export default function ObjectModel() {
                           <div 
                             key={tmpl.id}
                             onClick={() => setSelectedAddTargetId(tmpl.id)}
-                            className={`p-3.5 rounded-xl border cursor-pointer transition-all relative ${
+                            className={`p-3.5 rounded-md border cursor-pointer transition-all relative ${
                               isChosen 
                                 ? 'bg-blue-50/40 border-blue-500 ring-1 ring-blue-500' 
                                 : 'bg-white border-slate-200 hover:bg-slate-50/30'
@@ -1177,7 +1177,7 @@ export default function ObjectModel() {
                   </div>
 
                   {/* 第三块与第四块：对象类型实时预览及校验面板 (60%) */}
-                  <div className="col-span-12 lg:col-span-6 space-y-4 bg-slate-50/50 rounded-2xl border border-slate-200 p-5">
+                  <div className="col-span-12 lg:col-span-6 space-y-4 bg-slate-50/50 rounded-lg border border-slate-200 p-5">
                     
                     {/* Header */}
                     <div className="border-b border-slate-150 pb-3 flex items-center justify-between">
@@ -1196,7 +1196,7 @@ export default function ObjectModel() {
                       {/* Properties list */}
                       <div>
                         <span className="text-[11px] font-bold text-slate-450 block mb-2">默认携带属性 (Properties)</span>
-                        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-50">
+                        <div className="bg-white rounded-md border border-slate-200 overflow-hidden divide-y divide-slate-50">
                           {PREVIEW_RESOURCES[selectedAddTargetId]?.properties.map(p => (
                             <div key={p.name} className="px-3.5 py-2 flex items-center justify-between text-xs hover:bg-slate-50/40">
                               <span className="font-mono font-bold text-slate-700">{p.name}</span>
@@ -1228,7 +1228,7 @@ export default function ObjectModel() {
                         <span className="text-[11px] font-bold text-slate-450 block mb-2">推荐附加能力 (Capabilities)</span>
                         <div className="space-y-2">
                           {PREVIEW_RESOURCES[selectedAddTargetId]?.capabilities.map((cap, i) => (
-                            <div key={i} className="flex items-start gap-2 bg-white rounded-xl p-2.5 border border-slate-150">
+                            <div key={i} className="flex items-start gap-2 bg-white rounded-md p-2.5 border border-slate-150">
                               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded mt-0.5 shrink-0 ${
                                 cap.type === 'Function' ? 'bg-amber-50 text-amber-600' : cap.type === 'Action' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'
                               }`}>
@@ -1248,7 +1248,7 @@ export default function ObjectModel() {
                         <span className="text-[11px] font-bold text-slate-450 block mb-2">架构校验提示 (Validation Status)</span>
                         <div className="space-y-1.5">
                           {PREVIEW_RESOURCES[selectedAddTargetId]?.validation.map((v, i) => (
-                            <div key={i} className={`rounded-xl p-3 border text-xs flex items-start gap-2.5 ${
+                            <div key={i} className={`rounded-md p-3 border text-xs flex items-start gap-2.5 ${
                               v.type === 'success' 
                                 ? 'bg-emerald-50 border-emerald-100 text-emerald-800' 
                                 : v.type === 'info' 
@@ -1274,7 +1274,7 @@ export default function ObjectModel() {
               ) : (
                 
                 // ----------------- 添加扩展对象分支 (Mode 2) -----------------
-                <div className="bg-slate-50/50 rounded-2xl border border-slate-200 p-6 space-y-5 animate-fade-in">
+                <div className="bg-slate-50/50 rounded-lg border border-slate-200 p-6 space-y-5 animate-fade-in">
                   <div className="flex items-center gap-2 border-b border-slate-150 pb-3">
                     <Sparkles className="w-5 h-5 text-indigo-500" />
                     <div>
@@ -1377,7 +1377,7 @@ export default function ObjectModel() {
                         </button>
                       </div>
 
-                      <div className="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                      <div className="border border-slate-200 rounded-md overflow-hidden bg-white">
                         <table className="w-full text-left text-xs text-slate-650 divide-y divide-slate-150">
                           <thead className="bg-slate-50 font-bold text-slate-500">
                             <tr>
@@ -1646,7 +1646,7 @@ export default function ObjectModel() {
 
               {/* 第二块：属性类型配置 */}
               {propDataType === 'Enum' && (
-                <div className="space-y-3 bg-indigo-50/30 rounded-xl border border-indigo-150 p-4 animate-fade-in">
+                <div className="space-y-3 bg-indigo-50/30 rounded-md border border-indigo-150 p-4 animate-fade-in">
                   <div className="flex items-center gap-1.5 border-b border-indigo-100 pb-2 mb-2">
                     <Settings className="w-4 h-4 text-indigo-500" />
                     <h3 className="text-xs font-black text-slate-850">第二块：属性类型配置（枚举值可选值配置）</h3>
@@ -1723,7 +1723,7 @@ export default function ObjectModel() {
                   ].map(scope => (
                     <label 
                       key={scope.id}
-                      className={`p-3 rounded-xl border flex items-start gap-2.5 cursor-pointer text-left transition-all select-none ${
+                      className={`p-3 rounded-md border flex items-start gap-2.5 cursor-pointer text-left transition-all select-none ${
                         scope.value 
                           ? 'bg-blue-50/25 border-blue-200 shadow-3xs' 
                           : 'bg-white border-slate-200 hover:bg-slate-50/50'
@@ -1755,7 +1755,7 @@ export default function ObjectModel() {
                   <h3 className="text-sm font-black text-slate-800">第四块：影响分析预览</h3>
                 </div>
 
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 text-xs leading-normal text-slate-700">
+                <div className="bg-slate-50 border border-slate-200 rounded-md p-4 space-y-3 text-xs leading-normal text-slate-700">
                   <div className="flex items-center gap-2 text-blue-800 font-bold">
                     <Info className="w-4 h-4 text-blue-500 shrink-0" />
                     <span>自动级联影响计算提示</span>
@@ -1819,7 +1819,7 @@ export default function ObjectModel() {
                 <div className="space-y-2">
                   {/* Validation Item 1 - Name Conflict */}
                   {activeObj.properties.some(p => p.name.toLowerCase() === propName.toLowerCase().trim()) ? (
-                    <div className="bg-rose-50 border border-rose-100/50 rounded-xl p-3 flex items-start gap-2.5 text-rose-800">
+                    <div className="bg-rose-50 border border-rose-100/50 rounded-md p-3 flex items-start gap-2.5 text-rose-800">
                       <AlertCircle className="w-4 h-4 text-rose-500 mt-0.5 shrink-0" />
                       <div className="text-xs text-left">
                         <div className="font-extrabold text-[12px]">存在命名冲突 (Name Conflict Detected)</div>
@@ -1829,7 +1829,7 @@ export default function ObjectModel() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-start gap-2.5 text-emerald-805">
+                    <div className="bg-emerald-50/60 border border-emerald-100 rounded-md p-3 flex items-start gap-2.5 text-emerald-805">
                       <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 bg-emerald-100/70 rounded-full p-0.5 animate-pulse" />
                       <div className="text-xs text-left">
                         <div className="font-extrabold text-[12px] text-emerald-900">命名无冲突</div>
@@ -1841,7 +1841,7 @@ export default function ObjectModel() {
                   )}
 
                   {/* Validation Item 2 - Data Type legality */}
-                  <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-start gap-2.5 text-emerald-850">
+                  <div className="bg-emerald-50/60 border border-emerald-100 rounded-md p-3 flex items-start gap-2.5 text-emerald-850">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 bg-emerald-100/70 rounded-full p-0.5" />
                     <div className="text-xs text-left">
                       <div className="font-extrabold text-[12px] text-emerald-900">数据类型合法 (Type Legal)</div>
@@ -1852,7 +1852,7 @@ export default function ObjectModel() {
                   </div>
 
                   {/* Validation Item 3 - Required Fields Checks */}
-                  <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-3 flex items-start gap-2.5 text-emerald-850">
+                  <div className="bg-emerald-50/60 border border-emerald-100 rounded-md p-3 flex items-start gap-2.5 text-emerald-850">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 bg-emerald-100/70 rounded-full p-0.5" />
                     <div className="text-xs text-left">
                       <div className="font-extrabold text-[12px] text-emerald-900">当前属性不影响已有必填项校验</div>
@@ -1863,7 +1863,7 @@ export default function ObjectModel() {
                   </div>
 
                   {/* Validation Item 4 - Workflow Re-validation Alert */}
-                  <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 flex items-start gap-2.5 text-amber-850">
+                  <div className="bg-amber-50 border border-amber-100 rounded-md p-3 flex items-start gap-2.5 text-amber-850">
                     <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                     <div className="text-xs text-left">
                       <div className="font-extrabold text-[12px] text-amber-900">需要重新校验 SemanticReviewWorkflow</div>
