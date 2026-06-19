@@ -720,17 +720,14 @@ export default function ObjectModel() {
         <div className="lg:col-span-3 bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-base font-extrabold text-slate-900">对象类型列表</h3>
-            <Settings className="w-4 h-4 text-slate-400 cursor-pointer hover:text-slate-600" />
+            <button 
+              onClick={() => setIsAddDrawerOpen(true)}
+              title="启用 / 添加 Object Type"
+              className="p-1 hover:bg-slate-50 border border-slate-200 rounded text-slate-400 hover:text-slate-700 transition-all cursor-pointer flex items-center justify-center"
+            >
+              <Settings className="w-4 h-4" />
+            </button>
           </div>
-
-          {/* Dotted border trigger inside list view */}
-          <button 
-            onClick={() => setIsAddDrawerOpen(true)}
-            className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 border-2 border-dashed border-blue-200 hover:border-blue-500 hover:bg-blue-50/20 text-blue-600 hover:text-blue-700 rounded-md text-xs font-bold transition-all shadow-xs cursor-pointer mb-2"
-          >
-            <Plus className="w-4.5 h-4.5" />
-            <span>启用 / 添加 Object Type</span>
-          </button>
           
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
