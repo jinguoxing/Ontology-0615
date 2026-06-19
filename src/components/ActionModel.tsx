@@ -119,7 +119,7 @@ export default function ActionModel() {
 
   // Selected Action for details panel
   const [selectedActionName, setSelectedActionName] = useState<string>('confirmAssertion');
-  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(true);
+  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
 
   // Actions structured data block matching the mockup image rows
   const actionsData: ActionDetailData[] = [
@@ -469,7 +469,7 @@ export default function ActionModel() {
              <span className="text-slate-800 font-black">动作 (Action)</span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-150 px-3 py-1 rounded-full shadow-2xs">
+          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full shadow-2xs">
              <span className="text-[10px] font-bold text-rose-500">当前变更集</span>
              <span className="text-[11px] font-black text-rose-700 font-mono">CS-2026-012</span>
              <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
@@ -549,18 +549,28 @@ export default function ActionModel() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 overflow-hidden">
          
          {/* 左栏：Object Type 列表 */}
-         <div className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col overflow-hidden space-y-4">
+         <div className="lg:col-span-3 bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex flex-col overflow-hidden space-y-4">
             <div className="flex items-center justify-between shrink-0 mb-1">
               <h3 className="text-base font-extrabold text-slate-900">对象类型列表</h3>
-              <Settings className="w-4 h-4 text-slate-400 cursor-pointer hover:text-slate-600" />
+              <div className="flex items-center gap-1.5">
+                <button 
+                  onClick={() => setIsDrawerOpen(true)}
+                  title="新建 Action 动作"
+                  className="p-1.5 hover:bg-slate-50 rounded text-slate-400 hover:text-blue-600 transition-all cursor-pointer flex items-center justify-center border-0 bg-transparent"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+                <Settings className="w-4 h-4 text-slate-400 cursor-pointer hover:text-slate-600" />
+              </div>
             </div>
 
             {/* Dotted border trigger inside list view */}
             <button 
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 border-2 border-dashed border-blue-200 hover:border-blue-500 hover:bg-blue-50/20 text-blue-600 hover:text-blue-700 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer mb-1 shrink-0"
+              onClick={() => setIsDrawerOpen(true)}
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 border-2 border-dashed border-blue-200 hover:border-blue-500 hover:bg-blue-50/20 text-blue-600 hover:text-blue-700 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer mb-1 shrink-0"
             >
               <Plus className="w-4.5 h-4.5" />
-              <span>启用 / 添加 Object Type</span>
+              <span>新建 Action 动作</span>
             </button>
             
             <div className="relative shrink-0">
@@ -579,7 +589,7 @@ export default function ActionModel() {
               {/* 1. Special "全部对象类型" item */}
               <div 
                 onClick={() => onSelectObject('')}
-                className={`p-3 rounded-xl border cursor-pointer select-none transition-all ${
+                className={`p-3 rounded-lg border cursor-pointer select-none transition-all ${
                   !selectedObjectId 
                     ? 'bg-blue-50/50 border-blue-200' 
                     : 'bg-white border-transparent hover:border-slate-200 hover:bg-slate-50'
@@ -629,7 +639,7 @@ export default function ActionModel() {
                           <div 
                             key={obj.id}
                             onClick={() => onSelectObject(obj.id)}
-                            className={`p-3 rounded-xl border cursor-pointer select-none transition-all ${
+                            className={`p-3 rounded-lg border cursor-pointer select-none transition-all group/item ${
                               isActive 
                                 ? 'bg-blue-50/50 border-blue-200' 
                                 : 'bg-white border-transparent hover:border-slate-200 hover:bg-slate-50'
@@ -645,9 +655,22 @@ export default function ActionModel() {
                                   <div className="text-[11px] text-slate-500 mt-0.5 font-medium">{obj.nameCn}</div>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <div className="text-[11px] font-bold text-slate-600">{stats.count > 0 ? stats.count.toLocaleString() : '0'} 实例</div>
-                                <div className="mt-1">
+                              <div className="text-right flex flex-col items-end justify-between min-h-[38px]">
+                                <div className="text-[11px] font-bold text-slate-600 group-hover/item:hidden">
+                                  {stats.count > 0 ? stats.count.toLocaleString() : '0'} 实例
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onSelectObject(obj.id);
+                                    setIsDrawerOpen(true);
+                                  }}
+                                  className="hidden group-hover/item:flex items-center gap-0.5 px-1.5 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 rounded text-[9px] font-bold shadow-3xs cursor-pointer mb-1"
+                                >
+                                  <Plus className="w-2.5 h-2.5" />
+                                  <span>加 Action</span>
+                                </button>
+                                <div className="mt-0.5">
                                   <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
                                     obj.status === 'Published' 
                                       ? 'text-emerald-600 bg-emerald-50' 
@@ -669,7 +692,7 @@ export default function ActionModel() {
           </div>
 
          {/* 【第二栏：主 Action 数据报表】动态伸缩 5/12 或 9/12 */}
-         <div className={`bg-white border border-slate-200 rounded-2xl flex flex-col overflow-hidden shadow-2xs transition-all ${
+         <div className={`bg-white border border-slate-200 rounded-lg flex flex-col overflow-hidden shadow-2xs transition-all ${
            isDetailsOpen ? 'lg:col-span-5' : 'lg:col-span-9'
          }`}>
             
@@ -761,12 +784,12 @@ export default function ActionModel() {
                      <tr className="bg-slate-50/80 border-b border-slate-200 sticky top-0 z-10">
                         <th className="pl-5 pr-3 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">Action Name</th>
                         <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">中文名</th>
-                        <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">Action 类型</th>
+                        {!isDetailsOpen && <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">Action 类型</th>}
                         <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">作用对象</th>
-                        <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider text-center">状态</th>
-                        <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">所属域</th>
-                        <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">所属变更集</th>
-                        <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">最后更新</th>
+                        {!isDetailsOpen && <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider text-center">状态</th>}
+                        {!isDetailsOpen && <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">所属域</th>}
+                        {!isDetailsOpen && <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">所属变更集</th>}
+                        {!isDetailsOpen && <th className="px-4 py-2 text-[11px] font-black text-slate-500 whitespace-nowrap tracking-wider">最后更新</th>}
                         <th className="px-5 py-2 text-[11px] font-black text-slate-500 text-center w-14">操作</th>
                      </tr>
                   </thead>
@@ -787,38 +810,62 @@ export default function ActionModel() {
                                  : ''
                              }`}
                            >
-                              <td className="pl-5 pr-3 py-2.5 text-[12px] font-mono font-bold text-slate-800">
+                              <td className="pl-5 pr-3 py-2.5 text-[12px] font-mono font-bold text-slate-800 relative">
+                                 {isSelected && (
+                                   <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-blue-600" />
+                                 )}
                                  <div className="flex items-center gap-2">
                                     <div className="shrink-0">
-                                      {getActionRowIcon(action.name)}
+                                       {getActionRowIcon(action.name)}
                                     </div>
-                                    <span className={isSelected ? 'text-blue-600 font-black' : 'text-slate-850 font-semibold'}>{action.name}</span>
+                                    <div className="flex flex-col min-w-0">
+                                       <span className={isSelected ? 'text-blue-600 font-black' : 'text-slate-850 font-semibold'}>{action.name}</span>
+                                       {isDetailsOpen && (
+                                          <div className="flex items-center gap-1.5 mt-0.5">
+                                             <span className={`inline-flex items-center px-1 rounded text-[9px] font-extrabold leading-none ${
+                                                action.status === '已发布' ? 'text-blue-600 bg-blue-50 border border-blue-100' :
+                                                action.status === '编辑中' ? 'text-orange-600 bg-orange-50 border border-orange-100' :
+                                                action.status === '待审核' ? 'text-amber-700 bg-yellow-50 border border-amber-100' :
+                                                'text-slate-500 bg-slate-100 border border-slate-200'
+                                             }`}>
+                                                {action.status}
+                                             </span>
+                                             <span className="text-[10px] text-slate-400 font-medium font-sans truncate">{action.type}</span>
+                                          </div>
+                                       )}
+                                    </div>
                                  </div>
                               </td>
                               <td className="px-4 py-2.5 text-[11.5px] text-slate-800 font-extrabold">{action.zh}</td>
-                              <td className="px-4 py-2.5 text-[11.5px] text-slate-500 font-medium">{action.type}</td>
+                              {!isDetailsOpen && <td className="px-4 py-2.5 text-[11.5px] text-slate-500 font-medium">{action.type}</td>}
                               <td className="px-4 py-2.5 text-[11.5px] text-slate-500 font-mono font-semibold">{action.target}</td>
-                              <td className="px-4 py-2.5 text-center">
-                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold border leading-none ${
-                                    action.status === '已发布' ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-3xs' :
-                                    action.status === '编辑中' ? 'bg-orange-50 text-orange-600 border-orange-200' :
-                                    action.status === '待审核' ? 'bg-yellow-50 text-amber-700 border-amber-200' :
-                                    'bg-slate-100 text-slate-500 border-slate-200'
-                                 }`}>
-                                    {action.status}
-                                 </span>
-                              </td>
-                              <td className="px-4 py-2.5 text-[11.5px] text-slate-450 font-bold">{action.domain}</td>
-                              <td className="px-4 py-2.5 text-[11.5px] font-mono text-slate-400 font-semibold">
-                                 {action.cs === '-' ? (
-                                   <span className="text-slate-300">-</span>
-                                 ) : (
-                                   <span className="text-slate-500 font-extrabold">{action.cs}</span>
-                                 )}
-                              </td>
-                              <td className="px-4 py-2.5 text-[11px] font-mono text-slate-450 font-medium whitespace-nowrap">
-                                 {action.lastUpdate}
-                              </td>
+                              {!isDetailsOpen && (
+                                 <td className="px-4 py-2.5 text-center">
+                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold border leading-none ${
+                                       action.status === '已发布' ? 'bg-blue-50 text-blue-600 border-blue-200 shadow-3xs' :
+                                       action.status === '编辑中' ? 'bg-orange-50 text-orange-600 border-orange-200' :
+                                       action.status === '待审核' ? 'bg-yellow-50 text-amber-700 border-amber-200' :
+                                       'bg-slate-100 text-slate-500 border-slate-200'
+                                    }`}>
+                                       {action.status}
+                                    </span>
+                                 </td>
+                              )}
+                              {!isDetailsOpen && <td className="px-4 py-2.5 text-[11.5px] text-slate-450 font-bold">{action.domain}</td>}
+                              {!isDetailsOpen && (
+                                 <td className="px-4 py-2.5 text-[11.5px] font-mono text-slate-400 font-semibold">
+                                    {action.cs === '-' ? (
+                                      <span className="text-slate-300">-</span>
+                                    ) : (
+                                      <span className="text-slate-500 font-extrabold">{action.cs}</span>
+                                    )}
+                                 </td>
+                              )}
+                              {!isDetailsOpen && (
+                                 <td className="px-4 py-2.5 text-[11px] font-mono text-slate-450 font-medium whitespace-nowrap">
+                                    {action.lastUpdate}
+                                 </td>
+                              )}
                               <td className="px-5 py-2.5 text-center" onClick={(e) => e.stopPropagation()}>
                                  <button 
                                    onClick={() => alert(`🎛️ 对动作「${action.name}」的操作面板正在完善中`)}
@@ -867,7 +914,7 @@ export default function ActionModel() {
 
          {/* 【第三栏：Action 详情面板】占 4/12 空间 */}
          {isDetailsOpen && (
-           <div className="lg:col-span-4 bg-white border border-slate-250 rounded-2xl flex flex-col overflow-hidden shadow-2xs relative">
+            <div className="lg:col-span-4 bg-white border border-slate-200 rounded-lg flex flex-col overflow-hidden shadow-2xs relative">
               
               {/* 详情头部 */}
               <div className="px-5 py-3 border-b border-slate-200 bg-slate-50/40 shrink-0 flex items-center justify-between">
@@ -902,8 +949,8 @@ export default function ActionModel() {
               <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-thin">
                  
                  {/* 大图标板块：蓝底图标与动作定性 */}
-                 <div className="bg-slate-50/60 border border-slate-200/50 p-4 rounded-xl flex items-center gap-3.5">
-                    <div className="w-11 h-11 rounded-xl bg-blue-600 shadow-sm flex items-center justify-center text-white shrink-0">
+                 <div className="bg-slate-50/60 border border-slate-200/50 p-4 rounded-lg flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-lg bg-blue-600 shadow-sm flex items-center justify-center text-white shrink-0">
                        <Settings className="w-5.5 h-5.5" />
                     </div>
                     <div className="min-w-0">
@@ -913,7 +960,7 @@ export default function ActionModel() {
                  </div>
 
                  {/* key-value 坚硬排版 */}
-                 <div className="grid grid-cols-2 gap-x-4 gap-y-3 bg-white p-3 border border-slate-100 rounded-xl shadow-3xs text-[11.5px]">
+                 <div className="grid grid-cols-2 gap-x-4 gap-y-3 bg-white p-3 border border-slate-100 rounded-lg shadow-3xs text-[11.5px]">
                     <div className="space-y-0.5">
                        <span className="text-slate-400 font-semibold block">Action 类型</span>
                        <span className="font-extrabold text-slate-800">{activeDetailData.type}</span>
@@ -966,7 +1013,7 @@ export default function ActionModel() {
 
                  {/* 【状态变化】 */}
                  {activeDetailData.stateChange && (
-                   <div className="space-y-2 p-3 bg-white border border-slate-200/50 rounded-xl shadow-3xs">
+                   <div className="space-y-2 p-3 bg-white border border-slate-200/50 rounded-lg shadow-3xs">
                       <h5 className="text-[11px] font-black text-slate-500 tracking-tight">状态变化</h5>
                       <div className="flex items-center gap-2">
                         <span className="px-2.5 py-1 text-xs font-mono font-bold bg-slate-100 text-slate-650 rounded border border-slate-200">
