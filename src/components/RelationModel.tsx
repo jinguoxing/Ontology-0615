@@ -25,6 +25,15 @@ export default function RelationModel() {
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Filters dropdown state
+  const [lineageFilter, setLineageFilter] = useState<'all' | 'lineage' | 'non-lineage'>('all');
+  const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'ai-visible' | 'ai-hidden'>('all');
+  const [activeDropdown, setActiveDropdown] = useState<'none' | 'lineage' | 'visibility'>('none');
+
+  // Zoom and fullscreen state
+  const [zoomScale, setZoomScale] = useState(1.0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   // Form states for editing relation details
   const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [editNameCn, setEditNameCn] = useState('');
@@ -51,6 +60,33 @@ export default function RelationModel() {
   useEffect(() => {
     setIsEditingDetails(false);
   }, [activeLinkId]);
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (activeDropdown !== 'none') {
+        const target = e.target as HTMLElement;
+        if (!target.closest('.dropdown-container')) {
+          setActiveDropdown('none');
+        }
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, [activeDropdown]);
+
+  // Handle Escape key to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -133,10 +169,17 @@ export default function RelationModel() {
     }
   };
 
-  const filteredLinks = linkTypes.filter(l => 
-    l.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    l.nameCn.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLinks = linkTypes.filter(l => {
+    const matchesSearch = l.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          l.nameCn.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesLineage = lineageFilter === 'all' || 
+                           (lineageFilter === 'lineage' && l.isLineage) || 
+                           (lineageFilter === 'non-lineage' && !l.isLineage);
+    const matchesVisibility = visibilityFilter === 'all' || 
+                              (visibilityFilter === 'ai-visible' && l.isAiVisible) || 
+                              (visibilityFilter === 'ai-hidden' && !l.isAiVisible);
+    return matchesSearch && matchesLineage && matchesVisibility;
+  });
 
   return (
     <div className="min-h-full font-sans bg-transparent" id="relation-workspace">
@@ -191,17 +234,17 @@ export default function RelationModel() {
 
             {/* 右侧操作交互栏 */}
             <div className="flex items-center gap-2">
-              <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
-                <RefreshCw className="w-3.5 h-3.5 text-slate-450" /> 版本对比
+              <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+                <RefreshCw className="w-3.5 h-3.5 text-slate-400" /> 版本对比
               </button>
-              <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
-                <Download className="w-3.5 h-3.5 text-slate-450" /> 导出模型
+              <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+                <Download className="w-3.5 h-3.5 text-slate-400" /> 导出模型
               </button>
-              <button className="p-1.5 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all cursor-pointer">
-                <Settings className="w-4 h-4 text-slate-550" />
+              <button className="p-1.5 bg-white border border-slate-200/50 hover:bg-slate-50/50 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all cursor-pointer">
+                <Settings className="w-4 h-4 text-slate-400" />
               </button>
 
-              <div className="h-6 w-px bg-slate-250 mx-1"></div>
+              <div className="h-6 w-px bg-slate-200/60 mx-1"></div>
 
               <button
                 onClick={() => setIsDrawerOpen(true)}
@@ -261,14 +304,78 @@ export default function RelationModel() {
             />
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-700 flex items-center justify-between cursor-pointer">
-              全部血缘 <ChevronRight className="w-3.5 h-3.5 rotate-90 text-slate-400" />
+          <div className="flex items-center gap-2 shrink-0 relative dropdown-container">
+            {/* lineage filter */}
+            <div className="relative flex-1">
+              <button 
+                onClick={() => setActiveDropdown(activeDropdown === 'lineage' ? 'none' : 'lineage')}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-700 flex items-center justify-between cursor-pointer focus:outline-none"
+              >
+                <span>
+                  {lineageFilter === 'all' ? '全部血缘' : 
+                   lineageFilter === 'lineage' ? '仅血缘关系' : '仅非血缘'}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${activeDropdown === 'lineage' ? 'rotate-180' : 'rotate-0'}`} />
+              </button>
+              
+              {activeDropdown === 'lineage' && (
+                <div className="absolute left-0 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg py-1.5 z-50 text-xs">
+                  {[
+                    { value: 'all', label: '全部血缘' },
+                    { value: 'lineage', label: '仅血缘关系' },
+                    { value: 'non-lineage', label: '仅非血缘' }
+                  ].map(opt => (
+                    <div 
+                      key={opt.value}
+                      onClick={() => {
+                        setLineageFilter(opt.value as any);
+                        setActiveDropdown('none');
+                      }}
+                      className={`px-3 py-1.5 hover:bg-slate-50 cursor-pointer font-semibold text-left ${lineageFilter === opt.value ? 'text-blue-600 bg-blue-50/45' : 'text-slate-600'}`}
+                    >
+                      {opt.label}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-700 flex items-center justify-between cursor-pointer">
-              全部可见性 <ChevronRight className="w-3.5 h-3.5 rotate-90 text-slate-400" />
+
+            {/* visibility filter */}
+            <div className="relative flex-1">
+              <button 
+                onClick={() => setActiveDropdown(activeDropdown === 'visibility' ? 'none' : 'visibility')}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-700 flex items-center justify-between cursor-pointer focus:outline-none"
+              >
+                <span>
+                  {visibilityFilter === 'all' ? '全部可见性' : 
+                   visibilityFilter === 'ai-visible' ? '仅 AI 可见' : '仅 AI 隐藏'}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-450 transition-transform duration-200 ${activeDropdown === 'visibility' ? 'rotate-180' : 'rotate-0'}`} />
+              </button>
+
+              {activeDropdown === 'visibility' && (
+                <div className="absolute right-0 mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg py-1.5 z-50 text-xs">
+                  {[
+                    { value: 'all', label: '全部可见性' },
+                    { value: 'ai-visible', label: '仅 AI 可见' },
+                    { value: 'ai-hidden', label: '仅 AI 隐藏' }
+                  ].map(opt => (
+                    <div 
+                      key={opt.value}
+                      onClick={() => {
+                        setVisibilityFilter(opt.value as any);
+                        setActiveDropdown('none');
+                      }}
+                      className={`px-3 py-1.5 hover:bg-slate-50 cursor-pointer font-semibold text-left ${visibilityFilter === opt.value ? 'text-blue-600 bg-blue-50/45' : 'text-slate-600'}`}
+                    >
+                      {opt.label}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="w-10 h-[38px] flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 cursor-pointer">
+
+            <div className="w-10 h-[38px] flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 cursor-pointer hover:bg-slate-50 transition-colors">
               <Menu className="w-4 h-4" />
             </div>
           </div>
@@ -326,31 +433,79 @@ export default function RelationModel() {
         </div>
 
         {/* 中栏：关系拓扑图 */}
-        <div className={`bg-white border border-slate-200 rounded-lg shadow-sm relative h-[800px] overflow-hidden flex flex-col transition-all duration-300 ${isRightSidebarOpen ? 'lg:col-span-6' : 'lg:col-span-9'}`}>
+        {isFullscreen && (
+          <div 
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 transition-opacity duration-300"
+            onClick={() => setIsFullscreen(false)}
+          />
+        )}
+        <div className={isFullscreen 
+          ? 'fixed inset-4 z-50 bg-white border border-slate-300 shadow-2xl rounded-xl overflow-hidden flex flex-col animate-fade-in' 
+          : `bg-white border border-slate-200 rounded-lg shadow-sm relative h-[800px] overflow-hidden flex flex-col transition-all duration-300 ${isRightSidebarOpen ? 'lg:col-span-6' : 'lg:col-span-9'}`
+        }>
           <div className="absolute top-5 left-5 z-10 flex items-center gap-2 text-slate-900 font-extrabold text-base">
              关系模型图 <Info className="w-4 h-4 text-slate-400" />
+             {isFullscreen && (
+               <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                 全屏模式 ({Math.round(zoomScale * 100)}%)
+               </span>
+             )}
           </div>
           
           <div className="absolute top-5 right-5 z-10 flex items-center gap-1 bg-white border border-slate-200 rounded-lg shadow-sm p-1">
+             {!isFullscreen && (
+               <>
+                 <button
+                   onClick={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+                   className="h-8 px-2.5 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 text-[11px] font-bold gap-1 transition-all"
+                 >
+                   {isRightSidebarOpen ? "收起右栏" : "展开右栏"}
+                 </button>
+                 <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
+               </>
+             )}
              <button
-               onClick={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
-               className="h-8 px-2.5 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 text-[11px] font-bold gap-1 transition-all"
+               onClick={() => setIsFullscreen(!isFullscreen)}
+               className={`h-8 px-2 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-655 text-[11px] font-bold gap-1 transition-all`}
+               title={isFullscreen ? "退出全屏" : "全屏查看"}
              >
-               {isRightSidebarOpen ? "收起右栏" : "展开右栏"}
+               <Expand className="w-3.5 h-3.5" />
+               {isFullscreen && "退出全屏"}
              </button>
              <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
-             <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><Expand className="w-4 h-4" /></div>
-             <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
-             <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><ZoomIn className="w-4 h-4" /></div>
-             <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><ZoomOut className="w-4 h-4" /></div>
-             <div className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600"><RotateCcw className="w-4 h-4" /></div>
+             <button 
+               onClick={() => setZoomScale(s => Math.min(s + 0.1, 1.8))}
+               className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 hover:text-blue-600 transition-colors"
+               title="放大"
+             >
+               <ZoomIn className="w-4 h-4" />
+             </button>
+             <button 
+               onClick={() => setZoomScale(s => Math.max(s - 0.1, 0.6))}
+               className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 hover:text-blue-600 transition-colors"
+               title="缩小"
+             >
+               <ZoomOut className="w-4 h-4" />
+             </button>
+             <button 
+               onClick={() => setZoomScale(1.0)}
+               className="w-8 h-8 flex items-center justify-center rounded hover:bg-slate-50 cursor-pointer text-slate-600 hover:text-blue-600 transition-colors"
+               title="重置缩放"
+             >
+               <RotateCcw className="w-4 h-4" />
+             </button>
           </div>
 
           {/* Map canvas background */}
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9IiNFMkU4RjAiLz48L3N2Zz4=')] opacity-[0.3]"></div>
 
           {/* Handcrafted precise structure matching the design */}
-          <div className="flex-1 w-full relative">
+          <div className="flex-1 w-full relative overflow-hidden flex items-center justify-center bg-slate-50/10">
+            {/* Zoomable Canvas Content Wrapper */}
+            <div 
+              className="relative w-[920px] h-[700px] shrink-0 transition-transform duration-200 ease-out origin-center"
+              style={{ transform: `scale(${zoomScale})` }}
+            >
             
             {/* SVG lines for connections */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 1 }}>
@@ -584,31 +739,34 @@ export default function RelationModel() {
               </div>
             )}
 
-            <div className="absolute bottom-5 right-5 w-32 h-24 bg-white border border-slate-200 shadow-lg rounded-lg overflow-hidden opacity-90 p-1 flex justify-center items-center">
-            {/* minimap abstraction */}
-            <div className="relative w-full h-full scale-[0.6]">
-              <div className="w-4 h-2 absolute top-2 left-2 bg-slate-200 rounded"></div>
-              <div className="w-4 h-2 absolute top-2 left-10 bg-slate-200 rounded"></div>
-              <div className="w-4 h-2 absolute top-8 left-10 bg-slate-200 rounded"></div>
-              <div className="w-6 h-2 absolute top-8 left-18 bg-blue-200 border border-blue-400 rounded"></div>
-              <div className="w-4 h-2 absolute top-14 left-8 bg-slate-200 rounded"></div>
-              <div className="w-4 h-2 absolute top-14 left-18 bg-slate-200 rounded"></div>
-              <div className="w-4 h-2 absolute top-20 left-8 bg-slate-200 rounded"></div>
-              <div className="w-4 h-2 absolute top-20 left-18 bg-slate-200 rounded"></div>
-              <div className="w-4 h-2 absolute top-26 left-2 bg-slate-200 rounded"></div>
-              <div className="w-4 h-2 absolute top-26 left-10 bg-slate-200 rounded"></div>
+            </div>
 
-              <svg className="absolute inset-0 w-full h-full">
-                <line x1="8" y1="2" x2="38" y2="2" stroke="#cbd5e1" strokeWidth="1"/>
-                <line x1="48" y1="12" x2="48" y2="30" stroke="#cbd5e1" strokeWidth="1"/>
-                <line x1="56" y1="36" x2="68" y2="36" stroke="#60a5fa" strokeWidth="1"/>
-              </svg>
+            {/* Minimap - kept outside zoom wrapper so it remains constant size */}
+            <div className="absolute bottom-5 right-5 w-32 h-24 bg-white border border-slate-200 shadow-lg rounded-lg overflow-hidden opacity-90 p-1 flex justify-center items-center z-30">
+              {/* minimap abstraction */}
+              <div className="relative w-full h-full scale-[0.6]">
+                <div className="w-4 h-2 absolute top-2 left-2 bg-slate-200 rounded"></div>
+                <div className="w-4 h-2 absolute top-2 left-10 bg-slate-200 rounded"></div>
+                <div className="w-4 h-2 absolute top-8 left-10 bg-slate-200 rounded"></div>
+                <div className="w-6 h-2 absolute top-8 left-18 bg-blue-200 border border-blue-400 rounded"></div>
+                <div className="w-4 h-2 absolute top-14 left-8 bg-slate-200 rounded"></div>
+                <div className="w-4 h-2 absolute top-14 left-18 bg-slate-200 rounded"></div>
+                <div className="w-4 h-2 absolute top-20 left-8 bg-slate-200 rounded"></div>
+                <div className="w-4 h-2 absolute top-20 left-18 bg-slate-200 rounded"></div>
+                <div className="w-4 h-2 absolute top-26 left-2 bg-slate-200 rounded"></div>
+                <div className="w-4 h-2 absolute top-26 left-10 bg-slate-200 rounded"></div>
 
-              <div className="absolute border border-blue-400 border-dashed w-32 h-26 top-0 left-0"></div>
+                <svg className="absolute inset-0 w-full h-full">
+                  <line x1="8" y1="2" x2="38" y2="2" stroke="#cbd5e1" strokeWidth="1"/>
+                  <line x1="48" y1="12" x2="48" y2="30" stroke="#cbd5e1" strokeWidth="1"/>
+                  <line x1="56" y1="36" x2="68" y2="36" stroke="#60a5fa" strokeWidth="1"/>
+                </svg>
+
+                <div className="absolute border border-blue-400 border-dashed w-32 h-26 top-0 left-0"></div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
         {/* 右栏：关系详情面板 */}
         {isRightSidebarOpen && (
@@ -644,7 +802,7 @@ export default function RelationModel() {
                     type="text"
                     value={editNameCn}
                     onChange={(e) => setEditNameCn(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs shadow-3xs transition-colors"
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200/60 hover:border-slate-300/80 rounded-lg text-slate-805 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs shadow-3xs transition-colors"
                   />
                 </div>
 
@@ -671,7 +829,7 @@ export default function RelationModel() {
 
                 <div className="space-y-1.5">
                   <label className="text-slate-500 font-extrabold block">基数 (Cardinality)</label>
-                  <div className="flex bg-slate-50 rounded-lg border border-slate-200 p-0.5 shadow-3xs">
+                  <div className="flex bg-slate-50 rounded-lg border border-slate-200/50 p-0.5 shadow-3xs">
                     {(['1:1', '1:N', 'N:M'] as const).map(card => (
                       <button 
                         key={card}

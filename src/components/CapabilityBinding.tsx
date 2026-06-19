@@ -99,17 +99,17 @@ export default function CapabilityBinding() {
 
             {/* 右侧操作交互栏 */}
             <div className="flex items-center gap-2">
-              <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
-                <RefreshCw className="w-3.5 h-3.5 text-slate-450" /> 版本对比
+              <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+                <RefreshCw className="w-3.5 h-3.5 text-slate-400" /> 版本对比
               </button>
-              <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
-                <Download className="w-3.5 h-3.5 text-slate-450" /> 导出模型
+              <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+                <Download className="w-3.5 h-3.5 text-slate-400" /> 导出模型
               </button>
-              <button className="p-1.5 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all cursor-pointer">
-                <Settings className="w-4 h-4 text-slate-550" />
+              <button className="p-1.5 bg-white border border-slate-200/50 hover:bg-slate-50/50 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all cursor-pointer">
+                <Settings className="w-4 h-4 text-slate-400" />
               </button>
 
-              <div className="h-6 w-px bg-slate-250 mx-1"></div>
+              <div className="h-6 w-px bg-slate-200/60 mx-1"></div>
 
               <button
                 onClick={() => setIsDrawerOpen(true)}
