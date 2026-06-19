@@ -57,7 +57,7 @@ export default function CreateFunctionBindingDrawer({ open, onClose, onSave, sel
       <div className="flex-1 overflow-y-auto scrollbar-thin p-6 space-y-8 bg-white">
         
         {/* Info Banner */}
-        <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-3">
+        <div className="bg-amber-50/50 border border-amber-200 rounded-lg p-3.5 flex items-start gap-3">
            <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
            <div className="text-[13px] text-amber-800 leading-relaxed font-medium">
               Function 只负责计算、识别、判断，不应改变对象状态。
@@ -68,7 +68,7 @@ export default function CreateFunctionBindingDrawer({ open, onClose, onSave, sel
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">1. 选择 Function</h3>
           
-          <div className="bg-slate-50/50 rounded-xl border border-slate-200 p-4">
+          <div className="bg-slate-50/50 rounded-lg border border-slate-200 p-4">
              <div className="relative mb-3">
                 <input 
                    type="text" 
@@ -122,7 +122,7 @@ export default function CreateFunctionBindingDrawer({ open, onClose, onSave, sel
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">3. 输入输出配置</h3>
           
-          <div className="bg-slate-50/50 rounded-xl border border-slate-200 p-4 space-y-4">
+          <div className="bg-slate-50/50 rounded-lg border border-slate-200 p-4 space-y-4">
              <div>
                 <label className="text-[12px] font-bold text-slate-700 block mb-2">输入对象</label>
                 <div className="flex flex-wrap gap-2">
@@ -221,7 +221,7 @@ export default function CreateFunctionBindingDrawer({ open, onClose, onSave, sel
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">6. 测试样例</h3>
           
-          <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="border border-slate-200 rounded-lg overflow-hidden shadow-sm">
              <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-[12px] font-mono text-slate-600">
                    <Code className="w-3.5 h-3.5" /> Field: <span className="text-slate-900 font-bold">erp_order_header.supplier_id</span>
@@ -251,7 +251,7 @@ export default function CreateFunctionBindingDrawer({ open, onClose, onSave, sel
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">7. 影响分析</h3>
           
-          <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-4 shadow-sm">
+          <div className="bg-slate-50/50 border border-slate-200 rounded-lg p-4 shadow-sm">
              <div className="space-y-2.5">
                 <div className="flex items-start gap-2">
                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />

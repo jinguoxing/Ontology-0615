@@ -19,7 +19,7 @@ export default function CreateChangeSetDrawer({ isOpen, onClose, onSubmit }: Cre
   const [formData, setFormData] = useState({
     name: '字段语义识别能力优化',
     reason: 'AI 工作台反馈 supplier_id 字段识别错误',
-    changeType: '能力绑定变更 + Function 调整',
+    changeType: 'Function 绑定变更 + 调整',
     baseVersion: 'v1.3.0 (已发布)',
     targetVersion: 'v1.4.0',
     relatedTask: 'TASK-2026-0831',
@@ -29,7 +29,7 @@ export default function CreateChangeSetDrawer({ isOpen, onClose, onSubmit }: Cre
 
   const [selectedTypes, setSelectedTypes] = useState<string[]>([
     '对象模型变更',
-    '能力绑定变更'
+    'Function 绑定变更'
   ]);
 
   const toggleType = (type: string) => {
@@ -43,7 +43,7 @@ export default function CreateChangeSetDrawer({ isOpen, onClose, onSubmit }: Cre
   const changeTypes = [
     { id: '对象模型变更', icon: <Layers className="h-4 w-4" />, colorClass: 'text-blue-600' },
     { id: '关系模型变更', icon: <Link2 className="h-4 w-4" />, colorClass: 'text-emerald-600' },
-    { id: '能力绑定变更', icon: <Cpu className="h-4 w-4" />, colorClass: 'text-blue-600' },
+    { id: 'Function 绑定变更', icon: <Cpu className="h-4 w-4" />, colorClass: 'text-blue-600' },
     { id: 'Workflow 变更', icon: <Settings className="h-4 w-4" />, colorClass: 'text-slate-500' },
     { id: '权限变更', icon: <Shield className="h-4 w-4" />, colorClass: 'text-slate-500' },
     { id: '发布配置变更', icon: <BookOpen className="h-4 w-4" />, colorClass: 'text-slate-500' },
@@ -111,7 +111,7 @@ export default function CreateChangeSetDrawer({ isOpen, onClose, onSubmit }: Cre
                   onChange={(e) => setFormData({...formData, changeType: e.target.value})}
                   className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition-all font-medium appearance-none cursor-pointer"
                 >
-                  <option value="能力绑定变更 + Function 调整">能力绑定变更 + Function 调整</option>
+                  <option value="Function 绑定变更 + 调整">Function 绑定变更 + 调整</option>
                   <option value="对象模型结构扩展">对象模型结构扩展</option>
                   <option value="关系模型补齐">关系模型补齐</option>
                 </select>
@@ -274,7 +274,7 @@ export default function CreateChangeSetDrawer({ isOpen, onClose, onSubmit }: Cre
             <div className="bg-blue-50/60 border border-blue-100 rounded-xl p-3.5 flex gap-2">
               <Info className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
               <p className="text-[11.5px] text-blue-800 font-medium leading-relaxed">
-                所有对象、关系、能力和流程修改都会先进入该变更集，发布前需要经过校验、影响分析和审核。
+                所有对象、关系、Function 和流程修改都会先进入该变更集，发布前需要经过校验、影响分析和审核。
               </p>
             </div>
           </div>

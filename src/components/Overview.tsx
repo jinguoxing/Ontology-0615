@@ -139,7 +139,7 @@ export default function Overview() {
     alert("🔍 开始扫描逻辑一致性... \n一式 10 个 Object Type, 8 个 Link Type, 8 个绑定能力全链节点扫描完成！状态完美正常，检验无破坏。");
   };
   const tabs = [
-    '模型总览', '对象模型', '关系模型', '能力绑定', '动作 (Action)', 
+    '模型总览', '对象模型', '关系模型', '函数（Function）', '动作 (Action)', 
     '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
   ];
 
@@ -664,7 +664,7 @@ export default function Overview() {
               if (tab === '模型总览') navigate('overview');
               if (tab === '对象模型') navigate('object_model');
               if (tab === '关系模型') navigate('relation_model');
-              if (tab === '能力绑定' || tab === '能力 (Function)') navigate('capability_binding');
+              if (tab === '能力绑定' || tab === '能力 (Function)' || tab === '函数（Function）') navigate('capability_binding');
               if (tab === '动作 (Action)') navigate('action_model');
               if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
               if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') navigate('change_release');

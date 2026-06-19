@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Capability, ObjectType } from '../types';
 import {
   Database, Box, FileText, Shield, ClipboardCopy,
@@ -19,6 +19,127 @@ export default function CapabilityBinding() {
   // Current active chosen Capability (Hardcode classifyFieldSemantic per requirement)
   const [activeCapId, setActiveCapId] = useState('classifyFieldSemantic()');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editCn, setEditCn] = useState('');
+  const [editIn, setEditIn] = useState('');
+  const [editOut, setEditOut] = useState('');
+  const [editWf, setEditWf] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editIsStateChange, setEditIsStateChange] = useState('');
+  const [editAi, setEditAi] = useState('');
+  const [editAuth, setEditAuth] = useState('');
+
+  const [functionDetails, setFunctionDetails] = useState<Record<string, {
+    name: string;
+    cn: string;
+    type: string;
+    in: string;
+    out: string;
+    isStateChange: string;
+    ai: string;
+    wf: string;
+    auth: string;
+    desc: string;
+  }>>({
+    'profileField()': {
+      name: 'profileField()',
+      cn: '字段画像',
+      type: 'Function',
+      in: 'Field',
+      out: 'FieldProfileResult',
+      isStateChange: '否 （只计算，不修改状态）',
+      ai: '是',
+      wf: 'SemanticReview',
+      auth: '数据治理人员',
+      desc: '分析字段的数据特征、数据分布、空值率以及唯一性特征，输出字段 of 画像结果。'
+    },
+    'classifyFieldSemantic()': {
+      name: 'classifyFieldSemantic()',
+      cn: '字段语义分类',
+      type: 'Function',
+      in: 'Field +\nEvidence',
+      out: 'SemanticClassification',
+      isStateChange: '否 （只计算，不修改状态）',
+      ai: '是',
+      wf: 'SemanticReview',
+      auth: '数据治理人员',
+      desc: '基于证据对字段进行语义分类，输出字段 of 语义类型及置信度结果。'
+    },
+    'computeSemanticScore()': {
+      name: 'computeSemanticScore()',
+      cn: '计算语义置信度',
+      type: 'Function',
+      in: 'Evidence Set',
+      out: 'Score (0-1)',
+      isStateChange: '否 （只计算，不修改状态）',
+      ai: '是',
+      wf: 'SemanticReview',
+      auth: '数据治理人员',
+      desc: '汇聚多重治理凭证证据集，计算当前字段语义判定的最终综合置信度得分。'
+    },
+    'detectPrimaryKey()': {
+      name: 'detectPrimaryKey()',
+      cn: '识别主键',
+      type: 'Function',
+      in: 'Field +\nDataAsset',
+      out: 'Boolean',
+      isStateChange: '否 （只计算，不修改状态）',
+      ai: '是',
+      wf: 'KeyDetectionFlow',
+      auth: '数据治理人员',
+      desc: '基于字段唯一性特征和数据资产属性，智能识别字段是否为主键标识。'
+    },
+    'detectForeignKey()': {
+      name: 'detectForeignKey()',
+      cn: '识别外键',
+      type: 'Function',
+      in: 'Field +\nDataAsset',
+      out: 'ForeignKeyCandidate',
+      isStateChange: '否 （只计算，不修改状态）',
+      ai: '是',
+      wf: 'KeyDetectionFlow',
+      auth: '数据治理人员',
+      desc: '基于字段值重合度和外键命名规范，智能识别字段是否为潜在的外键关联字段。'
+    }
+  });
+
+  const currentDetail = functionDetails[activeCapId] || functionDetails['classifyFieldSemantic()'];
+
+  useEffect(() => {
+    setIsEditing(false);
+  }, [activeCapId]);
+
+  const startEditing = () => {
+    setEditCn(currentDetail.cn);
+    setEditIn(currentDetail.in.replace(/\n/g, ' '));
+    setEditOut(currentDetail.out);
+    setEditWf(currentDetail.wf);
+    setEditDesc(currentDetail.desc);
+    setEditIsStateChange(currentDetail.isStateChange);
+    setEditAi(currentDetail.ai);
+    setEditAuth(currentDetail.auth);
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setFunctionDetails(prev => ({
+      ...prev,
+      [activeCapId]: {
+        ...prev[activeCapId],
+        cn: editCn,
+        in: editIn,
+        out: editOut,
+        wf: editWf,
+        desc: editDesc,
+        isStateChange: editIsStateChange,
+        ai: editAi,
+        auth: editAuth,
+      }
+    }));
+    setIsEditing(false);
+  };
 
   // Hardcoded left objects per requirement
   const localObjects = [
@@ -69,7 +190,7 @@ export default function CapabilityBinding() {
           {label: '管理中心', onClick: () => navigate('overview')},
           {label: '本体管理'},
           {label: 'DRKN 本体模型管理'},
-          {label: '能力绑定'},
+          {label: '函数（Function）'},
         ]}
         topRight={
           <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-150 px-3 py-1 rounded-full shadow-2xs">
@@ -125,7 +246,7 @@ export default function CapabilityBinding() {
       {/* 选项卡 Tabs 区域：100% 遵照设计图排版 */}
       <div className="flex gap-1.5 mb-5 border-b border-slate-200/80 shrink-0">
         {[
-          '模型总览', '对象模型', '关系模型', '能力绑定', '动作 (Action)', 
+          '模型总览', '对象模型', '关系模型', '函数（Function）', '动作 (Action)', 
           '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
         ].map((tab) => (
           <div 
@@ -134,13 +255,13 @@ export default function CapabilityBinding() {
               if (tab === '模型总览') navigate('overview');
               if (tab === '对象模型') navigate('object_model');
               if (tab === '关系模型') navigate('relation_model');
-              if (tab === '能力绑定' || tab === '能力 (Function)') navigate('capability_binding');
+              if (tab === '能力绑定' || tab === '能力 (Function)' || tab === '函数（Function）') navigate('capability_binding');
               if (tab === '动作 (Action)') navigate('action_model');
               if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
               if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') navigate('change_release');
             }}
             className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
-              tab === '能力绑定' 
+              tab === '函数（Function）' 
                 ? 'text-blue-600 font-black border-b-[2.5px] border-blue-600 -mb-[1px]' 
                 : 'text-slate-500 hover:text-slate-800'
             }`}
@@ -153,7 +274,7 @@ export default function CapabilityBinding() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
         
         {/* 左栏：对象类型列表 */}
-        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 flex flex-col h-[850px]">
+        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-lg p-5 shadow-sm space-y-4 flex flex-col h-[850px]">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-base font-extrabold text-slate-900">对象类型列表</h3>
           </div>
@@ -175,7 +296,7 @@ export default function CapabilityBinding() {
               return (
                 <div 
                   key={idx}
-                  className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
                     isActive 
                       ? 'bg-blue-50/80 border-blue-200' 
                       : 'bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50'
@@ -192,7 +313,7 @@ export default function CapabilityBinding() {
                        </div>
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
-                       <span className="text-[12px] font-medium text-slate-500">{obj.count} 能力</span>
+                       <span className="text-[12px] font-medium text-slate-500">{obj.count} 个 Function</span>
                        <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">已发布</span>
                     </div>
                   </div>
@@ -210,19 +331,27 @@ export default function CapabilityBinding() {
           </div>
         </div>
 
-        {/* 中栏：能力矩阵栏 */}
-        <div className="lg:col-span-6 bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col h-[850px] overflow-y-auto">
+        {/* 中栏：Function 矩阵栏 */}
+        <div className={`bg-white border border-slate-200 rounded-lg shadow-sm p-6 flex flex-col h-[850px] overflow-y-auto transition-all duration-300 ${
+          isRightSidebarOpen ? 'lg:col-span-6' : 'lg:col-span-9'
+        }`}>
           
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center justify-between gap-4 mb-6">
              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                Field (字段对象) 的能力绑定
+                Field (字段对象) 的函数（Function）绑定
                 <Info className="w-4 h-4 text-slate-400" />
              </h2>
+             <button
+               onClick={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+               className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg text-xs font-bold text-slate-600 shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all cursor-pointer"
+             >
+               {isRightSidebarOpen ? "收起右栏" : "展开右栏"}
+             </button>
           </div>
 
           {/* Sub-tabs inside Field Matrix */}
            <div className="flex gap-6 mb-6 border-b border-slate-200">
-             <div className="pb-3 text-[14px] font-bold cursor-pointer transition-colors text-blue-600 border-b-2 border-blue-600 -mb-[1px]">能力矩阵</div>
+             <div className="pb-3 text-[14px] font-bold cursor-pointer transition-colors text-blue-600 border-b-2 border-blue-600 -mb-[1px]">Function 矩阵</div>
              <div className="pb-3 text-[14px] font-bold cursor-pointer transition-colors text-slate-500 hover:text-slate-800">绑定视图</div>
              <div className="pb-3 text-[14px] font-bold cursor-pointer transition-colors text-slate-500 hover:text-slate-800">依赖视图</div>
            </div>
@@ -236,7 +365,7 @@ export default function CapabilityBinding() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-200">
-                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">能力名称</th>
+                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">Function 名称</th>
                    <th className="py-3 px-2 text-[12px] font-bold text-slate-500">类型</th>
                    <th className="py-3 px-2 text-[12px] font-bold text-slate-500">输入对象</th>
                    <th className="py-3 px-2 text-[12px] font-bold text-slate-500">输出 / 状态变化</th>
@@ -246,18 +375,15 @@ export default function CapabilityBinding() {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { name: 'profileField()', cn: '字段画像', type: 'Function', in: 'Field', out: 'FieldProfileResult', ai: '是', wf: 'SemanticReview', auth: '数据治理人员' },
-                  { name: 'classifyFieldSemantic()', cn: '字段语义分类', type: 'Function', in: 'Field +\nEvidence', out: 'SemanticClassification', ai: '是', wf: 'SemanticReview', auth: '数据治理人员' },
-                  { name: 'computeSemanticScore()', cn: '计算语义置信度', type: 'Function', in: 'Evidence Set', out: 'Score (0-1)', ai: '是', wf: 'SemanticReview', auth: '数据治理人员' },
-                  { name: 'detectPrimaryKey()', cn: '识别主键', type: 'Function', in: 'Field +\nDataAsset', out: 'Boolean', ai: '是', wf: 'KeyDetectionFlow', auth: '数据治理人员' },
-                  { name: 'detectForeignKey()', cn: '识别外键', type: 'Function', in: 'Field +\nDataAsset', out: 'ForeignKeyCandidate', ai: '是', wf: 'KeyDetectionFlow', auth: '数据治理人员' },
-                ].map((row, i) => {
+                {Object.values(functionDetails).map((row: any, i) => {
                   const isActive = activeCapId === row.name;
                   return (
                     <tr 
                       key={i} 
-                      onClick={() => setActiveCapId(row.name)}
+                      onClick={() => {
+                        setActiveCapId(row.name);
+                        setIsRightSidebarOpen(true);
+                      }}
                       className={`border-b border-slate-100 cursor-pointer transition-colors ${isActive ? 'bg-blue-50/50 outline outline-1 outline-blue-200' : 'hover:bg-slate-50'}`}
                     >
                       <td className="py-3 px-2">
@@ -283,80 +409,44 @@ export default function CapabilityBinding() {
               </tbody>
             </table>
           </div>
-
-          {/* Action Group */}
-          <div className="mb-4">
-            <h3 className="text-[15px] font-bold text-slate-800 mb-4 flex items-center">
-               Action <span className="text-slate-500 font-medium text-[13px] ml-2">(创建 / 确认 / 发布 / 状态变更类)</span>
-            </h3>
-            
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-slate-200">
-                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">能力名称</th>
-                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">类型</th>
-                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">输入对象</th>
-                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">输出 / 状态变化</th>
-                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">AI 可用</th>
-                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">Workflow 使用</th>
-                   <th className="py-3 px-2 text-[12px] font-bold text-slate-500">权限策略</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name: 'createSemanticAssertion', cn: '创建语义断言', type: 'Action', in: 'Field', out: '创建 SemanticAssertion', ai: '否', wf: 'SemanticReview', auth: '数据治理人员' },
-                  { name: 'markUnknown', cn: '标记为未知', type: 'Action', in: 'SemanticAssertion', out: 'Pending → Unknown', ai: '可建议', wf: 'SemanticReview', auth: '数据治理人员' },
-                  { name: 'createGovernanceTask', cn: '创建治理任务', type: 'Action', in: 'Field / DataIssue', out: '创建 GovernanceTask', ai: '否', wf: 'IssueHandlingFlow', auth: '数据治理人员' },
-                ].map((row, i) => {
-                  const isActive = activeCapId === row.name;
-                  return (
-                     <tr 
-                      key={i} 
-                      onClick={() => setActiveCapId(row.name)}
-                      className={`border-b border-slate-100 cursor-pointer transition-colors ${isActive ? 'bg-blue-50/50 outline outline-1 outline-blue-200' : 'hover:bg-slate-50'}`}
-                    >
-                      <td className="py-3 px-2">
-                        <div className="font-mono text-[13px] font-bold text-slate-900">{row.name}</div>
-                        <div className="text-[11px] font-medium text-slate-500 mt-0.5">{row.cn}</div>
-                      </td>
-                      <td className="py-3 px-2">
-                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${getCapColor(row.type)}`}>{row.type}</span>
-                      </td>
-                      <td className="py-3 px-2 text-[12px] text-slate-600 font-mono">{row.in}</td>
-                      <td className="py-3 px-2 text-[12px] text-slate-600 font-mono text-[11px] whitespace-pre-wrap">{row.out}</td>
-                      <td className="py-3 px-2 text-[12px] text-slate-600 font-medium">
-                        <div className="flex items-center gap-1.5">
-                          {row.ai === '是' && <CheckCircle2 className={`w-3.5 h-3.5 text-emerald-500`} />}
-                          {row.ai === '否' && <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center bg-rose-100 text-rose-500 text-[10px]`}>✕</div>}
-                          {row.ai === '可建议' && <CheckCircle2 className={`w-3.5 h-3.5 text-amber-500`} />}
-                          {row.ai}
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-[12px] text-slate-600">{row.wf}</td>
-                      <td className="py-3 px-2 text-[12px] text-slate-600">{row.auth}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
           
           <div className="mt-auto pt-6 flex items-start gap-2 text-[12px] text-slate-500 leading-tight">
             <Info className="w-4 h-4 text-slate-400 shrink-0" />
-            说明：能力仅对已发布的对象生效，未发布的变更需发布后才能在 Workflow 与 AI 场景中使用。
+            说明：函数仅对已发布的对象生效，未发布的变更需发布后才能在 Workflow 与 AI 场景中使用。
           </div>
           
         </div>
 
-        {/* 右栏：能力详情面板 */}
-        <div className="lg:col-span-3 h-[850px] flex flex-col gap-6">
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 flex flex-col shrink-[0]">
+        {/* 右栏：Function 详情面板 */}
+        {isRightSidebarOpen && (
+          <div className="lg:col-span-3 h-[850px] flex flex-col gap-6 animate-fade-in animate-duration-200 overflow-y-auto scrollbar-thin">
+            <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-6 flex flex-col shrink-[0]">
             
             <div className="flex items-center justify-between mb-6">
-               <h3 className="text-base font-extrabold text-slate-900">能力详情</h3>
-               <button className="flex items-center gap-1.5 text-[13px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100">
-                 <Edit className="w-3.5 h-3.5" /> 编辑
-               </button>
+               <h3 className="text-base font-extrabold text-slate-900">Function 详情</h3>
+               {isEditing ? (
+                 <div className="flex gap-1.5">
+                   <button 
+                     onClick={() => setIsEditing(false)}
+                     className="px-2.5 py-1 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg cursor-pointer"
+                   >
+                     取消
+                   </button>
+                   <button 
+                     onClick={handleSave}
+                     className="px-2.5 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer"
+                   >
+                     保存
+                   </button>
+                 </div>
+               ) : (
+                 <button 
+                   onClick={startEditing}
+                   className="flex items-center gap-1.5 text-[12px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100 cursor-pointer"
+                 >
+                   <Edit className="w-3.5 h-3.5" /> 编辑
+                 </button>
+               )}
             </div>
             
             <div className="flex items-start gap-3 mb-6">
@@ -365,78 +455,164 @@ export default function CapabilityBinding() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-[17px] font-bold text-slate-900">classifyFieldSemantic()</span>
+                  <span className="font-mono text-[17px] font-bold text-slate-900">{currentDetail.name}</span>
                   <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 mt-0.5">已发布</span>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-5 text-[13px]">
-              <div className="flex">
-                <span className="w-24 text-slate-500 shrink-0 font-medium">类型</span>
-                <span className="text-slate-800 font-mono">Function</span>
+            {isEditing ? (
+              <div className="space-y-4 text-[13px]">
+                <div className="flex items-center border-b border-slate-50 pb-2">
+                  <span className="w-24 text-slate-500 shrink-0 font-medium">类型</span>
+                  <span className="text-slate-808 font-mono bg-slate-50 border border-slate-200/50 px-2 py-0.5 rounded text-[12px]">{currentDetail.type}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-slate-500 font-medium">用途</span>
+                  <input 
+                    type="text" 
+                    value={editCn} 
+                    onChange={(e) => setEditCn(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-semibold"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-slate-500 font-medium">输入</span>
+                  <input 
+                    type="text" 
+                    value={editIn} 
+                    onChange={(e) => setEditIn(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-mono"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-slate-500 font-medium">输出</span>
+                  <input 
+                    type="text" 
+                    value={editOut} 
+                    onChange={(e) => setEditOut(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-mono"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-slate-500 font-medium">是否改变状态</span>
+                  <select 
+                    value={editIsStateChange} 
+                    onChange={(e) => setEditIsStateChange(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-semibold"
+                  >
+                    <option value="否 （只计算，不修改状态）">否 （只计算，不修改状态）</option>
+                    <option value="是 （修改状态）">是 （修改状态）</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-slate-500 font-medium">AI 可调用</span>
+                  <select 
+                    value={editAi} 
+                    onChange={(e) => setEditAi(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-semibold"
+                  >
+                    <option value="是">是</option>
+                    <option value="否">否</option>
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-slate-500 font-medium">使用位置</span>
+                  <input 
+                    type="text" 
+                    value={editWf} 
+                    onChange={(e) => setEditWf(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-mono"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-slate-500 font-medium">权限策略</span>
+                  <input 
+                    type="text" 
+                    value={editAuth} 
+                    onChange={(e) => setEditAuth(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs font-semibold"
+                  />
+                </div>
+                <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col gap-1">
+                  <span className="text-slate-500 font-medium">Function 描述</span>
+                  <textarea 
+                    rows={3}
+                    value={editDesc} 
+                    onChange={(e) => setEditDesc(e.target.value)} 
+                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 hover:border-slate-300 rounded-lg text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-xs leading-normal resize-none"
+                  />
+                </div>
               </div>
-              <div className="flex">
-                <span className="w-24 text-slate-500 shrink-0 font-medium">用途</span>
-                <span className="text-slate-800">字段语义分类</span>
-              </div>
-              <div className="flex">
-                <span className="w-24 text-slate-500 shrink-0 font-medium">输入</span>
-                <span className="text-slate-800 font-mono">Field + Evidence</span>
-              </div>
-              <div className="flex">
-                <span className="w-24 text-slate-500 shrink-0 font-medium">输出</span>
-                <span className="text-slate-800 font-mono">SemanticClassification</span>
-              </div>
-              <div className="flex">
-                <span className="w-24 text-slate-500 shrink-0 font-medium">是否改变状态</span>
-                <span className="text-slate-800 font-medium">否 <span className="text-slate-500 font-normal">（只计算，不修改状态）</span></span>
-              </div>
-              <div className="flex items-center">
-                <span className="w-24 text-slate-500 shrink-0 font-medium">AI 可调用</span>
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-1.5" /> <span className="text-slate-800 font-medium">是</span>
-              </div>
-              <div className="flex">
-                <span className="w-24 text-slate-500 shrink-0 font-medium">使用位置</span>
-                <span className="text-slate-800 leading-normal font-mono">SemanticReviewWorkflow、<br />AI 工作台</span>
-              </div>
-              <div className="flex">
-                <span className="w-24 text-slate-500 shrink-0 font-medium">权限策略</span>
-                <span className="text-slate-800">数据治理人员</span>
-              </div>
-            </div>
+            ) : (
+              <>
+                <div className="space-y-5 text-[13px]">
+                  <div className="flex">
+                    <span className="w-24 text-slate-500 shrink-0 font-medium">类型</span>
+                    <span className="text-slate-800 font-mono">{currentDetail.type}</span>
+                  </div>
+                  <div className="flex">
+                    <span className="w-24 text-slate-500 shrink-0 font-medium">用途</span>
+                    <span className="text-slate-800">{currentDetail.cn}</span>
+                  </div>
+                  <div className="flex">
+                    <span className="w-24 text-slate-500 shrink-0 font-medium">输入</span>
+                    <span className="text-slate-800 font-mono">{currentDetail.in}</span>
+                  </div>
+                  <div className="flex">
+                    <span className="w-24 text-slate-500 shrink-0 font-medium">输出</span>
+                    <span className="text-slate-800 font-mono">{currentDetail.out}</span>
+                  </div>
+                  <div className="flex">
+                    <span className="w-24 text-slate-500 shrink-0 font-medium">是否改变状态</span>
+                    <span className="text-slate-800 font-medium">{currentDetail.isStateChange}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="w-24 text-slate-500 shrink-0 font-medium">AI 可调用</span>
+                    {currentDetail.ai === '是' ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-1.5" />
+                    ) : (
+                      <AlertTriangle className="w-4 h-4 text-rose-500 mr-1.5" />
+                    )}
+                    <span className="text-slate-800 font-medium">{currentDetail.ai}</span>
+                  </div>
+                  <div className="flex">
+                    <span className="w-24 text-slate-500 shrink-0 font-medium">使用位置</span>
+                    <span className="text-slate-800 leading-normal font-mono">{currentDetail.wf}</span>
+                  </div>
+                  <div className="flex">
+                    <span className="w-24 text-slate-500 shrink-0 font-medium">权限策略</span>
+                    <span className="text-slate-800">{currentDetail.auth}</span>
+                  </div>
+                </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-100">
-              <h4 className="text-sm font-extrabold text-slate-900 mb-3">能力描述</h4>
-              <p className="text-[13px] text-slate-600 leading-relaxed font-medium">
-                基于证据对字段进行语义分类，输出字段的语义类型及置信度结果。
-              </p>
-            </div>
+                <div className="mt-8 pt-6 border-t border-slate-100">
+                  <h4 className="text-sm font-extrabold text-slate-900 mb-3">Function 描述</h4>
+                  <p className="text-[13px] text-slate-600 leading-relaxed font-medium">
+                    {currentDetail.desc}
+                  </p>
+                </div>
+              </>
+            )}
             
           </div>
           
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col w-full h-full justify-center">
+          <div className="bg-slate-50 border border-slate-200 rounded-lg shadow-sm p-5 flex flex-col w-full h-full justify-center">
              <div className="flex items-center gap-2 mb-4">
                 <Info className="w-5 h-5 text-blue-500" />
-                <h4 className="text-[14px] font-extrabold text-slate-900">能力规则提示</h4>
+                <h4 className="text-[14px] font-extrabold text-slate-900">Function 规则提示</h4>
              </div>
              
-             <div className="border-l-[3px] border-blue-500 pl-4 py-1 mb-5">
+             <div className="border-l-[3px] border-blue-500 pl-4 py-1">
                <div className="text-[13px] font-bold text-blue-700 mb-1 flex items-center gap-1.5">
                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div> Function 只负责计算、识别、判断
                </div>
                <div className="text-[12px] text-slate-600 font-medium pl-3">不改变任何对象的状态，输出计算结果用于决策。</div>
              </div>
-             
-             <div className="border-l-[3px] border-orange-400 pl-4 py-1">
-               <div className="text-[13px] font-bold text-orange-600 mb-1 flex items-center gap-1.5">
-                 <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div> Action 负责创建、确认、发布和状态变化
-               </div>
-               <div className="text-[12px] text-slate-600 font-medium pl-3">对对象进行实际操作，驱动治理流程的执行与状态变更。</div>
-             </div>
           </div>
           
         </div>
+      )}
       </div>
 
       <CreateFunctionBindingDrawer
