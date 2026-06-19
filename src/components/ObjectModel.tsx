@@ -1178,7 +1178,7 @@ export default function ObjectModel() {
           <div className="relative w-full max-w-5xl bg-white h-full shadow-2xl flex flex-col z-10 border-l border-slate-200 animate-slide-in-right overflow-hidden">
             
             {/* Header */}
-            <div className="px-6 py-5 border-b border-slate-150 flex items-center justify-between bg-slate-50">
+            <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div>
                 <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
                   <Plus className="w-5 h-5 text-blue-500" />
@@ -1198,22 +1198,22 @@ export default function ObjectModel() {
             <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-slate-50/50">
               
               {/* 第一块：选择方式 单选卡片 */}
-              <div className="bg-white border border-slate-300 rounded-md p-5 shadow-3xs space-y-3">
+              <div className="bg-white border border-slate-200 rounded p-5 shadow-3xs space-y-3">
                 <label className="text-[13px] font-extrabold text-slate-800 block">第一步：选择对象定义模式</label>
                 <div className="grid grid-cols-2 gap-4">
                   
                   {/* 标准卡片 */}
                   <div 
                     onClick={() => setSelectionMode('standard')}
-                    className={`p-4 rounded-md border-2 text-left cursor-pointer transition-all select-none ${
+                    className={`p-4 rounded border text-left cursor-pointer transition-all select-none ${
                       selectionMode === 'standard' 
-                        ? 'bg-blue-50/30 border-blue-600 shadow-3xs' 
-                        : 'bg-white border-slate-300 hover:border-slate-400 hover:bg-slate-50/50'
+                        ? 'bg-blue-50/30 border-blue-500 ring-1 ring-blue-500/20 shadow-3xs' 
+                        : 'bg-white border-slate-200 hover:border-slate-350 hover:bg-slate-50/50'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-8 h-8 rounded-md flex items-center justify-center border ${
-                        selectionMode === 'standard' ? 'bg-blue-100 border-blue-300 text-blue-600' : 'bg-slate-50 border-slate-300 text-slate-500'
+                      <div className={`w-8 h-8 rounded flex items-center justify-center border ${
+                        selectionMode === 'standard' ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-400'
                       }`}>
                         <CheckCircle2 className="w-4 h-4" />
                       </div>
@@ -1227,15 +1227,15 @@ export default function ObjectModel() {
                   {/* 扩展自定义卡片 */}
                   <div 
                     onClick={() => setSelectionMode('extended')}
-                    className={`p-4 rounded-md border-2 text-left cursor-pointer transition-all select-none ${
+                    className={`p-4 rounded border text-left cursor-pointer transition-all select-none ${
                       selectionMode === 'extended' 
-                        ? 'bg-blue-50/30 border-blue-600 shadow-3xs' 
-                        : 'bg-white border-slate-300 hover:border-slate-400 hover:bg-slate-50/50'
+                        ? 'bg-blue-50/30 border-blue-500 ring-1 ring-blue-500/20 shadow-3xs' 
+                        : 'bg-white border-slate-200 hover:border-slate-350 hover:bg-slate-50/50'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-8 h-8 rounded-md flex items-center justify-center border ${
-                        selectionMode === 'extended' ? 'bg-blue-100 border-blue-300 text-blue-600' : 'bg-slate-50 border-slate-300 text-slate-500'
+                      <div className={`w-8 h-8 rounded flex items-center justify-center border ${
+                        selectionMode === 'extended' ? 'bg-blue-100 border-blue-200 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-400'
                       }`}>
                         <PlusCircle className="w-4 h-4" />
                       </div>
@@ -1254,7 +1254,7 @@ export default function ObjectModel() {
                 <div className="grid grid-cols-12 gap-6 items-start">
                   
                   {/* 第二块：标准对象类型选择列表 (40%) */}
-                  <div className="col-span-12 lg:col-span-6 bg-white border border-slate-300 rounded-md p-5 shadow-3xs space-y-3">
+                  <div className="col-span-12 lg:col-span-6 bg-white border border-slate-200 rounded p-5 shadow-3xs space-y-3">
                     <label className="text-[13px] font-extrabold text-slate-800 block">第二步：选择要启用的标准对象</label>
                     
                     <div className="space-y-2.5 max-h-[460px] overflow-y-auto pr-2 scrollbar-thin">
@@ -1266,15 +1266,15 @@ export default function ObjectModel() {
                           <div 
                             key={tmpl.id}
                             onClick={() => setSelectedAddTargetId(tmpl.id)}
-                            className={`p-3.5 rounded-md border cursor-pointer transition-all relative ${
+                            className={`p-3.5 rounded border cursor-pointer transition-all relative ${
                               isChosen 
-                                ? 'bg-blue-50/30 border-blue-600 border-2' 
-                                : 'bg-white border-slate-300 hover:border-slate-400 hover:bg-slate-50/30'
+                                ? 'bg-blue-50/30 border-blue-500 ring-1 ring-blue-500/20' 
+                                : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/30'
                             }`}
                           >
                             <div className="flex items-start gap-3">
-                              <div className={`p-2 rounded-md border ${
-                                isChosen ? 'bg-blue-100 border-blue-300 text-blue-600' : 'bg-slate-50 border-slate-300 text-slate-500'
+                              <div className={`p-2 rounded border ${
+                                isChosen ? 'bg-blue-100 border-blue-200/80 text-blue-600' : 'bg-slate-50 border-slate-200 text-slate-400'
                               }`}>
                                 {getObjectIcon(tmpl.id, 'w-4.5 h-4.5')}
                               </div>
@@ -1298,7 +1298,7 @@ export default function ObjectModel() {
                                 <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-slate-200">
                                   <span className="text-[10px] text-slate-400 font-medium">依赖本体:</span>
                                   {tmpl.dependencies.map(dep => (
-                                    <span key={dep} className="text-[9.5px] font-black font-mono text-slate-650 bg-slate-100 border border-slate-300 px-1.5 py-0.5 rounded-sm">
+                                    <span key={dep} className="text-[9.5px] font-black font-mono text-slate-650 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-sm">
                                       {dep}
                                     </span>
                                   ))}
@@ -1312,7 +1312,7 @@ export default function ObjectModel() {
                   </div>
 
                   {/* 第三块与第四块：对象类型实时预览及校验面板 (60%) */}
-                  <div className="col-span-12 lg:col-span-6 space-y-4 bg-white border border-slate-300 rounded-md p-5 shadow-3xs">
+                  <div className="col-span-12 lg:col-span-6 space-y-4 bg-white border border-slate-200 rounded p-5 shadow-3xs">
                     
                     {/* Header */}
                     <div className="border-b border-slate-200 pb-3 flex items-center justify-between">
@@ -1331,7 +1331,7 @@ export default function ObjectModel() {
                       {/* Properties list */}
                       <div>
                         <span className="text-[11px] font-bold text-slate-450 block mb-2">默认携带属性 (Properties)</span>
-                        <div className="bg-white rounded-md border border-slate-300 overflow-hidden divide-y divide-slate-200">
+                        <div className="bg-white rounded border border-slate-200 overflow-hidden divide-y divide-slate-200">
                           {PREVIEW_RESOURCES[selectedAddTargetId]?.properties.map(p => (
                             <div key={p.name} className="px-3.5 py-2 flex items-center justify-between text-xs hover:bg-slate-50/40">
                               <span className="font-mono font-bold text-slate-700">{p.name}</span>
@@ -1349,7 +1349,7 @@ export default function ObjectModel() {
                         <span className="text-[11px] font-bold text-slate-450 block mb-2">推荐绑定关系 (Relations)</span>
                         <div className="flex flex-col gap-1.5">
                           {PREVIEW_RESOURCES[selectedAddTargetId]?.relations.map((r, i) => (
-                            <div key={i} className="bg-white border border-slate-300 rounded-md p-2.5 flex items-center justify-between text-[11px]">
+                            <div key={i} className="bg-white border border-slate-200 rounded p-2.5 flex items-center justify-between text-[11px]">
                               <span className="font-bold font-mono text-slate-500">{r.source}</span>
                               <span className="font-semibold text-blue-600 bg-blue-50 border border-blue-300 rounded px-1.5 py-0.5 text-[9.5px]">{r.link}</span>
                               <span className="font-bold font-mono text-slate-500">{r.target}</span>
@@ -1363,9 +1363,9 @@ export default function ObjectModel() {
                         <span className="text-[11px] font-bold text-slate-450 block mb-2">推荐附加能力 (Capabilities)</span>
                         <div className="space-y-2">
                           {PREVIEW_RESOURCES[selectedAddTargetId]?.capabilities.map((cap, i) => (
-                            <div key={i} className="flex items-start gap-2 bg-white rounded-md p-2.5 border border-slate-300">
+                            <div key={i} className="flex items-start gap-2 bg-white rounded p-2.5 border border-slate-200">
                               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-sm mt-0.5 shrink-0 border ${
-                                cap.type === 'Function' ? 'bg-amber-50 text-amber-605 border-amber-200' : cap.type === 'Action' ? 'bg-emerald-50 text-emerald-605 border-emerald-200' : 'bg-slate-100 text-slate-700 border-slate-350'
+                                cap.type === 'Function' ? 'bg-amber-50 text-amber-655 border-amber-200' : cap.type === 'Action' ? 'bg-emerald-50 text-emerald-655 border-emerald-200' : 'bg-slate-100 text-slate-700 border-slate-200'
                               }`}>
                                 {cap.type}
                               </span>
@@ -1379,11 +1379,11 @@ export default function ObjectModel() {
                       </div>
 
                       {/* 第四块：校验提示 */}
-                      <div className="pt-3 border-t border-slate-150">
+                      <div className="pt-3 border-t border-slate-200">
                         <span className="text-[11px] font-bold text-slate-450 block mb-2">架构校验提示 (Validation Status)</span>
                         <div className="space-y-1.5">
                           {PREVIEW_RESOURCES[selectedAddTargetId]?.validation.map((v, i) => (
-                            <div key={i} className={`rounded-md p-3 border text-xs flex items-start gap-2.5 ${
+                            <div key={i} className={`rounded p-3 border text-xs flex items-start gap-2.5 ${
                               v.type === 'success' 
                                 ? 'bg-emerald-50 border-emerald-300 text-emerald-900' 
                                 : v.type === 'info' 
@@ -1409,7 +1409,7 @@ export default function ObjectModel() {
               ) : (
                 
                 // ----------------- 添加扩展对象分支 (Mode 2) -----------------
-                <div className="bg-white border border-slate-300 rounded-md p-6 space-y-5 animate-fade-in shadow-3xs">
+                <div className="bg-white border border-slate-200 rounded p-6 space-y-5 animate-fade-in shadow-3xs">
                   <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
                     <Plus className="w-5 h-5 text-blue-600" />
                     <div>
@@ -1426,7 +1426,7 @@ export default function ObjectModel() {
                         placeholder="例如: PromotionRecord, AIFeedback 等"
                         value={customId}
                         onChange={(e) => setCustomId(e.target.value.replace(/[^A-Za-z]/g, ''))} // restrict to alpha chars for safety
-                        className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white border border-slate-300 rounded-md text-sm text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white border border-slate-200 rounded text-sm text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </div>
                     <div>
@@ -1436,7 +1436,7 @@ export default function ObjectModel() {
                         placeholder="例如: 模型部署包发布活动"
                         value={customNameCn}
                         onChange={(e) => setCustomNameCn(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white border border-slate-300 rounded-md text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white border border-slate-200 rounded text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </div>
                     <div>
@@ -1444,7 +1444,7 @@ export default function ObjectModel() {
                       <select 
                         value={customGroup}
                         onChange={(e) => setCustomGroup(e.target.value as ObjectGroup)}
-                        className="w-full px-2.5 py-2 bg-slate-50/50 hover:bg-white border border-slate-300 rounded-md text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        className="w-full px-2.5 py-2 bg-slate-50/50 hover:bg-white border border-slate-200 rounded text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       >
                         <option value="核心数据对象">核心数据对象</option>
                         <option value="语义治理对象">语义治理对象</option>
@@ -1458,7 +1458,7 @@ export default function ObjectModel() {
                         type="text" 
                         value={customOwner}
                         onChange={(e) => setCustomOwner(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white border border-slate-300 rounded-md text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white border border-slate-200 rounded text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </div>
                     
@@ -1495,7 +1495,7 @@ export default function ObjectModel() {
                         placeholder="主要用作哪些复杂的语义治理规则判定、大模型跑批标注，包含哪些业务场景规范..."
                         value={customDesc}
                         onChange={(e) => setCustomDesc(e.target.value)}
-                        className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white border border-slate-300 rounded-md text-sm text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                        className="w-full px-3 py-2 bg-slate-50/50 hover:bg-white border border-slate-200 rounded text-sm text-slate-805 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-all"
                       />
                     </div>
 
@@ -1506,15 +1506,15 @@ export default function ObjectModel() {
                         <button 
                           type="button"
                           onClick={handleAddAttributeRow}
-                          className="px-2.5 py-1 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200 rounded-md flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 border border-blue-200 rounded flex items-center gap-1 cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" /> 增加额外属性行
                         </button>
                       </div>
 
-                      <div className="border border-slate-300 rounded-md overflow-hidden bg-white">
+                      <div className="border border-slate-200 rounded overflow-hidden bg-white">
                         <table className="w-full text-left text-xs text-slate-650 divide-y divide-slate-200">
-                          <thead className="bg-slate-50 font-bold text-slate-500 border-b border-slate-300">
+                          <thead className="bg-slate-50 font-bold text-slate-500 border-b border-slate-200">
                             <tr>
                               <th className="p-2.5">属性英文名 (Property ID)</th>
                               <th className="p-2.5">元数据类型</th>
@@ -1532,14 +1532,14 @@ export default function ObjectModel() {
                                     placeholder="输入字段.如 target_env"
                                     value={attr.name}
                                     onChange={(e) => handleUpdateAttributeRow(idx, 'name', e.target.value.replace(/[^A-Za-z0-9_]/g, ''))}
-                                    className="px-2 py-1 w-full bg-white border border-slate-300 rounded-md text-xs font-mono focus:border-blue-500 focus:outline-none"
+                                    className="px-2 py-1 w-full bg-white border border-slate-200 rounded text-xs font-mono focus:border-blue-500 focus:outline-none"
                                   />
                                 </td>
                                 <td className="p-2">
                                   <select 
                                     value={attr.dataType}
                                     onChange={(e) => handleUpdateAttributeRow(idx, 'dataType', e.target.value)}
-                                    className="px-2 py-1 bg-white border border-slate-300 rounded-md text-xs focus:border-blue-500 focus:outline-none"
+                                    className="px-2 py-1 bg-white border border-slate-200 rounded text-xs focus:border-blue-500 focus:outline-none"
                                   >
                                     <option value="string">string</option>
                                     <option value="int">int</option>
@@ -1563,7 +1563,7 @@ export default function ObjectModel() {
                                     placeholder="输入注释描述"
                                     value={attr.description}
                                     onChange={(e) => handleUpdateAttributeRow(idx, 'description', e.target.value)}
-                                    className="px-2 py-1 w-full bg-white border border-slate-300 rounded-md text-xs focus:border-blue-500 focus:outline-none"
+                                    className="px-2 py-1 w-full bg-white border border-slate-200 rounded text-xs focus:border-blue-500 focus:outline-none"
                                   />
                                 </td>
                                 <td className="p-2 text-center">
@@ -1593,13 +1593,13 @@ export default function ObjectModel() {
             <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3 bg-slate-50">
               <button 
                 onClick={() => setIsAddDrawerOpen(false)}
-                className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 rounded-md text-sm font-bold transition-all shadow-xs cursor-pointer"
+                className="px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded text-sm font-bold transition-all shadow-xs cursor-pointer"
               >
                 取消
               </button>
               <button 
                 onClick={handleCommitToChangeSet}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-bold transition-all shadow-sm cursor-pointer"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-bold transition-all shadow-sm cursor-pointer"
               >
                 加入当前变更集
               </button>
@@ -1621,7 +1621,7 @@ export default function ObjectModel() {
           <div className="relative w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col z-10 border-l border-slate-200 animate-slide-in-right overflow-hidden text-left">
             
             {/* Header */}
-            <div className="px-6 py-5 border-b border-slate-150 flex items-center justify-between bg-slate-50">
+            <div className="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
               <div>
                 <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
                   <Plus className="w-5 h-5 text-blue-600" />
@@ -1640,7 +1640,7 @@ export default function ObjectModel() {
             </div>
 
             {/* Top Context Breadcrumb-style Area */}
-            <div className="bg-slate-150/40 px-6 py-3 border-b border-slate-150 flex flex-wrap items-center gap-y-2 justify-between text-xs text-slate-650">
+            <div className="bg-slate-200/40 px-6 py-3 border-b border-slate-200 flex flex-wrap items-center gap-y-2 justify-between text-xs text-slate-650">
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-slate-450">Object Type:</span>
                 <span className="font-black font-mono text-slate-850 bg-slate-200/65 px-1.5 py-0.5 rounded">
@@ -1901,7 +1901,7 @@ export default function ObjectModel() {
                   </p>
 
                   <div className="grid grid-cols-2 gap-3 pt-1">
-                    <div className="bg-white border border-slate-150 p-2.5 rounded-md flex items-center gap-2.5">
+                    <div className="bg-white border border-slate-200 p-2.5 rounded flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded bg-blue-50 border border-blue-150 flex items-center justify-center shrink-0">
                         <Database className="w-3.5 h-3.5 text-blue-600" />
                       </div>
@@ -1911,7 +1911,7 @@ export default function ObjectModel() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 bg-white border border-slate-150 p-2.5 rounded-md">
+                    <div className="flex items-center gap-2.5 bg-white border border-slate-200 p-2.5 rounded">
                       <div className="w-7 h-7 rounded bg-amber-50 border border-amber-150 flex items-center justify-center shrink-0">
                         <span className="text-amber-600 text-[10px] uppercase font-mono font-black">Fx</span>
                       </div>
@@ -1921,7 +1921,7 @@ export default function ObjectModel() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 bg-white border border-slate-150 p-2.5 rounded-md">
+                    <div className="flex items-center gap-2.5 bg-white border border-slate-200 p-2.5 rounded">
                       <div className="w-7 h-7 rounded bg-emerald-50 border border-emerald-150 flex items-center justify-center shrink-0">
                         <GitMerge className="w-3.5 h-3.5 text-emerald-600" />
                       </div>
@@ -1931,8 +1931,8 @@ export default function ObjectModel() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2.5 bg-white border border-slate-150 p-2.5 rounded-md">
-                      <div className="w-7 h-7 rounded bg-slate-50 border border-slate-300 flex items-center justify-center shrink-0">
+                    <div className="flex items-center gap-2.5 bg-white border border-slate-200 p-2.5 rounded">
+                      <div className="w-7 h-7 rounded bg-slate-50 border border-slate-350 flex items-center justify-center shrink-0">
                         <Layers className="w-3.5 h-3.5 text-slate-650" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -2013,7 +2013,7 @@ export default function ObjectModel() {
             </div>
 
             {/* Footer Buttons */}
-            <div className="px-6 py-4 border-t border-slate-150 flex items-center justify-end gap-3 bg-slate-50">
+            <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3 bg-slate-50">
               <button 
                 onClick={() => setIsAddPropertyDrawerOpen(false)}
                 className="px-4 py-2 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-900 rounded-lg text-sm font-bold transition-all shadow-xs hover:border-slate-300/80 cursor-pointer"

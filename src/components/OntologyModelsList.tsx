@@ -739,7 +739,7 @@ export default function OntologyModelsList() {
             </div>
 
             {/* Health Score Card */}
-            <div className="bg-slate-50/80 border border-slate-150 rounded-md p-3.5 mt-2 space-y-2.5">
+            <div className="bg-slate-50/80 border border-slate-200 rounded-md p-3.5 mt-2 space-y-2.5">
               <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">健康度明细指标</h4>
               
               <div className="grid grid-cols-4 gap-1.5 text-center">
@@ -787,7 +787,7 @@ export default function OntologyModelsList() {
         {/* 3 Horizontal Logs Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-normal">
           {/* Card 1 */}
-          <div className="bg-slate-50/50 border border-slate-150 rounded-md p-4 space-y-2">
+          <div className="bg-slate-50/50 border border-slate-200 rounded-md p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-blue-50 text-blue-650 text-blue-650 rounded-lg">
@@ -809,7 +809,7 @@ export default function OntologyModelsList() {
           </div>
 
           {/* Card 2 */}
-          <div className="bg-slate-50/50 border border-slate-150 rounded-md p-4 space-y-2">
+          <div className="bg-slate-50/50 border border-slate-200 rounded-md p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-amber-50 text-amber-650 rounded-lg">
@@ -831,7 +831,7 @@ export default function OntologyModelsList() {
           </div>
 
           {/* Card 3 */}
-          <div className="bg-slate-50/50 border border-slate-150 rounded-md p-4 space-y-2">
+          <div className="bg-slate-50/50 border border-slate-200 rounded-md p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-sky-50 text-sky-650 rounded-lg">

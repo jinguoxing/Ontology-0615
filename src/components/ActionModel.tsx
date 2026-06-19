@@ -674,11 +674,11 @@ export default function ActionModel() {
          }`}>
             
             {/* 中间栏大标题与二级检索首部 */}
-            <div className="px-5 py-4 border-b border-slate-150 bg-slate-50/40 shrink-0">
+            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50/40 shrink-0">
                <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
                      <h2 className="text-sm font-black text-slate-900">动作 (Action)</h2>
-                     <span className="text-[11px] font-mono font-bold bg-slate-150 text-slate-600 px-1.5 py-0.2 rounded-full">
+                     <span className="text-[11px] font-mono font-bold bg-slate-200 text-slate-600 px-1.5 py-0.2 rounded-full">
                        {filteredActions.length}
                      </span>
                   </div>
@@ -844,7 +844,7 @@ export default function ActionModel() {
             </div>
 
             {/* 底底页合算：共 24 条、跳转页码等 */}
-            <div className="px-5 py-3 border-t border-slate-150 shrink-0 bg-slate-50/50 flex items-center justify-between text-[11px] text-slate-455 font-bold">
+            <div className="px-5 py-3 border-t border-slate-200 shrink-0 bg-slate-50/50 flex items-center justify-between text-[11px] text-slate-455 font-bold">
                <span>共 12 条/24条</span>
                <div className="flex items-center gap-3">
                   <div className="flex bg-white rounded-lg border border-slate-200 p-0.5 shadow-3xs">
@@ -870,7 +870,7 @@ export default function ActionModel() {
            <div className="lg:col-span-4 bg-white border border-slate-250 rounded-2xl flex flex-col overflow-hidden shadow-2xs relative">
               
               {/* 详情头部 */}
-              <div className="px-5 py-3 border-b border-slate-150 bg-slate-50/40 shrink-0 flex items-center justify-between">
+              <div className="px-5 py-3 border-b border-slate-200 bg-slate-50/40 shrink-0 flex items-center justify-between">
                  <div className="flex items-center gap-2">
                     <span className="text-xs font-black text-slate-900">Action 详情</span>
                     <span className={`inline-flex px-1.5 py-0.2 rounded text-[10px] font-extrabold ${
@@ -902,7 +902,7 @@ export default function ActionModel() {
               <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-thin">
                  
                  {/* 大图标板块：蓝底图标与动作定性 */}
-                 <div className="bg-slate-50/60 border border-slate-150/50 p-4 rounded-xl flex items-center gap-3.5">
+                 <div className="bg-slate-50/60 border border-slate-200/50 p-4 rounded-xl flex items-center gap-3.5">
                     <div className="w-11 h-11 rounded-xl bg-blue-600 shadow-sm flex items-center justify-center text-white shrink-0">
                        <Settings className="w-5.5 h-5.5" />
                     </div>
@@ -955,7 +955,7 @@ export default function ActionModel() {
                  </div>
 
                  {/* 【描述】 */}
-                 <div className="space-y-1.5 p-2 bg-slate-50/45 rounded-lg border border-slate-150/40">
+                 <div className="space-y-1.5 p-2 bg-slate-50/45 rounded-lg border border-slate-200/40">
                     <h5 className="text-[11px] font-black text-slate-600 tracking-tight flex items-center gap-1">
                       <Info className="w-3.5 h-3.5 text-slate-400" /> 描述
                     </h5>
@@ -984,7 +984,7 @@ export default function ActionModel() {
                  <div className="space-y-2.5">
                     <h5 className="text-xs font-black text-slate-800 flex items-center gap-1.5 pb-1 border-b border-slate-100">
                       <span>前置条件</span>
-                      <span className="font-mono text-[10px] bg-slate-150 text-slate-550 px-1.5 rounded-full font-bold">
+                      <span className="font-mono text-[10px] bg-slate-200 text-slate-550 px-1.5 rounded-full font-bold">
                         {activeDetailData.prerequisites.length}
                       </span>
                     </h5>
@@ -1008,7 +1008,7 @@ export default function ActionModel() {
                  <div className="space-y-2.5">
                     <h5 className="text-xs font-black text-slate-800 flex items-center gap-1.5 pb-1 border-b border-slate-100">
                       <span>后置结果</span>
-                      <span className="font-mono text-[10px] bg-slate-150 text-slate-550 px-1.5 rounded-full font-bold">
+                      <span className="font-mono text-[10px] bg-slate-200 text-slate-550 px-1.5 rounded-full font-bold">
                         {activeDetailData.postEffects.length}
                       </span>
                     </h5>
