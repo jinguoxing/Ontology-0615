@@ -18,6 +18,8 @@ import WorkflowOrchestrator from './components/WorkflowOrchestrator';
 import ChangeRelease from './components/ChangeRelease';
 import ActionModel from './components/ActionModel';
 import OntologyModelsList from './components/OntologyModelsList';
+import DknOverview from './components/DknOverview';
+import DknObjectModel from './components/DknObjectModel';
 import CreateChangeSetDrawer from './components/CreateChangeSetDrawer';
 import CreateModelWizard from './components/CreateModelWizard';
 import KnowledgeNetworkOverview from './components/KnowledgeNetworkOverview';
@@ -50,13 +52,24 @@ export default function App() {
   const [isLocked, setIsLocked] = useState<boolean>(true); // initially locked to simulate Palantir transaction edit locking
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState<boolean>(false);
 
+  // States for submenus and page memory
+  const [ontologySubmenuOpen, setOntologySubmenuOpen] = useState<boolean>(true);
+  const [lastModelView, setLastModelView] = useState<string>('drkn_models');
+
   // Global search query
   const [globalSearch, setGlobalSearch] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
 
   // Hanlde routing navigate with optional preselected targets
   const handleNavigate = (view: string, targetId?: string) => {
-    setActiveView(view);
+    let finalView = view;
+    if (view === 'ontology_models') {
+      finalView = lastModelView === 'ontology_models' ? 'drkn_models' : lastModelView;
+    }
+    setActiveView(finalView);
+    if (finalView === 'drkn_models' || finalView === 'dkn_models') {
+      setLastModelView(finalView);
+    }
     if (targetId) {
       setSelectedObjectId(targetId);
     }
@@ -307,13 +320,23 @@ export default function App() {
                   icon: <GitBranch className="w-4 h-4" />,
                   children: [
                     { id: 'knowledge_network', label: '网络总览' },
-                    { id: 'ontology_models', label: '本体管理' },
+                    { 
+                      id: 'ontology_group', 
+                      label: '本体管理',
+                      subChildren: [
+                        { id: 'drkn_models', label: 'DRKN模型' },
+                        { id: 'dkn_models', label: 'DKN模型' }
+                      ]
+                    },
                     { id: 'knowledge_network_assets', label: '网络资产' }
                   ]
                 },
                 { id: 'admin', label: '管理中心', icon: <Settings className="w-4 h-4" /> }
               ].map((item) => {
-                const isGroupActive = item.id === 'knowledge_network_group' && ['knowledge_network', 'knowledge_network_assets', 'ontology_models', 'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'].includes(activeView);
+                const isGroupActive = item.id === 'knowledge_network_group' && [
+                  'knowledge_network', 'knowledge_network_assets', 'ontology_models', 'drkn_models', 'dkn_models', 
+                  'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'
+                ].includes(activeView);
                 const isActive = activeView === item.id || isGroupActive;
                 
                 return (
@@ -345,10 +368,55 @@ export default function App() {
                     {item.children && isGroupActive && (
                       <div className="pl-4 pr-2 pt-1 pb-2 space-y-1">
                         {item.children.map(child => {
-                          let isChildActive = activeView === child.id;
-                          if (child.id === 'ontology_models' && ['ontology_models', 'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'].includes(activeView)) {
-                            isChildActive = true;
+                          if (child.subChildren) {
+                            const isSubActive = child.subChildren.some(sub => {
+                              if (sub.id === 'drkn_models') {
+                                return ['drkn_models', 'ontology_models', 'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'].includes(activeView);
+                              }
+                              return activeView === sub.id;
+                            });
+                            return (
+                              <div key={child.id} className="space-y-1">
+                                <button
+                                  onClick={() => setOntologySubmenuOpen(!ontologySubmenuOpen)}
+                                  className={`w-full px-3 py-1.5 rounded-lg flex items-center justify-between text-[13px] font-medium transition-colors cursor-pointer ${
+                                    isSubActive ? 'text-blue-700 font-bold bg-blue-50/40' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-850'
+                                  }`}
+                                >
+                                  <div className="flex items-center">
+                                    <div className="w-1.5 h-1.5 rounded-full mr-2.5 opacity-50 bg-current"></div>
+                                    <span>{child.label}</span>
+                                  </div>
+                                  <ChevronDown className={`w-3 h-3 transition-transform ${ontologySubmenuOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {ontologySubmenuOpen && (
+                                  <div className="pl-3.5 space-y-1 border-l border-slate-205 ml-3.5 pt-0.5 pb-0.5">
+                                    {child.subChildren.map(sub => {
+                                      let isSubChildActive = activeView === sub.id;
+                                      if (sub.id === 'drkn_models' && ['drkn_models', 'ontology_models', 'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'].includes(activeView)) {
+                                        isSubChildActive = true;
+                                      }
+                                      return (
+                                        <button
+                                          key={sub.id}
+                                          onClick={() => handleNavigate(sub.id)}
+                                          className={`w-full px-2.5 py-1 rounded-md flex items-center text-[12.5px] font-medium transition-colors cursor-pointer ${
+                                            isSubChildActive
+                                              ? 'bg-blue-50 text-blue-700 font-extrabold'
+                                              : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
+                                          }`}
+                                        >
+                                          <span className="truncate">{sub.label}</span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
                           }
+
+                          let isChildActive = activeView === child.id;
                           return (
                             <button
                               key={child.id}
@@ -413,12 +481,23 @@ export default function App() {
              />
           )}
 
-          {activeView === 'ontology_models' && (
+          {(activeView === 'drkn_models' || activeView === 'ontology_models') && (
             <OntologyModelsList
               onNavigate={handleNavigate}
               onCreateChangeSet={openCreateChangeSet}
               onRunValidation={handleRunValidation}
               isLocked={isLocked}
+              modelType="DRKN"
+            />
+          )}
+
+          {activeView === 'dkn_models' && (
+            <OntologyModelsList
+              onNavigate={handleNavigate}
+              onCreateChangeSet={openCreateChangeSet}
+              onRunValidation={handleRunValidation}
+              isLocked={isLocked}
+              modelType="DKN"
             />
           )}
 
@@ -435,16 +514,33 @@ export default function App() {
             />
           )}
 
-          {activeView === 'object_model' && (
-            <ObjectModel
-              objectTypes={objectTypes}
-              selectedObjectId={selectedObjectId}
-              onSelectObject={setSelectedObjectId}
+          {activeView === 'dkn_overview' && (
+            <DknOverview
               onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-              onUpdateObjectType={handleUpdateObjectType}
-              onAddObjectType={handleAddObjectType}
+              modelId={selectedObjectId}
+              isLocked={isLocked}
             />
+          )}
+
+          {activeView === 'object_model' && (
+            lastModelView === 'dkn_models' ? (
+              <DknObjectModel
+                onNavigate={handleNavigate}
+                selectedObjectId={selectedObjectId}
+                onSelectObject={setSelectedObjectId}
+                isLocked={isLocked}
+              />
+            ) : (
+              <ObjectModel
+                objectTypes={objectTypes}
+                selectedObjectId={selectedObjectId}
+                onSelectObject={setSelectedObjectId}
+                onNavigate={handleNavigate}
+                isEditingActive={!isLocked}
+                onUpdateObjectType={handleUpdateObjectType}
+                onAddObjectType={handleAddObjectType}
+              />
+            )
           )}
 
           {activeView === 'relation_model' && (

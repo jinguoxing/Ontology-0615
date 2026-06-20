@@ -30,16 +30,99 @@ interface OntologyModelsListProps {
   onCreateChangeSet: () => void;
   onRunValidation: () => void;
   isLocked: boolean;
+  modelType?: 'DRKN' | 'DKN';
 }
 
 export default function OntologyModelsList({
   onNavigate,
   onCreateChangeSet,
   onRunValidation,
-  isLocked
+  isLocked,
+  modelType = 'DRKN'
 }: OntologyModelsListProps) {
+  const isDKN = modelType === 'DKN';
+
+  const dknModels: ModelItem[] = [
+    {
+      id: 'dkn-global-core',
+      name: 'DKN-Global 全球主数据定义标准模型',
+      description: '负责定义跨国家、跨区域销售与采购实体的全链路全球唯一标定概念语义网络。',
+      version: 'v2.1.0',
+      status: 'published',
+      statusLabel: '已发布',
+      objectTypeCount: 12,
+      linkTypeCount: 22,
+      functionCount: 15,
+      actionCount: 18,
+      workflowCount: 8,
+      errors: 0,
+      warnings: 1,
+      aiScenes: 6,
+      networkViews: 8,
+      owner: '主数据管理委员会',
+      lastUpdated: '2026-06-16 11:20'
+    },
+    {
+      id: 'dkn-supply-chain',
+      name: 'DKN 供应链资产图谱模型',
+      description: '统一核心供应商、库存和采购行为的跨系统标准化语义映射与行为图谱元模型。',
+      version: 'v1.4.1',
+      status: 'published',
+      statusLabel: '已发布',
+      objectTypeCount: 15,
+      linkTypeCount: 20,
+      functionCount: 10,
+      actionCount: 14,
+      workflowCount: 5,
+      errors: 0,
+      warnings: 3,
+      aiScenes: 4,
+      networkViews: 6,
+      owner: '供应链架构组',
+      lastUpdated: '2026-06-15 15:42'
+    },
+    {
+      id: 'dkn-finance-ledger',
+      name: 'DKN 财务账目对账概念模型',
+      description: '规范集团内各财务系统总账与明细交易流的领域实体、交易归组和科目对应语义模型。',
+      version: 'v0.9.5',
+      status: 'editing',
+      statusLabel: '编辑中',
+      objectTypeCount: 6,
+      linkTypeCount: 10,
+      functionCount: 8,
+      actionCount: 8,
+      workflowCount: 2,
+      errors: 1,
+      warnings: 4,
+      aiScenes: 2,
+      networkViews: 3,
+      owner: '财务系统治理团队',
+      lastUpdated: '2026-06-14 18:10'
+    },
+    {
+      id: 'dkn-customer-id',
+      name: 'DKN 统一客户核心标识模型',
+      description: '用于多渠道、多源客户注册信息的合并及核心ID语义层映射关系模型和对齐。',
+      version: 'v1.0.0',
+      status: 'approved',
+      statusLabel: '待审核',
+      objectTypeCount: 9,
+      linkTypeCount: 15,
+      functionCount: 12,
+      actionCount: 12,
+      workflowCount: 4,
+      errors: 0,
+      warnings: 0,
+      aiScenes: 3,
+      networkViews: 4,
+      owner: '主数据管理委员会',
+      lastUpdated: '2026-06-12 09:30'
+    }
+  ];
+
   // Preset models conforming exactly to the user specification
-  const initialModels: ModelItem[] = [
+  const drknModels: ModelItem[] = [
     {
       id: 'drkn-core',
       name: 'DRKN-Core 数据语义治理模型',
@@ -137,9 +220,11 @@ export default function OntologyModelsList({
     }
   ];
 
+  const initialModels = isDKN ? dknModels : drknModels;
+
   // States
   const [models, setModels] = useState<ModelItem[]>(initialModels);
-  const [selectedModelId, setSelectedModelId] = useState<string>('drkn-core');
+  const [selectedModelId, setSelectedModelId] = useState<string>(isDKN ? 'dkn-global-core' : 'drkn-core');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
@@ -152,7 +237,10 @@ export default function OntologyModelsList({
   };
 
   const handleImportModel = () => {
-    alert("📥 导入本体模型模版：支持导入标准化 DRKN *.json, *.ttl 或 *.owl 元模型结构描述文件。");
+    alert(isDKN 
+      ? "📥 导入本体模型模版：支持导入标准化 DKN *.json, *.ttl 或 *.owl 元模型结构描述文件。"
+      : "📥 导入本体模型模版：支持导入标准化 DRKN *.json, *.ttl 或 *.owl 元模型结构描述文件。"
+    );
   };
 
   const handleResetFilters = () => {
@@ -183,15 +271,18 @@ export default function OntologyModelsList({
             <span className="text-slate-300">/</span>
             <span>本体管理</span>
             <span className="text-slate-300">/</span>
-            <span className="text-slate-500 font-medium">DRKN 本体模型</span>
+            <span className="text-slate-500 font-medium">{isDKN ? 'DKN 本体模型' : 'DRKN 本体模型'}</span>
           </div>
           
           {/* Main Title Block */}
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            DRKN 本体模型
+            {isDKN ? 'DKN 本体模型' : 'DRKN 本体模型'}
           </h1>
           <p className="text-xs text-slate-500">
-            管理数据语义治理层的本体模型，包括数据源、数据资产、字段、语义断言、证据、质量规则、治理任务等对象类型。
+            {isDKN 
+              ? '管理标准数据网络（DKN）本体模型，统一描述跨系统的核心业务主实体关系、多源标识关联与全球主数据结构定义。'
+              : '管理数据语义治理（DRKN）本体模型，用于标准化数仓、资产实体和质量检测闭环控制。'
+            }
           </p>
         </div>
 
@@ -202,7 +293,7 @@ export default function OntologyModelsList({
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all hover:-translate-y-0.5"
           >
             <Plus className="h-4 w-4" />
-            新建 DRKN 本体模型
+            {isDKN ? '新建 DKN 本体模型' : '新建 DRKN 本体模型'}
           </button>
           
           <button 
@@ -230,7 +321,7 @@ export default function OntologyModelsList({
           <span className="text-slate-400 font-medium">模型域</span>
           <div className="bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-1 px-3 flex items-center gap-1.5 font-semibold text-slate-700 cursor-pointer">
             <span className="bg-blue-500 w-1.5 h-1.5 rounded-full"></span>
-            DRKN 数据语义治理
+            {isDKN ? 'DKN 标准主数据图谱' : 'DRKN 数据语义治理'}
             <span className="text-[10px] text-slate-400">▾</span>
           </div>
         </div>
@@ -363,8 +454,8 @@ export default function OntologyModelsList({
             <Database className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 font-bold mb-0.5 leading-none">DRKN 本体模型</p>
-            <p className="text-xl font-extrabold text-slate-900 leading-tight">8</p>
+            <p className="text-[10px] text-slate-400 font-bold mb-0.5 leading-none">{isDKN ? 'DKN 本体模型' : 'DRKN 本体模型'}</p>
+            <p className="text-xl font-extrabold text-slate-900 leading-tight">{isDKN ? '4' : '8'}</p>
           </div>
         </div>
 
@@ -472,7 +563,7 @@ export default function OntologyModelsList({
                     >
                       {/* Name */}
                       <td className="py-3 px-3 font-bold text-blue-605 text-blue-600 font-sans max-w-[155px] truncate">
-                        {item.id === 'drkn-core' ? (
+                        {(item.id === 'drkn-core' || item.id === 'dkn-global-core') ? (
                           <span className="flex items-center gap-1.5">
                             <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
                             {item.id.toUpperCase()}
@@ -581,7 +672,11 @@ export default function OntologyModelsList({
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              onNavigate('overview');
+                              if (isDKN) {
+                                onNavigate('dkn_overview', item.id);
+                              } else {
+                                onNavigate('overview', item.id);
+                              }
                             }}
                             className="text-[10.5px] font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                           >
@@ -649,7 +744,7 @@ export default function OntologyModelsList({
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <h2 className="text-base font-extrabold text-slate-900 tracking-tight">
-                    {selectedModel.id === 'drkn-core' ? 'DRKN-Core' : selectedModel.name.split(' ')[0]}
+                    {selectedModel.id === 'dkn-global-core' ? 'DKN-Global-Core' : selectedModel.id === 'drkn-core' ? 'DRKN-Core' : selectedModel.name.split(' ')[0]}
                   </h2>
                   <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold ${
                     selectedModel.status === 'published' 
@@ -692,7 +787,10 @@ export default function OntologyModelsList({
               <div className="space-y-1.5">
                 <h4 className="text-[11px] font-bold text-slate-450 uppercase tracking-wider text-slate-400">模型摘要说明</h4>
                 <p className="text-xs text-slate-500 leading-relaxed text-[11.5px]">
-                  用于 DRKN 数据语义治理层，覆盖 DataSource、DataAsset、Field、SemanticAssertion、Evidence、DataQualityRule、DataIssue、GovernanceTask、Run、Snapshot 等核心对象类型。
+                  {isDKN 
+                    ? '用于 DKN 标准主数据数网图谱，包含 CoreEntity、BusinessObject、IDMapping、Relationship、MappingRules、StandardCode 等多维主数据语义网络。'
+                    : '用于 DRKN 数据语义治理层，覆盖 DataSource、DataAsset、Field、SemanticAssertion、Evidence、DataQualityRule、DataIssue、GovernanceTask、Run、Snapshot 等核心对象类型。'
+                  }
                 </p>
               </div>
 
@@ -782,11 +880,11 @@ export default function OntologyModelsList({
           <div className="bg-slate-50/50 border border-slate-150 rounded-xl p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-blue-50 text-blue-650 text-blue-650 rounded-lg">
+                <div className="p-1.5 bg-blue-50 text-blue-650 rounded-lg">
                   <Database className="h-4 w-4 text-blue-600" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800 text-[11.5px]">DRKN-Core v1.3.0</h4>
+                  <h4 className="font-bold text-slate-800 text-[11.5px]">{isDKN ? 'DKN-Global v2.1.0' : 'DRKN-Core v1.3.0'}</h4>
                   <p className="text-[9.5px] text-slate-400">已发布</p>
                 </div>
               </div>
@@ -794,9 +892,9 @@ export default function OntologyModelsList({
             </div>
             
             <div className="space-y-1 text-[10.5px] text-slate-500 font-medium">
-              <p>发布时间: 2026-06-14 10:35</p>
-              <p>发布人: 张三</p>
-              <p className="text-slate-400 italic">说明: 发布 DRKN-Core v1.3.0，优化语义断言与质量规则逻辑。</p>
+              <p>发布时间: {isDKN ? '2026-06-16 11:20' : '2026-06-14 10:35'}</p>
+              <p>发布人: {isDKN ? '陈七' : '张三'}</p>
+              <p className="text-slate-400 italic">说明: {isDKN ? '发布 DKN-Global 全球唯一定义，更新多系统主域标识。' : '发布 DRKN-Core v1.3.0，优化语义断言与质量规则逻辑。'}</p>
             </div>
           </div>
 
@@ -808,7 +906,7 @@ export default function OntologyModelsList({
                   <span className="text-xs font-black font-mono text-amber-600">Ed</span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800 text-[11.5px]">CRM 数据语义模型 v0.9.2</h4>
+                  <h4 className="font-bold text-slate-800 text-[11.5px]">{isDKN ? 'DKN 对账模型 v0.9.5' : 'CRM 数据语义模型 v0.9.2'}</h4>
                   <p className="text-[9.5px] text-slate-400">编辑中</p>
                 </div>
               </div>
@@ -816,9 +914,9 @@ export default function OntologyModelsList({
             </div>
             
             <div className="space-y-1 text-[10.5px] text-slate-500 font-medium">
-              <p>更新时间: 2026-06-12 16:18</p>
-              <p>更新人: 李四</p>
-              <p className="text-slate-400 italic">说明: 完善 CRM 字段语义及业务属性规则配置。</p>
+              <p>更新时间: {isDKN ? '2026-06-14 18:10' : '2026-06-12 16:18'}</p>
+              <p>更新人: {isDKN ? '赵六' : '李四'}</p>
+              <p className="text-slate-400 italic">说明: {isDKN ? '优化财务总账对账实体的行为與会计科目语义表达。' : '完善 CRM 字段语义及业务属性规则配置。'}</p>
             </div>
           </div>
 
@@ -830,7 +928,7 @@ export default function OntologyModelsList({
                   <Workflow className="h-4 w-4 text-sky-600" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-800 text-[11.5px]">ERP 数据资产模型 v1.1.0</h4>
+                  <h4 className="font-bold text-slate-800 text-[11.5px]">{isDKN ? 'DKN 客户核心模型 v1.0.0' : 'ERP 数据资产模型 v1.1.0'}</h4>
                   <p className="text-[9.5px] text-slate-400">待审核</p>
                 </div>
               </div>
@@ -838,9 +936,9 @@ export default function OntologyModelsList({
             </div>
             
             <div className="space-y-1 text-[10.5px] text-slate-500 font-medium">
-              <p>更新时间: 2026-06-11 09:42</p>
-              <p>更新人: 王五</p>
-              <p className="text-slate-400 italic">说明: 提交数据治理审查，对接财务指标治理约束模型。</p>
+              <p>更新时间: {isDKN ? '2026-06-12 09:30' : '2026-06-11 09:42'}</p>
+              <p>更新人: {isDKN ? '孙八' : '王五'}</p>
+              <p className="text-slate-400 italic">说明: {isDKN ? '提交对齐主数据一致性审查，规范 ID 映射网络规范。' : '提交数据治理审查，对接财务指标治理约束模型。'}</p>
             </div>
           </div>
 
