@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { 
+import {
   X, HelpCircle, CheckCircle2, Info, ArrowRight, Settings, ChevronDown, Check, Code, Play
 } from 'lucide-react';
+import {Drawer, DrawerContent} from './ui/Drawer';
 
 interface CreateFunctionBindingDrawerProps {
+  open: boolean;
   onClose: () => void;
   onSave?: () => void;
   selectedObject: string;
 }
 
-export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedObject }: CreateFunctionBindingDrawerProps) {
+export default function CreateFunctionBindingDrawer({ open, onClose, onSave, selectedObject }: CreateFunctionBindingDrawerProps) {
   const [selectedFunction, setSelectedFunction] = useState('detectForeignKey()');
   const [testRun, setTestRun] = useState(false);
 
@@ -23,7 +25,8 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
   ];
   
   return (
-    <div className="fixed inset-y-0 right-0 w-[42%] min-w-[560px] bg-white shadow-2xl flex flex-col z-50 animate-in slide-in-from-right duration-300 border-l border-slate-200">
+    <Drawer open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DrawerContent maxWidth="max-w-none" className="w-[42%] min-w-[560px] border-l border-slate-200">
       
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 shrink-0">
@@ -54,7 +57,7 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
       <div className="flex-1 overflow-y-auto scrollbar-thin p-6 space-y-8 bg-white">
         
         {/* Info Banner */}
-        <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-3">
+        <div className="bg-amber-50/50 border border-amber-200 rounded-lg p-3.5 flex items-start gap-3">
            <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
            <div className="text-[13px] text-amber-800 leading-relaxed font-medium">
               Function 只负责计算、识别、判断，不应改变对象状态。
@@ -65,7 +68,7 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">1. 选择 Function</h3>
           
-          <div className="bg-slate-50/50 rounded-xl border border-slate-200 p-4">
+          <div className="bg-slate-50/50 rounded-lg border border-slate-200 p-4">
              <div className="relative mb-3">
                 <input 
                    type="text" 
@@ -119,7 +122,7 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">3. 输入输出配置</h3>
           
-          <div className="bg-slate-50/50 rounded-xl border border-slate-200 p-4 space-y-4">
+          <div className="bg-slate-50/50 rounded-lg border border-slate-200 p-4 space-y-4">
              <div>
                 <label className="text-[12px] font-bold text-slate-700 block mb-2">输入对象</label>
                 <div className="flex flex-wrap gap-2">
@@ -218,7 +221,7 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">6. 测试样例</h3>
           
-          <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="border border-slate-200 rounded-lg overflow-hidden shadow-sm">
              <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-[12px] font-mono text-slate-600">
                    <Code className="w-3.5 h-3.5" /> Field: <span className="text-slate-900 font-bold">erp_order_header.supplier_id</span>
@@ -248,7 +251,7 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">7. 影响分析</h3>
           
-          <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-4 shadow-sm">
+          <div className="bg-slate-50/50 border border-slate-200 rounded-lg p-4 shadow-sm">
              <div className="space-y-2.5">
                 <div className="flex items-start gap-2">
                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
@@ -287,7 +290,8 @@ export default function CreateFunctionBindingDrawer({ onClose, onSave, selectedO
           保存到变更集
         </button>
       </div>
-      
-    </div>
+
+      </DrawerContent>
+    </Drawer>
   );
 }

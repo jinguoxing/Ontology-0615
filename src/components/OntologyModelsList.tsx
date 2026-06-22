@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  Database, Search, Plus, Upload, History, Info, ChevronRight, 
-  ExternalLink, Code, Workflow, BarChart2, CheckCircle, 
-  AlertTriangle, Filter, RefreshCw, XCircle, FileText, Settings, User, Eye, Sparkles, Cpu
+import {
+  Database, Search, Plus, Upload, History, Info, ChevronRight, ChevronDown,
+  Code, Workflow, BarChart2, CheckCircle,
+  AlertTriangle, Filter, RefreshCw, XCircle, FileText, Settings, User, Eye, Sparkles, Cpu,
+  PanelRightOpen, PanelRightClose, Share2, Zap
 } from 'lucide-react';
+import {useUiStore} from '../store/uiStore';
 
 interface ModelItem {
   id: string;
@@ -26,21 +28,21 @@ interface ModelItem {
 }
 
 interface OntologyModelsListProps {
-  onNavigate: (view: string, targetId?: string) => void;
-  onCreateChangeSet: () => void;
-  onRunValidation: () => void;
-  isLocked: boolean;
+  /** Model family rendered by this list instance. Defaults to DRKN. */
   modelType?: 'DRKN' | 'DKN';
 }
 
-export default function OntologyModelsList({
-  onNavigate,
-  onCreateChangeSet,
-  onRunValidation,
-  isLocked,
-  modelType = 'DRKN'
-}: OntologyModelsListProps) {
+export default function OntologyModelsList({modelType = 'DRKN'}: OntologyModelsListProps = {}) {
+  const navigate = useUiStore((s) => s.navigate);
+  const isLocked = useUiStore((s) => s.isLocked);
+  const setCreateDrawerOpen = useUiStore((s) => s.setCreateDrawerOpen);
+
   const isDKN = modelType === 'DKN';
+
+  const onCreateChangeSet = () => setCreateDrawerOpen(true);
+  const onRunValidation = () => {
+    alert("🔍 开始扫描逻辑一致性... \n一式 10 个 Object Type, 8 个 Link Type, 8 个绑定能力全链节点扫描完成！状态完美正常，检验无破坏。");
+  };
 
   const dknModels: ModelItem[] = [
     {
@@ -228,12 +230,16 @@ export default function OntologyModelsList({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
+  // 搜索栏默认收起，点击展开
+  const [searchExpanded, setSearchExpanded] = useState<boolean>(false);
+  // 右侧详情预览面板默认收起，点击展开
+  const [detailOpen, setDetailOpen] = useState<boolean>(false);
 
   const selectedModel = models.find(m => m.id === selectedModelId) || models[0];
 
   // Handlers
   const handleAddNewModel = () => {
-    onNavigate('create_model');
+    navigate('create_model');
   };
 
   const handleImportModel = () => {
@@ -251,13 +257,45 @@ export default function OntologyModelsList({
 
   // Filtered List
   const filteredModels = models.filter(m => {
-    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           m.owner.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
     const matchesOwner = ownerFilter === 'all' || m.owner === ownerFilter;
     return matchesSearch && matchesStatus && matchesOwner;
   });
+
+  // Per-status counts for the status filter tabs (always computed against the
+  // full list, ignoring the active status filter so the counts stay stable as
+  // the user switches tabs). Search / owner filters ARE respected so the counts
+  // reflect what's visible given the current search context.
+  const statusTabs = [
+    { id: 'all', label: '全部' },
+    { id: 'published', label: '已发布' },
+    { id: 'editing', label: '编辑中' },
+    { id: 'approved', label: '待审核' },
+    { id: 'failed', label: '发布失败' },
+    { id: 'archived', label: '已归档' }
+  ];
+  const statusCounts = statusTabs.reduce<Record<string, number>>((acc, tab) => {
+    const base = models.filter(m =>
+      (m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.owner.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (ownerFilter === 'all' || m.owner === ownerFilter)
+    );
+    acc[tab.id] = tab.id === 'all' ? base.length : base.filter(m => m.status === tab.id).length;
+    return acc;
+  }, {});
+
+  // Whether any filter is currently active (used to show the reset affordance)
+  const hasActiveFilters = searchQuery.trim() !== '' || statusFilter !== 'all' || ownerFilter !== 'all';
+  // 已应用筛选条件的数量（用于收起态的摘要徽章）
+  const activeFilterCount = [
+    searchQuery.trim() !== '',
+    statusFilter !== 'all',
+    ownerFilter !== 'all'
+  ].filter(Boolean).length;
 
   return (
     <div className="space-y-6 font-sans text-slate-800" id="ontology-models-list-view">
@@ -305,7 +343,7 @@ export default function OntologyModelsList({
           </button>
 
           <button 
-            onClick={() => onNavigate('change_release')}
+            onClick={() => navigate('change_release')}
             className="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg shadow-xs text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all"
           >
             <History className="h-4 w-4 text-slate-500" />
@@ -314,134 +352,133 @@ export default function OntologyModelsList({
         </div>
       </div>
 
-      {/* 2. 背景设置栏（模型域、场景、状态概览 selectors） */}
-      <div className="flex flex-wrap items-center gap-3 bg-white border border-slate-200/60 rounded-xl p-3.5 shadow-xs">
-        {/* Selector 1 */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-400 font-medium">模型域</span>
-          <div className="bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-1 px-3 flex items-center gap-1.5 font-semibold text-slate-700 cursor-pointer">
-            <span className="bg-blue-500 w-1.5 h-1.5 rounded-full"></span>
-            {isDKN ? 'DKN 标准主数据图谱' : 'DRKN 数据语义治理'}
-            <span className="text-[10px] text-slate-400">▾</span>
+      {/* 2. 顶部多条件高级搜索过滤区（默认收起，点击展开） */}
+      <div className="bg-white border border-slate-200 rounded-md shadow-xs overflow-hidden">
+        {/* 触发条：始终显示，点击展开/收起 */}
+        <button
+          onClick={() => setSearchExpanded(v => !v)}
+          className="w-full flex items-center justify-between gap-3 px-4 py-3 cursor-pointer transition-colors hover:bg-slate-50/70"
+        >
+          <div className="flex items-center gap-2.5 text-xs">
+            <Filter className={`h-4 w-4 ${hasActiveFilters ? 'text-blue-500' : 'text-slate-400'}`} />
+            <span className="font-bold text-slate-700">高级筛选</span>
+            {/* 当前筛选摘要 */}
+            {hasActiveFilters ? (
+              <span className="flex items-center gap-1.5 text-slate-500">
+                <span className="h-3 w-px bg-slate-200" />
+                <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold leading-none">
+                  {activeFilterCount}
+                </span>
+                <span className="text-slate-400">个条件已应用</span>
+              </span>
+            ) : (
+              <span className="text-slate-400">未设置筛选条件</span>
+            )}
           </div>
-        </div>
+          <span className={`flex items-center gap-1 text-[11px] font-semibold ${hasActiveFilters ? 'text-blue-600' : 'text-slate-400'}`}>
+            {searchExpanded ? '收起' : '展开'}
+            <ChevronDown className={`h-4 w-4 transition-transform ${searchExpanded ? 'rotate-180' : ''}`} />
+          </span>
+        </button>
 
-        {/* Separator */}
-        <div className="h-4 w-px bg-slate-200 hidden md:block"></div>
-
-        {/* Selector 2 */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-400 font-medium">场景</span>
-          <div className="bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-1 px-3 flex items-center gap-1.5 font-semibold text-slate-700 cursor-pointer">
-            默认数据治理模型
-            <span className="text-[10px] text-slate-400">▾</span>
-          </div>
-        </div>
-
-        {/* Separator */}
-        <div className="h-4 w-px bg-slate-200 hidden md:block"></div>
-
-        {/* Selector 3 */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-400 font-medium">版本维度</span>
-          <div className="bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-1 px-3 flex items-center gap-1.5 font-semibold text-slate-700 cursor-pointer">
-            全部版本
-            <span className="text-[10px] text-slate-400">▾</span>
-          </div>
-        </div>
-
-        {/* Separator */}
-        <div className="h-4 w-px bg-slate-200 hidden md:block"></div>
-
-        {/* Selector 4 */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-slate-400 font-medium">状态概览</span>
-          <div className="bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg py-1 px-3 flex items-center gap-1.5 font-semibold text-slate-700 cursor-pointer">
-            模型资产列表
-            <span className="text-[10px] text-slate-400">▾</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. 顶部多条件高级搜索过滤区 */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-          
-          {/* Main search and filters */}
-          <div className="flex flex-wrap items-center gap-3 flex-1">
-            {/* Search Box */}
-            <div className="relative max-w-sm w-full">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="搜索模型名称 / Owner"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 focus:bg-white text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 transition-all text-slate-800 font-medium"
-              />
-            </div>
-
-            {/* Status tabs filter */}
-            <div className="flex items-center gap-1.5 text-xs bg-slate-100 p-1 rounded-lg">
-              <span className="text-[10px] text-slate-400 font-bold px-2 uppercase">状态筛选</span>
-              {[
-                { id: 'all', label: '全部' },
-                { id: 'published', label: '已发布' },
-                { id: 'editing', label: '编辑中' },
-                { id: 'approved', label: '待审核' },
-                { id: 'failed', label: '发布失败' },
-                { id: 'archived', label: '已归档' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setStatusFilter(tab.id)}
-                  className={`px-2.5 py-1 text-xs rounded-md transition-all font-semibold cursor-pointer ${
-                    statusFilter === tab.id
-                      ? 'bg-white text-blue-600 shadow-sm font-bold'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Owner filter select */}
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-slate-400">Owner</span>
-              <select
-                value={ownerFilter}
-                onChange={(e) => setOwnerFilter(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 focus:outline-none focus:border-blue-500 font-medium text-xs text-slate-700 cursor-pointer"
-              >
-                <option value="all">全部</option>
-                <option value="数据治理团队">数据治理团队</option>
-                <option value="CRM 治理小组">CRM 治理小组</option>
-                <option value="ERP 数据团队">ERP 数据团队</option>
-                <option value="DQ 小组">DQ 小组</option>
-              </select>
-            </div>
-
-            {/* Date Picker Placeholder */}
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
-              <span>更新时间</span>
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-[11px] font-medium text-slate-500 cursor-pointer flex items-center gap-1.5">
-                <span>开始日期 ~ 结束日期</span>
-                <span className="text-slate-350">📅</span>
+        {/* 展开内容 */}
+        <div
+          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+            searchExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="border-t border-slate-100 p-4 space-y-3.5">
+            {/* 第一行：主搜索框（突出）+ Owner 筛选 + 重置 */}
+            <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+              {/* 主搜索框 —— 视觉更突出，含实时结果计数与清空按钮 */}
+              <div className="relative flex-1 max-w-xl">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="搜索模型名称、说明或 Owner…"
+                  className="w-full h-10 pl-10 pr-24 bg-slate-50/80 focus:bg-white text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 font-medium placeholder:text-slate-400"
+                />
+                {/* 实时结果计数 */}
+                {searchQuery.trim() !== '' && (
+                  <span className="absolute right-10 top-1/2 -translate-y-1/2 text-[10.5px] text-slate-400 font-medium select-none whitespace-nowrap">
+                    {filteredModels.length} 个结果
+                  </span>
+                )}
+                {/* 清空按钮 —— 仅在有输入时出现 */}
+                {searchQuery.trim() !== '' && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    aria-label="清空搜索"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center rounded-full bg-slate-200 hover:bg-slate-300 text-slate-500 hover:text-slate-700 cursor-pointer transition-colors"
+                  >
+                    <XCircle className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
+
+              {/* Owner 筛选 */}
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-slate-400 font-medium shrink-0">Owner</span>
+                <select
+                  value={ownerFilter}
+                  onChange={(e) => setOwnerFilter(e.target.value)}
+                  className="h-9 bg-slate-50 border border-slate-200 rounded-lg py-0 px-3 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium text-xs text-slate-700 cursor-pointer transition-all"
+                >
+                  <option value="all">全部 Owner</option>
+                  <option value="数据治理团队">数据治理团队</option>
+                  <option value="CRM 治理小组">CRM 治理小组</option>
+                  <option value="ERP 数据团队">ERP 数据团队</option>
+                  <option value="DQ 小组">DQ 小组</option>
+                </select>
+              </div>
+
+              {/* 重置筛选 —— 仅在有任意筛选激活时高亮提示 */}
+              <button
+                onClick={handleResetFilters}
+                className={`h-9 px-3.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shrink-0 ${
+                  hasActiveFilters
+                    ? 'bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-600'
+                    : 'bg-white hover:bg-slate-50 border border-slate-200 text-slate-500'
+                }`}
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${hasActiveFilters ? 'text-blue-500' : 'text-slate-400'}`} />
+                重置筛选
+              </button>
             </div>
 
+            {/* 第二行：状态筛选分段控件（带每状态计数徽章） */}
+            <div className="flex items-center gap-1 text-xs bg-slate-100/70 p-1 rounded-lg w-fit max-w-full overflow-x-auto">
+              <span className="text-[10px] text-slate-400 font-bold px-2 uppercase shrink-0">状态</span>
+              {statusTabs.map((tab) => {
+                const count = statusCounts[tab.id] ?? 0;
+                const isActive = statusFilter === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setStatusFilter(tab.id)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-md transition-all font-semibold cursor-pointer shrink-0 ${
+                      isActive
+                        ? 'bg-white text-blue-600 shadow-sm font-bold'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    {tab.label}
+                    <span className={`inline-flex items-center justify-center min-w-[18px] h-[16px] px-1 rounded-full text-[10px] font-bold leading-none ${
+                      isActive
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'bg-slate-200 text-slate-500'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            </div>
           </div>
-
-          {/* Reset Filter Button */}
-          <button 
-            onClick={handleResetFilters}
-            className="px-3.5 py-2 hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg shadow-xs text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors"
-          >
-            <RefreshCw className="h-3.5 w-3.5 text-slate-400" />
-            重置筛选
-          </button>
-
         </div>
       </div>
 
@@ -449,7 +486,7 @@ export default function OntologyModelsList({
       <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
         
         {/* Model Count */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-md p-4 shadow-xs flex items-center gap-3">
           <div className="bg-blue-50 text-blue-600 p-2.5 rounded-lg shrink-0">
             <Database className="h-5 w-5" />
           </div>
@@ -460,7 +497,7 @@ export default function OntologyModelsList({
         </div>
 
         {/* Published */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-md p-4 shadow-xs flex items-center gap-3">
           <div className="bg-emerald-50 text-emerald-600 p-2.5 rounded-lg shrink-0">
             <CheckCircle className="h-5 w-5" />
           </div>
@@ -471,7 +508,7 @@ export default function OntologyModelsList({
         </div>
 
         {/* Editing */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-md p-4 shadow-xs flex items-center gap-3">
           <div className="bg-amber-50 text-amber-600 p-2.5 rounded-lg shrink-0">
             <Settings className="h-5 w-5 animate-spin-slow" />
           </div>
@@ -482,7 +519,7 @@ export default function OntologyModelsList({
         </div>
 
         {/* Pending Review */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-md p-4 shadow-xs flex items-center gap-3">
           <div className="bg-violet-50 text-violet-600 p-2.5 rounded-lg shrink-0">
             <History className="h-5 w-5" />
           </div>
@@ -493,7 +530,7 @@ export default function OntologyModelsList({
         </div>
 
         {/* Warnings */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-md p-4 shadow-xs flex items-center gap-3">
           <div className="bg-rose-50 text-rose-500 p-2.5 rounded-lg shrink-0">
             <AlertTriangle className="h-5 w-5 animate-pulse" />
           </div>
@@ -504,7 +541,7 @@ export default function OntologyModelsList({
         </div>
 
         {/* AI Scenes */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center gap-3">
+        <div className="bg-white border border-slate-200 rounded-md p-4 shadow-xs flex items-center gap-3">
           <div className="bg-sky-50 text-sky-600 p-2.5 rounded-lg shrink-0">
             <Cpu className="h-5 w-5" />
           </div>
@@ -517,202 +554,160 @@ export default function OntologyModelsList({
       </div>
 
       {/* 5. 中央分栏布局：列表表格 + 详情右侧侧边抽屉 */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        
-        {/* ================= LEFT MAIN TABLE (9 Cols Span) ================= */}
-        <div className="lg:col-span-9 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 flex flex-col justify-between overflow-x-auto">
+      <div className="flex flex-col lg:flex-row items-stretch">
+
+        {/* ================= LEFT MAIN TABLE ================= */}
+        <div className="flex-1 bg-white border border-slate-200 rounded-md p-5 shadow-sm space-y-4 flex flex-col justify-between overflow-x-auto min-w-0 transition-all duration-500 ease-in-out">
           <div>
             <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
               <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
                 模型资产概览
                 <span className="text-xs text-slate-400 font-normal">({filteredModels.length} 个匹配)</span>
               </h3>
+              {/* 展开/收起右侧详情预览 */}
+              <button
+                onClick={() => setDetailOpen(v => !v)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold cursor-pointer transition-all border ${
+                  detailOpen
+                    ? 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600'
+                    : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-500'
+                }`}
+              >
+                {detailOpen ? <PanelRightClose className="h-3.5 w-3.5" /> : <PanelRightOpen className="h-3.5 w-3.5" />}
+                {detailOpen ? '收起详情' : '展开详情'}
+              </button>
             </div>
 
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50/80 text-slate-450 text-slate-500 uppercase tracking-wider border-b border-slate-200 font-bold">
-                  <th className="py-3 px-3">模型名称</th>
-                  <th className="py-3 px-3">模型说明</th>
-                  <th className="py-3 px-2 text-center">当前版本</th>
-                  <th className="py-3 px-2 text-center">状态</th>
-                  <th className="py-3 px-1 text-center font-mono">Obj</th>
-                  <th className="py-3 px-1 text-center font-mono">Link</th>
-                  <th className="py-3 px-1 text-center font-mono">Func</th>
-                  <th className="py-3 px-1 text-center font-mono">Act</th>
-                  <th className="py-3 px-1 text-center font-mono">Wf</th>
-                  <th className="py-3 px-3">校验状态</th>
-                  <th className="py-3 px-3">下游使用</th>
-                  <th className="py-3 px-3">Owner</th>
-                  <th className="py-3 px-3 text-right">更新时间</th>
-                  <th className="py-3 px-3 text-right">操作</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredModels.map((item) => {
-                  const isCurSelected = item.id === selectedModelId;
-                  return (
-                    <tr 
-                      key={item.id}
-                      onClick={() => setSelectedModelId(item.id)}
-                      className={`hover:bg-slate-50/75 transition-all cursor-pointer ${
-                        isCurSelected 
-                          ? 'bg-blue-50/40 border-l-4 border-l-blue-600 font-medium' 
-                          : 'border-l-4 border-l-transparent'
-                      }`}
-                    >
-                      {/* Name */}
-                      <td className="py-3 px-3 font-bold text-blue-605 text-blue-600 font-sans max-w-[155px] truncate">
-                        {(item.id === 'drkn-core' || item.id === 'dkn-global-core') ? (
-                          <span className="flex items-center gap-1.5">
-                            <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
-                            {item.id.toUpperCase()}
-                          </span>
-                        ) : item.id.toUpperCase()}
-                      </td>
+            <div className="flex flex-col gap-3">
+              {filteredModels.map((item) => {
+                const isCurSelected = item.id === selectedModelId;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      setSelectedModelId(item.id);
+                      setDetailOpen(true);
+                    }}
+                    className={`group relative flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-4 rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden ${
+                      isCurSelected
+                        ? 'bg-blue-50/40 border-blue-200 shadow-[0_2px_12px_-4px_rgba(37,99,235,0.15)] z-10'
+                        : 'bg-white hover:bg-slate-50/80 border-slate-200 hover:border-slate-300 z-0'
+                    }`}
+                  >
+                    {/* Animated left indicator */}
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 transition-colors duration-300 ${isCurSelected ? 'bg-blue-600' : 'bg-transparent group-hover:bg-slate-200'}`} />
 
-                      {/* Desc */}
-                      <td className="py-3 px-3 text-slate-500 max-w-[160px] truncate" title={item.description}>
-                        {item.description}
-                      </td>
-
-                      {/* Version */}
-                      <td className="py-3 px-2 text-center font-mono font-medium text-slate-600">
-                        {item.version}
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3 px-2 text-center">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                          item.status === 'published' 
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' 
-                            : item.status === 'editing'
-                            ? 'bg-amber-50 text-amber-700 border border-amber-100'
-                            : item.status === 'approved'
-                            ? 'bg-amber-50 text-blue-700 bg-sky-50 border border-sky-100'
-                            : item.status === 'failed'
-                            ? 'bg-rose-50 text-rose-700 border border-rose-100'
-                            : 'bg-slate-100 text-slate-600 border border-slate-200'
+                    {/* Left: Main Identity */}
+                    <div className="flex flex-col gap-1.5 min-w-[240px] max-w-[280px] pl-2 transition-transform duration-300 group-hover:translate-x-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-extrabold text-blue-600 text-sm truncate">
+                          {(item.id === 'drkn-core' || item.id === 'dkn-global-core') ? (
+                            <span className="flex items-center gap-1.5">
+                              <span className="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                              {item.id.toUpperCase()}
+                            </span>
+                          ) : item.id.toUpperCase()}
+                        </h4>
+                        <span className="font-mono text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-md font-medium border border-slate-200">{item.version}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 truncate" title={item.description}>{item.description}</p>
+                      <div className="mt-0.5">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          item.status === 'published' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' :
+                          item.status === 'editing' ? 'bg-amber-50 text-amber-700 border border-amber-100' :
+                          item.status === 'approved' ? 'bg-sky-50 text-sky-700 border border-sky-100' :
+                          item.status === 'failed' ? 'bg-rose-50 text-rose-700 border border-rose-100' :
+                          'bg-slate-100 text-slate-600 border border-slate-200'
                         }`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${
-                            item.status === 'published' 
-                              ? 'bg-emerald-500' 
-                              : item.status === 'editing' 
-                              ? 'bg-amber-500' 
-                              : item.status === 'approved' 
-                              ? 'bg-sky-500' 
-                              : item.status === 'failed' 
-                              ? 'bg-rose-500' 
-                              : 'bg-slate-400'
+                            item.status === 'published' ? 'bg-emerald-500' :
+                            item.status === 'editing' ? 'bg-amber-500' :
+                            item.status === 'approved' ? 'bg-sky-500' :
+                            item.status === 'failed' ? 'bg-rose-500' : 'bg-slate-400'
                           }`}></span>
                           {item.statusLabel}
                         </span>
-                      </td>
+                      </div>
+                    </div>
 
-                      {/* Counts */}
-                      <td className="py-3 px-1 text-center font-mono text-slate-800">{item.objectTypeCount}</td>
-                      <td className="py-3 px-1 text-center font-mono text-slate-800">{item.linkTypeCount}</td>
-                      <td className="py-3 px-1 text-center font-mono text-slate-800">{item.functionCount}</td>
-                      <td className="py-3 px-1 text-center font-mono text-slate-800">{item.actionCount}</td>
-                      <td className="py-3 px-1 text-center font-mono text-slate-800">{item.workflowCount}</td>
+                    {/* Middle: Metrics Pills */}
+                    <div className="flex-1 flex flex-col justify-center min-w-[200px]">
+                      <div className="bg-slate-50/80 border border-slate-100 rounded-lg p-2 flex items-center gap-3 w-fit text-[11px] font-mono font-medium text-slate-700">
+                        <div className="flex items-center gap-1.5" title="Object Types">
+                          <Database className="h-3 w-3 text-slate-400" />
+                          <span>{item.objectTypeCount}</span>
+                        </div>
+                        <div className="w-px h-3 bg-slate-200" />
+                        <div className="flex items-center gap-1.5" title="Link Types">
+                          <Share2 className="h-3 w-3 text-slate-400" />
+                          <span>{item.linkTypeCount}</span>
+                        </div>
+                        <div className="w-px h-3 bg-slate-200" />
+                        <div className="flex items-center gap-1.5" title="Functions">
+                          <Code className="h-3 w-3 text-slate-400" />
+                          <span>{item.functionCount}</span>
+                        </div>
+                        <div className="w-px h-3 bg-slate-200" />
+                        <div className="flex items-center gap-1.5" title="Actions">
+                          <Zap className="h-3 w-3 text-slate-400" />
+                          <span>{item.actionCount}</span>
+                        </div>
+                        <div className="w-px h-3 bg-slate-200" />
+                        <div className="flex items-center gap-1.5" title="Workflows">
+                          <Workflow className="h-3 w-3 text-slate-400" />
+                          <span>{item.workflowCount}</span>
+                        </div>
+                      </div>
+                    </div>
 
-                      {/* Validation */}
-                      <td className="py-3 px-3">
-                        <div 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onNavigate('change_release');
-                          }}
-                          className={`inline-flex items-center gap-1 text-[10.5px] hover:underline ${
-                            item.errors > 0 ? 'text-rose-600' : 'text-slate-600'
-                          }`}
+                    {/* Middle-Right: Health & Usage */}
+                    <div className="flex flex-col justify-center gap-2 min-w-[140px] text-[11px]">
+                      <div 
+                        onClick={(e) => { e.stopPropagation(); navigate('change_release'); }}
+                        className={`flex items-center gap-1.5 w-fit hover:underline ${item.errors > 0 ? 'text-rose-600' : item.warnings > 0 ? 'text-amber-600' : 'text-emerald-600'}`}
+                      >
+                        {item.errors > 0 ? <XCircle className="h-3.5 w-3.5 animate-pulse" /> : item.warnings > 0 ? <AlertTriangle className="h-3.5 w-3.5" /> : <CheckCircle className="h-3.5 w-3.5" />}
+                        <span className="font-semibold">{item.errors} 错 / {item.warnings} 警</span>
+                      </div>
+                      <div 
+                        onClick={(e) => { e.stopPropagation(); navigate('change_release'); }}
+                        className="flex items-center gap-1.5 w-fit text-slate-500 hover:text-blue-600 hover:underline"
+                      >
+                        <Cpu className="h-3.5 w-3.5" />
+                        <span className="font-semibold">{item.aiScenes} AI / {item.networkViews} 视图</span>
+                      </div>
+                    </div>
+
+                    {/* Right: Meta & Actions */}
+                    <div className="flex flex-col xl:items-end justify-between gap-2.5 min-w-[150px] transition-transform duration-300 group-hover:-translate-x-1">
+                      <div className="flex items-center xl:flex-col xl:items-end gap-2 xl:gap-0">
+                        <span className="text-[11px] text-slate-500 flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          {item.owner}
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono xl:mt-0.5">{item.lastUpdated}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 mt-auto">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate(isDKN ? 'dkn_overview' : 'overview'); }}
+                          className="px-2.5 py-1 bg-blue-50 hover:bg-blue-600 text-blue-600 hover:text-white border border-blue-100 hover:border-blue-600 rounded-md text-[10.5px] font-bold transition-colors"
                         >
-                          {item.errors > 0 ? (
-                            <XCircle className="h-3.5 w-3.5 text-rose-500 animate-pulse" />
-                          ) : item.warnings > 0 ? (
-                            <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-                          ) : (
-                            <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
-                          )}
-                          <span className="font-semibold">
-                            {item.errors} 错误 / {item.warnings} 警告
-                          </span>
-                          <span className="text-slate-350 select-none">❯</span>
-                        </div>
-                      </td>
-
-                      {/* Downstream */}
-                      <td className="py-3 px-3">
-                        <div 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onNavigate('change_release');
-                          }}
-                          className="text-[10.5px] text-slate-600 hover:text-blue-600 hover:underline font-semibold flex items-center gap-0.5"
+                          查看详情
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onCreateChangeSet(); navigate('change_release'); }}
+                          className="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 rounded-md text-[10.5px] font-semibold transition-colors"
                         >
-                          <span>{item.aiScenes} AI / {item.networkViews} 视图</span>
-                          <span className="text-slate-305 text-slate-350">❯</span>
-                        </div>
-                      </td>
+                          发布记录
+                        </button>
+                      </div>
+                    </div>
 
-                      {/* Owner */}
-                      <td className="py-3 px-3 text-slate-600 text-[11px]">
-                        {item.owner}
-                      </td>
-
-                      {/* Last Updated */}
-                      <td className="py-3 px-3 text-slate-400 font-mono text-[10.5px] text-right">
-                        {item.lastUpdated}
-                      </td>
-
-                      {/* Row Actions */}
-                      <td className="py-3 px-3 text-right space-y-1 block md:table-cell">
-                        <div className="flex flex-col md:flex-row items-end md:items-center justify-end gap-1.5">
-                          {/* action 1: details */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (isDKN) {
-                                onNavigate('dkn_overview', item.id);
-                              } else {
-                                onNavigate('overview', item.id);
-                              }
-                            }}
-                            className="text-[10.5px] font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                          >
-                            查看详情
-                          </button>
-                          
-                          {/* action 2: changeset */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onCreateChangeSet();
-                              onNavigate('change_release');
-                            }}
-                            className="text-[10.5px] font-semibold text-slate-600 hover:text-slate-900 hover:underline cursor-pointer"
-                          >
-                            新建变更集
-                          </button>
-
-                          {/* action 3: release records */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onNavigate('change_release');
-                            }}
-                            className="text-[10.5px] text-slate-400 hover:text-slate-600 cursor-pointer text-right shrink-0"
-                          >
-                            发布记录
-                          </button>
-                        </div>
-                      </td>
-
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Table Bottom tips */}
@@ -723,21 +718,33 @@ export default function OntologyModelsList({
 
         </div>
 
-        {/* ================= RIGHT DETAIL DRAWER (3 Cols Span) ================= */}
-        <div className="lg:col-span-3 space-y-6">
-          
+        {/* ================= RIGHT DETAIL DRAWER（默认收起，点击展开） ================= */}
+        <div 
+          className={`flex-shrink-0 overflow-hidden transition-all duration-500 ease-in-out ${
+            detailOpen 
+              ? 'lg:w-[320px] xl:w-[360px] opacity-100 mt-6 lg:mt-0 lg:ml-6 h-auto' 
+              : 'w-0 opacity-0 h-0 m-0'
+          }`}
+        >
+          <div className="space-y-6 w-full lg:w-[320px] xl:w-[360px]">
+
           {/* Main Card */}
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-5 flex flex-col justify-between min-h-[500px]">
+          <div className="bg-white border border-slate-200 rounded-md p-5 shadow-sm space-y-5 flex flex-col justify-between min-h-[500px]">
             <div className="space-y-4">
-              
+
               {/* Header */}
               <div className="flex items-center justify-between border-b border-slate-50 pb-2">
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                   模型展示预览
                 </h3>
-                <span className="text-slate-300 hover:text-slate-500 cursor-pointer">
-                  <ExternalLink className="h-4 w-4" />
-                </span>
+                <button
+                  onClick={() => setDetailOpen(false)}
+                  aria-label="收起详情"
+                  title="收起详情"
+                  className="text-slate-300 hover:text-slate-500 cursor-pointer flex items-center gap-1 text-[11px] font-semibold"
+                >
+                  <PanelRightClose className="h-4 w-4" />
+                </button>
               </div>
 
               {/* Selected Name Block */}
@@ -758,7 +765,7 @@ export default function OntologyModelsList({
                 </div>
 
                 {/* Scope Measures list */}
-                <div className="bg-slate-50/70 border border-slate-100 rounded-xl p-3 space-y-2 text-xs">
+                <div className="bg-slate-50/70 border border-slate-100 rounded-md p-3 space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="text-slate-400 text-[10.5px]">当前版本</span>
                     <span className="font-bold font-mono text-slate-800">{selectedModel.version}</span>
@@ -798,7 +805,7 @@ export default function OntologyModelsList({
               <div className="space-y-2 pt-2 border-t border-slate-100">
                 {/* 1. View Detail */}
                 <button 
-                  onClick={() => onNavigate('overview')}
+                  onClick={() => navigate(isDKN ? 'dkn_overview' : 'overview')}
                   className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:-translate-y-0.5"
                 >
                   <Eye className="h-3.5 w-3.5" />
@@ -809,7 +816,7 @@ export default function OntologyModelsList({
                 <button 
                   onClick={() => {
                     onCreateChangeSet();
-                    onNavigate('change_release');
+                    navigate('change_release');
                   }}
                   className="w-full py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 rounded-lg shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                 >
@@ -819,7 +826,7 @@ export default function OntologyModelsList({
 
                 {/* 3. Impact analysis */}
                 <button 
-                  onClick={() => onNavigate('change_release')}
+                  onClick={() => navigate('change_release')}
                   className="w-full py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 rounded-lg shadow-xs text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all"
                 >
                   <BarChart2 className="h-3.5 w-3.5 text-purple-500" />
@@ -830,7 +837,7 @@ export default function OntologyModelsList({
             </div>
 
             {/* Health Score Card */}
-            <div className="bg-slate-50/80 border border-slate-150 rounded-xl p-3.5 mt-2 space-y-2.5">
+            <div className="bg-slate-50/80 border border-slate-200 rounded-md p-3.5 mt-2 space-y-2.5">
               <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">健康度明细指标</h4>
               
               <div className="grid grid-cols-4 gap-1.5 text-center">
@@ -855,18 +862,19 @@ export default function OntologyModelsList({
 
           </div>
 
+          </div>
         </div>
 
       </div>
 
       {/* 6. 底部面板：最近发布记录（时间线形式） */}
-      <div className="bg-white border border-slate-205 border-slate-200/95 rounded-2xl p-5 shadow-sm space-y-4">
+      <div className="bg-white border border-slate-205 border-slate-200/95 rounded-md p-5 shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
             最近发布记录
           </h3>
           <button 
-            onClick={() => onNavigate('change_release')}
+            onClick={() => navigate('change_release')}
             className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-0.5 cursor-pointer"
           >
             查看全部发布记录
@@ -877,7 +885,7 @@ export default function OntologyModelsList({
         {/* 3 Horizontal Logs Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-normal">
           {/* Card 1 */}
-          <div className="bg-slate-50/50 border border-slate-150 rounded-xl p-4 space-y-2">
+          <div className="bg-slate-50/50 border border-slate-200 rounded-md p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-blue-50 text-blue-650 rounded-lg">
@@ -899,7 +907,7 @@ export default function OntologyModelsList({
           </div>
 
           {/* Card 2 */}
-          <div className="bg-slate-50/50 border border-slate-150 rounded-xl p-4 space-y-2">
+          <div className="bg-slate-50/50 border border-slate-200 rounded-md p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-amber-50 text-amber-650 rounded-lg">
@@ -921,7 +929,7 @@ export default function OntologyModelsList({
           </div>
 
           {/* Card 3 */}
-          <div className="bg-slate-50/50 border border-slate-150 rounded-xl p-4 space-y-2">
+          <div className="bg-slate-50/50 border border-slate-200 rounded-md p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="p-1.5 bg-sky-50 text-sky-650 rounded-lg">

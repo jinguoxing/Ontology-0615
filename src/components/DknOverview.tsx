@@ -344,7 +344,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
             
             <div className="grid grid-cols-2 gap-1.5">
               <button 
-                onClick={() => onNavigate('object_model')}
+                onClick={() => onNavigate('dkn_object_model')}
                 className="p-2 border border-slate-150 hover:bg-blue-50/50 hover:border-blue-300 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer transition-all"
               >
                 <Database className="w-4 h-4 text-blue-500 mb-1" />
@@ -392,7 +392,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                     key={tab}
                     onClick={() => {
                       setActiveSubTab(tab);
-                      if (tab === '对象模型') onNavigate('object_model');
+                      if (tab === '对象模型') onNavigate('dkn_object_model');
                       else if (tab === '关系模型') onNavigate('relation_model');
                       else if (tab === '函数') onNavigate('capability_binding');
                       else if (tab === '动作') onNavigate('action_model');
@@ -493,7 +493,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                     <h3 className="font-extrabold text-slate-850 text-xs">对象模型总览</h3>
                   </div>
                   <button 
-                    onClick={() => onNavigate('object_model')}
+                    onClick={() => onNavigate('dkn_object_model')}
                     className="text-[10px] font-black text-blue-600 hover:text-blue-800 flex items-center gap-0.5 cursor-pointer"
                   >
                     进入对象模型 <ArrowRight className="w-2.5 h-2.5" />
@@ -515,7 +515,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                       {objectTypes.map((obj, i) => (
                         <tr 
                           key={obj.name}
-                          onClick={() => onNavigate('object_model', obj.name)}
+                          onClick={() => onNavigate('dkn_object_model', obj.name)}
                           className="hover:bg-slate-50/40 transition-colors cursor-pointer group"
                         >
                           <td className="py-2 px-3 font-semibold text-slate-700 flex items-center gap-1.5 max-w-[130px] truncate">
@@ -601,7 +601,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 {/* Nodes rendering with precise absolute positioning */}
                 {/* TOP ROW: DataSource -> Dataset -> Field -> DataQuality */}
                 <div 
-                  onClick={() => onNavigate('object_model', 'DataSource')}
+                  onClick={() => onNavigate('dkn_object_model', 'DataSource')}
                   className="absolute top-6 left-4 bg-white border border-slate-200 hover:border-blue-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-blue-50 rounded text-blue-600 mb-1">
@@ -611,7 +611,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 </div>
 
                 <div 
-                  onClick={() => onNavigate('object_model', 'Dataset')}
+                  onClick={() => onNavigate('dkn_object_model', 'Dataset')}
                   className="absolute top-6 left-32 bg-white border border-slate-200 hover:border-emerald-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-emerald-50 rounded text-emerald-600 mb-1 col-span-12">
@@ -621,7 +621,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 </div>
 
                 <div 
-                  onClick={() => onNavigate('object_model', 'Field')}
+                  onClick={() => onNavigate('dkn_object_model', 'Field')}
                   className="absolute top-6 left-60 bg-white border-2 border-blue-600 rounded-lg p-2 flex flex-col items-center w-20 shadow-3xs cursor-pointer hover:shadow-2xs transition-all ring-4 ring-blue-50"
                 >
                   <span className="p-1.5 bg-blue-50 rounded text-blue-600 mb-1">
@@ -631,7 +631,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 </div>
 
                 <div 
-                  onClick={() => onNavigate('object_model', 'DataQuality')}
+                  onClick={() => onNavigate('dkn_object_model', 'DataQuality')}
                   className="absolute top-6 left-84 bg-white border border-slate-200 hover:border-amber-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-amber-50 rounded text-amber-600 mb-1">
@@ -642,7 +642,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
 
                 {/* BOTTOM ROW: Rule & Mapping & Evidence */}
                 <div 
-                  onClick={() => onNavigate('object_model', 'Rule')}
+                  onClick={() => onNavigate('dkn_object_model', 'Rule')}
                   className="absolute bottom-6 left-32 bg-white border border-slate-200 hover:border-purple-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-purple-50 rounded text-purple-600 mb-1">
@@ -652,7 +652,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 </div>
 
                 <div 
-                  onClick={() => onNavigate('object_model', 'Mapping')}
+                  onClick={() => onNavigate('dkn_object_model', 'Mapping')}
                   className="absolute bottom-6 left-60 bg-white border-2 border-emerald-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-3xs cursor-pointer hover:shadow-2xs transition-all ring-4 ring-emerald-50"
                 >
                   <span className="p-1.5 bg-emerald-50 rounded text-emerald-600 mb-1">
@@ -662,7 +662,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 </div>
 
                 <div 
-                  onClick={() => onNavigate('object_model', 'Evidence')}
+                  onClick={() => onNavigate('dkn_object_model', 'Evidence')}
                   className="absolute bottom-6 left-84 bg-white border border-slate-200 hover:border-amber-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-amber-50 rounded text-amber-600 mb-1">

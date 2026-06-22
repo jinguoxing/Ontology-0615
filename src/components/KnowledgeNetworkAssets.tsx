@@ -101,7 +101,7 @@ export default function KnowledgeNetworkAssets({ onNavigate }: KnowledgeNetworkA
             </p>
           </div>
 
-          <div className="flex bg-slate-150/80 p-0.5 rounded-lg border border-slate-200">
+          <div className="flex bg-slate-200/80 p-0.5 rounded-lg border border-slate-200">
             <button 
               onClick={() => setActiveFilter('all')} 
               className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${activeFilter === 'all' ? 'bg-white text-slate-850 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}

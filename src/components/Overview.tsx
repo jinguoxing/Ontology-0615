@@ -1,29 +1,219 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Box, Link as LinkIcon, FunctionSquare, Play, 
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Box, Link as LinkIcon, FunctionSquare, Play,
   GitMerge, Shield, CheckCircle2, Circle, Check,
   Target, AlertTriangle, Info, Bell, Search,
   Settings, ChevronRight, RefreshCw, LayoutGrid, Star,
   Database, FileCode, Beaker, LayoutTemplate, Maximize2, X, Sparkles,
-  Plus, Download, ChevronDown
+  Plus, Download, ChevronDown, PanelRightOpen, PanelRightClose
 } from 'lucide-react';
+import {useUiStore} from '../store/uiStore';
 
-interface OverviewProps {
-  onNavigate: (view: string, targetId?: string) => void;
-  objectTypes?: any[];
-  linkTypes?: any[];
-  changeSets?: any[];
-  validationItems?: any[];
-  onCreateChangeSet?: () => void;
-  onRunValidation?: () => void;
-  isLocked?: boolean;
-}
+const nodeMetrics: Record<string, { count: string, color?: string }> = {
+  DataSource: { count: '142' },
+  DataAsset: { count: '3.4k' },
+  Field: { count: '12k' },
+  SemanticAssertion: { count: '8.9k' },
+  DataQualityRule: { count: '450' },
+  Evidence: { count: '24k' },
+  DataIssue: { count: '86', color: 'bg-rose-100 text-rose-700 border-rose-200 ring-rose-500/20' },
+  GovernanceTask: { count: '322', color: 'bg-purple-100 text-purple-700 border-purple-200 ring-purple-500/20' },
+  Run: { count: '15k' },
+  Snapshot: { count: '15' }
+};
 
-export default function Overview({ onNavigate, onCreateChangeSet, onRunValidation, isLocked }: OverviewProps) {
+const leftStripeColors: Record<string, string> = {
+  blue: 'bg-blue-500',
+  green: 'bg-emerald-500',
+  purple: 'bg-purple-500',
+  teal: 'bg-teal-500',
+  orange: 'bg-orange-500',
+  red: 'bg-rose-500',
+};
+
+const hoverRingColors: Record<string, string> = {
+  blue: 'ring-2 ring-blue-500 border-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.25)]',
+  green: 'ring-2 ring-emerald-500 border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.25)]',
+  purple: 'ring-2 ring-purple-500 border-purple-400 shadow-[0_0_12px_rgba(139,92,246,0.25)]',
+  teal: 'ring-2 ring-teal-500 border-teal-400 shadow-[0_0_12px_rgba(20,184,166,0.25)]',
+  orange: 'ring-2 ring-orange-500 border-orange-400 shadow-[0_0_12px_rgba(249,115,22,0.25)]',
+  red: 'ring-2 ring-rose-500 border-rose-400 shadow-[0_0_12px_rgba(244,63,94,0.25)]',
+};
+
+const connectedRingColors: Record<string, string> = {
+  blue: 'ring-1 ring-blue-300 border-blue-300 bg-blue-50/10 shadow-[0_0_6px_rgba(59,130,246,0.1)]',
+  green: 'ring-1 ring-emerald-300 border-emerald-300 bg-emerald-50/10 shadow-[0_0_6px_rgba(16,185,129,0.1)]',
+  purple: 'ring-1 ring-purple-300 border-purple-300 bg-purple-50/10 shadow-[0_0_6px_rgba(139,92,246,0.1)]',
+  teal: 'ring-1 ring-teal-300 border-teal-300 bg-teal-50/10 shadow-[0_0_6px_rgba(20,184,166,0.1)]',
+  orange: 'ring-1 ring-orange-300 border-orange-300 bg-orange-50/10 shadow-[0_0_6px_rgba(249,115,22,0.1)]',
+  red: 'ring-1 ring-rose-300 border-rose-300 bg-rose-50/10 shadow-[0_0_6px_rgba(244,63,94,0.1)]',
+};
+
+// NODE_W / NODE_H: the pixel dimensions of each canvas node card
+const NODE_W = 136;
+const NODE_H = 64;
+
+// Dynamic path between two nodes given their top-left positions
+const getDynamicPath = (
+  posA: { x: number; y: number },
+  posB: { x: number; y: number }
+): string => {
+  // Entry/exit points: bottom-center of A -> top-center of B
+  const ax = posA.x + NODE_W / 2;
+  const ay = posA.y + NODE_H;
+  const bx = posB.x + NODE_W / 2;
+  const by = posB.y;
+  const cy = (ay + by) / 2;
+  return `M ${ax} ${ay} C ${ax} ${cy}, ${bx} ${cy}, ${bx} ${by}`;
+};
+
+// Midpoint label position
+const getLabelPos = (
+  posA: { x: number; y: number },
+  posB: { x: number; y: number }
+): { x: number; y: number } => {
+  const ax = posA.x + NODE_W / 2;
+  const ay = posA.y + NODE_H;
+  const bx = posB.x + NODE_W / 2;
+  const by = posB.y;
+  return { x: (ax + bx) / 2 + 6, y: (ay + by) / 2 };
+};
+
+const connectionLabels: Record<string, string> = {
+  'DataSource-DataAsset': 'contains',
+  'DataAsset-Field': 'contains',
+  'Field-SemanticAssertion': 'has_assertion',
+  'Field-DataQualityRule': 'checked_by',
+  'SemanticAssertion-Evidence': 'supported_by',
+  'DataQualityRule-DataIssue': 'produces',
+  'Evidence-GovernanceTask': 'assigned_to',
+  'DataIssue-GovernanceTask': 'assigned_to',
+  'Run-Snapshot': 'generates',
+};
+
+const getPanoramaPathD = (nodeA: string, nodeB: string): string => {
+  if (nodeA === 'DataSource' && nodeB === 'DataAsset') return 'M 176 82 L 200 82';
+  if (nodeA === 'DataAsset' && nodeB === 'Field') return 'M 336 82 L 370 82';
+  if (nodeA === 'Field' && nodeB === 'SemanticAssertion') return 'M 506 82 L 550 82';
+  if (nodeA === 'SemanticAssertion' && nodeB === 'Evidence') return 'M 686 82 L 710 82';
+  if (nodeA === 'Field' && nodeB === 'DataQualityRule') return 'M 438 114 C 438 162, 618 162, 618 210';
+  if (nodeA === 'DataQualityRule' && nodeB === 'DataIssue') return 'M 686 242 L 710 242';
+  if (nodeA === 'Evidence' && nodeB === 'GovernanceTask') return 'M 778 114 C 778 170, 438 150, 438 210';
+  if (nodeA === 'DataIssue' && nodeB === 'GovernanceTask') return 'M 710 242 L 506 242';
+  if (nodeA === 'Run' && nodeB === 'Snapshot') return 'M 336 382 L 370 382';
+  if (nodeA === 'Snapshot' && nodeB === 'SemanticAssertion') return 'M 438 350 C 438 230, 618 230, 618 114';
+  return '';
+};
+
+const panoramaLabels: Record<string, { x: number, y: number, text: string, textAnchor?: string, transform?: string }> = {
+  'DataSource-DataAsset': { x: 188, y: 72, text: 'contains', textAnchor: 'middle' },
+  'DataAsset-Field': { x: 353, y: 72, text: 'contains', textAnchor: 'middle' },
+  'Field-SemanticAssertion': { x: 528, y: 72, text: 'has_assertion', textAnchor: 'middle' },
+  'SemanticAssertion-Evidence': { x: 698, y: 72, text: 'supported_by', textAnchor: 'middle' },
+  'Field-DataQualityRule': { x: 510, y: 155, text: 'checked_by', textAnchor: 'middle', transform: 'rotate(20 510 155)' },
+  'DataQualityRule-DataIssue': { x: 698, y: 232, text: 'produces', textAnchor: 'middle' },
+  'Evidence-GovernanceTask': { x: 620, y: 140, text: 'assigned_to', textAnchor: 'middle', transform: 'rotate(-20 620 140)' },
+  'DataIssue-GovernanceTask': { x: 608, y: 232, text: 'assigned_to', textAnchor: 'middle' },
+  'Run-Snapshot': { x: 353, y: 372, text: 'generates', textAnchor: 'middle' },
+  'Snapshot-SemanticAssertion': { x: 505, y: 265, text: 'includes', textAnchor: 'middle', transform: 'rotate(-40 505 265)' }
+};
+
+const panoramaConnections = [
+  { from: 'DataSource', to: 'DataAsset' },
+  { from: 'DataAsset', to: 'Field' },
+  { from: 'Field', to: 'SemanticAssertion' },
+  { from: 'SemanticAssertion', to: 'Evidence' },
+  { from: 'Field', to: 'DataQualityRule' },
+  { from: 'DataQualityRule', to: 'DataIssue' },
+  { from: 'Evidence', to: 'GovernanceTask' },
+  { from: 'DataIssue', to: 'GovernanceTask' },
+  { from: 'Run', to: 'Snapshot' },
+  { from: 'Snapshot', to: 'SemanticAssertion' }
+];
+
+export default function Overview() {
+  const navigate = useUiStore((s) => s.navigate);
+  const setCreateDrawerOpen = useUiStore((s) => s.setCreateDrawerOpen);
+  const onCreateChangeSet = () => setCreateDrawerOpen(true);
+  const onRunValidation = () => {
+    alert("🔍 开始扫描逻辑一致性... \n一式 10 个 Object Type, 8 个 Link Type, 8 个绑定能力全链节点扫描完成！状态完美正常，检验无破坏。");
+  };
   const tabs = [
-    '模型总览', '对象模型', '关系模型', '能力绑定', '动作 (Action)', 
-    '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
+    '模型总览', '对象模型', '关系模型', '函数（Function）', '动作 (Action)', 
+    '流程 (Workflow)', '权限策略', '变更与发布'
   ];
+
+  // Canvas node positions (top-left pixel coords)
+  const [nodePositions, setNodePositions] = useState<Record<string, { x: number; y: number }>>(() => ({
+    DataSource:       { x: 152, y: 16 },
+    DataAsset:        { x: 152, y: 100 },
+    Field:            { x: 152, y: 184 },
+    SemanticAssertion:{ x: 32,  y: 273 },
+    DataQualityRule:  { x: 272, y: 273 },
+    Evidence:         { x: 32,  y: 373 },
+    DataIssue:        { x: 272, y: 373 },
+    GovernanceTask:   { x: 152, y: 473 },
+    Run:              { x: 332, y: 100 },
+    Snapshot:         { x: 332, y: 184 },
+  }));
+
+  // Drag state
+  const draggingRef = useRef<{ nodeId: string; startMouseX: number; startMouseY: number; startNodeX: number; startNodeY: number } | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+
+  // Hover tooltip
+  const [tooltipNode, setTooltipNode] = useState<string | null>(null);
+  const tooltipTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleNodeMouseDown = useCallback((e: React.MouseEvent, nodeId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const pos = nodePositions[nodeId];
+    draggingRef.current = {
+      nodeId,
+      startMouseX: e.clientX,
+      startMouseY: e.clientY,
+      startNodeX: pos.x,
+      startNodeY: pos.y,
+    };
+    setDraggingId(nodeId);
+    setTooltipNode(null); // hide tooltip while dragging
+  }, [nodePositions]);
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      if (!draggingRef.current) return;
+      const { nodeId, startMouseX, startMouseY, startNodeX, startNodeY } = draggingRef.current;
+      const dx = e.clientX - startMouseX;
+      const dy = e.clientY - startMouseY;
+      setNodePositions(prev => ({
+        ...prev,
+        [nodeId]: { x: startNodeX + dx, y: startNodeY + dy },
+      }));
+    };
+    const onMouseUp = () => {
+      draggingRef.current = null;
+      setDraggingId(null);
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, []);
+
+  const handleNodeMouseEnter = useCallback((nodeId: string) => {
+    setHoveredNodeId(nodeId);
+    if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
+    tooltipTimeout.current = setTimeout(() => setTooltipNode(nodeId), 300);
+  }, []);
+
+  const handleNodeMouseLeave = useCallback(() => {
+    setHoveredNodeId(null);
+    if (tooltipTimeout.current) clearTimeout(tooltipTimeout.current);
+    setTooltipNode(null);
+  }, []);
 
   // Interactive Workspace States
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
@@ -240,64 +430,72 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
     title, 
     subtitle, 
     icon: Icon, 
-    color, 
-    className, 
-    style 
+    color,
+    className,
   }: { 
     title: string, 
     subtitle: string, 
     icon?: any, 
-    color: string, 
-    className?: string, 
-    style?: React.CSSProperties 
+    color: string,
+    className?: string,
   }) => {
-    const colorClasses: Record<string, string> = {
-      blue: 'bg-white ring-1 ring-blue-100/50 border-blue-200/60 shadow-blue-950/[0.04] hover:border-blue-300/80 hover:shadow-blue-900/5',
-      green: 'bg-white ring-1 ring-emerald-100/50 border-emerald-200/60 shadow-emerald-950/[0.04] hover:border-emerald-300/80 hover:shadow-emerald-900/5',
-      purple: 'bg-white ring-1 ring-purple-100/50 border-purple-200/60 shadow-purple-950/[0.04] hover:border-purple-300/80 hover:shadow-purple-900/5',
-      teal: 'bg-white ring-1 ring-teal-100/50 border-teal-200/60 shadow-teal-950/[0.04] hover:border-teal-300/80 hover:shadow-teal-900/5',
-      orange: 'bg-white ring-1 ring-orange-100/50 border-orange-200/60 shadow-orange-950/[0.04] hover:border-orange-300/80 hover:shadow-orange-900/5',
-      red: 'bg-white ring-1 ring-rose-100/50 border-rose-200/60 shadow-rose-950/[0.04] hover:border-rose-300/80 hover:shadow-rose-900/5',
-    };
     const iconColors: Record<string, string> = {
-      blue: 'text-blue-600 bg-blue-50/70',
-      green: 'text-emerald-600 bg-emerald-50/70',
-      purple: 'text-purple-600 bg-purple-50/70',
-      teal: 'text-teal-600 bg-teal-50/70',
-      orange: 'text-orange-600 bg-orange-50/70',
-      red: 'text-rose-600 bg-rose-50/70',
+      blue: 'text-blue-600 bg-blue-50/60 ring-1 ring-blue-100/50',
+      green: 'text-emerald-600 bg-emerald-50/60 ring-1 ring-emerald-100/50',
+      purple: 'text-purple-600 bg-purple-50/60 ring-1 ring-purple-100/50',
+      teal: 'text-teal-600 bg-teal-50/60 ring-1 ring-teal-100/50',
+      orange: 'text-orange-600 bg-orange-50/60 ring-1 ring-orange-100/50',
+      red: 'text-rose-600 bg-rose-50/60 ring-1 ring-rose-100/50',
     };
 
     const hasHover = hoveredNodeId !== null;
     const isSelf = hoveredNodeId === title;
     const isConnected = hoveredNodeId ? areConnected(title, hoveredNodeId) : false;
     const isMuted = hasHover && !isSelf && !isConnected;
+    const metric = nodeMetrics[title];
+    const pos = nodePositions[title];
+    const isDragging = draggingId === title;
+
+    const nodeClass = isDragging
+      ? `z-50 shadow-xl scale-[1.04] bg-white border-transparent ${hoverRingColors[color]}`
+      : isMuted
+        ? 'opacity-25 scale-[0.95] blur-[0.2px] border-slate-100 bg-white/50'
+        : isSelf
+          ? `-translate-y-1 z-25 bg-white shadow-lg border-transparent ${hoverRingColors[color]}`
+          : isConnected
+            ? `scale-[1.02] z-20 ${connectedRingColors[color]}`
+            : 'hover:shadow-md hover:-translate-y-0.5 bg-white/95 backdrop-blur-sm border-slate-200/80 hover:border-slate-350';
 
     return (
       <div 
-        onMouseEnter={() => setHoveredNodeId(title)}
-        onMouseLeave={() => setHoveredNodeId(null)}
-        onClick={() => onNavigate('object_model', title)}
-        className={`absolute rounded-xl px-2.5 py-2 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] shadow-sm border cursor-pointer select-none transition-all duration-300 ${
-          isMuted 
-            ? 'opacity-20 scale-[0.95] blur-[0.2px] border-slate-100' 
-            : isSelf 
-              ? 'ring-2 ring-blue-500 scale-[1.05] -translate-y-1 z-20 border-blue-400 shadow-md' 
-              : isConnected 
-                ? 'ring-1 ring-blue-300 scale-[1.02] border-blue-300 z-15 shadow-sm bg-blue-50/10' 
-                : 'hover:shadow-md hover:-translate-y-0.5'
-        } ${colorClasses[color]} ${className || ''}`}
-        style={style}
+        onMouseEnter={() => handleNodeMouseEnter(title)}
+        onMouseLeave={handleNodeMouseLeave}
+        onMouseDown={(e) => handleNodeMouseDown(e, title)}
+        onClick={() => { if (!isDragging) navigate('object_model', title); }}
+        className={`absolute rounded-md py-2 pl-4 pr-3 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] border ${isDragging ? 'cursor-grabbing' : 'cursor-grab'} select-none transition-all duration-200 ${nodeClass} ${className || ''}`}
+        style={{ left: pos.x, top: pos.y }}
       >
+        {/* Left Category Accent Stripe */}
+        <div className={`absolute left-0 top-0 bottom-0 w-[4px] rounded-l-md ${leftStripeColors[color]}`} />
+        
+        {/* Live Metric Badge */}
+        {metric && (
+          <span className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold border font-mono tracking-tighter leading-none scale-[0.85] origin-top-right ${
+            metric.color || 'bg-slate-100 text-slate-650 border-slate-250/65'
+          }`}>
+            {metric.count}
+          </span>
+        )}
+
         <div className="flex items-center gap-2 w-full pl-0.5">
           {Icon && (
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconColors[color]} ring-1 ring-black/[0.03]`}>
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconColors[color]}`}>
               <Icon className="w-4 h-4" />
             </div>
           )}
           <div className="text-left min-w-0 flex-1">
             <div className="text-[12px] font-extrabold font-mono tracking-tight text-slate-800 truncate" title={title}>{title}</div>
-            <div className="text-[10px] font-bold text-slate-400 mt-0.5 truncate" title={subtitle}>{subtitle}</div>
+            <div className="text-[10px] font-bold text-slate-450 mt-0.5 truncate" title={subtitle}>{subtitle}</div>
           </div>
         </div>
       </div>
@@ -328,43 +526,49 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
   const renderModalNode = (id: string, nameCn: string, icon: any, color: string, style: React.CSSProperties) => {
     const isSelected = selectedPanoramaNodeId === id;
     const IconComp = icon;
+    const metric = nodeMetrics[id];
     
-    const themeClasses: Record<string, string> = {
-      blue: isSelected 
-        ? 'bg-blue-950/40 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)] text-blue-100 ring-1 ring-blue-400'
-        : 'bg-slate-900 border-slate-700 hover:border-blue-500 hover:bg-slate-800 text-slate-200',
-      green: isSelected 
-        ? 'bg-emerald-950/40 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)] text-emerald-100 ring-1 ring-emerald-400'
-        : 'bg-slate-900 border-slate-700 hover:border-emerald-500 hover:bg-slate-800 text-slate-200',
-      purple: isSelected 
-        ? 'bg-purple-950/40 border-purple-500 shadow-[0_0_15px_rgba(139,92,246,0.3)] text-purple-100 ring-1 ring-purple-400'
-        : 'bg-slate-900 border-slate-700 hover:border-purple-500 hover:bg-slate-800 text-slate-200',
-      teal: isSelected 
-        ? 'bg-teal-950/40 border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.3)] text-teal-100 ring-1 ring-teal-400'
-        : 'bg-slate-900 border-slate-700 hover:border-teal-500 hover:bg-slate-800 text-slate-200',
-      orange: isSelected 
-        ? 'bg-orange-950/40 border-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.3)] text-orange-100 ring-1 ring-orange-400'
-        : 'bg-slate-900 border-slate-700 hover:border-orange-500 hover:bg-slate-800 text-slate-200',
-      red: isSelected 
-        ? 'bg-rose-950/40 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.3)] text-rose-100 ring-1 ring-rose-400'
-        : 'bg-slate-900 border-slate-700 hover:border-rose-500 hover:bg-slate-800 text-slate-200',
+    // Custom selection glow rings inside the dark modal based on category color
+    const categorySelClasses: Record<string, string> = {
+      blue: 'border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.3)] ring-2 ring-blue-500/50',
+      green: 'border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.3)] ring-2 ring-emerald-500/50',
+      purple: 'border-purple-500 shadow-[0_0_20px_rgba(139,92,246,0.3)] ring-2 ring-purple-500/50',
+      teal: 'border-teal-500 shadow-[0_0_20px_rgba(20,184,166,0.3)] ring-2 ring-teal-500/50',
+      orange: 'border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.3)] ring-2 ring-orange-500/50',
+      red: 'border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.3)] ring-2 ring-rose-500/50',
     };
+    
+    const nodeClass = isSelected 
+      ? `bg-slate-900/95 ${categorySelClasses[color]} scale-[1.04] -translate-y-0.5` 
+      : 'bg-slate-900/80 border-slate-700/80 hover:border-slate-500 hover:bg-slate-805 hover:scale-[1.02] hover:-translate-y-0.5 shadow-sm';
 
     const iconBg: Record<string, string> = {
-      blue: 'bg-blue-950 text-blue-400 border-blue-800',
-      green: 'bg-emerald-950 text-emerald-400 border-emerald-800',
-      purple: 'bg-purple-950 text-purple-400 border-purple-800',
-      teal: 'bg-teal-950 text-teal-400 border-teal-800',
-      orange: 'bg-orange-950 text-orange-400 border-slate-850',
-      red: 'bg-rose-950 text-rose-400 border-rose-800',
+      blue: 'bg-blue-950/60 text-blue-400 border-blue-800/60',
+      green: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60',
+      purple: 'bg-purple-950/60 text-purple-400 border-purple-800/60',
+      teal: 'bg-teal-950/60 text-teal-400 border-teal-800/60',
+      orange: 'bg-orange-950/60 text-orange-400 border-orange-800/60',
+      red: 'bg-rose-950/60 text-rose-450 border-rose-800/60',
     };
 
     return (
       <div 
         onClick={() => setSelectedPanoramaNodeId(id)}
-        className={`absolute rounded-xl px-3 py-2.5 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] border cursor-pointer select-none transition-all duration-300 ${themeClasses[color]}`}
+        className={`absolute rounded-md py-2.5 pl-4 pr-3 flex flex-col items-center justify-center text-center z-10 w-[136px] h-[64px] border cursor-pointer select-none transition-all duration-300 ${nodeClass}`}
         style={style}
       >
+        {/* Left Category Accent Stripe */}
+        <div className={`absolute left-0 top-0 bottom-0 w-[4px] rounded-l-xl ${leftStripeColors[color]}`} />
+        
+        {/* Live Metric Badge */}
+        {metric && (
+          <span className={`absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold border font-mono tracking-tighter leading-none scale-[0.85] origin-top-right ${
+            metric.color || 'bg-slate-800/80 text-slate-300 border-slate-700/60'
+          }`}>
+            {metric.count}
+          </span>
+        )}
+
         <div className="flex items-center gap-2.5 w-full pl-0.5">
           {icon && (
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border ${iconBg[color]}`}>
@@ -372,7 +576,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
             </div>
           )}
           <div className="text-left min-w-0 flex-1">
-            <div className="text-[12px] font-extrabold font-mono tracking-tight truncate">{id}</div>
+            <div className="text-[12px] font-extrabold font-mono tracking-tight text-slate-100 truncate">{id}</div>
             <div className="text-[10px] font-bold text-slate-400 mt-0.5 truncate">{nameCn}</div>
           </div>
         </div>
@@ -389,7 +593,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
         {/* 第一行：面包屑与常驻右侧的变更沙箱指示 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center text-[12px] text-slate-400 font-semibold tracking-wide">
-             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => onNavigate('overview')}>管理中心</span>
+             <span className="hover:text-blue-600 cursor-pointer transition-colors" onClick={() => navigate('overview')}>管理中心</span>
              <span className="mx-2 text-slate-300">/</span>
              <span className="hover:text-blue-600 cursor-pointer transition-colors">本体管理</span>
              <span className="mx-2 text-slate-300">/</span>
@@ -428,18 +632,18 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
           <div className="flex items-center gap-2">
             <button 
               onClick={onRunValidation}
-              className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-slate-450" /> 校验模型
+              <CheckCircle2 className="w-3.5 h-3.5 text-slate-400" /> 校验模型
             </button>
-            <button className="px-3.5 py-1.5 text-xs font-black text-slate-650 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all flex items-center gap-1.5 cursor-pointer">
-              <Download className="w-3.5 h-3.5 text-slate-450" /> 导出模型
+            <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+              <Download className="w-3.5 h-3.5 text-slate-400" /> 导出模型
             </button>
-            <button className="p-1.5 bg-white border border-slate-250 hover:bg-slate-50 rounded-lg shadow-3xs hover:border-slate-350 transition-all cursor-pointer">
-              <Settings className="w-4 h-4 text-slate-550" />
+            <button className="p-1.5 bg-white border border-slate-200/50 hover:bg-slate-50/50 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all cursor-pointer">
+              <Settings className="w-4 h-4 text-slate-400" />
             </button>
             
-            <div className="h-6 w-px bg-slate-250 mx-1"></div>
+            <div className="h-6 w-px bg-slate-200/60 mx-1"></div>
             
             <button 
               onClick={onCreateChangeSet}
@@ -457,13 +661,13 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
           <div 
             key={tab}
             onClick={() => {
-              if (tab === '模型总览') onNavigate('overview');
-              if (tab === '对象模型') onNavigate('object_model');
-              if (tab === '关系模型') onNavigate('relation_model');
-              if (tab === '能力绑定' || tab === '能力 (Function)') onNavigate('capability_binding');
-              if (tab === '动作 (Action)') onNavigate('action_model');
-              if (tab === '流程 (Workflow)') onNavigate('workflow_orchestration');
-              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') onNavigate('change_release');
+              if (tab === '模型总览') navigate('overview');
+              if (tab === '对象模型') navigate('object_model');
+              if (tab === '关系模型') navigate('relation_model');
+              if (tab === '能力绑定' || tab === '能力 (Function)' || tab === '函数（Function）') navigate('capability_binding');
+              if (tab === '动作 (Action)') navigate('action_model');
+              if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
+              if (tab === '变更与发布') navigate('change_release');
             }}
             className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
               tab === '模型总览' 
@@ -476,11 +680,55 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
         ))}
       </div>
 
-      {/* 主体三列工作区 */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      {/* 顶部横向：待处理事项与风险 */}
+      <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="flex items-center justify-between p-4 rounded-md border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-colors shadow-sm cursor-pointer group">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 group-hover:scale-110 transition-transform"><Box className="w-4 h-4" /></div>
+            <div>
+              <div className="text-[13px] font-bold text-slate-800 tracking-tight">2 个 Object Type</div>
+              <div className="text-[11px] text-slate-500">有未发布变更</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+        <div className="flex items-center justify-between p-4 rounded-md border border-orange-100 bg-orange-50/50 hover:bg-orange-50 transition-colors shadow-sm cursor-pointer group">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform"><GitMerge className="w-4 h-4" /></div>
+            <div>
+              <div className="text-[13px] font-bold text-slate-800 tracking-tight">1 个 Workflow</div>
+              <div className="text-[11px] text-slate-500">受影响</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-orange-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+        <div className="flex items-center justify-between p-4 rounded-md border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-colors shadow-sm cursor-pointer group">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold italic group-hover:scale-110 transition-transform">fx</div>
+            <div>
+              <div className="text-[13px] font-bold text-slate-800 tracking-tight">3 个 Function</div>
+              <div className="text-[11px] text-slate-500">需要重新测试</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-rose-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+        <div className="flex items-center justify-between p-4 rounded-md border border-orange-100 bg-orange-50/50 hover:bg-orange-50 transition-colors shadow-sm cursor-pointer group">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform"><Shield className="w-4 h-4" /></div>
+            <div>
+              <div className="text-[13px] font-bold text-slate-800 tracking-tight">1 个 AI 场景</div>
+              <div className="text-[11px] text-slate-500">需要重新校验</div>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-orange-400 group-hover:translate-x-0.5 transition-transform" />
+        </div>
+      </div>
+
+      {/* 主体二列工作区 */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 transition-all duration-500">
         
         {/* 左栏：核心对象结构 */}
-        <div className="md:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col">
+        <div className="md:col-span-7 bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
               核心对象结构 <Info className="w-4 h-4 text-slate-400 cursor-pointer" />
@@ -495,7 +743,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
               </button>
               <div 
                 className="text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer border border-slate-200 px-2.5 py-1.5 rounded-lg flex items-center transition-all bg-white shadow-sm"
-                onClick={() => onNavigate('relation_model')}
+                onClick={() => navigate('relation_model')}
               >
                 <span>关系模型</span>
                 <ChevronRight className="w-3 h-3" />
@@ -503,95 +751,214 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
             </div>
           </div>
           
-          <div className="flex-1 min-h-[560px] flex items-center justify-center p-2 bg-slate-50/40 rounded-2xl border border-slate-100/80 shadow-inner mt-2">
-            <div className="relative w-[440px] h-[540px] shrink-0 overflow-hidden">
-            <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
-              <defs>
-                <style>{`
-                  @keyframes line-flow {
-                    to {
-                      stroke-dashoffset: -16;
+          <div className="flex-1 min-h-[560px] flex items-center justify-center p-2 bg-slate-50/30 rounded-lg border border-slate-200/50 shadow-inner mt-2 relative overflow-hidden group">
+            {/* Ambient glowing orbs */}
+            <div className="absolute -top-20 -left-20 w-72 h-72 bg-blue-400/20 rounded-full blur-[80px] pointer-events-none group-hover:bg-blue-400/30 transition-colors duration-1000" style={{ animation: 'float-slow 8s ease-in-out infinite' }}></div>
+            <div className="absolute -bottom-20 -right-20 w-72 h-72 bg-emerald-400/20 rounded-full blur-[80px] pointer-events-none group-hover:bg-emerald-400/30 transition-colors duration-1000" style={{ animation: 'float-slow 12s ease-in-out infinite reverse' }}></div>
+            
+            {/* Visual Grid Backdrop - static */}
+            <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1.5px,transparent_1.5px)] opacity-60 [background-size:24px_24px] pointer-events-none rounded-lg group-hover:opacity-80 transition-opacity duration-1000"></div>
+            
+            <div className="relative w-[460px] h-[580px] shrink-0 overflow-visible z-10 animate-fade-in">
+              <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible" style={{ zIndex: 0 }}>
+                <defs>
+                  <style>{`
+                    @keyframes float-slow {
+                      0%, 100% { transform: translateY(0) scale(1); }
+                      50% { transform: translateY(-20px) scale(1.05); }
                     }
-                  }
-                  .flow-active {
-                    stroke-dasharray: 6 3;
-                    animation: line-flow 1.2s linear infinite;
-                  }
-                `}</style>
-                <marker id="arrowhead-slate" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-                  <polygon points="0 0, 6 3, 0 6" fill="#cbd5e1" />
-                </marker>
-                <marker id="arrowhead-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-                  <polygon points="0 0, 6 3, 0 6" fill="#2563eb" />
-                </marker>
-                <marker id="arrowhead-emerald" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-                  <polygon points="0 0, 6 3, 0 6" fill="#059669" />
-                </marker>
-                <marker id="arrowhead-rose" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-                  <polygon points="0 0, 6 3, 0 6" fill="#e11d48" />
-                </marker>
-                <marker id="arrowhead-purple" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-                  <polygon points="0 0, 6 3, 0 6" fill="#7c3aed" />
-                </marker>
-              </defs>
+                    @keyframes flow-dash {
+                      to {
+                        stroke-dashoffset: -40;
+                      }
+                    }
+                    .flow-active-trail {
+                      stroke-dasharray: 4 16;
+                      animation: flow-dash 1.5s linear infinite;
+                    }
+                  `}</style>
+                  <marker id="arrowhead-slate" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <polygon points="0 0, 6 3, 0 6" fill="#cbd5e1" />
+                  </marker>
+                  <marker id="arrowhead-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <polygon points="0 0, 6 3, 0 6" fill="#2563eb" />
+                  </marker>
+                  <marker id="arrowhead-emerald" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <polygon points="0 0, 6 3, 0 6" fill="#059669" />
+                  </marker>
+                  <marker id="arrowhead-rose" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <polygon points="0 0, 6 3, 0 6" fill="#e11d48" />
+                  </marker>
+                  <marker id="arrowhead-purple" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                    <polygon points="0 0, 6 3, 0 6" fill="#7c3aed" />
+                  </marker>
+                </defs>
+
+                {/* Render All Connections - dynamic paths from nodePositions */}
+                {[
+                  ['DataSource', 'DataAsset'],
+                  ['DataAsset', 'Field'],
+                  ['Field', 'SemanticAssertion'],
+                  ['Field', 'DataQualityRule'],
+                  ['SemanticAssertion', 'Evidence'],
+                  ['DataQualityRule', 'DataIssue'],
+                  ['Evidence', 'GovernanceTask'],
+                  ['DataIssue', 'GovernanceTask'],
+                  ['Run', 'Snapshot']
+                ].map(([nodeA, nodeB]) => {
+                  const posA = nodePositions[nodeA];
+                  const posB = nodePositions[nodeB];
+                  if (!posA || !posB) return null;
+                  const pathD = getDynamicPath(posA, posB);
+                  const labelPos = getLabelPos(posA, posB);
+                  const labelText = connectionLabels[`${nodeA}-${nodeB}`];
+                  const textProps = getTextProps(nodeA, nodeB);
+                  const key = `${nodeA}-${nodeB}`;
+                  const hasHover = hoveredNodeId !== null;
+                  const isRelated = hoveredNodeId === nodeA || hoveredNodeId === nodeB;
+                  const col = getLineColor(nodeA, nodeB);
+                  
+                  return (
+                    <g key={key}>
+                      {/* Base glowing shadow path */}
+                      <path
+                        d={pathD}
+                        fill="none"
+                        stroke={hasHover ? (isRelated ? col : '#cbd5e1') : '#cbd5e1'}
+                        strokeWidth={isRelated ? 2.5 : 1}
+                        opacity={hasHover ? (isRelated ? 0.3 : 0.1) : 0.5}
+                        style={{
+                          filter: isRelated ? `drop-shadow(0 0 4px ${col})` : 'none'
+                        }}
+                      />
+                      {/* Main connection path */}
+                      <path
+                        d={pathD}
+                        fill="none"
+                        stroke={hasHover ? (isRelated ? col : '#e2e8f0') : '#cbd5e1'}
+                        strokeWidth={isRelated ? 1.5 : 1}
+                        opacity={hasHover ? (isRelated ? 1 : 0.2) : 1}
+                        markerEnd={hasHover ? (isRelated ? getActiveMarker(nodeA, nodeB) : 'url(#arrowhead-slate)') : 'url(#arrowhead-slate)'}
+                      />
+                      {/* Active Light Trail Overlay */}
+                      {isRelated && (
+                        <path
+                          d={pathD}
+                          fill="none"
+                          stroke={col}
+                          strokeWidth={1.5}
+                          strokeLinecap="round"
+                          className="flow-active-trail"
+                          style={{ filter: `drop-shadow(0 0 2px ${col})` }}
+                        />
+                      )}
+                      {/* Edge Label */}
+                      {labelText && (
+                        <text
+                          x={labelPos.x}
+                          y={labelPos.y}
+                          textAnchor="start"
+                          {...textProps}
+                          fontSize="9"
+                          fontFamily="monospace"
+                        >
+                          {labelText}
+                        </text>
+                      )}
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* Nodes - positions are now managed by nodePositions state */}
+              <Node title="DataSource" subtitle="数据源" icon={Database} color="blue" />
+              <Node title="DataAsset" subtitle="数据资产" icon={Box} color="blue" />
+              <Node title="Field" subtitle="字段" icon={LayoutGrid} color="blue" />
               
-              {/* Vertical Path: DataSource -> DataAsset -> Field */}
-              <line x1="220" y1="48" x2="220" y2="100" {...getLineProps('DataSource', 'DataAsset')} />
-              <text x="226" y="78" {...getTextProps('DataSource', 'DataAsset')} fontSize="10" fontFamily="monospace">contains</text>
-
-              <line x1="220" y1="132" x2="220" y2="184" {...getLineProps('DataAsset', 'Field')} />
-              <text x="226" y="162" {...getTextProps('DataAsset', 'Field')} fontSize="10" fontFamily="monospace">contains</text>
-
-              {/* Branch Left: Field -> SemanticAssertion */}
-              <path d="M 220 216 C 220 245, 100 240, 100 273" fill="none" {...getLineProps('Field', 'SemanticAssertion')} />
-              <text x="110" y="248" {...getTextProps('Field', 'SemanticAssertion')} fontSize="10" fontFamily="monospace">has_assertion</text>
-
-              {/* Branch Right: Field -> DataQualityRule */}
-              <path d="M 220 216 C 220 245, 340 240, 340 273" fill="none" {...getLineProps('Field', 'DataQualityRule')} />
-              <text x="250" y="248" {...getTextProps('Field', 'DataQualityRule')} fontSize="10" fontFamily="monospace">checked_by</text>
-
-              {/* Path: SemanticAssertion -> Evidence */}
-              <line x1="100" y1="305" x2="100" y2="373" {...getLineProps('SemanticAssertion', 'Evidence')} />
-              <text x="106" y="344" {...getTextProps('SemanticAssertion', 'Evidence')} fontSize="10" fontFamily="monospace">supported_by</text>
-
-              {/* Path: DataQualityRule -> DataIssue */}
-              <line x1="340" y1="305" x2="340" y2="373" {...getLineProps('DataQualityRule', 'DataIssue')} />
-              <text x="346" y="344" {...getTextProps('DataQualityRule', 'DataIssue')} fontSize="10" fontFamily="monospace">produces</text>
-
-              {/* Path: Evidence -> GovernanceTask */}
-              <path d="M 100 405 C 100 440, 220 435, 220 473" fill="none" {...getLineProps('Evidence', 'GovernanceTask')} strokeDasharray={hoveredNodeId === 'Evidence' || hoveredNodeId === 'GovernanceTask' ? undefined : "4 2"} />
+              <Node title="SemanticAssertion" subtitle="语义断言" icon={Shield} color="green" />
+              <Node title="DataQualityRule" subtitle="质量规则" icon={CheckCircle2} color="green" />
               
-              {/* Path: DataIssue -> GovernanceTask */}
-              <path d="M 340 405 C 340 440, 220 435, 220 473" fill="none" {...getLineProps('DataIssue', 'GovernanceTask')} strokeDasharray={hoveredNodeId === 'DataIssue' || hoveredNodeId === 'GovernanceTask' ? undefined : "4 2"} />
-              <text x="135" y="450" {...getTextProps('Evidence', 'GovernanceTask')} fontSize="10" fontFamily="monospace" textAnchor="middle">assigned_to</text>
+              <Node title="Evidence" subtitle="证据" icon={FileCode} color="teal" />
+              <Node title="DataIssue" subtitle="数据问题" icon={AlertTriangle} color="red" />
+              
+              <Node title="GovernanceTask" subtitle="治理任务" icon={Target} color="purple" />
+              
+              <Node title="Run" subtitle="检测记录" icon={Play} color="blue" />
+              <Node title="Snapshot" subtitle="状态快照" icon={Box} color="orange" />
 
-              {/* Right Side Floating logic: Run -> Snapshot */}
-              <path d="M 340 132 C 340 160, 400 155, 400 184" fill="none" {...getLineProps('Run', 'Snapshot')} strokeDasharray={hoveredNodeId === 'Run' || hoveredNodeId === 'Snapshot' ? undefined : "3 3"} />
-              <text x="346" y="162" {...getTextProps('Run', 'Snapshot')} fontSize="10" fontFamily="monospace">generates</text>
-            </svg>
+              {/* Hover Tooltip Panel */}
+              {tooltipNode && PANORAMA_NODE_DETAILS[tooltipNode] && (() => {
+                const pos = nodePositions[tooltipNode];
+                const detail = PANORAMA_NODE_DETAILS[tooltipNode];
+                const colorMap: Record<string, string> = {
+                  DataSource: 'blue', DataAsset: 'blue', Field: 'blue', Run: 'blue',
+                  SemanticAssertion: 'green', Evidence: 'teal',
+                  DataQualityRule: 'green', DataIssue: 'red',
+                  GovernanceTask: 'purple', Snapshot: 'orange',
+                };
+                const c = colorMap[tooltipNode] || 'blue';
+                const accentMap: Record<string, string> = {
+                  blue: 'border-l-blue-500 bg-blue-50/80 text-blue-700',
+                  green: 'border-l-emerald-500 bg-emerald-50/80 text-emerald-700',
+                  teal: 'border-l-teal-500 bg-teal-50/80 text-teal-700',
+                  orange: 'border-l-orange-500 bg-orange-50/80 text-orange-700',
+                  purple: 'border-l-purple-500 bg-purple-50/80 text-purple-700',
+                  red: 'border-l-rose-500 bg-rose-50/80 text-rose-700',
+                };
+                // Place tooltip to the right of the node, fallback to left
+                const tooltipLeft = pos.x + NODE_W + 12;
+                const tooltipTop = pos.y;
+                return (
+                  <div
+                    key={tooltipNode}
+                    className="absolute z-50 w-56 bg-white/95 backdrop-blur-sm border border-slate-200 rounded-lg shadow-xl p-3 pointer-events-none animate-fade-in"
+                    style={{ left: tooltipLeft, top: tooltipTop }}
+                  >
+                    {/* Header */}
+                    <div className={`border-l-4 pl-2.5 rounded-sm mb-2.5 ${accentMap[c]}`}>
+                      <div className="text-[11px] font-extrabold tracking-tight leading-tight">{detail.title}</div>
+                      <div className="text-[9px] font-semibold opacity-70 mt-0.5">{detail.group}</div>
+                    </div>
 
-            {/* Nodes Positioning exactly using pixel style */}
-            <Node title="DataSource" subtitle="数据源" icon={Database} color="blue" style={{ left: '152px', top: '16px' }} />
-            <Node title="DataAsset" subtitle="数据资产" icon={Box} color="blue" style={{ left: '152px', top: '100px' }} />
-            <Node title="Field" subtitle="字段" icon={LayoutGrid} color="blue" style={{ left: '152px', top: '184px' }} />
-            
-            <Node title="SemanticAssertion" subtitle="语义断言" icon={Shield} color="green" style={{ left: '32px', top: '273px' }} />
-            <Node title="DataQualityRule" subtitle="质量规则" icon={CheckCircle2} color="green" style={{ left: '272px', top: '273px' }} />
-            
-            <Node title="Evidence" subtitle="证据" icon={FileCode} color="teal" style={{ left: '32px', top: '373px' }} />
-            <Node title="DataIssue" subtitle="数据问题" icon={AlertTriangle} color="red" style={{ left: '272px', top: '373px' }} />
-            
-            <Node title="GovernanceTask" subtitle="治理任务" icon={Target} color="purple" style={{ left: '152px', top: '473px' }} />
-            
-            {/* Floating Side Nodes */}
-            <Node title="Run" subtitle="检测记录" icon={Play} color="blue" style={{ left: '332px', top: '100px' }} />
-            <Node title="Snapshot" subtitle="状态快照" icon={Box} color="orange" style={{ left: '332px', top: '184px' }} />
+                    {/* Quick stats */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex-1 bg-slate-50 border border-slate-100 rounded p-1.5 text-center">
+                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wide">实例规模</div>
+                        <div className="text-[10px] font-extrabold text-slate-700 mt-0.5">{detail.instanceCount}</div>
+                      </div>
+                      <div className="flex-1 bg-slate-50 border border-slate-100 rounded p-1.5 text-center">
+                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wide">责任域</div>
+                        <div className="text-[10px] font-extrabold text-slate-700 mt-0.5 truncate" title={detail.owner}>{detail.owner}</div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-[10px] text-slate-600 leading-relaxed line-clamp-3 mb-2">{detail.description}</p>
+
+                    {/* Properties */}
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1">核心属性</div>
+                    <div className="flex flex-wrap gap-1">
+                      {detail.properties.slice(0, 3).map(p => (
+                        <span key={p} className="text-[9px] font-mono bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200 truncate max-w-[100px]" title={p}>{p.split(' ')[0]}</span>
+                      ))}
+                    </div>
+
+                    {/* Lifecycle */}
+                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-2 mb-1">生命周期</div>
+                    <div className="flex gap-0.5">
+                      {detail.lifecycle.slice(0, 4).map((lc, i) => (
+                        <div key={i} className={`flex-1 h-1 rounded-full ${i === 0 ? 'bg-emerald-400' : i === 1 ? 'bg-blue-400' : i === 2 ? 'bg-orange-400' : 'bg-slate-200'}`} title={lc} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
-        </div>
         </div>
 
         {/* 中栏：模型健康状态 */}
-        <div className="md:col-span-4 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col">
+        <div className="md:col-span-5 bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex flex-col">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
               模型健康状态 <Info className="w-4 h-4 text-slate-400 cursor-pointer" />
@@ -599,41 +966,41 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
           </div>
           
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600"><Box className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Object Type</div><div className="text-xl font-black text-slate-800">10</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600"><LinkIcon className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Link Type</div><div className="text-xl font-black text-slate-800">18</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold italic">fx</div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Function</div><div className="text-xl font-black text-slate-800">12</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-600"><Play className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Action</div><div className="text-xl font-black text-slate-800">16</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600"><GitMerge className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">Workflow</div><div className="text-xl font-black text-slate-800">6</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600"><Shield className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">校验结果</div><div className="text-[15px] font-black tracking-tight"><span className="text-emerald-500">0</span> <span className="text-slate-400 font-medium text-[11px]">错误</span> / <span className="text-orange-500">2</span> <span className="text-slate-400 font-medium text-[11px]">警告</span></div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600"><Target className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">AI 使用场景</div><div className="text-xl font-black text-slate-800">3</div></div>
             </div>
-            <div className="border border-slate-100 bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+            <div className="border border-slate-100 bg-slate-50 rounded-md p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600"><Settings className="w-5 h-5" /></div>
               <div><div className="text-[11px] text-slate-500 font-bold mb-0.5">知识网络视图</div><div className="text-xl font-black text-slate-800">5</div></div>
             </div>
           </div>
 
-          <div className="mt-auto border border-slate-100 bg-slate-50 rounded-xl p-5 flex items-center gap-6">
+          <div className="mt-auto border border-slate-100 bg-slate-50 rounded-md p-5 flex items-center gap-6">
             <div className="relative w-[72px] h-[72px] shrink-0">
                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                  <circle cx="50" cy="50" r="42" stroke="#e2e8f0" strokeWidth="8" fill="none" />
@@ -653,77 +1020,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
           </div>
         </div>
 
-        {/* 右栏：待处理事项与风险 */}
-        <div className="md:col-span-3 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
-              待处理事项与风险 <Info className="w-4 h-4 text-slate-400 cursor-pointer" />
-            </h2>
-          </div>
 
-          <div className="space-y-3 flex-1">
-             <div className="flex items-center justify-between p-4 rounded-xl border border-rose-100 bg-rose-50 cursor-pointer hover:bg-rose-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500"><Box className="w-4 h-4" /></div>
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-800 tracking-tight">2 个 Object Type</div>
-                    <div className="text-[11px] text-slate-500">有未发布变更</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-rose-600 font-black text-lg">2 <ChevronRight className="w-4 h-4" /></div>
-             </div>
-
-             <div className="flex items-center justify-between p-4 rounded-xl border border-orange-100 bg-orange-50 cursor-pointer hover:bg-orange-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-500"><GitMerge className="w-4 h-4" /></div>
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-800 tracking-tight">1 个 Workflow</div>
-                    <div className="text-[11px] text-slate-500">受影响</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-orange-600 font-black text-lg">1 <ChevronRight className="w-4 h-4" /></div>
-             </div>
-
-             <div className="flex items-center justify-between p-4 rounded-xl border border-rose-100 bg-rose-50 cursor-pointer hover:bg-rose-100/50">
-               <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-500 font-bold italic">fx</div>
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-800 tracking-tight">3 个 Function</div>
-                    <div className="text-[11px] text-slate-500">需要重新测试</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-rose-600 font-black text-lg">3 <ChevronRight className="w-4 h-4" /></div>
-             </div>
-
-             <div className="flex items-center justify-between p-4 rounded-xl border border-orange-100 bg-orange-50 cursor-pointer hover:bg-orange-100/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500"><Shield className="w-4 h-4" /></div>
-                  <div>
-                    <div className="text-[13px] font-bold text-slate-800 tracking-tight">1 个 AI 场景</div>
-                    <div className="text-[11px] text-slate-500">需要重新校验</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-orange-600 font-black text-lg">1 <ChevronRight className="w-4 h-4" /></div>
-             </div>
-          </div>
-
-          {/* Bottom simple stats */}
-          <div className="mt-6 pt-5 border-t border-slate-100 space-y-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-500 font-medium">最近一次发布</span>
-              <div className="text-right">
-                <div className="font-bold text-slate-800">2 天前</div>
-                <div className="text-[10px] text-slate-400">v1.3.0</div>
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-slate-500 font-medium">发布风险等级</span>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-orange-100 text-orange-700 rounded-md font-bold text-[12px]">
-                 <div className="w-1.5 h-1.5 rounded-full bg-orange-500"></div> 中 <ChevronRight className="w-3.5 h-3.5 -ml-0.5" />
-              </div>
-            </div>
-          </div>
-        </div>
 
       </div>
 
@@ -731,7 +1028,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pb-12">
         
         {/* 最近变更 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-extrabold text-slate-900">最近变更</h2>
             <div className="text-xs font-bold text-blue-600 cursor-pointer hover:underline flex items-center gap-0.5">
@@ -798,7 +1095,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
         </div>
 
         {/* 发布记录 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-extrabold text-slate-900">发布记录</h2>
             <div className="text-xs font-bold text-blue-600 cursor-pointer hover:underline flex items-center gap-0.5">
@@ -858,12 +1155,12 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
       */}
       {isPanoramaOpen && (
         <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 md:p-8 animate-fade-in font-sans">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden shadow-2xl text-slate-100">
+          <div className="bg-slate-900 border border-slate-800 rounded-lg w-full max-w-6xl h-[85vh] flex flex-col overflow-hidden shadow-2xl text-slate-100">
             
             {/* Modal Header */}
             <div className="px-6 py-4 bg-slate-950/40 border-b border-slate-800 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                <div className="w-10 h-10 rounded-md bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div>
@@ -900,7 +1197,7 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
               {/* Close Button */}
               <button 
                 onClick={() => setIsPanoramaOpen(false)}
-                className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 hover:text-white text-slate-400 flex items-center justify-center transition-colors cursor-pointer border border-slate-800 shadow-inner"
+                className="w-10 h-10 rounded-md bg-slate-800 hover:bg-slate-700 hover:text-white text-slate-400 flex items-center justify-center transition-colors cursor-pointer border border-slate-800 shadow-inner"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -958,21 +1255,21 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
               {/* Central Topological Canvas */}
               <div className="flex-1 bg-slate-950/40 relative h-full flex items-center justify-center overflow-hidden">
                 {/* Visual Grid Backdrop */}
-                <div className="absolute inset-0 bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] opacity-35 [background-size:20px_20px] pointer-events-none"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(#334155_1.2px,transparent_1.2px)] opacity-35 [background-size:20px_20px] pointer-events-none rounded-lg"></div>
 
-                <div className="relative w-[880px] h-[450px] shrink-0">
+                <div className="relative w-[880px] h-[450px] shrink-0 z-10">
                   {/* SVG paths representing highlighted lines */}
                   <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
                     <defs>
                       <style>{`
-                        @keyframes panorama-flow {
+                        @keyframes flow-dash {
                           to {
-                            stroke-dashoffset: -20;
+                            stroke-dashoffset: -40;
                           }
                         }
-                        .flow-active-modal {
-                          stroke-dasharray: 6 3;
-                          animation: panorama-flow 0.8s linear infinite;
+                        .flow-active-trail {
+                          stroke-dasharray: 6 14;
+                          animation: flow-dash 1.2s linear infinite;
                         }
                         @keyframes pulse-modal {
                           0%, 100% { transform: scale(1); opacity: 0.25; }
@@ -983,184 +1280,124 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
                           animation: pulse-modal 2s infinite ease-in-out;
                         }
                       `}</style>
-                      <marker id="modal-arrowhead-slate" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                      <marker id="arrowhead-slate" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
                         <polygon points="0 0, 6 3, 0 6" fill="#475569" />
                       </marker>
-                      <marker id="modal-arrowhead-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                      <marker id="arrowhead-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
                         <polygon points="0 0, 6 3, 0 6" fill="#3b82f6" />
                       </marker>
-                      <marker id="modal-arrowhead-emerald" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                      <marker id="arrowhead-emerald" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
                         <polygon points="0 0, 6 3, 0 6" fill="#10b981" />
                       </marker>
-                      <marker id="modal-arrowhead-rose" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                      <marker id="arrowhead-rose" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
                         <polygon points="0 0, 6 3, 0 6" fill="#f43f5e" />
+                      </marker>
+                      <marker id="arrowhead-purple" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#7c3aed" />
                       </marker>
                     </defs>
 
-                    {/* DS -> DA: contains */}
-                    {isLineVisible('DataSource', 'DataAsset') && (
-                      <g>
-                        <line 
-                          x1="108" y1="82" x2="268" y2="82" 
-                          stroke={panoramaFilter !== 'all' ? '#3b82f6' : '#475569'} 
-                          strokeWidth={panoramaFilter !== 'all' ? 2.5 : 1.5} 
-                          className={panoramaFilter !== 'all' ? 'flow-active-modal' : ''}
-                          markerEnd={panoramaFilter !== 'all' ? 'url(#modal-arrowhead-blue)' : 'url(#modal-arrowhead-slate)'}
-                        />
-                        <text x="180" y="70" fill={panoramaFilter !== 'all' ? '#60a5fa' : '#64748b'} fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">contains</text>
-                      </g>
-                    )}
-
-                    {/* DA -> FI: contains */}
-                    {isLineVisible('DataAsset', 'Field') && (
-                      <g>
-                        <line 
-                          x1="278" y1="82" x2="438" y2="82" 
-                          stroke={panoramaFilter !== 'all' ? '#3b82f6' : '#475569'} 
-                          strokeWidth={panoramaFilter !== 'all' ? 2.5 : 1.5} 
-                          className={panoramaFilter !== 'all' ? 'flow-active-modal' : ''}
-                          markerEnd={panoramaFilter !== 'all' ? 'url(#modal-arrowhead-blue)' : 'url(#modal-arrowhead-slate)'}
-                        />
-                        <text x="350" y="70" fill={panoramaFilter !== 'all' ? '#60a5fa' : '#64748b'} fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">contains</text>
-                      </g>
-                    )}
-
-                    {/* FI -> SA: has_assertion */}
-                    {isLineVisible('Field', 'SemanticAssertion') && (
-                      <g>
-                        <line 
-                          x1="448" y1="82" x2="608" y2="82" 
-                          stroke={panoramaFilter !== 'all' ? '#10b981' : '#475569'} 
-                          strokeWidth={panoramaFilter !== 'all' ? 2.5 : 1.5} 
-                          className={panoramaFilter !== 'all' ? 'flow-active-modal' : ''}
-                          markerEnd={panoramaFilter !== 'all' ? 'url(#modal-arrowhead-emerald)' : 'url(#modal-arrowhead-slate)'}
-                        />
-                        <text x="520" y="70" fill={panoramaFilter !== 'all' ? '#34d399' : '#64748b'} fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">has_assertion</text>
-                      </g>
-                    )}
-
-                    {/* SA -> EV: supported_by */}
-                    {isLineVisible('SemanticAssertion', 'Evidence') && (
-                      <g>
-                        <line 
-                          x1="618" y1="82" x2="778" y2="82" 
-                          stroke={panoramaFilter !== 'all' ? '#10b981' : '#475569'} 
-                          strokeWidth={panoramaFilter !== 'all' ? 2.5 : 1.5} 
-                          className={panoramaFilter !== 'all' ? 'flow-active-modal' : ''}
-                          markerEnd={panoramaFilter !== 'all' ? 'url(#modal-arrowhead-emerald)' : 'url(#modal-arrowhead-slate)'}
-                        />
-                        <text x="690" y="70" fill={panoramaFilter !== 'all' ? '#34d399' : '#64748b'} fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">supported_by</text>
-                      </g>
-                    )}
-
-                    {/* FI -> DQ: checked_by */}
-                    {isLineVisible('Field', 'DataQualityRule') && (
-                      <g>
-                        <line 
-                          x1="448" y1="82" x2="608" y2="232" 
-                          stroke={panoramaFilter !== 'all' ? '#f43f5e' : '#475569'} 
-                          strokeWidth={panoramaFilter !== 'all' ? 2.5 : 1.5} 
-                          className={panoramaFilter !== 'all' ? 'flow-active-modal' : ''}
-                          markerEnd={panoramaFilter !== 'all' ? 'url(#modal-arrowhead-rose)' : 'url(#modal-arrowhead-slate)'}
-                        />
-                        <text x="515" y="160" fill={panoramaFilter !== 'all' ? '#fb7185' : '#64748b'} fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle" transform="rotate(35 515 160)">checked_by</text>
-                      </g>
-                    )}
-
-                    {/* DQ -> DI: produces */}
-                    {isLineVisible('DataQualityRule', 'DataIssue') && (
-                      <g>
-                        <line 
-                          x1="618" y1="232" x2="778" y2="232" 
-                          stroke={panoramaFilter !== 'all' ? '#f43f5e' : '#475569'} 
-                          strokeWidth={panoramaFilter !== 'all' ? 2.5 : 1.5} 
-                          className={panoramaFilter !== 'all' ? 'flow-active-modal' : ''}
-                          markerEnd={panoramaFilter !== 'all' ? 'url(#modal-arrowhead-rose)' : 'url(#modal-arrowhead-slate)'}
-                        />
-                        <text x="690" y="222" fill={panoramaFilter !== 'all' ? '#fb7185' : '#64748b'} fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">produces</text>
-                      </g>
-                    )}
-
-                    {/* EV -> GT: assigned_to */}
-                    {isLineVisible('Evidence', 'GovernanceTask') && (
-                      <g>
-                        <path 
-                          d="M 778,82 C 778,140 448,160 448,232" 
-                          fill="none"
-                          stroke={panoramaFilter !== 'all' ? '#10b981' : '#475569'} 
-                          strokeWidth={panoramaFilter !== 'all' ? 2.5 : 1.5} 
-                          className={panoramaFilter !== 'all' ? 'flow-active-modal' : ''}
-                          strokeDasharray="3 3"
-                        />
-                      </g>
-                    )}
-
-                    {/* DI -> GT: assigned_to */}
-                    {isLineVisible('DataIssue', 'GovernanceTask') && (
-                      <g>
-                        <line 
-                          x1="778" y1="232" x2="448" y2="232" 
-                          stroke={panoramaFilter !== 'all' ? '#f43f5e' : '#475569'} 
-                          strokeWidth={panoramaFilter !== 'all' ? 2.5 : 1.5} 
-                          className={panoramaFilter !== 'all' ? 'flow-active-modal' : ''}
-                          strokeDasharray="3 3"
-                        />
-                        <text x="610" y="222" fill={panoramaFilter !== 'all' ? '#fb7185' : '#64748b'} fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">assigned_to</text>
-                      </g>
-                    )}
-
-                    {/* RU -> SS: generates */}
-                    {isLineVisible('Run', 'Snapshot') && (
-                      <g>
-                        <line 
-                          x1="278" y1="382" x2="438" y2="382" 
-                          stroke="#7c3aed" 
-                          strokeWidth={2} 
-                          markerEnd="url(#modal-arrowhead-slate)"
-                        />
-                        <text x="350" y="370" fill="#a78bfa" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">generates</text>
-                      </g>
-                    )}
-
-                    {/* SS -> SA: includes */}
-                    {isLineVisible('Snapshot', 'SemanticAssertion') && (
-                      <g>
-                        <path 
-                          d="M 448,382 C 448,300 618,220 618,82" 
-                          fill="none"
-                          stroke="#7c3aed" 
-                          strokeWidth={2} 
-                          className="flow-active-modal"
-                          markerEnd="url(#modal-arrowhead-slate)"
-                        />
-                        <text x="490" y="290" fill="#a78bfa" fontSize="9" fontWeight="bold" fontFamily="monospace" textAnchor="middle">includes</text>
-                      </g>
-                    )}
+                    {/* Loop through all Panorama Connections */}
+                    {panoramaConnections.map(({ from, to }) => {
+                      if (!isLineVisible(from, to)) return null;
+                      
+                      const pathD = getPanoramaPathD(from, to);
+                      if (!pathD) return null;
+                      
+                      const isSelected = selectedPanoramaNodeId === from || selectedPanoramaNodeId === to;
+                      const col = getLineColor(from, to);
+                      const key = `${from}-${to}`;
+                      const label = panoramaLabels[key];
+                      
+                      // Highlight line if filter is active or connected node is selected
+                      const isHighlighted = panoramaFilter !== 'all' || isSelected;
+                      
+                      return (
+                        <g key={key}>
+                          {/* Base Glowing Path */}
+                          <path
+                            d={pathD}
+                            fill="none"
+                            stroke={isHighlighted ? col : '#334155'}
+                            strokeWidth={isHighlighted ? 3.5 : 1.5}
+                            opacity={isHighlighted ? 0.35 : 0.4}
+                            className="transition-all duration-300"
+                            style={{
+                              filter: isHighlighted ? `drop-shadow(0 0 3px ${col})` : 'none'
+                            }}
+                          />
+                          
+                          {/* Main Connection Path */}
+                          <path
+                            d={pathD}
+                            fill="none"
+                            stroke={isHighlighted ? col : '#475569'}
+                            strokeWidth={isHighlighted ? 2 : 1.2}
+                            opacity={isHighlighted ? 1 : 0.5}
+                            markerEnd={isHighlighted ? getActiveMarker(from, to) : "url(#arrowhead-slate)"}
+                            className="transition-all duration-300"
+                          />
+                          
+                          {/* Flowing Light Trail Overlay */}
+                          {isHighlighted && (
+                            <path
+                              d={pathD}
+                              fill="none"
+                              stroke={col}
+                              strokeWidth={1.8}
+                              strokeLinecap="round"
+                              className="flow-active-trail"
+                              style={{
+                                filter: `drop-shadow(0 0 2px ${col})`
+                              }}
+                            />
+                          )}
+                          
+                          {/* Text Label */}
+                          {label && (
+                            <text
+                              x={label.x}
+                              y={label.y}
+                              transform={label.transform}
+                              textAnchor={label.textAnchor || 'middle'}
+                              fill={isHighlighted ? col : '#64748b'}
+                              opacity={isHighlighted ? 1 : 0.6}
+                              fontWeight={isHighlighted ? 'extrabold' : 'bold'}
+                              fontSize="9.5"
+                              fontFamily="monospace"
+                              className="transition-all duration-300"
+                            >
+                              {label.text}
+                            </text>
+                          )}
+                        </g>
+                      );
+                    })}
                   </svg>
 
                   {/* Pulsing Highlight Rings on Selection */}
                   {Object.entries({
-                    DataSource: { x: 108, y: 82, col: 'rgba(59,130,246,0.5)' },
-                    DataAsset: { x: 278, y: 82, col: 'rgba(59,130,246,0.5)' },
-                    Field: { x: 448, y: 82, col: 'rgba(59,130,246,0.5)' },
-                    SemanticAssertion: { x: 618, y: 82, col: 'rgba(16,185,129,0.5)' },
-                    Evidence: { x: 778, y: 82, col: 'rgba(20,184,166,0.5)' },
-                    DataQualityRule: { x: 618, y: 242, col: 'rgba(244,63,94,0.5)' },
-                    DataIssue: { x: 778, y: 242, col: 'rgba(244,63,94,0.5)' },
-                    GovernanceTask: { x: 448, y: 242, col: 'rgba(139,92,246,0.5)' },
-                    Run: { x: 268, y: 382, col: 'rgba(59,130,246,0.5)' },
-                    Snapshot: { x: 438, y: 382, col: 'rgba(249,115,22,0.5)' }
+                    DataSource: { x: 108, y: 82, col: 'rgba(59,130,246,0.35)' },
+                    DataAsset: { x: 268, y: 82, col: 'rgba(59,130,246,0.35)' },
+                    Field: { x: 438, y: 82, col: 'rgba(59,130,246,0.35)' },
+                    SemanticAssertion: { x: 618, y: 82, col: 'rgba(16,185,129,0.35)' },
+                    Evidence: { x: 778, y: 82, col: 'rgba(20,184,166,0.35)' },
+                    DataQualityRule: { x: 618, y: 242, col: 'rgba(244,63,94,0.35)' },
+                    DataIssue: { x: 778, y: 242, col: 'rgba(244,63,94,0.35)' },
+                    GovernanceTask: { x: 438, y: 242, col: 'rgba(139,92,246,0.35)' },
+                    Run: { x: 268, y: 382, col: 'rgba(59,130,246,0.35)' },
+                    Snapshot: { x: 438, y: 382, col: 'rgba(249,115,22,0.35)' }
                   }).map(([id, item]) => selectedPanoramaNodeId === id && (
                     <div 
                       key={id}
                       className="absolute rounded-full pointer-events-none"
                       style={{
-                        left: `${item.x - 40}px`,
-                        top: `${item.y - 40}px`,
-                        width: '80px',
-                        height: '80px',
+                        left: `${item.x - 45}px`,
+                        top: `${item.y - 45}px`,
+                        width: '90px',
+                        height: '90px',
                         background: item.col,
-                        filter: 'blur(10px)',
+                        filter: 'blur(12px)',
                         animation: 'pulse-modal 2s infinite ease-in-out',
                         zIndex: 1
                       }}
@@ -1251,9 +1488,9 @@ export default function Overview({ onNavigate, onCreateChangeSet, onRunValidatio
                       <button 
                         onClick={() => {
                           setIsPanoramaOpen(false);
-                          onNavigate('object_model', selectedPanoramaNodeId);
+                          navigate('object_model', selectedPanoramaNodeId);
                         }}
-                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
+                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-bold transition-all shadow-lg shadow-blue-500/10 flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <span>进入此对象配置中心</span>
                         <ChevronRight className="w-4 h-4" />

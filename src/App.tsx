@@ -1,13 +1,9 @@
-import React, { useState } from 'react';
-import { 
-  INITIAL_OBJECT_TYPES, 
-  INITIAL_LINK_TYPES, 
-  INITIAL_CAPABILITIES, 
-  INITIAL_WORKFLOWS, 
-  INITIAL_CHANGE_SETS, 
-  INITIAL_VALIDATION_ITEMS 
-} from './data';
-import { ObjectType, LinkType, Capability, DRKNWorkflow, ChangeSet, ValidationItem } from './types';
+import {useState} from 'react';
+import {useObjectTypes, useActivateDraftChangeSet} from './hooks/useOntology';
+import { useApp } from './context/AppContext';
+import { useUiStore } from './store/uiStore';
+import { useRouteSync } from './hooks/useRouteSync';
+import { Badge } from './components/ui/Badge';
 
 // Importing page components
 import Overview from './components/Overview';
@@ -35,150 +31,60 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  // Navigation active view state
-  const [activeView, setActiveView] = useState<string>('knowledge_network');
-  // Selected Object Type for ObjectModel and Capability views
-  const [selectedObjectId, setSelectedObjectId] = useState<string>('Field');
+  const { user, aiVersion, aiReady } = useApp();
 
-  // Core application states
-  const [objectTypes, setObjectTypes] = useState<ObjectType[]>(INITIAL_OBJECT_TYPES);
-  const [linkTypes, setLinkTypes] = useState<LinkType[]>(INITIAL_LINK_TYPES);
-  const [capabilities, setCapabilities] = useState<Capability[]>(INITIAL_CAPABILITIES);
-  const [workflows, setWorkflows] = useState<DRKNWorkflow[]>(INITIAL_WORKFLOWS);
-  const [changeSets, setChangeSets] = useState<ChangeSet[]>(INITIAL_CHANGE_SETS);
-  const [validationItems, setValidationItems] = useState<ValidationItem[]>(INITIAL_VALIDATION_ITEMS);
+  // Keep the URL (react-router) in sync with the UI store's active view +
+  // selected object, and vice versa (deep links / back / refresh).
+  useRouteSync();
 
-  // Changeset Active Editing state lock
-  const [isLocked, setIsLocked] = useState<boolean>(true); // initially locked to simulate Palantir transaction edit locking
-  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState<boolean>(false);
+  // UI state — sourced from the global UI store (no prop drilling).
+  const {
+    activeView,
+    isLocked,
+    globalSearch,
+    showSearchResults,
+    isCreateDrawerOpen,
+    navigate: navigateStore,
+    setActiveView,
+    setLocked,
+    setGlobalSearch,
+    setShowSearchResults,
+    setCreateDrawerOpen,
+  } = useUiStore();
 
-  // States for submenus and page memory
+  // Server/domain data — sourced from React Query (the data layer).
+  // Only objectTypes is consumed here (header global search). Each page now
+  // pulls its own data via the useOntology hooks.
+  const {data: objectTypes = []} = useObjectTypes();
+
+  // Selected object + edit lock for the DKN views, which still receive these
+  // via props (they have not yet been migrated to the hook-based data layer).
+  const selectedObjectId = useUiStore((s) => s.selectedObjectId);
+  const setSelectedObjectId = useUiStore((s) => s.setSelectedObjectId);
+
+  // Sidebar submenu expand/collapse is purely presentational → local state.
   const [ontologySubmenuOpen, setOntologySubmenuOpen] = useState<boolean>(true);
-  const [lastModelView, setLastModelView] = useState<string>('drkn_models');
 
-  // Global search query
-  const [globalSearch, setGlobalSearch] = useState('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  // Activate the draft changeset when the Create-ChangeSet drawer is submitted.
+  const activateDraftChangeSetMutation = useActivateDraftChangeSet();
 
-  // Hanlde routing navigate with optional preselected targets
+  // Handle routing navigate with optional preselected targets (used by the
+  // header search results, the sidebar nav, and the three Knowledge Network
+  // pages which still receive onNavigate).
   const handleNavigate = (view: string, targetId?: string) => {
-    let finalView = view;
-    if (view === 'ontology_models') {
-      finalView = lastModelView === 'ontology_models' ? 'drkn_models' : lastModelView;
-    }
-    setActiveView(finalView);
-    if (finalView === 'drkn_models' || finalView === 'dkn_models') {
-      setLastModelView(finalView);
-    }
-    if (targetId) {
-      setSelectedObjectId(targetId);
-    }
+    navigateStore(view, targetId);
+
   };
 
-  // Turn on editing changeset (Unlock mode)
+  // Turn on editing changeset (Unlock mode): promote draft CS + unlock UI.
   const submitCreateChangeSet = () => {
-    setIsLocked(false);
-    // Find CS-2026-012 (the editing draft) and make it active editing
-    const updated = changeSets.map(cs => {
-      if (cs.id === 'CS-2026-012') {
-        return { ...cs, status: 'editing' as const };
-      }
-      return cs;
-    });
-    setChangeSets(updated);
-  };
-
-  const openCreateChangeSet = () => {
-    setIsCreateDrawerOpen(true);
-  };
-
-  // Re-run simulation validations
-  const handleRunValidation = () => {
-    alert("🔍 开始扫描逻辑一致性... \n一式 10 个 Object Type, 8 个 Link Type, 8 个绑定能力全链节点扫描完成！状态完美正常，检验无破坏。");
-  };
-
-  const handleUpdateObjectType = (updatedObj: ObjectType) => {
-    const updated = objectTypes.map(o => o.id === updatedObj.id ? updatedObj : o);
-    setObjectTypes(updated);
-  };
-
-  const handleAddObjectType = (newObj: ObjectType) => {
-    const exists = objectTypes.some(o => o.id === newObj.id);
-    let updatedTypes = [];
-    if (exists) {
-      updatedTypes = objectTypes.map(o => o.id === newObj.id ? { ...newObj, status: 'Modified' as const } : o);
-    } else {
-      updatedTypes = [...objectTypes, { ...newObj, status: 'Draft' as const }];
-    }
-    setObjectTypes(updatedTypes);
-    setSelectedObjectId(newObj.id);
-
-    // Automatically append to CS-2026-012 changeset
-    const updatedCS = changeSets.map(cs => {
-      if (cs.id === 'CS-2026-012') {
-        const hasChange = cs.changes.some(ch => ch.target === newObj.id && ch.type === 'add_object');
-        if (hasChange) return cs;
-        return {
-          ...cs,
-          changes: [
-            ...cs.changes,
-            { 
-              type: 'add_object' as const, 
-              target: newObj.id, 
-              description: `启用 / 新增了 Object Type: ${newObj.id} (${newObj.nameCn})，并注入核心属性。` 
-            }
-          ]
-        };
-      }
-      return cs;
-    });
-    setChangeSets(updatedCS);
-    setIsLocked(false); // Automatically transition lock state as well
-  };
-
-  const handleUpdateLinkTypes = (updatedLinks: LinkType[]) => {
-    setLinkTypes(updatedLinks);
-    // Append a transaction log draft to changeset automatically
-    const updatedCS = changeSets.map(cs => {
-      if (cs.id === 'CS-2026-012') {
-        return {
-          ...cs,
-          changes: [
-            ...cs.changes,
-            { type: 'add_link' as const, target: `Relation Model`, description: `新建或解绑了特定的 Link Type 关系承载。` }
-          ]
-        };
-      }
-      return cs;
-    });
-    setChangeSets(updatedCS);
-  };
-
-  const handleUpdateCapabilities = (updatedCaps: Capability[]) => {
-    setCapabilities(updatedCaps);
-    // Append log draft to changeset
-    const updatedCS = changeSets.map(cs => {
-      if (cs.id === 'CS-2026-012') {
-        return {
-          ...cs,
-          changes: [
-            ...cs.changes,
-            { type: 'bind_capability' as const, target: `Capability Binding`, description: `为领域实体多级绑定了特定的 Function / Action 计算或修改决策方法。` }
-          ]
-        };
-      }
-      return cs;
-    });
-    setChangeSets(updatedCS);
-  };
-
-  const clearActiveDraftMode = () => {
-    setIsLocked(true);
+    activateDraftChangeSetMutation.mutate();
+    setLocked(false);
   };
 
   // Global search filtering
-  const matchingObjects = objectTypes.filter(obj => 
-    obj.id.toLowerCase().includes(globalSearch.toLowerCase()) || 
+  const matchingObjects = objectTypes.filter(obj =>
+    obj.id.toLowerCase().includes(globalSearch.toLowerCase()) ||
     obj.nameCn.toLowerCase().includes(globalSearch.toLowerCase()) ||
     obj.description.toLowerCase().includes(globalSearch.toLowerCase())
   );
@@ -197,7 +103,7 @@ export default function App() {
       )}
 
       {/* 1. 全局顶部导航条 / 控制台 */}
-      <header className="bg-white border-b border-slate-150 h-14 shrink-0 flex items-center justify-between px-6 sticky top-0 z-40 shadow-xs">
+      <header className="bg-white border-b border-slate-200/60 h-14 shrink-0 flex items-center justify-between px-6 sticky top-0 z-40 shadow-xs">
         
         {/* 左侧：系统标识与快照版本 */}
         <div className="flex items-center gap-4">
@@ -273,18 +179,18 @@ export default function App() {
 
         {/* 右侧：操作人身份与AI平台 */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 text-xs text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 font-medium">
+          <Badge variant="subtle" size="md" className="font-medium">
             <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-            <span>AI 状态：<b>已就绪 (v1.3.0)</b></span>
-          </div>
+            <span>AI 状态：<b>{aiReady ? '已就绪' : '离线'} ({aiVersion})</b></span>
+          </Badge>
 
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center text-slate-600">
               <User className="h-4 w-4" />
             </div>
             <div className="hidden lg:block text-left text-xs leading-none">
-              <p className="font-bold text-slate-705">linzhang0222</p>
-              <p className="text-[9px] text-slate-400 font-normal mt-0.5">超级系统管理员</p>
+              <p className="font-bold text-slate-705">{user.displayName}</p>
+              <p className="text-[9px] text-slate-400 font-normal mt-0.5">{user.role}</p>
             </div>
             <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
           </div>
@@ -482,36 +388,15 @@ export default function App() {
           )}
 
           {(activeView === 'drkn_models' || activeView === 'ontology_models') && (
-            <OntologyModelsList
-              onNavigate={handleNavigate}
-              onCreateChangeSet={openCreateChangeSet}
-              onRunValidation={handleRunValidation}
-              isLocked={isLocked}
-              modelType="DRKN"
-            />
+            <OntologyModelsList modelType="DRKN" />
           )}
 
           {activeView === 'dkn_models' && (
-            <OntologyModelsList
-              onNavigate={handleNavigate}
-              onCreateChangeSet={openCreateChangeSet}
-              onRunValidation={handleRunValidation}
-              isLocked={isLocked}
-              modelType="DKN"
-            />
+            <OntologyModelsList modelType="DKN" />
           )}
 
           {activeView === 'overview' && (
-            <Overview
-              onNavigate={handleNavigate}
-              objectTypes={objectTypes}
-              linkTypes={linkTypes}
-              changeSets={changeSets}
-              validationItems={validationItems}
-              onCreateChangeSet={openCreateChangeSet}
-              onRunValidation={handleRunValidation}
-              isLocked={isLocked}
-            />
+            <Overview />
           )}
 
           {activeView === 'dkn_overview' && (
@@ -523,68 +408,36 @@ export default function App() {
           )}
 
           {activeView === 'object_model' && (
-            lastModelView === 'dkn_models' ? (
-              <DknObjectModel
-                onNavigate={handleNavigate}
-                selectedObjectId={selectedObjectId}
-                onSelectObject={setSelectedObjectId}
-                isLocked={isLocked}
-              />
-            ) : (
-              <ObjectModel
-                objectTypes={objectTypes}
-                selectedObjectId={selectedObjectId}
-                onSelectObject={setSelectedObjectId}
-                onNavigate={handleNavigate}
-                isEditingActive={!isLocked}
-                onUpdateObjectType={handleUpdateObjectType}
-                onAddObjectType={handleAddObjectType}
-              />
-            )
+            <ObjectModel />
+          )}
+
+          {activeView === 'dkn_object_model' && (
+            <DknObjectModel
+              onNavigate={handleNavigate}
+              selectedObjectId={selectedObjectId}
+              onSelectObject={setSelectedObjectId}
+              isLocked={isLocked}
+            />
           )}
 
           {activeView === 'relation_model' && (
-            <RelationModel
-              linkTypes={linkTypes}
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-              onUpdateLinkTypes={handleUpdateLinkTypes}
-            />
+            <RelationModel />
           )}
 
           {activeView === 'capability_binding' && (
-            <CapabilityBinding
-              capabilities={capabilities}
-              objectTypes={objectTypes}
-              selectedObjectId={selectedObjectId}
-              onSelectObject={setSelectedObjectId}
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-              onUpdateCapabilities={handleUpdateCapabilities}
-            />
+            <CapabilityBinding />
           )}
 
           {activeView === 'action_model' && (
-            <ActionModel
-              objectTypes={objectTypes}
-              selectedObjectId={selectedObjectId}
-              onSelectObject={setSelectedObjectId}
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-            />
+            <ActionModel />
           )}
 
           {activeView === 'workflow_orchestration' && (
-            <WorkflowOrchestrator
-              onNavigate={handleNavigate}
-              isEditingActive={!isLocked}
-            />
+            <WorkflowOrchestrator />
           )}
 
           {activeView === 'change_release' && (
-            <ChangeRelease
-              onNavigate={handleNavigate}
-            />
+            <ChangeRelease />
           )}
 
         </main>
@@ -593,7 +446,7 @@ export default function App() {
 
       <CreateChangeSetDrawer 
         isOpen={isCreateDrawerOpen} 
-        onClose={() => setIsCreateDrawerOpen(false)} 
+        onClose={() => setCreateDrawerOpen(false)} 
         onSubmit={submitCreateChangeSet} 
       />
 

@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
-import { 
+import {
   X, HelpCircle, CheckCircle2, Info, ArrowRight, Settings, ChevronDown, Check
 } from 'lucide-react';
+import {Drawer, DrawerContent} from './ui/Drawer';
 
 interface CreateActionDrawerProps {
+  open: boolean;
   onClose: () => void;
   onSave?: () => void;
   selectedObject: string;
 }
 
-export default function CreateActionDrawer({ onClose, onSave, selectedObject }: CreateActionDrawerProps) {
+export default function CreateActionDrawer({ open, onClose, onSave, selectedObject }: CreateActionDrawerProps) {
   const [selectedTemplate, setSelectedTemplate] = useState('confirmAssertion');
-  
+
   return (
-    <div className="fixed inset-y-0 right-0 w-[42%] min-w-[560px] bg-white shadow-2xl flex flex-col z-50 animate-in slide-in-from-right duration-300 border-l border-slate-200">
-      
+    <Drawer open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DrawerContent maxWidth="max-w-none" className="w-[42%] min-w-[560px] border-l border-slate-200">
+
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-slate-200 shrink-0">
         <div className="flex items-center gap-3">
@@ -48,7 +51,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
       <div className="flex-1 overflow-y-auto scrollbar-thin p-6 space-y-8 bg-white">
         
         {/* Info Banner */}
-        <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-3.5 flex items-start gap-3">
+        <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-3.5 flex items-start gap-3">
            <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
            <div className="text-[13px] text-blue-800 leading-relaxed">
               Action 用于定义对象上的受控动作，例如确认、忽略、发布、分派或状态变化。<br/>
@@ -64,7 +67,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
              {/* Template 1 */}
              <div 
                onClick={() => setSelectedTemplate('confirmAssertion')}
-               className={`p-3.5 rounded-xl border relative cursor-pointer transition-all ${
+               className={`p-3.5 rounded-lg border relative cursor-pointer transition-all ${
                  selectedTemplate === 'confirmAssertion' 
                   ? 'border-blue-500 bg-blue-50/20 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]' 
                   : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
@@ -88,7 +91,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
              {/* Template 2 */}
              <div 
                onClick={() => setSelectedTemplate('markUnknown')}
-               className={`p-3.5 rounded-xl border relative cursor-pointer transition-all ${
+               className={`p-3.5 rounded-lg border relative cursor-pointer transition-all ${
                  selectedTemplate === 'markUnknown' 
                   ? 'border-blue-500 bg-blue-50/20 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]' 
                   : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
@@ -107,7 +110,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
              {/* Template 3 */}
              <div 
                onClick={() => setSelectedTemplate('ignoreAssertion')}
-               className={`p-3.5 rounded-xl border relative cursor-pointer transition-all ${
+               className={`p-3.5 rounded-lg border relative cursor-pointer transition-all ${
                  selectedTemplate === 'ignoreAssertion' 
                   ? 'border-blue-500 bg-blue-50/20 shadow-[0_0_0_1px_rgba(59,130,246,0.3)]' 
                   : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
@@ -124,7 +127,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
              </div>
 
              {/* Template 4 */}
-             <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 hover:bg-slate-100 cursor-pointer transition-colors flex flex-col justify-center items-center">
+             <div className="p-3.5 rounded-lg border border-slate-200 bg-slate-50/50 hover:bg-slate-100 cursor-pointer transition-colors flex flex-col justify-center items-center">
                 <div className="text-[13px] font-bold text-slate-700 mb-1">更多模板</div>
                 <div className="text-[11px] text-slate-500 mb-3 text-center">查看全部 Action 模板</div>
                 <div className="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400">
@@ -168,7 +171,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
                 </div>
              </div>
 
-             <div className="bg-slate-50/50 rounded-xl border border-slate-200 p-4 flex flex-col justify-center">
+             <div className="bg-slate-50/50 rounded-lg border border-slate-200 p-4 flex flex-col justify-center">
                 <div className="text-[12px] font-bold text-slate-700 mb-3">状态变化</div>
                 <div className="flex items-center justify-between mb-6">
                    <div className="px-3 py-1.5 rounded-lg border border-orange-200 bg-orange-50 text-orange-700 font-mono font-bold text-[12px] shadow-sm">
@@ -198,7 +201,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
              <button className="text-[13px] font-bold text-blue-600 hover:text-blue-700">编辑条件</button>
           </div>
           
-          <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-2">
+          <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm space-y-2">
              <div className="flex flex-col gap-2">
                <div className="flex items-center gap-2">
                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -232,7 +235,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
           </div>
           
           <div className="space-y-3 pt-1">
-             <label className="flex items-start gap-3 p-4 border border-blue-200 bg-blue-50/30 rounded-xl cursor-pointer">
+             <label className="flex items-start gap-3 p-4 border border-blue-200 bg-blue-50/30 rounded-lg cursor-pointer">
                 <div className="mt-0.5">
                    <div className="w-4 h-4 rounded-full border-4 border-blue-600 bg-white shadow-sm"></div>
                 </div>
@@ -242,7 +245,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
                 </div>
              </label>
              
-             <label className="flex items-start gap-3 p-4 border border-slate-200 bg-white rounded-xl cursor-pointer hover:bg-slate-50">
+             <label className="flex items-start gap-3 p-4 border border-slate-200 bg-white rounded-lg cursor-pointer hover:bg-slate-50">
                 <div className="mt-0.5">
                    <div className="w-4 h-4 rounded-full border border-slate-300 bg-white"></div>
                 </div>
@@ -310,7 +313,7 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
         <section className="space-y-4">
           <h3 className="text-[14px] font-extrabold text-slate-900 border-l-[3px] border-blue-600 pl-2">6. 保存预览</h3>
           
-          <div className="bg-[#f0fdf6] border border-[#bbf7d0] rounded-xl p-4 shadow-sm">
+          <div className="bg-[#f0fdf6] border border-[#bbf7d0] rounded-lg p-4 shadow-sm">
              <div className="text-[12px] font-bold text-[#166534] mb-3 flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" /> 将保存到当前变更集 CS-2026-012
              </div>
@@ -364,7 +367,8 @@ export default function CreateActionDrawer({ onClose, onSave, selectedObject }: 
           保存到变更集
         </button>
       </div>
-      
-    </div>
+
+      </DrawerContent>
+    </Drawer>
   );
 }
