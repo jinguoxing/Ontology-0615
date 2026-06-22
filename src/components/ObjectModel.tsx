@@ -689,7 +689,7 @@ export default function ObjectModel() {
       <div className="flex gap-1.5 mb-5 border-b border-slate-200/80 shrink-0">
         {[
           '模型总览', '对象模型', '关系模型', '函数（Function）', '动作 (Action)', 
-          '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
+          '流程 (Workflow)', '权限策略', '变更与发布'
         ].map((tab) => (
           <div 
             key={tab}
@@ -700,7 +700,7 @@ export default function ObjectModel() {
               if (tab === '能力绑定' || tab === '能力 (Function)' || tab === '函数（Function）') navigate('capability_binding');
               if (tab === '动作 (Action)') navigate('action_model');
               if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
-              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') navigate('change_release');
+              if (tab === '变更与发布') navigate('change_release');
             }}
             className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
               tab === '对象模型' 

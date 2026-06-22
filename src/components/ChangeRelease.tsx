@@ -36,7 +36,7 @@ export default function ChangeRelease() {
           {label: '管理中心', onClick: () => navigate('overview')},
           {label: '本体管理'},
           {label: 'DRKN 本体模型管理'},
-          {label: '版本与发布'},
+          {label: '变更与发布'},
         ]}
         topRight={
           <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-150 px-3 py-1 rounded-full shadow-2xs">
@@ -92,7 +92,7 @@ export default function ChangeRelease() {
       <div className="flex gap-1.5 mb-5 border-b border-slate-200/80 shrink-0">
         {[
           '模型总览', '对象模型', '关系模型', '函数（Function）', '动作 (Action)', 
-          '流程 (Workflow)', '权限策略', '版本与发布', '变更集'
+          '流程 (Workflow)', '权限策略', '变更与发布'
         ].map((tab) => (
           <div 
             key={tab}
@@ -103,10 +103,10 @@ export default function ChangeRelease() {
               if (tab === '能力绑定' || tab === '能力 (Function)' || tab === '函数（Function）') navigate('capability_binding');
               if (tab === '动作 (Action)') navigate('action_model');
               if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
-              if (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') navigate('change_release');
+              if (tab === '变更与发布') navigate('change_release');
             }}
             className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
-              (tab === '版本与发布' || tab === '变更与发布' || tab === '变更集') 
+              tab === '变更与发布' 
                 ? 'text-blue-600 font-black border-b-[2.5px] border-blue-600 -mb-[1px]' 
                 : 'text-slate-500 hover:text-slate-800'
             }`}
