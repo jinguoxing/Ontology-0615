@@ -1189,7 +1189,7 @@ export default function DknObjectModel({
         
         {/* 🔮 SLICK FLOATING TOASTS inside Wizard */}
         {toast && (
-          <div className="fixed top-16 right-6 z-50 bg-slate-900 text-white rounded-xl px-4 py-3 shadow-xl border border-slate-800 flex items-center gap-2.5 animate-fade-in text-[12.5px] font-semibold">
+          <div className="fixed top-16 right-6 z-50 bg-slate-900 text-white rounded-md px-4 py-3 shadow-xl border border-slate-800 flex items-center gap-2.5 animate-fade-in text-[12.5px] font-semibold">
             <SparkleIcon className="w-4.5 h-4.5 text-amber-400 shrink-0" />
             <span>{toast.message}</span>
           </div>
@@ -1245,9 +1245,9 @@ export default function DknObjectModel({
           <div className="flex items-center gap-2.5">
             <button 
               onClick={() => showToast('💾 成功保存当前的本体语义关系集草稿！对应 changeset 沙箱 ID: CS-2026-012')}
-              className="px-3 py-1.5 text-xs font-bold text-slate-650 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer"
+              className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer"
             >
-              <ClipboardList className="w-3.5 h-3.5 text-slate-450" />
+              <ClipboardList className="w-3.5 h-3.5 text-slate-400" />
               保存草稿
             </button>
 
@@ -1255,9 +1255,9 @@ export default function DknObjectModel({
               onClick={() => {
                 showToast('✅ 基础模型一致性预校验通过！无无效指向关系。', 'success');
               }}
-              className="px-3 py-1.5 text-xs font-bold text-slate-650 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer"
+              className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-455" />
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
               校验模型
             </button>
 
@@ -1266,7 +1266,7 @@ export default function DknObjectModel({
                 setIsAddingObjectType(false);
                 showToast('已取消本次新建对象，已返回本体建模工作台。', 'info');
               }}
-              className="px-3 py-1.5 text-xs font-bold text-slate-650 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1 transition-all shadow-3xs cursor-pointer"
+              className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1 transition-all shadow-3xs cursor-pointer"
             >
               取消
             </button>
@@ -1314,26 +1314,26 @@ export default function DknObjectModel({
               <div className="h-7 w-7 rounded-full bg-blue-500 text-white font-extrabold text-xs flex items-center justify-center shadow-inner">
                 A
               </div>
-              <span className="text-xs font-bold text-slate-705">admin</span>
+              <span className="text-xs font-bold text-slate-700">admin</span>
               <ChevronDown className="w-3 h-3 text-slate-400" />
             </div>
           </div>
         </header>
 
         {/* ================= 2. BREADCRUMBS ROW ================= */}
-        <div className="bg-white border-b border-slate-150 py-2.5 px-8 shrink-0 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[11px] text-slate-450 font-semibold uppercase tracking-wider">
+        <div className="bg-white border-b border-slate-200 py-2.5 px-8 shrink-0 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
             <span>Ontology Studio</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-350" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
             <span>DRKN 模型</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-350" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
             <span>销售域语义治理 DRKN</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-350" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
             <span>对象模型</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-350" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
             <span className="text-blue-600 font-bold">新增对象类型</span>
           </div>
-          <div className="text-[10px] text-slate-400 font-bold bg-slate-50 border border-slate-150 px-2 py-0.5 rounded-md">
+          <div className="text-[10px] text-slate-400 font-bold bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
             SANDBOX: CS-2026-012
           </div>
         </div>
@@ -1356,7 +1356,7 @@ export default function DknObjectModel({
           
           {/* 4A. LEFT STEPPER BAR (cols: 2/12) */}
           <div className="col-span-12 lg:col-span-2.5 xl:col-span-2 pr-2 mt-2">
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs flex flex-col justify-between h-full min-h-[460px]">
+            <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs flex flex-col justify-between h-full min-h-[460px]">
               <div className="space-y-6 relative">
                 {/* Stepper Vertical Connector Line */}
                 <div className="absolute left-[20px] top-[14px] bottom-6 h-[85%] w-0.5 bg-slate-100 z-0"></div>
@@ -1395,11 +1395,11 @@ export default function DknObjectModel({
                         )}
                       </div>
                       <div className="flex flex-col justify-center min-w-[100px]">
-                        <div className={`text-[12px] font-black leading-none flex items-center gap-1.5 ${isCurrent ? 'text-blue-700' : isCompleted ? 'text-slate-800' : 'text-slate-450 group-hover:text-slate-700'}`}>
+                        <div className={`text-[12px] font-black leading-none flex items-center gap-1.5 ${isCurrent ? 'text-blue-700' : isCompleted ? 'text-slate-800' : 'text-slate-400 group-hover:text-slate-700'}`}>
                           <span>{s.step}</span>
                           <span>{s.title}</span>
                         </div>
-                        <div className={`text-[9.5px] mt-1.5 leading-none font-bold ${isCurrent ? 'text-blue-600' : isCompleted ? 'text-slate-450' : 'text-slate-400'}`}>
+                        <div className={`text-[9.5px] mt-1.5 leading-none font-bold ${isCurrent ? 'text-blue-600' : isCompleted ? 'text-slate-400' : 'text-slate-400'}`}>
                           {statusLabel}
                         </div>
                       </div>
@@ -1410,7 +1410,7 @@ export default function DknObjectModel({
 
               {/* Estimate Duration Block */}
               <div className="pt-4 border-t border-slate-100 flex items-center gap-2 text-[10px] text-slate-400 font-semibold px-1">
-                <ClipboardList className="w-3.5 h-3.5 text-slate-350" />
+                <ClipboardList className="w-3.5 h-3.5 text-slate-300" />
                 <span>预计 6-10 分钟完成</span>
               </div>
             </div>
@@ -1422,35 +1422,11 @@ export default function DknObjectModel({
             {/* Step Content Wrapper inside a single big card */}
             <div className={wizardActiveStep === 5 
               ? "flex-1 flex flex-col justify-between" 
-              : "bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex-1 flex flex-col justify-between"
+              : "bg-white border border-slate-200 rounded-md p-6 shadow-sm flex-1 flex flex-col justify-between"
             }>
               <div>
                 
-                {/* Step Headline info */}
-                {wizardActiveStep !== 5 && (
-                  <div className="border-b border-slate-100 pb-4 mb-6">
-                    <div className="flex items-center gap-1.5 text-xs text-blue-650 font-black tracking-wide uppercase">
-                      <span>Step {wizardActiveStep} / 6</span>
-                      <span className="text-slate-300">•</span>
-                      <span className="text-slate-500 font-bold font-sans">
-                        {wizardActiveStep === 1 && '基础信息定义'}
-                        {wizardActiveStep === 2 && '属性定义与字段载入'}
-                        {wizardActiveStep === 3 && '语义流拓扑关系绑定'}
-                        {wizardActiveStep === 4 && '动作挂载与算子绑定'}
-                        {wizardActiveStep === 5 && '函数映射与逻辑对接'}
-                        {wizardActiveStep === 6 && '自校正完整性分析及导出'}
-                      </span>
-                    </div>
-                    <h2 className="text-[15px] font-black text-slate-900 mt-1.5 flex items-center gap-2">
-                      {wizardActiveStep === 1 && '基础信息 ─ 定义对象的基本信息与能力配置'}
-                      {wizardActiveStep === 2 && '属性定义 ─ 将定义属性字段、语义类型、默认值与来源映射'}
-                      {wizardActiveStep === 3 && '关系绑定 ─ 将配置与 Dataset、Mapping 等其他核心本体实体间的主外系'}
-                      {wizardActiveStep === 4 && '动作绑定 ─ 将绑定运行级语义识别与计算所必备的 Actions 动作列表'}
-                      {wizardActiveStep === 5 && '函数绑定 ─ 将绑定底层 semantic_classification 等专用计算函数模块'}
-                      {wizardActiveStep === 6 && '校验与创建 ─ 终期一致性一致校验，分析图谱影响并立即部署'}
-                    </h2>
-                  </div>
-                )}
+                {/* Step Headline info removed to avoid duplication with left sidebar */}
 
                 {/* STEP 1 RENDERING */}
                 {wizardActiveStep === 1 && (
@@ -1533,7 +1509,7 @@ export default function DknObjectModel({
                             onChange={(e) => setWizardDesc(e.target.value)}
                             rows={3}
                             maxLength={500}
-                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-550 focus:bg-white text-[11.5px] leading-normal font-semibold text-slate-850"
+                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-550 focus:bg-white text-[11.5px] leading-normal font-semibold text-slate-800"
                             placeholder="请描述该治理对象在销售域或全库分析中的语义、生命周期和分析目的..."
                           />
                           <div className="text-right text-[10px] text-slate-400 font-semibold mt-1">
@@ -1609,7 +1585,7 @@ export default function DknObjectModel({
                         <div className="space-y-4 pt-2">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-slate-705 text-[11.5px]">允许被其它对象引用</span>
+                              <span className="font-bold text-slate-700 text-[11.5px]">允许被其它对象引用</span>
                               <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" title="开启后，其他高层或同层本体如DataAsset等可配置为此对象的所属节点" />
                             </div>
                             <button
@@ -1623,7 +1599,7 @@ export default function DknObjectModel({
 
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-slate-705 text-[11.5px]">允许挂载动作</span>
+                              <span className="font-bold text-slate-700 text-[11.5px]">允许挂载动作</span>
                               <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" title="开启后，此对象可作为 infer_field_semantics 等原子治理动作的输入端客体" />
                             </div>
                             <button
@@ -1637,7 +1613,7 @@ export default function DknObjectModel({
 
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-slate-705 text-[11.5px]">允许挂载函数</span>
+                              <span className="font-bold text-slate-700 text-[11.5px]">允许挂载函数</span>
                               <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" title="是否支持在其字段变更和一致性核对流程中挂载底层映射计算或分析函数" />
                             </div>
                             <button
@@ -1676,7 +1652,7 @@ export default function DknObjectModel({
                             placeholder="搜索属性"
                             value={propSearchTerm}
                             onChange={(e) => setPropSearchTerm(e.target.value)}
-                            className="bg-white border border-slate-200 text-slate-705 placeholder-slate-400 text-xs pl-8 pr-3 py-1.5 rounded-lg w-32 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" 
+                            className="bg-white border border-slate-200 text-slate-700 placeholder-slate-400 text-xs pl-8 pr-3 py-1.5 rounded-lg w-32 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" 
                           />
                         </div>
 
@@ -1729,17 +1705,17 @@ export default function DknObjectModel({
                           }}
                           className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1 cursor-pointer shadow-3xs hover:text-blue-600"
                         >
-                          <Download className="w-3.5 h-3.5 text-slate-450" />
+                          <Download className="w-3.5 h-3.5 text-slate-400" />
                           批量导入
                         </button>
                       </div>
                     </div>
 
                     {/* Table of Properties */}
-                    <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-3xs">
+                    <div className="border border-slate-200 rounded-md overflow-hidden bg-white shadow-3xs">
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
-                          <tr className="bg-slate-50/80 border-b border-slate-150 text-slate-500 font-bold">
+                          <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold">
                             <th className="py-2.5 px-3 w-8 text-center"></th>
                             <th className="py-2.5 px-3">属性名称</th>
                             <th className="py-2.5 px-3">显示名称</th>
@@ -1783,7 +1759,7 @@ export default function DknObjectModel({
                                     </span>
                                   </td>
                                   <td className="py-2.5 px-3 font-mono text-slate-500">{prop.defaultValue}</td>
-                                  <td className="py-2.5 px-3 font-mono text-[11px] text-slate-450">{prop.sourcePath || '-'}</td>
+                                  <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400">{prop.sourcePath || '-'}</td>
                                   <td className="py-2.5 px-3 text-center">
                                     {prop.isRequired ? (
                                       <span className="text-emerald-600 font-bold text-xs bg-emerald-50 px-1.5 py-0.5 rounded">是</span>
@@ -1850,10 +1826,10 @@ export default function DknObjectModel({
                       };
 
                       return (
-                        <div className="bg-slate-50/30 border border-slate-200 rounded-xl p-4.5 space-y-4">
+                        <div className="bg-slate-50/30 border border-slate-200 rounded-md p-4.5 space-y-4">
                           
                           {/* Header of editing panel */}
-                          <div className="flex items-center justify-between border-b border-slate-150 pb-2.5">
+                          <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
                             <span className="font-extrabold text-[12.5px] text-slate-800 flex items-center gap-1.5">
                               <span className="w-1.5 h-3 bg-blue-600 rounded"></span>
                               编辑属性: <span className="font-mono text-blue-650 font-black">{activeProp.code}</span>
@@ -1893,7 +1869,7 @@ export default function DknObjectModel({
                               {/* Left column */}
                               <div className="space-y-3">
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
                                     属性名称 <span className="text-red-500 font-black">*</span>
                                   </label>
                                   <input 
@@ -1904,30 +1880,30 @@ export default function DknObjectModel({
                                       handlePropUpdate({ code: val });
                                       setSelectedPropCode(val);
                                     }}
-                                    className="w-full rounded-lg border border-slate-205 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-350 bg-white font-mono text-blue-650 font-bold"
+                                    className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-300 bg-white font-mono text-blue-650 font-bold"
                                   />
                                 </div>
 
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
                                     显示名称 <span className="text-red-500 font-black">*</span>
                                   </label>
                                   <input 
                                     type="text" 
                                     value={activeProp.name}
                                     onChange={(e) => handlePropUpdate({ name: e.target.value })}
-                                    className="w-full rounded-lg border border-slate-205 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-350 bg-white font-bold text-slate-705"
+                                    className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-300 bg-white font-bold text-slate-700"
                                   />
                                 </div>
 
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
                                     语义类型 <span className="text-red-500 font-black">*</span>
                                   </label>
                                   <select 
                                     value={activeProp.semanticType}
                                     onChange={(e) => handlePropUpdate({ semanticType: e.target.value })}
-                                    className="w-full rounded-lg border border-slate-205 px-2 py-1.5 focus:outline-none hover:border-slate-350 bg-white font-semibold text-slate-700"
+                                    className="w-full rounded-lg border border-slate-200 px-2 py-1.5 focus:outline-none hover:border-slate-300 bg-white font-semibold text-slate-700"
                                   >
                                     <option value="ID">ID</option>
                                     <option value="DIMENSION">DIMENSION</option>
@@ -1938,34 +1914,34 @@ export default function DknObjectModel({
                                 </div>
 
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">单位</label>
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">单位</label>
                                   <input 
                                     type="text" 
                                     value={activeProp.unit || ''}
                                     onChange={(e) => handlePropUpdate({ unit: e.target.value })}
-                                    className="w-full rounded-lg border border-slate-205 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-350 bg-white text-slate-700"
+                                    className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-300 bg-white text-slate-700"
                                     placeholder="如: 分, 个, 级, %"
                                   />
                                 </div>
 
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">取值范围</label>
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">取值范围</label>
                                   <input 
                                     type="text" 
                                     value={activeProp.range || ''}
                                     onChange={(e) => handlePropUpdate({ range: e.target.value })}
-                                    className="w-full rounded-lg border border-slate-205 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-350 bg-white text-slate-700 font-mono"
+                                    className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-300 bg-white text-slate-700 font-mono"
                                     placeholder="如: 0 ~ 100"
                                   />
                                 </div>
 
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">属性描述</label>
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">属性描述</label>
                                   <textarea 
                                     rows={2}
                                     value={activeProp.desc || ''}
                                     onChange={(e) => handlePropUpdate({ desc: e.target.value })}
-                                    className="w-full rounded-lg border border-slate-205 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-350 bg-white text-[11.5px] leading-normal text-slate-600 font-medium"
+                                    className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-300 bg-white text-[11.5px] leading-normal text-slate-600 font-medium"
                                     placeholder="请输入关于此字段详细的语义学描述与质检边界规则..."
                                   />
                                 </div>
@@ -1974,13 +1950,13 @@ export default function DknObjectModel({
                               {/* Right column */}
                               <div className="space-y-3">
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
                                     数据类型 <span className="text-red-500 font-black">*</span>
                                   </label>
                                   <select 
                                     value={activeProp.dataType}
                                     onChange={(e) => handlePropUpdate({ dataType: e.target.value })}
-                                    className="w-full rounded-lg border border-slate-205 px-2 py-1.5 focus:outline-none hover:border-slate-350 bg-white font-mono text-[11.5px] text-slate-700"
+                                    className="w-full rounded-lg border border-slate-200 px-2 py-1.5 focus:outline-none hover:border-slate-300 bg-white font-mono text-[11.5px] text-slate-700"
                                   >
                                     <option value="String">String</option>
                                     <option value="Decimal (18,2)">Decimal (18,2)</option>
@@ -1992,17 +1968,17 @@ export default function DknObjectModel({
                                 </div>
 
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">默认值</label>
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">默认值</label>
                                   <input 
                                     type="text" 
                                     value={activeProp.defaultValue}
                                     onChange={(e) => handlePropUpdate({ defaultValue: e.target.value })}
-                                    className="w-full rounded-lg border border-slate-205 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-350 bg-white text-slate-700 font-mono"
+                                    className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-300 bg-white text-slate-700 font-mono"
                                   />
                                 </div>
 
                                 {/* Modern Radio grids */}
-                                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 pt-1 bg-slate-100/50 p-2.5 border border-slate-150 rounded-lg">
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 pt-1 bg-slate-100/50 p-2.5 border border-slate-200 rounded-lg">
                                   <div>
                                     <span className="block text-[10px] font-black text-slate-500 mb-1">是否必填</span>
                                     <div className="flex gap-4">
@@ -2016,7 +1992,7 @@ export default function DknObjectModel({
                                         />
                                         <span>是</span>
                                       </label>
-                                      <label className="flex items-center gap-1.5 font-bold text-slate-650 cursor-pointer">
+                                      <label className="flex items-center gap-1.5 font-bold text-slate-600 cursor-pointer">
                                         <input 
                                           type="radio" 
                                           name="isRequiredOption"
@@ -2032,7 +2008,7 @@ export default function DknObjectModel({
                                   <div>
                                     <span className="block text-[10px] font-black text-slate-500 mb-1">是否允许为空</span>
                                     <div className="flex gap-4">
-                                      <label className="flex items-center gap-1.5 font-bold text-slate-750 cursor-pointer">
+                                      <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
                                         <input 
                                           type="radio" 
                                           name="isNullableOption"
@@ -2042,7 +2018,7 @@ export default function DknObjectModel({
                                         />
                                         <span>是</span>
                                       </label>
-                                      <label className="flex items-center gap-1.5 font-bold text-slate-650 cursor-pointer">
+                                      <label className="flex items-center gap-1.5 font-bold text-slate-600 cursor-pointer">
                                         <input 
                                           type="radio" 
                                           name="isNullableOption"
@@ -2058,7 +2034,7 @@ export default function DknObjectModel({
                                   <div>
                                     <span className="block text-[10px] font-black text-slate-500 mb-1">是否参与搜索</span>
                                     <div className="flex gap-4">
-                                      <label className="flex items-center gap-1.5 font-bold text-slate-750 cursor-pointer">
+                                      <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
                                         <input 
                                           type="radio" 
                                           name="isSearchableOption"
@@ -2068,7 +2044,7 @@ export default function DknObjectModel({
                                         />
                                         <span>是</span>
                                       </label>
-                                      <label className="flex items-center gap-1.5 font-bold text-slate-650 cursor-pointer">
+                                      <label className="flex items-center gap-1.5 font-bold text-slate-600 cursor-pointer">
                                         <input 
                                           type="radio" 
                                           name="isSearchableOption"
@@ -2084,7 +2060,7 @@ export default function DknObjectModel({
                                   <div>
                                     <span className="block text-[10px] font-black text-slate-500 mb-1">是否主标识</span>
                                     <div className="flex gap-4">
-                                      <label className="flex items-center gap-1.5 font-bold text-slate-750 cursor-pointer">
+                                      <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
                                         <input 
                                           type="radio" 
                                           name="isPrimaryOption"
@@ -2094,7 +2070,7 @@ export default function DknObjectModel({
                                         />
                                         <span>是</span>
                                       </label>
-                                      <label className="flex items-center gap-1.5 font-bold text-slate-650 cursor-pointer">
+                                      <label className="flex items-center gap-1.5 font-bold text-slate-600 cursor-pointer">
                                         <input 
                                           type="radio" 
                                           name="isPrimaryOption"
@@ -2110,20 +2086,20 @@ export default function DknObjectModel({
 
                                 <div className="grid grid-cols-2 gap-4">
                                   <div>
-                                    <label className="block text-[11px] font-bold text-slate-650 mb-1">排序优先级</label>
+                                    <label className="block text-[11px] font-bold text-slate-600 mb-1">排序优先级</label>
                                     <input 
                                       type="number" 
                                       value={activeProp.sortPriority || 50}
                                       onChange={(e) => handlePropUpdate({ sortPriority: parseInt(e.target.value) || 50 })}
-                                      className="w-full rounded-lg border border-slate-205 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-350 bg-white text-slate-700"
+                                      className="w-full rounded-lg border border-slate-200 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-300 bg-white text-slate-700"
                                     />
                                   </div>
                                   <div>
-                                    <label className="block text-[11px] font-bold text-slate-650 mb-1">来源映射方式 <span className="text-red-500">*</span></label>
+                                    <label className="block text-[11px] font-bold text-slate-600 mb-1">来源映射方式 <span className="text-red-500">*</span></label>
                                     <select 
                                       value={activeProp.mappingMode || '字段映射'}
                                       onChange={(e) => handlePropUpdate({ mappingMode: e.target.value })}
-                                      className="w-full rounded-lg border border-slate-205 px-2 py-1.5 focus:outline-none hover:border-slate-350 bg-white font-medium text-slate-700"
+                                      className="w-full rounded-lg border border-slate-200 px-2 py-1.5 focus:outline-none hover:border-slate-300 bg-white font-medium text-slate-700"
                                     >
                                       <option value="字段映射">字段映射</option>
                                       <option value="聚合计算">聚合计算</option>
@@ -2133,13 +2109,13 @@ export default function DknObjectModel({
                                 </div>
 
                                 <div>
-                                  <label className="block text-[11px] font-bold text-slate-650 mb-1">来源映射物理路径</label>
+                                  <label className="block text-[11px] font-bold text-slate-600 mb-1">来源映射物理路径</label>
                                   <div className="relative">
                                     <input 
                                       type="text" 
                                       value={activeProp.sourcePath || ''}
                                       onChange={(e) => handlePropUpdate({ sourcePath: e.target.value })}
-                                      className="w-full rounded-lg border border-slate-205 pl-2.5 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-350 bg-white font-mono text-slate-700 text-[11.5px]"
+                                      className="w-full rounded-lg border border-slate-200 pl-2.5 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-slate-300 bg-white font-mono text-slate-700 text-[11.5px]"
                                       placeholder="如: source.field_code"
                                     />
                                     <ExternalLink className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-2.5 cursor-pointer hover:text-slate-600" />
@@ -2155,10 +2131,10 @@ export default function DknObjectModel({
                     })()}
 
                     {/* RECOMMENDED PRESETS BADGES ROW */}
-                    <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-4 space-y-3">
+                    <div className="bg-slate-50/50 border border-slate-200 rounded-md p-4 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
-                          <h4 className="text-xs font-black text-slate-850 flex items-center gap-1">
+                          <h4 className="text-xs font-black text-slate-800 flex items-center gap-1">
                             <Sparkle className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
                             属性预设推荐
                           </h4>
@@ -2229,7 +2205,7 @@ export default function DknObjectModel({
                       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                         
                         {/* 关系配置表 Card */}
-                        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between shadow-3xs min-h-[340px]">
+                        <div className="lg:col-span-3 bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between shadow-3xs min-h-[340px]">
                           <div>
                             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
                               <span className="font-extrabold text-[13px] text-slate-800 flex items-center gap-1.5">
@@ -2299,15 +2275,15 @@ export default function DknObjectModel({
                                 placeholder="搜索关系"
                                 value={relationSearchTerm}
                                 onChange={(e) => setRelationSearchTerm(e.target.value)}
-                                className="bg-slate-50 border border-slate-200 text-slate-705 placeholder-slate-400 text-xs pl-8 pr-3 py-1.5 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" 
+                                className="bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-xs pl-8 pr-3 py-1.5 rounded-lg w-full focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium" 
                               />
                             </div>
 
                             {/* Relationship Items Table inside Left Card */}
-                            <div className="border border-slate-150 rounded-lg overflow-hidden bg-white max-h-[190px] overflow-y-auto shadow-3xs">
+                            <div className="border border-slate-200 rounded-lg overflow-hidden bg-white max-h-[190px] overflow-y-auto shadow-3xs">
                               <table className="w-full text-left text-[11px] border-collapse leading-normal">
                                 <thead>
-                                  <tr className="bg-slate-50/70 border-b border-slate-150 text-slate-500 font-bold">
+                                  <tr className="bg-slate-50/70 border-b border-slate-200 text-slate-500 font-bold">
                                     <th className="py-2 px-2.5">来源对象</th>
                                     <th className="py-2 px-2.5">关系类型</th>
                                     <th className="py-2 px-2.5">目标对象</th>
@@ -2335,8 +2311,8 @@ export default function DknObjectModel({
                                           <td className="py-2 px-2.5 font-mono text-blue-650 font-bold">{relation.relationType}</td>
                                           <td className="py-2 px-2.5 font-bold text-slate-700">{relation.target}</td>
                                           <td className="py-2 px-2.5 text-slate-500 text-[10.5px]">{relation.direction}</td>
-                                          <td className="py-2 px-2.5 font-mono font-bold text-slate-650">{relation.cardinality || <span className="text-amber-500 font-black">未配置</span>}</td>
-                                          <td className="py-2 px-2.5 text-slate-450 font-medium text-[10.5px]">{relation.creationMethod}</td>
+                                          <td className="py-2 px-2.5 font-mono font-bold text-slate-600">{relation.cardinality || <span className="text-amber-500 font-black">未配置</span>}</td>
+                                          <td className="py-2 px-2.5 text-slate-400 font-medium text-[10.5px]">{relation.creationMethod}</td>
                                           <td className="py-2 px-2.5">
                                             <span className="flex items-center gap-1 font-bold">
                                               <span className={`w-1.5 h-1.5 rounded-full ${relation.status === '已启用' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`}></span>
@@ -2379,7 +2355,7 @@ export default function DknObjectModel({
                         </div>
 
                         {/* 关系图谱预览 Card */}
-                        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between shadow-3xs min-h-[340px]">
+                        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between shadow-3xs min-h-[340px]">
                           <div>
                             <span className="font-extrabold text-[13px] text-slate-800 flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
                               <span className="flex items-center gap-1.5">
@@ -2390,7 +2366,7 @@ export default function DknObjectModel({
                             </span>
 
                             {/* Graphic Canvas Layout */}
-                            <div className="relative w-full h-[245px] bg-slate-50/40 rounded-xl border border-slate-150 p-2 overflow-hidden select-none">
+                            <div className="relative w-full h-[245px] bg-slate-50/40 rounded-md border border-slate-200 p-2 overflow-hidden select-none">
                               
                               {/* SVG Link lines between nodes */}
                               <svg className="absolute inset-0 w-full h-full pointer-events-none">
@@ -2515,7 +2491,7 @@ export default function DknObjectModel({
                         const activeRel = wizardRelations.find(r => r.id === selectedRelationId) || wizardRelations[0];
                         if (!activeRel) {
                           return (
-                            <div className="bg-white border border-slate-200 rounded-xl p-6 text-center text-slate-450 font-bold shadow-3xs">
+                            <div className="bg-white border border-slate-200 rounded-md p-6 text-center text-slate-400 font-bold shadow-3xs">
                               📭 暂无选中的关系。请在配置表中点击任一行进行编辑。
                             </div>
                           );
@@ -2531,7 +2507,7 @@ export default function DknObjectModel({
                         };
 
                         return (
-                          <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4 shadow-3xs animate-fade-in">
+                          <div className="bg-white border border-slate-200 rounded-md p-5 space-y-4 shadow-3xs animate-fade-in">
                             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                               <span className="font-extrabold text-[12.5px] text-slate-800 flex items-center gap-2">
                                 <span className="w-1.5 h-3 bg-blue-600 rounded"></span>
@@ -2567,7 +2543,7 @@ export default function DknObjectModel({
                                   type="text" 
                                   value={activeRel.relationType}
                                   onChange={(e) => handleFormUpdate({ relationType: e.target.value })}
-                                  className="w-full rounded-lg border border-slate-205 hover:border-slate-350 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 py-2 font-mono text-blue-650 font-black"
+                                  className="w-full rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 py-2 font-mono text-blue-650 font-black"
                                   placeholder="如: has_quality, contains"
                                 />
                               </div>
@@ -2590,7 +2566,7 @@ export default function DknObjectModel({
                                     type="text" 
                                     value={activeRel.target}
                                     onChange={(e) => handleFormUpdate({ target: e.target.value })}
-                                    className="w-full rounded-lg border border-slate-205 hover:border-slate-350 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 pr-8 py-2 font-bold text-slate-700"
+                                    className="w-full rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 pr-8 py-2 font-bold text-slate-700"
                                     placeholder="输入或选择目标类别，如: Mapping, DataQuality"
                                   />
                                   <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-3 cursor-pointer" />
@@ -2613,7 +2589,7 @@ export default function DknObjectModel({
                                     />
                                     <span>单向</span>
                                   </label>
-                                  <label className="flex items-center gap-1.5 font-bold text-slate-650 cursor-pointer">
+                                  <label className="flex items-center gap-1.5 font-bold text-slate-600 cursor-pointer">
                                     <input 
                                       type="radio" 
                                       name="relDirection"
@@ -2633,7 +2609,7 @@ export default function DknObjectModel({
                                 <select 
                                   value={activeRel.cardinality || ''}
                                   onChange={(e) => handleFormUpdate({ cardinality: e.target.value })}
-                                  className="w-full rounded-lg border border-slate-205 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 py-2 font-mono font-bold text-slate-700 hover:border-slate-350"
+                                  className="w-full rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 py-2 font-mono font-bold text-slate-700 hover:border-slate-300"
                                 >
                                   <option value="">-- 请选择基数 (必填) --</option>
                                   <option value="1:1">1:1</option>
@@ -2646,14 +2622,14 @@ export default function DknObjectModel({
                               <div className="md:row-span-2">
                                 <label className="block text-[11px] font-bold text-slate-550 mb-1 flex items-center justify-between">
                                   <span>关系说明</span>
-                                  <span className="text-[10px] text-slate-450 font-mono">{(activeRel.desc || '').length}/200</span>
+                                  <span className="text-[10px] text-slate-400 font-mono">{(activeRel.desc || '').length}/200</span>
                                 </label>
                                 <textarea 
                                   rows={4}
                                   value={activeRel.desc || ''}
                                   maxLength={200}
                                   onChange={(e) => handleFormUpdate({ desc: e.target.value })}
-                                  className="w-full rounded-lg border border-slate-205 hover:border-slate-350 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white p-2.5 text-[11.5px] leading-normal font-medium text-slate-600 shadow-inner"
+                                  className="w-full rounded-lg border border-slate-200 hover:border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white p-2.5 text-[11.5px] leading-normal font-medium text-slate-600 shadow-inner"
                                   placeholder="请输入关于此关系的图连通性及拓扑血缘业务规则描述..."
                                 />
                               </div>
@@ -2666,7 +2642,7 @@ export default function DknObjectModel({
                                 <select 
                                   value={activeRel.creationMethod}
                                   onChange={(e) => handleFormUpdate({ creationMethod: e.target.value })}
-                                  className="w-full rounded-lg border border-slate-205 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 py-2 font-medium text-slate-705 cursor-pointer hover:border-slate-350"
+                                  className="w-full rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 py-2 font-medium text-slate-700 cursor-pointer hover:border-slate-300"
                                 >
                                   <option value="schema-based">schema-based</option>
                                   <option value="rule-based">rule-based</option>
@@ -2714,7 +2690,7 @@ export default function DknObjectModel({
                                     handleFormUpdate({ status: val });
                                     showToast(`关系状态变更为: ${val}`, 'info');
                                   }}
-                                  className="w-full rounded-lg border border-slate-205 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 py-2 font-bold hover:border-slate-350 text-slate-755"
+                                  className="w-full rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white px-3 py-2 font-bold hover:border-slate-300 text-slate-700"
                                 >
                                   <option value="已启用">已启用</option>
                                   <option value="草稿">草稿</option>
@@ -2732,18 +2708,18 @@ export default function DknObjectModel({
                     <div className="col-span-12 xl:col-span-3 space-y-4">
                       
                       {/* A. 关系摘要 Card */}
-                      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-3xs space-y-3">
+                      <div className="bg-white border border-slate-200 rounded-md p-4 shadow-3xs space-y-3">
                         <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
-                          <ClipboardList className="w-4 h-4 text-slate-650" />
+                          <ClipboardList className="w-4 h-4 text-slate-600" />
                           <span className="font-extrabold text-[12.5px] text-slate-805 font-sans">A. 关系摘要</span>
                         </div>
                         
                         <div className="grid grid-cols-3 gap-2 text-center">
-                          <div className="bg-slate-50/50 rounded-lg p-2.5 border border-slate-150/50">
+                          <div className="bg-slate-50/50 rounded-lg p-2.5 border border-slate-200/50">
                             <span className="block font-mono text-[19px] font-black text-slate-800 leading-none">
                               {wizardRelations.length}
                             </span>
-                            <span className="block text-[9px] text-slate-450 font-bold mt-1.5 font-sans">总关系数</span>
+                            <span className="block text-[9px] text-slate-400 font-bold mt-1.5 font-sans">总关系数</span>
                           </div>
                           
                           <div className="bg-blue-50/30 rounded-lg p-2.5 border border-blue-100">
@@ -2763,19 +2739,19 @@ export default function DknObjectModel({
                       </div>
 
                       {/* B. AI 建模建议 Card */}
-                      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-3xs space-y-3 font-sans">
+                      <div className="bg-white border border-slate-200 rounded-md p-4 shadow-3xs space-y-3 font-sans">
                         <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
                           <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-pulse" />
                           <span className="font-extrabold text-[12.5px] text-slate-805 font-sans">B. AI 建模建议</span>
                         </div>
                         
-                        <p className="text-[10.5px] text-slate-450 leading-normal font-medium font-sans">
+                        <p className="text-[10.5px] text-slate-400 leading-normal font-medium font-sans">
                           基于当前对象及图谱上下文分析，推荐以下关系：
                         </p>
 
                         <div className="space-y-2.5 text-[11px]">
                           {/* Suggestion 1 */}
-                          <div className="bg-slate-50/60 hover:bg-slate-50 border border-slate-150 rounded-lg p-2.5 flex items-center justify-between gap-1 transition-all">
+                          <div className="bg-slate-50/60 hover:bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex items-center justify-between gap-1 transition-all">
                             <div className="space-y-1">
                               <div className="flex items-center gap-1 flex-wrap">
                                 <span className="font-semibold text-slate-700">Field</span>
@@ -2784,7 +2760,7 @@ export default function DknObjectModel({
                                 <span className="text-slate-400 font-mono text-[9px]">←</span>
                                 <span className="font-semibold text-slate-700">Rule</span>
                               </div>
-                              <div className="text-[9.5px] text-slate-450 font-sans font-bold">
+                              <div className="text-[9.5px] text-slate-400 font-sans font-bold">
                                 建议基数: <span className="font-mono text-slate-600">N:1</span>
                               </div>
                             </div>
@@ -2821,7 +2797,7 @@ export default function DknObjectModel({
                           </div>
 
                           {/* Suggestion 2 */}
-                          <div className="bg-slate-50/60 hover:bg-slate-50 border border-slate-150 rounded-lg p-2.5 flex items-center justify-between gap-1 transition-all">
+                          <div className="bg-slate-50/60 hover:bg-slate-50 border border-slate-200 rounded-lg p-2.5 flex items-center justify-between gap-1 transition-all">
                             <div className="space-y-1">
                               <div className="flex items-center gap-1 flex-wrap">
                                 <span className="font-semibold text-slate-700">Field</span>
@@ -2830,7 +2806,7 @@ export default function DknObjectModel({
                                 <span className="text-slate-400 font-mono text-[9px]">→</span>
                                 <span className="font-semibold text-slate-700">DataQuality</span>
                               </div>
-                              <div className="text-[9.5px] text-slate-450 font-sans font-bold">
+                              <div className="text-[9.5px] text-slate-400 font-sans font-bold">
                                 建议基数: <span className="font-mono text-slate-600">1:N</span>
                               </div>
                             </div>
@@ -2880,7 +2856,7 @@ export default function DknObjectModel({
                       </div>
 
                       {/* C. 风险提示 Card */}
-                      <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-3xs space-y-3 font-sans">
+                      <div className="bg-white border border-slate-200 rounded-md p-4 shadow-3xs space-y-3 font-sans">
                         <div className="flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
                           <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                           <span className="font-extrabold text-[12.5px] text-slate-805">C. 风险提示</span>
@@ -2913,7 +2889,7 @@ export default function DknObjectModel({
                                   </button>
                                 </div>
                                 <p className="text-slate-500 text-[10px] font-semibold leading-normal pl-4.5">
-                                  请为关系 <span className="font-bold text-slate-755">Field → has_quality → DataQuality</span> 配置基数
+                                  请为关系 <span className="font-bold text-slate-700">Field → has_quality → DataQuality</span> 配置基数
                                 </p>
                               </div>
                             );
@@ -3056,10 +3032,10 @@ export default function DknObjectModel({
                   return (
                     <div className="space-y-5 text-[12px] animate-fade-in">
                       {/* Subtitle description card */}
-                      <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-xl flex items-start gap-2.5">
+                      <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-md flex items-start gap-2.5">
                         <Sparkles className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
                         <div>
-                          <p className="text-[11.5px] text-slate-705 font-bold leading-normal">
+                          <p className="text-[11.5px] text-slate-700 font-bold leading-normal">
                             当前对象已绑定物理算子或业务运行动作，定义了对象在元架构引擎编排中的运行时语义。
                           </p>
                           <p className="text-[10px] text-slate-400 mt-0.5">
@@ -3069,7 +3045,7 @@ export default function DknObjectModel({
                       </div>
 
                       {/* 1. 已绑定动作列表 Card / Element */}
-                      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-3xs">
+                      <div className="bg-white border border-slate-200 rounded-md overflow-hidden shadow-3xs">
                         {/* Header bar */}
                         <div className="px-4 py-3 bg-slate-50/50 border-b border-slate-200 flex flex-wrap gap-2.5 items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -3104,7 +3080,7 @@ export default function DknObjectModel({
                               onClick={handleBulkBind}
                               className="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[11px] font-bold rounded-lg flex items-center gap-1 transition-all cursor-pointer"
                             >
-                              <Layers className="w-3.5 h-3.5 text-slate-450" />
+                              <Layers className="w-3.5 h-3.5 text-slate-400" />
                               批量绑定
                             </button>
 
@@ -3116,7 +3092,7 @@ export default function DknObjectModel({
                                 placeholder="搜索动作名称、编码或描述..."
                                 value={actionSearchTerm}
                                 onChange={(e) => setActionSearchTerm(e.target.value)}
-                                className="pl-8 pr-2.5 py-1 bg-white border border-slate-205 rounded-lg text-[11px] font-medium text-slate-750 focus:outline-none focus:ring-1 focus:ring-blue-550 w-44 focus:w-56 transition-all"
+                                className="pl-8 pr-2.5 py-1 bg-white border border-slate-200 rounded-lg text-[11px] font-medium text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-550 w-44 focus:w-56 transition-all"
                               />
                             </div>
                           </div>
@@ -3194,7 +3170,7 @@ export default function DknObjectModel({
                                       </td>
 
                                       <td className="py-3 px-3">
-                                        <span className="text-slate-650 font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-150/65">
+                                        <span className="text-slate-600 font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/65">
                                           {act.boundFunction}
                                         </span>
                                       </td>
@@ -3257,18 +3233,18 @@ export default function DknObjectModel({
                         </div>
 
                         {/* Pagination box */}
-                        <div className="px-4 py-2.5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-slate-450 font-semibold text-[10.5px]">
+                        <div className="px-4 py-2.5 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between text-slate-400 font-semibold text-[10.5px]">
                           <span>共 {filteredActions.length} 条</span>
                           <div className="flex items-center gap-3">
-                            <span className="border border-slate-150 bg-white px-2 py-0.5 rounded text-slate-600">10条/页</span>
+                            <span className="border border-slate-200 bg-white px-2 py-0.5 rounded text-slate-600">10条/页</span>
                             <div className="flex items-center gap-1.5">
-                              <button type="button" disabled className="w-5 h-5 border border-slate-155 bg-white rounded flex items-center justify-center text-slate-350 cursor-not-allowed">‹</button>
+                              <button type="button" disabled className="w-5 h-5 border border-slate-155 bg-white rounded flex items-center justify-center text-slate-300 cursor-not-allowed">‹</button>
                               <button type="button" className="w-5 h-5 bg-blue-600 border border-blue-600 rounded flex items-center justify-center text-white font-bold">1</button>
-                              <button type="button" disabled className="w-5 h-5 border border-slate-155 bg-white rounded flex items-center justify-center text-slate-350 cursor-not-allowed">›</button>
+                              <button type="button" disabled className="w-5 h-5 border border-slate-155 bg-white rounded flex items-center justify-center text-slate-300 cursor-not-allowed">›</button>
                             </div>
                             <div className="flex items-center gap-1">
                               <span>前往</span>
-                              <input type="text" readOnly value="1" className="w-6 text-center border border-slate-150 rounded bg-white py-0.5 text-slate-700" />
+                              <input type="text" readOnly value="1" className="w-6 text-center border border-slate-200 rounded bg-white py-0.5 text-slate-700" />
                               <span>页</span>
                             </div>
                           </div>
@@ -3278,7 +3254,7 @@ export default function DknObjectModel({
                       {/* 2. Bottom Grid divided: Left: 编辑表单 | Right: 链路预览 */}
                       <div className="grid grid-cols-12 gap-4">
                         {/* 2A. LEFT: 动作详情编辑表单 */}
-                        <div className="col-span-12 xl:col-span-6 bg-white border border-slate-200 rounded-xl p-4.5 space-y-4 shadow-3xs">
+                        <div className="col-span-12 xl:col-span-6 bg-white border border-slate-200 rounded-md p-4.5 space-y-4 shadow-3xs">
                           <div className="border-b border-slate-100 pb-2.5 flex items-center gap-1.5">
                             <Layers className="w-4 h-4 text-blue-500" />
                             <h3 className="font-extrabold text-slate-800 text-[12px]">动作详情编辑表单</h3>
@@ -3293,7 +3269,7 @@ export default function DknObjectModel({
                                 type="text"
                                 value={selectedAction.name}
                                 onChange={(e) => updateSelectedActionField('name', e.target.value)}
-                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-205 rounded-lg text-[11px] font-semibold text-slate-750 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                               />
                             </div>
                             <div>
@@ -3304,7 +3280,7 @@ export default function DknObjectModel({
                                 type="text"
                                 value={selectedAction.code}
                                 onChange={(e) => updateSelectedActionField('code', e.target.value)}
-                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-205 rounded-lg text-[11px] font-mono text-slate-705 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-mono text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                               />
                             </div>
                             <div>
@@ -3314,7 +3290,7 @@ export default function DknObjectModel({
                               <select
                                 value={selectedAction.targetObject}
                                 onChange={(e) => updateSelectedActionField('targetObject', e.target.value)}
-                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-205 rounded-lg text-[11px] font-semibold text-slate-705 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
+                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
                               >
                                 <option value="Field">Field</option>
                                 <option value="Dataset">Dataset</option>
@@ -3331,7 +3307,7 @@ export default function DknObjectModel({
                               <select
                                 value={selectedAction.actionType}
                                 onChange={(e) => updateSelectedActionField('actionType', e.target.value)}
-                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-205 rounded-lg text-[11px] font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
+                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
                               >
                                 <option value="GENERATE">GENERATE</option>
                                 <option value="VALIDATE">VALIDATE</option>
@@ -3346,7 +3322,7 @@ export default function DknObjectModel({
                               <select
                                 value={selectedAction.riskLevel}
                                 onChange={(e) => updateSelectedActionField('riskLevel', e.target.value as any)}
-                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-205 rounded-lg text-[11px] font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
+                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
                               >
                                 <option value="LOW">LOW</option>
                                 <option value="MEDIUM">MEDIUM</option>
@@ -3360,7 +3336,7 @@ export default function DknObjectModel({
                               <select
                                 value={selectedAction.execMode}
                                 onChange={(e) => updateSelectedActionField('execMode', e.target.value as any)}
-                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-205 rounded-lg text-[11px] font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
+                                className="w-full px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-bold text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
                               >
                                 <option value="ASYNC">ASYNC</option>
                                 <option value="SYNC">SYNC</option>
@@ -3375,7 +3351,7 @@ export default function DknObjectModel({
                                 value={selectedAction.inputSchema}
                                 onChange={(e) => updateSelectedActionField('inputSchema', e.target.value)}
                                 rows={5}
-                                className="w-full px-2.5 py-1.5 bg-[#f8fafc] border border-slate-205 rounded-lg text-[10px] font-mono text-blue-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550 h-[105px] resize-none"
+                                className="w-full px-2.5 py-1.5 bg-[#f8fafc] border border-slate-200 rounded-lg text-[10px] font-mono text-blue-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550 h-[105px] resize-none"
                               />
                             </div>
                             <div>
@@ -3384,7 +3360,7 @@ export default function DknObjectModel({
                                 value={selectedAction.outputSchema}
                                 onChange={(e) => updateSelectedActionField('outputSchema', e.target.value)}
                                 rows={5}
-                                className="w-full px-2.5 py-1.5 bg-[#f8fafc] border border-slate-205 rounded-lg text-[10px] font-mono text-blue-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550 h-[105px] resize-none"
+                                className="w-full px-2.5 py-1.5 bg-[#f8fafc] border border-slate-200 rounded-lg text-[10px] font-mono text-blue-900 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550 h-[105px] resize-none"
                               />
                             </div>
                           </div>
@@ -3415,13 +3391,13 @@ export default function DknObjectModel({
                               type="text"
                               value={selectedAction.desc}
                               onChange={(e) => updateSelectedActionField('desc', e.target.value)}
-                              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-205 rounded-lg text-[11px] text-slate-755 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
+                              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-550"
                             />
                           </div>
                         </div>
 
                         {/* 2B. RIGHT: 动作执行链路预览 */}
-                        <div className="col-span-12 xl:col-span-6 bg-white border border-slate-200 rounded-xl p-4.5 space-y-4 shadow-3xs flex flex-col justify-between">
+                        <div className="col-span-12 xl:col-span-6 bg-white border border-slate-200 rounded-md p-4.5 space-y-4 shadow-3xs flex flex-col justify-between">
                           <div>
                             <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
                               <h3 className="font-extrabold text-slate-800 text-[12px] flex items-center gap-1.5">
@@ -3446,7 +3422,7 @@ export default function DknObjectModel({
                                   <p className="text-[8.5px] text-slate-700 font-bold scale-90 leading-tight">用户端工作流<br/>发起请求</p>
                                 </div>
                                 <div className="absolute top-1/2 -right-1 transform -translate-y-1/2 z-10">
-                                  <ChevronRight className="w-3.5 h-3.5 text-slate-350 stroke-[2.5]" />
+                                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 stroke-[2.5]" />
                                 </div>
                               </div>
 
@@ -3457,10 +3433,10 @@ export default function DknObjectModel({
                                 </div>
                                 <div className="space-y-0.5">
                                   <span className="text-[8.5px] font-black text-blue-600 block tracking-tight scale-95 leading-none">Action Trigger</span>
-                                  <p className="text-[8px] text-slate-650 font-semibold font-mono scale-90 leading-tight">触发动作为<br/><span className="text-blue-700 bg-blue-50 border border-blue-100 px-0.5 py-0.2 rounded font-bold break-all inline-block truncate max-w-[50px]">{selectedAction.code}</span></p>
+                                  <p className="text-[8px] text-slate-600 font-semibold font-mono scale-90 leading-tight">触发动作为<br/><span className="text-blue-700 bg-blue-50 border border-blue-100 px-0.5 py-0.2 rounded font-bold break-all inline-block truncate max-w-[50px]">{selectedAction.code}</span></p>
                                 </div>
                                 <div className="absolute top-1/2 -right-1 transform -translate-y-1/2 z-10">
-                                  <ChevronRight className="w-3.5 h-3.5 text-slate-350 stroke-[2.5]" />
+                                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 stroke-[2.5]" />
                                 </div>
                               </div>
 
@@ -3474,7 +3450,7 @@ export default function DknObjectModel({
                                   <p className="text-[8.5px] text-slate-700 font-bold scale-90 leading-tight">参数校验与<br/>权限校验</p>
                                 </div>
                                 <div className="absolute top-1/2 -right-1 transform -translate-y-1/2 z-10">
-                                  <ChevronRight className="w-3.5 h-3.5 text-slate-350 stroke-[2.5]" />
+                                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 stroke-[2.5]" />
                                 </div>
                               </div>
 
@@ -3485,10 +3461,10 @@ export default function DknObjectModel({
                                 </div>
                                 <div className="space-y-0.5">
                                   <span className="text-[8.5px] font-black text-violet-600 block tracking-tight scale-95 leading-none">Function Exec</span>
-                                  <p className="text-[8px] text-slate-655 font-semibold font-mono scale-90 leading-tight">执行绑定函数<br/><span className="text-violet-750 bg-violet-50 px-0.5 rounded font-bold select-all truncate max-w-[50px] inline-block">{selectedAction.boundFunction || 'fn_' + selectedAction.code}</span></p>
+                                  <p className="text-[8px] text-slate-600 font-semibold font-mono scale-90 leading-tight">执行绑定函数<br/><span className="text-violet-750 bg-violet-50 px-0.5 rounded font-bold select-all truncate max-w-[50px] inline-block">{selectedAction.boundFunction || 'fn_' + selectedAction.code}</span></p>
                                 </div>
                                 <div className="absolute top-1/2 -right-1 transform -translate-y-1/2 z-10">
-                                  <ChevronRight className="w-3.5 h-3.5 text-slate-350 stroke-[2.5]" />
+                                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 stroke-[2.5]" />
                                 </div>
                               </div>
 
@@ -3502,7 +3478,7 @@ export default function DknObjectModel({
                                   <p className="text-[8.5px] text-slate-700 font-bold scale-90 leading-tight">更新图数据<br/>(质量结果写入)</p>
                                 </div>
                                 <div className="absolute top-1/2 -right-1 transform -translate-y-1/2 z-10">
-                                  <ChevronRight className="w-3.5 h-3.5 text-slate-350 stroke-[2.5]" />
+                                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 stroke-[2.5]" />
                                 </div>
                               </div>
 
@@ -3520,22 +3496,22 @@ export default function DknObjectModel({
                             </div>
 
                             {/* Back pointer Exception treatment arrow line */}
-                            <div className="mt-5 pt-3 border-t border-dashed border-slate-205 flex items-center justify-between text-[10px] text-slate-400 font-bold">
+                            <div className="mt-5 pt-3 border-t border-dashed border-slate-200 flex items-center justify-between text-[10px] text-slate-400 font-bold">
                               <div className="w-full flex items-center gap-1.5 relative">
                                 <div className="w-full h-px bg-[#d1d5db] relative border-t border-dashed">
                                   <div className="absolute left-0 -top-[3.5px] border-l border-t border-slate-400/80 w-1.5 h-1.5 rotate-[225deg]"></div>
                                 </div>
-                                <span className="shrink-0 bg-white px-2.5 text-slate-450 text-[9.5px] font-semibold tracking-wide">异常回滚 / 补偿处理</span>
+                                <span className="shrink-0 bg-white px-2.5 text-slate-400 text-[9.5px] font-semibold tracking-wide">异常回滚 / 补偿处理</span>
                                 <div className="w-full h-px bg-[#d1d5db] relative border-t border-dashed"></div>
                               </div>
                             </div>
                           </div>
 
-                          <div className="pt-2 flex items-center gap-2 text-slate-450 leading-relaxed text-[10px] font-semibold border-t border-slate-100 bg-slate-50/30 p-2.5 rounded-lg border border-slate-150 mt-4 font-sans">
+                          <div className="pt-2 flex items-center gap-2 text-slate-400 leading-relaxed text-[10px] font-semibold border-t border-slate-100 bg-slate-50/30 p-2.5 rounded-lg border border-slate-200 mt-4 font-sans">
                             <span className="text-xs shrink-0 mt-0.5 font-bold">📝</span>
                             <p>
                               当算子由于断言异常、超时或元机制调度失败触发回滚时，
-                              系统将按 <span className="font-mono text-slate-750 font-bold">逆向补偿链路</span> 撤销在图数据中写入的节点状态属性。
+                              系统将按 <span className="font-mono text-slate-700 font-bold">逆向补偿链路</span> 撤销在图数据中写入的节点状态属性。
                             </p>
                           </div>
                         </div>
@@ -3578,7 +3554,7 @@ export default function DknObjectModel({
                             {lines.map((line, idx) => (
                               <tr key={idx} className="hover:bg-slate-100/50">
                                 <td className="w-5 text-right pr-2 select-none text-slate-300 font-bold border-r border-slate-200/50 leading-normal">{idx + 1}</td>
-                                <td className="pl-2 leading-normal whitespace-pre font-semibold text-slate-650">{line}</td>
+                                <td className="pl-2 leading-normal whitespace-pre font-semibold text-slate-600">{line}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -3591,15 +3567,7 @@ export default function DknObjectModel({
                     <div className="space-y-4 text-[12px] animate-fade-in font-sans">
                       
                       {/* 1. Step Title & Action Buttons Header */}
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h2 className="text-base font-black text-slate-900 flex items-center gap-1.5 font-sans leading-none">
-                            <span className="text-slate-350 font-normal select-none">+</span> Step 5 / 函数绑定
-                          </h2>
-                          <p className="text-[10.5px] text-slate-450 mt-1.5 font-semibold leading-none">
-                            为当前对象绑定可调用的 Function，定义语义计算、评分、推理与检测能力。
-                          </p>
-                        </div>
+                      <div className="flex items-center justify-end">
                         <div className="flex items-center gap-2">
                           <button 
                             type="button"
@@ -3621,7 +3589,7 @@ export default function DknObjectModel({
                       </div>
 
                       {/* 2. CARD: 已绑定函数列表 (Table Container) */}
-                      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-4">
+                      <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <h3 className="text-xs font-black text-slate-805 flex items-center gap-1.5 shrink-0 leading-none">
                             已绑定函数列表
@@ -3667,7 +3635,7 @@ export default function DknObjectModel({
                                 setWizardFnList(prev => prev.map(f => ({ ...f, status: '● 已启用' })));
                                 showToast('🪄 AI 重组推荐！已为您补全最佳字段提取算法。', 'info');
                               }}
-                              className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-705 rounded-lg text-[10.5px] font-black transition-all shadow-3xs flex items-center gap-1 cursor-pointer"
+                              className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[10.5px] font-black transition-all shadow-3xs flex items-center gap-1 cursor-pointer"
                             >
                               <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
                               AI 推荐函数
@@ -3675,7 +3643,7 @@ export default function DknObjectModel({
                             <button
                               type="button"
                               onClick={() => showToast('📥 已打开云函数模板库分类，支持快速导入。', 'info')}
-                              className="px-3 py-1.5 bg-white border border-slate-205 hover:bg-slate-50 text-slate-705 rounded-lg text-[10.5px] font-black transition-all shadow-3xs flex items-center gap-1 cursor-pointer"
+                              className="px-3 py-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-[10.5px] font-black transition-all shadow-3xs flex items-center gap-1 cursor-pointer"
                             >
                               <Download className="w-3.5 h-3.5 text-slate-400" />
                               导入函数模板
@@ -3700,11 +3668,11 @@ export default function DknObjectModel({
                         </div>
 
                         {/* Elegantly styled Table layout */}
-                        <div className="border border-slate-150 rounded-xl overflow-hidden bg-white">
+                        <div className="border border-slate-200 rounded-md overflow-hidden bg-white">
                           <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse table-fixed min-w-[800px] leading-relaxed">
                               <thead>
-                                <tr className="bg-slate-50 border-b border-slate-150 text-[10.5px] font-extrabold text-slate-500 h-9">
+                                <tr className="bg-slate-50 border-b border-slate-200 text-[10.5px] font-extrabold text-slate-500 h-9">
                                   <th className="pl-4 py-2 font-black text-slate-700 w-[240px]">函数名称</th>
                                   <th className="py-2 font-black text-slate-700 w-[90px]">类型</th>
                                   <th className="py-2 font-black text-slate-700 w-[85px]">绑定对象</th>
@@ -3716,7 +3684,7 @@ export default function DknObjectModel({
                                   <th className="py-2 px-4 font-black text-slate-700 text-center w-[100px]">操作</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-100 text-[11px] font-semibold text-slate-650">
+                              <tbody className="divide-y divide-slate-100 text-[11px] font-semibold text-slate-600">
                                 {filteredFns.map((f) => {
                                   const isSelected = f.id === selectedFnId;
                                   return (
@@ -3793,12 +3761,12 @@ export default function DknObjectModel({
                           </div>
                           
                           {/* Table Pagination Footer */}
-                          <div className="bg-slate-50/50 border-t border-slate-150 px-4 py-2.5 flex items-center justify-between text-[10px] text-slate-450 font-bold select-none leading-none">
+                          <div className="bg-slate-50/50 border-t border-slate-200 px-4 py-2.5 flex items-center justify-between text-[10px] text-slate-400 font-bold select-none leading-none">
                             <div>共 {filteredFns.length} 条</div>
                             <div className="flex items-center gap-3">
                               <div className="flex items-center gap-1.5">
                                 <button type="button" className="p-1 bg-white border border-slate-200 rounded leading-none text-slate-400 hover:text-slate-700 cursor-pointer">&lt;</button>
-                                <span className="px-2.5 py-1 bg-white border border-slate-350 text-blue-650 rounded-md font-sans">1</span>
+                                <span className="px-2.5 py-1 bg-white border border-slate-300 text-blue-650 rounded-md font-sans">1</span>
                                 <button type="button" className="p-1 bg-white border border-slate-200 rounded leading-none text-slate-400 hover:text-slate-700 cursor-pointer">&gt;</button>
                               </div>
                               <select className="bg-white border border-slate-200 rounded px-1.5 py-1 text-slate-600 focus:outline-none">
@@ -3815,7 +3783,7 @@ export default function DknObjectModel({
                       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-start">
                         
                         {/* 3A. CARD 2: 函数详情 (quality_score_compute) - taking 6cols */}
-                        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-4 xl:col-span-6 flex flex-col justify-between">
+                        <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-4 xl:col-span-6 flex flex-col justify-between">
                           <h3 className="text-xs font-black text-slate-805 leading-none shrink-0">
                             函数详情 ({activeFn.name})
                           </h3>
@@ -3915,21 +3883,13 @@ export default function DknObjectModel({
                 {wizardActiveStep === 6 && (
                   <div className="space-y-4 font-sans select-none animate-fade-in text-[12px]">
                     
-                    {/* Step Title Row */}
-                    <div className="mb-4">
-                      <h1 className="text-xl font-black text-slate-800 flex items-center gap-2">
-                        Step 6 / 校验与创建
-                      </h1>
-                      <p className="text-[11px] text-slate-400 font-semibold mt-1">
-                        针对当前对象模型进行完整校验、查看影响分析与创建结果确认，完成对象模型创建。
-                      </p>
-                    </div>
+                    {/* Step Title Row removed to avoid duplication with left sidebar */}
 
                     {/* TWO COLS: 校验结果摘要 & 创建对象预览 */}
                     <div className="grid grid-cols-12 gap-4">
                       
                       {/* CARD A: 校验结果摘要 */}
-                      <div className="col-span-12 lg:col-span-7 bg-white border border-slate-200 rounded-xl p-5 shadow-3xs">
+                      <div className="col-span-12 lg:col-span-7 bg-white border border-slate-200 rounded-md p-5 shadow-3xs">
                         <h3 className="text-xs font-black text-slate-805 mb-4 flex items-center gap-1.5 leading-none">
                           校验结果摘要
                         </h3>
@@ -3938,63 +3898,63 @@ export default function DknObjectModel({
                           {/* 通过项 */}
                           <div 
                             onClick={() => setChecklistTab('pass')}
-                            className={`border rounded-xl p-3.5 flex flex-col items-center justify-center text-center shadow-3xs transition-all cursor-pointer ${
+                            className={`border rounded-md p-3.5 flex flex-col items-center justify-center text-center shadow-3xs transition-all cursor-pointer ${
                               checklistTab === 'pass' 
                                 ? 'bg-emerald-50/50 border-emerald-400 ring-2 ring-emerald-400/20' 
                                 : 'bg-emerald-50/20 border-emerald-100 hover:bg-emerald-50/40'
                             }`}
                           >
                             <CheckCircle className="w-5 h-5 text-emerald-500 mb-2 stroke-[2.5]" />
-                            <span className="text-[10px] text-slate-450 font-bold block mb-1">通过项</span>
+                            <span className="text-[10px] text-slate-400 font-bold block mb-1">通过项</span>
                             <span className="font-mono text-xl font-extrabold text-emerald-600 leading-none">18</span>
                           </div>
 
                           {/* 警告 */}
                           <div 
                             onClick={() => setChecklistTab('warn')}
-                            className={`border rounded-xl p-3.5 flex flex-col items-center justify-center text-center shadow-3xs transition-all cursor-pointer ${
+                            className={`border rounded-md p-3.5 flex flex-col items-center justify-center text-center shadow-3xs transition-all cursor-pointer ${
                               checklistTab === 'warn' 
                                 ? 'bg-amber-50/50 border-amber-400 ring-2 ring-amber-400/20' 
                                 : 'bg-amber-50/20 border-amber-100 hover:bg-amber-50/40'
                             }`}
                           >
                             <AlertTriangle className="w-5 h-5 text-amber-500 mb-2 stroke-[2.5]" />
-                            <span className="text-[10px] text-slate-450 font-bold block mb-1">警告</span>
+                            <span className="text-[10px] text-slate-400 font-bold block mb-1">警告</span>
                             <span className="font-mono text-xl font-extrabold text-amber-500 leading-none">3</span>
                           </div>
 
                           {/* 错误 */}
                           <div 
                             onClick={() => setChecklistTab('error')}
-                            className={`border rounded-xl p-3.5 flex flex-col items-center justify-center text-center shadow-3xs transition-all cursor-pointer ${
+                            className={`border rounded-md p-3.5 flex flex-col items-center justify-center text-center shadow-3xs transition-all cursor-pointer ${
                               checklistTab === 'error' 
                                 ? 'bg-rose-50/50 border-rose-400 ring-2 ring-rose-400/20' 
                                 : 'bg-rose-50/20 border-rose-100 hover:bg-rose-50/40'
                             }`}
                           >
                             <X className="w-5 h-5 text-rose-500 mb-2 bg-rose-100/30 rounded-full p-0.5 stroke-[3]" />
-                            <span className="text-[10px] text-slate-450 font-bold block mb-1">错误</span>
+                            <span className="text-[10px] text-slate-400 font-bold block mb-1">错误</span>
                             <span className="font-mono text-xl font-extrabold text-rose-500 leading-none">1</span>
                           </div>
 
                           {/* 阻断项 */}
                           <div 
                             onClick={() => setChecklistTab('block')}
-                            className={`border rounded-xl p-3.5 flex flex-col items-center justify-center text-center shadow-3xs transition-all cursor-pointer ${
+                            className={`border rounded-md p-3.5 flex flex-col items-center justify-center text-center shadow-3xs transition-all cursor-pointer ${
                               checklistTab === 'block' 
                                 ? 'bg-red-50/50 border-red-400 ring-2 ring-red-400/20' 
                                 : 'bg-red-50/20 border-red-100/50 hover:bg-red-50/40'
                             }`}
                           >
                             <ShieldAlert className="w-5 h-5 text-red-700 mb-2 bg-red-105 rounded-full stroke-[2]" />
-                            <span className="text-[10px] text-slate-455 font-bold block mb-1">阻断项</span>
+                            <span className="text-[10px] text-slate-400 font-bold block mb-1">阻断项</span>
                             <span className="font-mono text-xl font-extrabold text-red-700 leading-none">1</span>
                           </div>
                         </div>
                       </div>
 
                       {/* CARD B: 创建对象预览 */}
-                      <div className="col-span-12 lg:col-span-5 bg-white border border-slate-200 rounded-xl p-5 shadow-3xs flex flex-col justify-between">
+                      <div className="col-span-12 lg:col-span-5 bg-white border border-slate-200 rounded-md p-5 shadow-3xs flex flex-col justify-between">
                         <div className="flex items-center justify-between mb-3.5">
                           <h3 className="text-xs font-black text-slate-805 leading-none">创建对象预览</h3>
                           <span className="bg-emerald-50 border border-emerald-150 text-emerald-705 px-2 py-0.5 rounded-md text-[9.5px] font-black leading-none animate-pulse">
@@ -4034,19 +3994,19 @@ export default function DknObjectModel({
                             <div className="flex flex-col gap-1 border-l border-slate-100 pl-4">
                               <div className="flex justify-between border-b border-slate-100 pb-0.5">
                                 <span className="text-slate-400 font-semibold">属性数:</span>
-                                <span className="font-bold text-slate-850 font-mono">{wizardProperties.length}</span>
+                                <span className="font-bold text-slate-800 font-mono">{wizardProperties.length}</span>
                               </div>
                               <div className="flex justify-between border-b border-slate-100 pb-0.5">
                                 <span className="text-slate-400 font-semibold">关系数:</span>
-                                <span className="font-bold text-slate-850 font-mono">{wizardLinks.length}</span>
+                                <span className="font-bold text-slate-800 font-mono">{wizardLinks.length}</span>
                               </div>
                               <div className="flex justify-between border-b border-slate-100 pb-0.5">
                                 <span className="text-slate-400 font-semibold">动作数:</span>
-                                <span className="font-bold text-slate-850 font-mono">{wizardActionList.filter(a => a.status === '已绑定').length}</span>
+                                <span className="font-bold text-slate-800 font-mono">{wizardActionList.filter(a => a.status === '已绑定').length}</span>
                               </div>
                               <div className="flex justify-between">
                                 <span className="text-slate-400 font-semibold">函数数:</span>
-                                <span className="font-bold text-slate-850 font-mono">3</span>
+                                <span className="font-bold text-slate-800 font-mono">3</span>
                               </div>
                             </div>
                           </div>
@@ -4057,7 +4017,7 @@ export default function DknObjectModel({
                     </div>
 
                     {/* ACCORDION/LIST: 详细校验清单 */}
-                    <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-4">
+                    <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-4">
                       
                       {/* Header filter row */}
                       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -4082,7 +4042,7 @@ export default function DknObjectModel({
                                 className={`px-2.5 py-1 rounded-md text-[10.5px] font-extrabold flex items-center gap-1 border transition-all cursor-pointer ${
                                   isSelected 
                                     ? 'bg-[#0052cc] border-[#0052cc] text-white shadow-xs' 
-                                    : 'bg-slate-50 border-slate-200 text-slate-650 hover:bg-slate-100'
+                                    : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                                 }`}
                               >
                                 <span>{tab.label}</span>
@@ -4100,7 +4060,7 @@ export default function DknObjectModel({
                         
                         {/* ACCORDION 1: 基础信息校验 (3项) */}
                         {(checklistTab === 'all' || checklistTab === 'pass') && (
-                          <div className="border border-slate-150 rounded-xl overflow-hidden shadow-3xs transition-all">
+                          <div className="border border-slate-200 rounded-md overflow-hidden shadow-3xs transition-all">
                             {/* Header */}
                             <div 
                               onClick={() => setChecklistExpanded(prev => ({ ...prev, base: !prev.base }))}
@@ -4166,7 +4126,7 @@ export default function DknObjectModel({
 
                         {/* ACCORDION 2: 属性定义校验 (4项) */}
                         {(checklistTab === 'all' || checklistTab === 'pass' || checklistTab === 'warn') && (
-                          <div className="border border-slate-150 rounded-xl overflow-hidden shadow-3xs transition-all">
+                          <div className="border border-slate-200 rounded-md overflow-hidden shadow-3xs transition-all">
                             {/* Header */}
                             <div 
                               onClick={() => setChecklistExpanded(prev => ({ ...prev, properties: !prev.properties }))}
@@ -4179,7 +4139,7 @@ export default function DknObjectModel({
                               <div className="flex items-center gap-2">
                                 <span className="bg-emerald-50 border border-emerald-150 text-emerald-700 px-1.5 py-0.5 rounded text-[9.5px] font-bold">通过 3</span>
                                 <span className="bg-amber-50 border border-amber-150 text-amber-600 px-1.5 py-0.5 rounded text-[9.5px] font-bold">警告 1</span>
-                                <span className="bg-slate-50 border border-slate-150 text-slate-400 px-1.5 py-0.5 rounded text-[9.5px] font-bold">错误 0</span>
+                                <span className="bg-slate-50 border border-slate-200 text-slate-400 px-1.5 py-0.5 rounded text-[9.5px] font-bold">错误 0</span>
                                 <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${checklistExpanded.properties ? 'rotate-180' : ''}`} />
                               </div>
                             </div>
@@ -4256,7 +4216,7 @@ export default function DknObjectModel({
 
                         {/* ACCORDION 3: 关系绑定校验 (3项) */}
                         {(checklistTab === 'all' || checklistTab === 'pass' || checklistTab === 'warn') && (
-                          <div className="border border-slate-150 rounded-xl overflow-hidden shadow-3xs transition-all">
+                          <div className="border border-slate-200 rounded-md overflow-hidden shadow-3xs transition-all">
                             {/* Header */}
                             <div 
                               onClick={() => setChecklistExpanded(prev => ({ ...prev, relationship: !prev.relationship }))}
@@ -4269,7 +4229,7 @@ export default function DknObjectModel({
                               <div className="flex items-center gap-2">
                                 <span className="bg-emerald-50 border border-emerald-150 text-emerald-700 px-1.5 py-0.5 rounded text-[9.5px] font-bold">通过 2</span>
                                 <span className="bg-amber-50 border border-amber-150 text-amber-600 px-1.5 py-0.5 rounded text-[9.5px] font-bold">警告 1</span>
-                                <span className="bg-slate-50 border border-slate-150 text-slate-400 px-1.5 py-0.5 rounded text-[9.5px] font-bold">错误 0</span>
+                                <span className="bg-slate-50 border border-slate-200 text-slate-400 px-1.5 py-0.5 rounded text-[9.5px] font-bold">错误 0</span>
                                 <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${checklistExpanded.relationship ? 'rotate-180' : ''}`} />
                               </div>
                             </div>
@@ -4331,7 +4291,7 @@ export default function DknObjectModel({
 
                         {/* ACCORDION 4: 动作与函数校验 (4项) */}
                         {(checklistTab === 'all' || checklistTab === 'pass' || checklistTab === 'error' || checklistTab === 'block') && (
-                          <div className="border border-slate-150 rounded-xl overflow-hidden shadow-3xs transition-all">
+                          <div className="border border-slate-200 rounded-md overflow-hidden shadow-3xs transition-all">
                             {/* Header */}
                             <div 
                               onClick={() => setChecklistExpanded(prev => ({ ...prev, action: !prev.action }))}
@@ -4343,7 +4303,7 @@ export default function DknObjectModel({
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="bg-emerald-50 border border-emerald-150 text-emerald-700 px-1.5 py-0.5 rounded text-[9.5px] font-bold">通过 2</span>
-                                <span className="bg-amber-50 border border-slate-150 text-slate-400 px-1.5 py-0.5 rounded text-[9.5px] font-bold">警告 0</span>
+                                <span className="bg-amber-50 border border-slate-200 text-slate-400 px-1.5 py-0.5 rounded text-[9.5px] font-bold">警告 0</span>
                                 <span className="bg-rose-50 border border-rose-150 text-rose-600 px-1.5 py-0.5 rounded text-[9.5px] font-bold">错误 1</span>
                                 <span className="bg-red-50 border border-red-150 text-red-700 px-1.5 py-0.5 rounded text-[9.5px] font-bold">阻断 1</span>
                                 <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${checklistExpanded.action ? 'rotate-180' : ''}`} />
@@ -4423,9 +4383,9 @@ export default function DknObjectModel({
                     </div>
 
                     {/* THREE COLS ROW: 创建前影响分析与确认 */}
-                    <div className="grid grid-cols-12 gap-5 bg-white border border-slate-200 rounded-xl p-5 shadow-3xs">
+                    <div className="grid grid-cols-12 gap-5 bg-white border border-slate-200 rounded-md p-5 shadow-3xs">
                       {/* Box 1: 影响分析 */}
-                      <div className="col-span-12 lg:col-span-4 bg-slate-50/40 border border-slate-150 rounded-xl p-4 flex flex-col justify-between">
+                      <div className="col-span-12 lg:col-span-4 bg-slate-50/40 border border-slate-200 rounded-md p-4 flex flex-col justify-between">
                         <div>
                           <h4 className="font-black text-slate-805 text-xs mb-2 leading-none flex items-center gap-2">
                             <span className="text-[11px] select-none">📊</span>
@@ -4433,13 +4393,13 @@ export default function DknObjectModel({
                           </h4>
                           <span className="text-[10px] text-slate-400 font-bold block mb-3 font-mono leading-none">IMPACT ANALYSIS</span>
                           <div className="space-y-2 text-[10.5px] font-semibold text-slate-600 font-sans">
-                            <p className="flex justify-between border-b border-dashed border-slate-150 pb-1.5">
+                            <p className="flex justify-between border-b border-dashed border-slate-200 pb-1.5">
                               <span>受关联影响节点:</span>
-                              <span className="font-extrabold text-slate-750">3 项</span>
+                              <span className="font-extrabold text-slate-700">3 项</span>
                             </p>
-                            <p className="flex justify-between border-b border-dashed border-slate-150 pb-1.5">
+                            <p className="flex justify-between border-b border-dashed border-slate-200 pb-1.5">
                               <span>涉及元拓扑实体:</span>
-                              <span className="font-extrabold text-slate-750">2 节点</span>
+                              <span className="font-extrabold text-slate-700">2 节点</span>
                             </p>
                             <p className="flex justify-between">
                               <span>对图性能预估:</span>
@@ -4447,7 +4407,7 @@ export default function DknObjectModel({
                             </p>
                           </div>
                         </div>
-                        <div className="mt-4 border-t border-slate-150/70 pt-3">
+                        <div className="mt-4 border-t border-slate-200/70 pt-3">
                           <label className="flex items-start gap-2 cursor-pointer select-none">
                             <input 
                               type="checkbox"
@@ -4455,13 +4415,13 @@ export default function DknObjectModel({
                               onChange={(e) => setConfirmModelingChecked(e.target.checked)}
                               className="w-3.5 h-3.5 text-blue-600 border-slate-300 rounded focus:ring-blue-500 mt-0.5 cursor-pointer"
                             />
-                            <span className="text-[10.5px] font-black text-slate-750 font-sans">确认执行此实体对象建模</span>
+                            <span className="text-[10.5px] font-black text-slate-700 font-sans">确认执行此实体对象建模</span>
                           </label>
                         </div>
                       </div>
 
                       {/* Box 2: 版本与变更摘要 */}
-                      <div className="col-span-12 lg:col-span-4 bg-slate-50/40 border border-slate-150 rounded-xl p-4 flex flex-col justify-between">
+                      <div className="col-span-12 lg:col-span-4 bg-slate-50/40 border border-slate-200 rounded-md p-4 flex flex-col justify-between">
                         <div>
                           <h4 className="font-black text-slate-805 text-xs mb-2 leading-none flex items-center gap-2">
                             <span className="text-[11px] select-none">📑</span>
@@ -4469,13 +4429,13 @@ export default function DknObjectModel({
                           </h4>
                           <span className="text-[10px] text-slate-400 font-bold block mb-3 font-mono leading-none">CHANGE RESOLUTION SET</span>
                           <div className="space-y-2 text-[10.5px] font-semibold text-slate-605 font-sans">
-                            <p className="flex justify-between border-b border-dashed border-slate-150 pb-1.5">
+                            <p className="flex justify-between border-b border-dashed border-slate-200 pb-1.5">
                               <span>临时分支:</span>
-                              <span className="font-mono text-slate-750">CS-2026-012</span>
+                              <span className="font-mono text-slate-700">CS-2026-012</span>
                             </p>
-                            <p className="flex justify-between border-b border-dashed border-slate-150 pb-1.5">
+                            <p className="flex justify-between border-b border-dashed border-slate-200 pb-1.5">
                               <span>预挂载算子:</span>
-                              <span className="font-mono text-slate-750">3 active</span>
+                              <span className="font-mono text-slate-700">3 active</span>
                             </p>
                             <p className="flex justify-between">
                               <span>一致性登记:</span>
@@ -4483,7 +4443,7 @@ export default function DknObjectModel({
                             </p>
                           </div>
                         </div>
-                        <div className="mt-4 border-t border-slate-150/70 pt-3">
+                        <div className="mt-4 border-t border-slate-200/70 pt-3">
                           <label className="flex items-start gap-2 cursor-pointer select-none">
                             <input 
                               type="checkbox"
@@ -4491,13 +4451,13 @@ export default function DknObjectModel({
                               onChange={(e) => setConfirmListChecked(e.target.checked)}
                               className="w-3.5 h-3.5 text-blue-600 border-slate-300 rounded focus:ring-blue-500 mt-0.5 cursor-pointer"
                             />
-                            <span className="text-[10.5px] font-black text-slate-750 font-sans">确认清单检验状态并认可风险</span>
+                            <span className="text-[10.5px] font-black text-slate-700 font-sans">确认清单检验状态并认可风险</span>
                           </label>
                         </div>
                       </div>
 
                       {/* Box 3: 创建确认 */}
-                      <div className="col-span-12 lg:col-span-4 bg-blue-50/20 border border-blue-105 rounded-xl p-4 flex flex-col justify-between">
+                      <div className="col-span-12 lg:col-span-4 bg-blue-50/20 border border-blue-105 rounded-md p-4 flex flex-col justify-between">
                         <div>
                           <h4 className="font-black text-blue-805 text-xs mb-2 leading-none flex items-center gap-2">
                             <span className="text-[11px] select-none">🌟</span>
@@ -4528,7 +4488,7 @@ export default function DknObjectModel({
                               setWizardActiveStep(5);
                               showToast('已返回 Step 5 / 函数绑定 进行微调');
                             }}
-                            className="w-full py-1.5 bg-white hover:bg-slate-50 border border-slate-205 text-slate-605 font-extrabold text-[10px] rounded-md transition-all flex items-center justify-center cursor-pointer"
+                            className="w-full py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-605 font-extrabold text-[10px] rounded-md transition-all flex items-center justify-center cursor-pointer"
                           >
                             返回修改
                           </button>
@@ -4537,12 +4497,12 @@ export default function DknObjectModel({
                     </div>
 
                     {validationSuccess && !isValidating && (
-                      <div className="p-4 bg-emerald-50 border border-emerald-250 rounded-xl space-y-2 text-emerald-800 animate-fade-in text-[11.5px] mt-4 font-sans">
+                      <div className="p-4 bg-emerald-50 border border-emerald-250 rounded-md space-y-2 text-emerald-800 animate-fade-in text-[11.5px] mt-4 font-sans">
                         <p className="font-black flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-emerald-600" />
                           系统核对完成： 一致性等级(高)，无主键重名，无环依赖。项目已写入元变更集分支 (CS-2026-012)。
                         </p>
-                        <div className="space-y-1 font-semibold text-slate-650 pt-1 border-t border-emerald-200 text-[10.5px] pl-6">
+                        <div className="space-y-1 font-semibold text-slate-600 pt-1 border-t border-emerald-200 text-[10.5px] pl-6">
                           <p>• 主标识符 [{wizardObjCode || 'id'}_id] 符合语义定义库规范，唯一有效。</p>
                           <p>• [{wizardProperties.length}] 项属性属性未发生重名冲突，主类型定义安全。</p>
                           <p>• 已自动生成 Change Set 分支变更记录，目标沙箱归档槽: CS-2026-012。</p>
@@ -4551,11 +4511,11 @@ export default function DknObjectModel({
                     )}
 
                     {/* Preview summary panel */}
-                    <div className="bg-white border border-slate-205 rounded-xl p-4 space-y-3.5 shadow-3xs mt-4">
+                    <div className="bg-white border border-slate-200 rounded-md p-4 space-y-3.5 shadow-3xs mt-4">
                       <h4 className="font-extrabold text-slate-805 text-xs">即将在本体库创建的元数据大纲:</h4>
                       <div className="grid grid-cols-2 gap-4 text-[11px] font-semibold text-slate-600 font-sans">
                         <div className="space-y-2.5">
-                          <p>• 对象实体Code: <span className="font-mono text-slate-800 bg-slate-50 px-1 py-0.5 rounded border border-slate-150">{wizardObjCode || '-'}</span></p>
+                          <p>• 对象实体Code: <span className="font-mono text-slate-800 bg-slate-50 px-1 py-0.5 rounded border border-slate-200">{wizardObjCode || '-'}</span></p>
                           <p>• 实体中文简称: <span className="text-slate-800">{wizardObjName}</span></p>
                           <p>• 本体基本分类: <span className="text-slate-800">{wizardCategory}</span></p>
                           <p>• 主标识映射代码: <span className="font-mono text-slate-800 bg-slate-100 px-1 py-0.5 rounded">{wizardObjCode}_id</span></p>
@@ -4590,7 +4550,7 @@ export default function DknObjectModel({
                     className={`border rounded-lg p-3 flex items-center justify-between cursor-pointer transition-all ${
                       isSelected 
                         ? 'bg-blue-50/40 border-blue-200' 
-                        : 'bg-white border-slate-150 hover:bg-slate-50/50'
+                        : 'bg-white border-slate-200 hover:bg-slate-50/50'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -4600,7 +4560,7 @@ export default function DknObjectModel({
                         {acc.step}
                       </div>
                       <div>
-                        <span className={`text-[11px] font-bold block ${isSelected ? 'text-blue-700' : 'text-slate-750'}`}>
+                        <span className={`text-[11px] font-bold block ${isSelected ? 'text-blue-700' : 'text-slate-700'}`}>
                           {acc.title}
                         </span>
                         <p className="text-[9.5px] text-slate-400 font-semibold leading-relaxed font-sans">{acc.desc}</p>
@@ -4620,30 +4580,30 @@ export default function DknObjectModel({
             {wizardActiveStep === 5 ? (
               <>
                 {/* A. 函数摘要 */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-4 select-none">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-4 select-none">
                   <h3 className="text-xs font-black text-slate-805 flex items-center gap-1.5 border-b border-slate-100 pb-2.5 leading-none">
                     <List className="w-4 h-4 text-blue-500 animate-[pulse_2s_infinite]" />
                     A. 函数摘要
                   </h3>
                   
                   <div className="space-y-3">
-                    <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-105 p-3 rounded-xl flex items-center justify-between transition-colors">
+                    <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-200 p-3 rounded-md flex items-center justify-between transition-colors">
                       <div className="flex items-center gap-2">
                         <span className="text-base select-none">📦</span>
                         <div>
                           <span className="font-extrabold text-slate-800 block text-[11.5px] leading-tight font-sans">累计绑定函数</span>
-                          <span className="text-[9.5px] leading-none text-slate-450 font-bold block mt-1 font-mono">Bound Functions Scale</span>
+                          <span className="text-[9.5px] leading-none text-slate-400 font-bold block mt-1 font-mono">Bound Functions Scale</span>
                         </div>
                       </div>
                       <span className="font-mono text-base font-black text-blue-600 leading-none">{wizardFnList.length} 项</span>
                     </div>
 
-                    <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-105 p-3 rounded-xl flex items-center justify-between transition-colors">
+                    <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-200 p-3 rounded-md flex items-center justify-between transition-colors">
                       <div className="flex items-center gap-2">
                         <span className="text-base select-none">🚀</span>
                         <div>
                           <span className="font-extrabold text-slate-800 block text-[11.5px] leading-tight font-sans">激活高维算子</span>
-                          <span className="text-[9.5px] leading-none text-slate-450 font-bold block mt-1 font-mono">Active AI Operators</span>
+                          <span className="text-[9.5px] leading-none text-slate-400 font-bold block mt-1 font-mono">Active AI Operators</span>
                         </div>
                       </div>
                       <span className="font-mono text-base font-black text-emerald-600 leading-none">
@@ -4651,21 +4611,21 @@ export default function DknObjectModel({
                       </span>
                     </div>
 
-                    <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-105 p-3 rounded-xl flex items-center justify-between transition-colors">
+                    <div className="bg-slate-50/50 hover:bg-slate-50 border border-slate-200 p-3 rounded-md flex items-center justify-between transition-colors">
                       <div className="flex items-center gap-2">
                         <span className="text-base select-none">⏱️</span>
                         <div>
                           <span className="font-extrabold text-slate-800 block text-[11.5px] leading-tight font-sans">平均响应开销</span>
-                          <span className="text-[9.5px] leading-none text-slate-450 font-bold block mt-1 font-mono">Avg Execution Ingress</span>
+                          <span className="text-[9.5px] leading-none text-slate-400 font-bold block mt-1 font-mono">Avg Execution Ingress</span>
                         </div>
                       </div>
-                      <span className="font-mono text-[13.5px] font-black text-slate-705 leading-none">174 ms</span>
+                      <span className="font-mono text-[13.5px] font-black text-slate-700 leading-none">174 ms</span>
                     </div>
                   </div>
                 </div>
 
                 {/* B. AI 建模建议 */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-3.5">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-3.5">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                     <h3 className="text-xs font-black text-slate-805 flex items-center gap-1.5 leading-none">
                       <Sparkles className="w-4 h-4 text-blue-500 animate-pulse" />
@@ -4694,7 +4654,7 @@ export default function DknObjectModel({
                             <span className="text-blue-550 text-xs mt-0.5 shrink-0 select-none">💡</span>
                             <div>
                               <span className="font-extrabold text-slate-800 block leading-tight text-[11px]">{sug.title}</span>
-                              <p className="text-[9.5px] text-slate-450 mt-1.5 leading-relaxed font-semibold">{sug.desc}</p>
+                              <p className="text-[9.5px] text-slate-400 mt-1.5 leading-relaxed font-semibold">{sug.desc}</p>
                             </div>
                           </div>
                         </div>
@@ -4704,7 +4664,7 @@ export default function DknObjectModel({
                 </div>
 
                 {/* C. 风险提示 */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-3.5">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-3.5">
                   <h3 className="text-xs font-black text-slate-805 flex items-center gap-1.5 border-b border-slate-100 pb-2.5 leading-none">
                     <ShieldAlert className="w-4 h-4 text-amber-500" />
                     C. 风险提示
@@ -4729,7 +4689,7 @@ export default function DknObjectModel({
             ) : wizardActiveStep === 6 ? (
               <>
                 {/* A. 创建摘要 */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-4 select-none">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-4 select-none">
                   <h3 className="text-xs font-black text-slate-805 flex items-center gap-1.5 border-b border-slate-100 pb-2.5 leading-none">
                     <List className="w-4 h-4 text-blue-500 animate-[pulse_2s_infinite]" />
                     A. 创建摘要
@@ -4756,7 +4716,7 @@ export default function DknObjectModel({
                 </div>
 
                 {/* B. AI 建模建议 */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-3.5">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-3.5">
                   <h3 className="text-xs font-black text-slate-805 flex items-center gap-1.5 border-b border-slate-100 pb-2.5 leading-none">
                     <Sparkles className="w-4 h-4 text-blue-500 animate-pulse" />
                     B. AI 建模建议
@@ -4782,7 +4742,7 @@ export default function DknObjectModel({
                         <div key={sug.key} className="p-3 rounded-lg border border-blue-50 bg-blue-50/25 text-[11px] leading-relaxed flex items-center justify-between gap-2 hover:bg-blue-50/50 transition-all font-sans">
                           <div className="flex items-start gap-1.5 min-w-0">
                             <span className="text-blue-550 text-xs shrink-0 select-none">💡</span>
-                            <span className="font-extrabold text-slate-750 text-[10px] leading-snug truncate">{sug.text}</span>
+                            <span className="font-extrabold text-slate-700 text-[10px] leading-snug truncate">{sug.text}</span>
                           </div>
                           <button
                             type="button"
@@ -4809,7 +4769,7 @@ export default function DknObjectModel({
                 </div>
 
                 {/* C. 风险提示 */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-3.5">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-3.5">
                   <h3 className="text-xs font-black text-slate-855 flex items-center gap-1.5 border-b border-slate-100 pb-2.5 leading-none">
                     <ShieldAlert className="w-4 h-4 text-slate-550" />
                     C. 风险提示
@@ -4834,13 +4794,13 @@ export default function DknObjectModel({
             ) : (
               <>
                 {/* 1. 对象预览 (Object Preview) Card */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-4">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-4">
                   <h3 className="text-xs font-black text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
                     <Eye className="w-4 h-4 text-blue-500" />
                     对象预览
                   </h3>
 
-                  <div className="flex flex-col items-center justify-center py-2.5 bg-gradient-to-b from-slate-50/80 to-transparent border border-slate-105 rounded-xl font-sans">
+                  <div className="flex flex-col items-center justify-center py-2.5 bg-gradient-to-b from-slate-50/80 to-transparent border border-slate-200 rounded-md font-sans">
                     {/* Simulated 3D cube colored blue */}
                     <div className="h-14 w-14 rounded-2xl bg-blue-50 border border-blue-150 shadow-inner flex items-center justify-center text-blue-650">
                       <Database className="w-7 h-7 stroke-[2]" />
@@ -4866,7 +4826,7 @@ export default function DknObjectModel({
                   </div>
 
                   {/* Stat grid */}
-                  <div className="grid grid-cols-4 border border-slate-150 divide-x divide-slate-150 rounded-lg overflow-hidden text-center bg-slate-50/40 leading-none">
+                  <div className="grid grid-cols-4 border border-slate-200 divide-x divide-slate-200 rounded-lg overflow-hidden text-center bg-slate-50/40 leading-none">
                     <div className="py-2.5">
                       <div className="text-[13px] font-extrabold text-slate-800 leading-none">{wizardProperties.length}</div>
                       <div className="text-[9px] text-slate-400 font-bold mt-1 scale-90">属性数</div>
@@ -4887,7 +4847,7 @@ export default function DknObjectModel({
                 </div>
 
                 {/* 2. AI 建模建议 (AI Modeling Suggestions) Card */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-3.5">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-3.5">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                     <h3 className="text-xs font-black text-slate-800 flex items-center gap-1.5">
                       <Sparkles className="w-4 h-4 text-blue-500 animate-pulse" />
@@ -4921,7 +4881,7 @@ export default function DknObjectModel({
                           </div>
                           <div>
                             <span className="font-bold text-slate-855 block leading-tight">{sug.text}</span>
-                            <p className="text-[9.5px] text-slate-450 mt-1 leading-normal font-semibold font-sans">{sug.tip}</p>
+                            <p className="text-[9.5px] text-slate-400 mt-1 leading-normal font-semibold font-sans">{sug.tip}</p>
                           </div>
                         </div>
                         
@@ -4947,7 +4907,7 @@ export default function DknObjectModel({
                 </div>
 
                 {/* 3. 创建提示 (Creation Tips) Card */}
-                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs space-y-3.5">
+                <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs space-y-3.5">
                   <h3 className="text-xs font-black text-slate-800 flex items-center gap-1.5 border-b border-slate-100 pb-2.5">
                     <Info className="w-4 h-4 text-slate-500" />
                     创建提示
@@ -4976,7 +4936,7 @@ export default function DknObjectModel({
         </div>
 
         {/* ================= 5. UNDER-FOOTER STICKY STATUS BAR ================= */}
-        <div className="bg-white border-t border-slate-200 py-3.5 px-8 flex items-center justify-between sticky bottom-0 z-40 shadow-xl shrink-0 text-[11px] font-bold text-slate-650">
+        <div className="bg-white border-t border-slate-200 py-3.5 px-8 flex items-center justify-between sticky bottom-0 z-40 shadow-xl shrink-0 text-[11px] font-bold text-slate-600">
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1 text-slate-805">
               <span className="text-blue-600 font-extrabold font-sans">✓</span> 当前步骤: 
@@ -5007,7 +4967,7 @@ export default function DknObjectModel({
                   ✓ 核对通过
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-slate-500 bg-slate-50 border border-slate-150 px-1.5 py-0.5 rounded-md">
+                <span className="inline-flex items-center gap-1 text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-md">
                   🔃 待启动校验
                 </span>
               )}
@@ -5087,7 +5047,7 @@ export default function DknObjectModel({
       
       {/* 🔮 SLICK FLOATING TOASTS */}
       {toast && (
-        <div className="fixed top-16 right-6 z-50 bg-slate-900 text-white rounded-xl px-4 py-3 shadow-xl border border-slate-800 flex items-center gap-2.5 animate-fade-in text-[12.5px] font-semibold">
+        <div className="fixed top-16 right-6 z-50 bg-slate-900 text-white rounded-md px-4 py-3 shadow-xl border border-slate-800 flex items-center gap-2.5 animate-fade-in text-[12.5px] font-semibold">
           <SparkleIcon className="w-4.5 h-4.5 text-amber-400 shrink-0" />
           <span>{toast.message}</span>
         </div>
@@ -5137,7 +5097,7 @@ export default function DknObjectModel({
         
         {/* ================= COLUMN 1: LEFT SIDEBAR (Width: 2.2/12) ================= */}
         {!sidebarCollapsed && (
-          <div className="lg:col-span-2.5 xl:col-span-2.2 bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between shadow-3xs">
+          <div className="lg:col-span-2.5 xl:col-span-2.2 bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between shadow-3xs">
             
             <div className="space-y-4">
               {/* Search Bar */}
@@ -5231,7 +5191,7 @@ export default function DknObjectModel({
 
                       <div className="flex items-center gap-1.5">
                         <span className={`w-1.5 h-1.5 rounded-full ${
-                          isGrayState ? 'bg-slate-350' : 'bg-emerald-500 animate-pulse'
+                          isGrayState ? 'bg-slate-300' : 'bg-emerald-500 animate-pulse'
                         }`}></span>
                         <span className={`text-[11px] font-mono font-black ${isSelected ? 'text-white' : 'text-slate-500'}`}>
                           {countVal}
@@ -5258,10 +5218,10 @@ export default function DknObjectModel({
                       onSelectObject(tmpl.id);
                       showToast(`💡 已切至「${tmpl.id}」推荐分析流！`, 'info');
                     }}
-                    className="w-full text-left text-[11px] font-bold text-slate-600 hover:text-blue-600 bg-slate-50 border border-slate-150 p-2 rounded-lg flex items-center justify-between transition-all group cursor-pointer"
+                    className="w-full text-left text-[11px] font-bold text-slate-600 hover:text-blue-600 bg-slate-50 border border-slate-200 p-2 rounded-lg flex items-center justify-between transition-all group cursor-pointer"
                   >
                     <span>{tmpl.title}</span>
-                    <ArrowRight className="w-3 h-3 text-slate-450 group-hover:text-blue-650 transition-colors" />
+                    <ArrowRight className="w-3 h-3 text-slate-400 group-hover:text-blue-650 transition-colors" />
                   </button>
                 ))}
               </div>
@@ -5280,10 +5240,10 @@ export default function DknObjectModel({
 
         {/* Collapsed Sidebar Handle */}
         {sidebarCollapsed && (
-          <div className="lg:col-span-0.5 bg-white border border-slate-200 rounded-xl flex flex-col items-center py-4 px-1 shadow-3xs cursor-pointer hover:bg-slate-50" onClick={() => setSidebarCollapsed(false)}>
+          <div className="lg:col-span-0.5 bg-white border border-slate-200 rounded-md flex flex-col items-center py-4 px-1 shadow-3xs cursor-pointer hover:bg-slate-50" onClick={() => setSidebarCollapsed(false)}>
             <div className="space-y-6 flex flex-col items-center">
               <ArrowRight className="w-4 h-4 text-slate-400" />
-              <div className="h-4 p-px bg-slate-350"></div>
+              <div className="h-4 p-px bg-slate-300"></div>
               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest [writing-mode:vertical-lr] text-center">展开对象树</span>
             </div>
           </div>
@@ -5292,7 +5252,7 @@ export default function DknObjectModel({
         {/* ================= COLUMN 2: CENTER RICH ONTOLOGY VISUAL CANVAS (Width: 6.8/12) ================= */}
         <div className={`${sidebarCollapsed ? 'lg:col-span-8.5' : 'lg:col-span-7'} xl:col-span-6.8 flex flex-col justify-between space-y-4`}>
           
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-3xs flex-1 flex flex-col justify-between relative overflow-hidden">
+          <div className="bg-white border border-slate-200 rounded-md p-5 shadow-3xs flex-1 flex flex-col justify-between relative overflow-hidden">
             
             {/* Header Title inside Visual Area */}
             <div className="flex items-center justify-between z-10">
@@ -5301,7 +5261,7 @@ export default function DknObjectModel({
                   Ontology 建模工作台
                   <span className="text-xs font-bold text-blue-600 bg-blue-55/60 border border-blue-100 rounded-full px-2 py-0.2 font-mono">v1.0.0 Draft</span>
                 </h1>
-                <p className="text-[11.5px] text-slate-450 font-semibold mt-0.5">
+                <p className="text-[11.5px] text-slate-400 font-semibold mt-0.5">
                   以对象为中心构建知识网络本体，并逐步补全关系、动作、函数与流程
                 </p>
               </div>
@@ -5377,7 +5337,7 @@ export default function DknObjectModel({
               </svg>
 
               {/* 1. TOP-LEFT: 关系 (Link Types) */}
-              <div className="absolute top-4 left-4 w-72 bg-white border border-slate-205 rounded-xl p-3.5 shadow-xs flex flex-col justify-between min-h-[178px] hover:shadow-md hover:border-blue-200 transition-all">
+              <div className="absolute top-4 left-4 w-72 bg-white border border-slate-200 rounded-md p-3.5 shadow-xs flex flex-col justify-between min-h-[178px] hover:shadow-md hover:border-blue-200 transition-all">
                 <div>
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
                     <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
@@ -5397,7 +5357,7 @@ export default function DknObjectModel({
                       activeObj.links.map((lnk, idx) => {
                         const isPrimary = idx < 3;
                         return (
-                          <li key={idx} className="flex items-center justify-between bg-slate-50/50 hover:bg-slate-105 p-1 rounded transition-colors group">
+                          <li key={idx} className="flex items-center justify-between bg-slate-50/50 hover:bg-slate-200 p-1 rounded transition-colors group">
                             <span className="font-mono text-slate-700 truncate block max-w-[210px]">{lnk}</span>
                             <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isPrimary ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
                           </li>
@@ -5422,7 +5382,7 @@ export default function DknObjectModel({
                     onClick={() => {
                       alert(`【${activeObj.nameCn}】当前拓扑共关系: ${activeObj.links.length} 个。`);
                     }}
-                    className="p-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-450 hover:text-slate-700 rounded-lg transition-all"
+                    className="p-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-slate-700 rounded-lg transition-all"
                     title="关系分布统计"
                   >
                     <GitBranch className="w-3.5 h-3.5" />
@@ -5431,7 +5391,7 @@ export default function DknObjectModel({
               </div>
 
               {/* 2. BOTTOM-LEFT: 函数 (Functions) */}
-              <div className="absolute bottom-4 left-4 w-72 bg-white border border-slate-205 rounded-xl p-3.5 shadow-xs flex flex-col justify-between min-h-[178px] hover:shadow-md hover:border-emerald-200 transition-all">
+              <div className="absolute bottom-4 left-4 w-72 bg-white border border-slate-200 rounded-md p-3.5 shadow-xs flex flex-col justify-between min-h-[178px] hover:shadow-md hover:border-emerald-200 transition-all">
                 <div>
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
                     <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
@@ -5536,7 +5496,7 @@ export default function DknObjectModel({
               </div>
 
               {/* 4. TOP-RIGHT: 动作 (Action Types) */}
-              <div className="absolute top-4 right-4 w-72 bg-white border border-slate-205 rounded-xl p-3.5 shadow-xs flex flex-col justify-between min-h-[178px] hover:shadow-md hover:border-violet-200 transition-all">
+              <div className="absolute top-4 right-4 w-72 bg-white border border-slate-200 rounded-md p-3.5 shadow-xs flex flex-col justify-between min-h-[178px] hover:shadow-md hover:border-violet-200 transition-all">
                 
                 <div>
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
@@ -5596,7 +5556,7 @@ export default function DknObjectModel({
               </div>
 
               {/* 5. BOTTOM-RIGHT: 流程 (Workflows) */}
-              <div className="absolute bottom-4 right-4 w-72 bg-white border border-slate-205 rounded-xl p-3.5 shadow-xs flex flex-col justify-between min-h-[178px] hover:shadow-md hover:border-orange-200 transition-all">
+              <div className="absolute bottom-4 right-4 w-72 bg-white border border-slate-200 rounded-md p-3.5 shadow-xs flex flex-col justify-between min-h-[178px] hover:shadow-md hover:border-orange-200 transition-all">
                 
                 <div>
                   <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
@@ -5718,7 +5678,7 @@ export default function DknObjectModel({
         <div className="lg:col-span-3 space-y-4 flex flex-col justify-between">
           
           {/* Section 1: AI Suggestions */}
-          <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-3xs space-y-2.5">
+          <div className="bg-white border border-slate-200 rounded-md p-4 shadow-3xs space-y-2.5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <div className="flex items-center gap-1 text-xs font-black text-slate-800 uppercase tracking-wider">
                 <Sparkles className="w-4 h-4 text-violet-600" />
@@ -5736,7 +5696,7 @@ export default function DknObjectModel({
             <div className="space-y-1.5">
               {aiSuggestions.map((sug) => (
                 <div key={sug.id} className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-start justify-between gap-2">
-                  <p className="text-[11px] font-semibold text-slate-650 leading-relaxed max-w-[210px] break-words">
+                  <p className="text-[11px] font-semibold text-slate-600 leading-relaxed max-w-[210px] break-words">
                     {sug.text}
                   </p>
 
@@ -5757,7 +5717,7 @@ export default function DknObjectModel({
           </div>
 
           {/* Section 2: Impact Analysis */}
-          <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-3xs space-y-3">
+          <div className="bg-white border border-slate-200 rounded-md p-4 shadow-3xs space-y-3">
             <div className="flex items-center gap-1 text-xs font-black text-slate-800 uppercase border-b border-slate-100 pb-2">
               <BarChart3 className="w-4 h-4 text-blue-600" />
               <span>2. Impact Analysis</span>
@@ -5772,7 +5732,7 @@ export default function DknObjectModel({
                 { title: 'Workflow 影响', count: 2, color: 'text-orange-600 bg-orange-50/50 border-orange-100' }
               ].map((stat, i) => (
                 <div key={i} className={`p-1 text-center rounded border ${stat.color}`}>
-                  <p className="text-[8.5px] font-extrabold text-slate-450 truncate scale-95">{stat.title}</p>
+                  <p className="text-[8.5px] font-extrabold text-slate-400 truncate scale-95">{stat.title}</p>
                   <p className="text-sm font-black mt-1 font-mono">{stat.count}</p>
                 </div>
               ))}
@@ -5805,7 +5765,7 @@ export default function DknObjectModel({
           </div>
 
           {/* Section 3: Model Notes */}
-          <div className="bg-amber-50/80 border border-amber-250 rounded-xl p-4 text-[11px] leading-relaxed text-amber-800 flex flex-col justify-between">
+          <div className="bg-amber-50/80 border border-amber-250 rounded-md p-4 text-[11px] leading-relaxed text-amber-800 flex flex-col justify-between">
             <div className="flex items-center gap-1.5 font-black text-amber-900 border-b border-amber-200 pb-1.5 mb-2">
               <AlertCircle className="w-4 h-4 text-amber-600" />
               <span>3. Model Notes</span>
@@ -5826,7 +5786,7 @@ export default function DknObjectModel({
       <footer className="bg-slate-100 border-t border-slate-200/80 p-4 shrink-0 grid grid-cols-1 md:grid-cols-3 gap-4">
         
         {/* Card 1: Validation */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between shadow-3xs min-h-[141px]">
+        <div className="bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between shadow-3xs min-h-[141px]">
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-[11.5px] font-black text-slate-800 uppercase tracking-wider">
               <Shield className="text-emerald-500 w-4 h-4" />
@@ -5836,15 +5796,15 @@ export default function DknObjectModel({
             <ul className="space-y-1 text-[10.5px] font-bold text-slate-500">
               <li className="flex items-center gap-1">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                <span className="text-slate-650">schema 校验通过</span>
+                <span className="text-slate-600">schema 校验通过</span>
               </li>
               <li className="flex items-center gap-1">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                <span className="text-slate-650">关系校验通过</span>
+                <span className="text-slate-600">关系校验通过</span>
               </li>
               <li className="flex items-center gap-1">
                 <CheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                <span className="text-slate-650">动作绑定完整</span>
+                <span className="text-slate-600">动作绑定完整</span>
               </li>
               <li className="flex items-center gap-1">
                 <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 animate-pulse" />
@@ -5857,14 +5817,14 @@ export default function DknObjectModel({
             onClick={() => {
               alert('📦 完整校验批跑信息：\n- 实体节点: 9/9 健康\n- 元属性数量: 48\n- 连通性深度: 5层 \n结论: schema及约束校验通过。');
             }}
-            className="w-full mt-2 py-1 text-center text-[10.5px] font-black text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200 hover:border-slate-350 rounded-lg cursor-pointer"
+            className="w-full mt-2 py-1 text-center text-[10.5px] font-black text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer"
           >
             查看详情
           </button>
         </div>
 
         {/* Card 2: Version Diff */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-between shadow-3xs min-h-[141px]">
+        <div className="bg-white border border-slate-200 rounded-md p-4 flex flex-col justify-between shadow-3xs min-h-[141px]">
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 text-[11.5px] font-black text-slate-800 uppercase tracking-wider">
               <GitBranch className="text-indigo-500 w-4 h-4" />
@@ -5891,14 +5851,14 @@ export default function DknObjectModel({
             onClick={() => {
               alert('🔄 版本快照变更差异报告 (Draft -> Base Commit):\n\n[Field Object]\n  + Property: qualityScore (Number)\n  + Action: validate_mapping (Active)\n  - Property: oldSemanticTag (Retired)');
             }}
-            className="w-full mt-2 py-1 text-center text-[10.5px] font-black text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200 hover:border-slate-350 rounded-lg cursor-pointer"
+            className="w-full mt-2 py-1 text-center text-[10.5px] font-black text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg cursor-pointer"
           >
             查看完整差异
           </button>
         </div>
 
         {/* Card 3: Runtime Preview */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-3xs min-h-[141px] flex flex-col justify-between">
+        <div className="bg-white border border-slate-200 rounded-md p-4 shadow-3xs min-h-[141px] flex flex-col justify-between">
           <div className="flex items-start justify-between gap-2.5">
             <div className="space-y-2 flex-1">
               <div className="flex items-center gap-1.5 text-[11.5px] font-black text-slate-800 uppercase tracking-wider">
@@ -5917,23 +5877,23 @@ export default function DknObjectModel({
                 </div>
                 <p className="mt-1">
                   <span className="font-extrabold text-slate-400 block mb-0.5">预期流程:</span>
-                  <span className="font-mono font-bold text-slate-705">semantic_governance_workflow</span>
+                  <span className="font-mono font-bold text-slate-700">semantic_governance_workflow</span>
                 </p>
               </div>
             </div>
 
             {/* A beautiful visual micro diagram scheme on the right side */}
             <div className="w-24 shrink-0 bg-slate-50 border border-slate-180 p-1.5 rounded-lg flex flex-col items-center justify-between gap-1 shadow-inner h-[86px]">
-              <div className="flex items-center gap-1 text-[8px] font-extrabold text-slate-350 uppercase">
+              <div className="flex items-center gap-1 text-[8px] font-extrabold text-slate-300 uppercase">
                 Schema Graph
               </div>
 
               <div className="flex items-center gap-1.5 relative py-1">
                 {/* Micro blocks */}
                 <span className="w-5 h-5 rounded bg-blue-100 flex items-center justify-center text-[9px] text-blue-600 font-extrabold shadow-3xs" title="Field">田</span>
-                <span className="text-[10px] text-slate-350 animate-pulse">➔</span>
+                <span className="text-[10px] text-slate-300 animate-pulse">➔</span>
                 <span className="w-5 h-5 rounded bg-amber-100 flex items-center justify-center text-[9px] text-amber-600 font-extrabold shadow-3xs" title="Rule">规</span>
-                <span className="text-[10px] text-slate-350">➔</span>
+                <span className="text-[10px] text-slate-300">➔</span>
                 <span className="w-5 h-5 rounded bg-emerald-100 flex items-center justify-center text-[9px] text-emerald-600 font-extrabold shadow-3xs" title="Task">治</span>
               </div>
 
@@ -5963,7 +5923,7 @@ export default function DknObjectModel({
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-3xs flex items-center justify-center z-50 animate-fade-in p-4">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-300/80 max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-slide-up">
             
-            <div className="bg-slate-50 p-4 border-b border-slate-150 flex items-center justify-between">
+            <div className="bg-slate-50 p-4 border-b border-slate-200 flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
                   <Layers className="w-4 h-4 text-blue-600" />
@@ -5994,7 +5954,7 @@ export default function DknObjectModel({
                 </button>
               </div>
 
-              <div className="border border-slate-200 rounded-xl overflow-hidden bg-white max-h-[350px] overflow-y-auto shadow-inner">
+              <div className="border border-slate-200 rounded-md overflow-hidden bg-white max-h-[350px] overflow-y-auto shadow-inner">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead className="bg-slate-50 border-b border-slate-180 text-slate-400 font-extrabold uppercase tracking-widest text-[10px]">
                     <tr>
@@ -6007,7 +5967,7 @@ export default function DknObjectModel({
                       <th className="py-2 px-3 text-center">操作</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-150 font-semibold text-slate-700">
+                  <tbody className="divide-y divide-slate-200 font-semibold text-slate-700">
                     {activeObj.properties.map((p) => (
                       <tr key={p.id} className="hover:bg-slate-50/50">
                         <td className="py-2.5 px-3">
@@ -6022,7 +5982,7 @@ export default function DknObjectModel({
                           />
                         </td>
                         <td className="py-2.5 px-3 font-mono font-bold text-slate-600">{p.code}</td>
-                        <td className="py-2.5 px-3 font-mono text-slate-450">{p.dataType}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-400">{p.dataType}</td>
                         <td className="py-2.5 px-3 font-mono text-slate-400">{p.defaultValue}</td>
                         <td className="py-2.5 px-3 max-w-[150px] truncate">{p.desc}</td>
                         <td className="py-2.5 px-3 text-center">
@@ -6052,7 +6012,7 @@ export default function DknObjectModel({
 
             </div>
 
-            <div className="bg-slate-50 p-4 border-t border-slate-150 flex items-center justify-end gap-3 font-bold">
+            <div className="bg-slate-50 p-4 border-t border-slate-200 flex items-center justify-end gap-3 font-bold">
               <button 
                 onClick={() => setIsEditObjOpen(false)}
                 className="px-4 py-2 text-xs text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm"
@@ -6070,7 +6030,7 @@ export default function DknObjectModel({
         <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-3xs flex items-center justify-end z-55 animate-fade-in">
           <div className="bg-white w-96 h-full shadow-2xl border-l border-slate-200 flex flex-col justify-between animate-slide-left">
             
-            <div className="bg-slate-50 p-4 border-b border-slate-150 flex items-center justify-between">
+            <div className="bg-slate-50 p-4 border-b border-slate-200 flex items-center justify-between">
               <div>
                 <h3 className="text-xs font-black text-slate-900 flex items-center gap-1">
                   <Plus className="w-4 h-4 text-blue-600" />
@@ -6081,7 +6041,7 @@ export default function DknObjectModel({
 
               <button 
                 onClick={() => setIsAddPropOpen(false)}
-                className="p-1 hover:bg-slate-150 rounded"
+                className="p-1 hover:bg-slate-200 rounded"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -6153,7 +6113,7 @@ export default function DknObjectModel({
                 />
               </div>
 
-              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-150">
+              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-md border border-slate-200">
                 <div>
                   <p className="text-xs font-black text-slate-800">是否必填属性</p>
                   <p className="text-[10px] text-slate-400 font-semibold mt-0.5">实例注入时是否判定非空值</p>
@@ -6355,7 +6315,7 @@ export default function DknObjectModel({
               </div>
 
               <div className="pt-2 flex items-center gap-2 justify-end font-bold">
-                <button type="button" onClick={() => setIsAddFuncOpen(false)} className="px-3 py-1.5 text-xs text-slate-650 bg-slate-50 rounded-lg">
+                <button type="button" onClick={() => setIsAddFuncOpen(false)} className="px-3 py-1.5 text-xs text-slate-600 bg-slate-50 rounded-lg">
                   取消
                 </button>
                 <button type="submit" className="px-4 py-1.5 text-xs text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
@@ -6384,7 +6344,7 @@ export default function DknObjectModel({
             </p>
 
             {/* A beautiful visual interactive chart representing the DAG Graph */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 text-white min-h-[200px] flex items-center justify-center relative overflow-hidden shadow-inner">
+            <div className="bg-slate-900 border border-slate-800 rounded-md p-6 text-white min-h-[200px] flex items-center justify-center relative overflow-hidden shadow-inner">
               
               <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
 
@@ -6433,7 +6393,7 @@ export default function DknObjectModel({
       {/* PopUp 7: RUNTIME SIMULATOR PREVIEW PANEL */}
       {isRunPreviewOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-3xs flex items-center justify-center z-55 animate-fade-in p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-5 space-y-4 animate-slide-up border border-slate-350">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-5 space-y-4 animate-slide-up border border-slate-300">
             <div className="flex items-center justify-between border-b pb-2">
               <h3 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
                 <PlayCircle className="w-4 h-4 text-blue-600 animate-spin" />
@@ -6454,7 +6414,7 @@ export default function DknObjectModel({
 
               <div className="space-y-2">
                 <p className="font-black text-slate-700 uppercase tracking-wider text-[10px]">配置快照参数</p>
-                <div className="p-3 bg-slate-50 border rounded-xl font-mono text-[11px] space-y-1.5 text-slate-700 font-bold">
+                <div className="p-3 bg-slate-50 border rounded-md font-mono text-[11px] space-y-1.5 text-slate-700 font-bold">
                   <div>• Target Object ID: <span className="text-indigo-700">{activeObj.id}</span></div>
                   <div>• Attributes Listed: <span className="text-indigo-700">{activeObj.properties.length} 项</span></div>
                   <div>• Active Links Associated: <span className="text-indigo-700">{activeObj.links.length} 条</span></div>

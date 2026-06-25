@@ -51,7 +51,7 @@ export function DknPageHeader({ modelId = 'dkn-global-core' }: DknPageHeaderProp
   };
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200/80 p-4 shadow-3xs flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 shrink-0">
+    <div className="bg-white rounded-md border border-slate-200/80 p-4 shadow-3xs flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5 shrink-0">
       <div>
         {/* Breadcrumb row */}
         <div className="flex items-center text-[11px] text-slate-400 font-bold tracking-wide mb-1">
@@ -86,17 +86,17 @@ export function DknPageHeader({ modelId = 'dkn-global-core' }: DknPageHeaderProp
       <div className="flex items-center gap-2 self-end md:self-center shrink-0">
         <button 
           onClick={() => alert('💾 已成功在云端保存当前模型草案！')}
-          className="px-3.5 py-1.5 text-xs font-bold text-slate-655 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg shadow-3xs transition-all cursor-pointer"
+          className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-md shadow-3xs transition-all cursor-pointer"
         >
           保存草稿
         </button>
         
         <button 
           onClick={handleRunValidation}
-          className={`px-3.5 py-1.5 text-xs font-bold rounded-lg shadow-3xs transition-all flex items-center gap-1.5 cursor-pointer ${
+          className={`px-3.5 py-1.5 text-xs font-bold rounded-md shadow-3xs transition-all flex items-center gap-1.5 cursor-pointer ${
             publishStatus === 'running' 
               ? 'bg-amber-500 text-white' 
-              : 'text-slate-655 bg-white border border-slate-200 hover:bg-slate-50'
+              : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50'
           }`}
         >
           {publishStatus === 'running' ? (
@@ -109,14 +109,14 @@ export function DknPageHeader({ modelId = 'dkn-global-core' }: DknPageHeaderProp
             </>
           ) : (
             <>
-              <ShieldCheck className="w-3.5 h-3.5 text-slate-450" /> 校验模型
+              <ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> 校验模型
             </>
           )}
         </button>
 
         <button 
           onClick={() => navigate('knowledge_network')}
-          className="px-3.5 py-1.5 text-xs font-bold text-slate-655 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg shadow-3xs transition-all flex items-center gap-1.5 cursor-pointer"
+          className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-md shadow-3xs transition-all flex items-center gap-1.5 cursor-pointer"
         >
           <Play className="w-3 h-3 text-emerald-500 fill-emerald-500" />
           预览运行态
@@ -124,7 +124,7 @@ export function DknPageHeader({ modelId = 'dkn-global-core' }: DknPageHeaderProp
 
         <button 
           onClick={() => alert('🚀 正在部署并全网发布该主数据模型快照...')}
-          className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm hover:shadow-blue-500/10 flex items-center gap-1.5 cursor-pointer transition-all"
+          className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm hover:shadow-blue-500/10 flex items-center gap-1.5 cursor-pointer transition-all"
         >
           <Send className="w-3 h-3" />
           发布模型

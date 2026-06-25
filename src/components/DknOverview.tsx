@@ -156,7 +156,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
     <div className="min-h-full font-sans text-slate-800 bg-slate-100/40 p-4 space-y-4" id="dkn-overview-panel">
       
       {/* Top Banner Header: Breadcrumbs + Actions matching Semovix DRKN Studio */}
-      <div className="bg-white rounded-lg border border-slate-200/80 p-4 shadow-3xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-white rounded-md border border-slate-200/80 p-4 shadow-3xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           {/* Breadcrumb row */}
           <div className="flex items-center text-[11px] text-slate-400 font-bold tracking-wide mb-1">
@@ -191,17 +191,17 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
         <div className="flex items-center gap-2 self-end md:self-center shrink-0">
           <button 
             onClick={() => alert('💾 已成功在云端保存当前模型草案！')}
-            className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg shadow-3xs transition-all cursor-pointer"
+            className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-md shadow-3xs transition-all cursor-pointer"
           >
             保存草稿
           </button>
           
           <button 
             onClick={handleRunValidation}
-            className={`px-3.5 py-1.5 text-xs font-bold rounded-lg shadow-3xs transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 text-xs font-bold rounded-md shadow-3xs transition-all flex items-center gap-1.5 cursor-pointer ${
               publishStatus === 'running' 
                 ? 'bg-amber-550 text-white bg-amber-500' 
-                : 'text-slate-650 bg-white border border-slate-200 hover:bg-slate-50'
+                : 'text-slate-600 bg-white border border-slate-200 hover:bg-slate-50'
             }`}
           >
             {publishStatus === 'running' ? (
@@ -214,14 +214,14 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
               </>
             ) : (
               <>
-                <ShieldCheck className="w-3.5 h-3.5 text-slate-450" /> 校验模型
+                <ShieldCheck className="w-3.5 h-3.5 text-slate-400" /> 校验模型
               </>
             )}
           </button>
 
           <button 
             onClick={() => onNavigate('knowledge_network')}
-            className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg shadow-3xs transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-md shadow-3xs transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <Play className="w-3 h-3 text-emerald-500 fill-emerald-500" />
             预览运行态
@@ -229,7 +229,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
 
           <button 
             onClick={() => alert('🚀 正在部署并全网发布该主数据模型快照...')}
-            className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm hover:shadow-blue-500/10 flex items-center gap-1.5 cursor-pointer transition-all"
+            className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-sm hover:shadow-blue-500/10 flex items-center gap-1.5 cursor-pointer transition-all"
           >
             <Send className="w-3 h-3" />
             发布模型
@@ -244,7 +244,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
         <div className="col-span-12 lg:col-span-2 space-y-4">
           
           {/* Current Model Stats card */}
-          <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs space-y-3">
+          <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs space-y-3">
             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-blue-500" /> 当前模型
             </h3>
@@ -260,7 +260,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
               </div>
               <div>
                 <span className="text-slate-400 font-bold block mb-0.5">所属域：</span>
-                <span className="font-semibold text-slate-750">{modelInfo.domain}</span>
+                <span className="font-semibold text-slate-700">{modelInfo.domain}</span>
               </div>
               <div>
                 <span className="text-slate-400 font-bold block mb-0.5">状态：</span>
@@ -277,7 +277,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
           </div>
 
           {/* Model Health score card */}
-          <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs space-y-3.5">
+          <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs space-y-3.5">
             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-emerald-500" /> 模型健康度
             </h3>
@@ -337,7 +337,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
           </div>
 
           {/* Quick Access grids */}
-          <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs space-y-3">
+          <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs space-y-3">
             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <Network className="w-3.5 h-3.5 text-indigo-500" /> 快速入口
             </h3>
@@ -345,34 +345,34 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
             <div className="grid grid-cols-2 gap-1.5">
               <button 
                 onClick={() => onNavigate('dkn_object_model')}
-                className="p-2 border border-slate-150 hover:bg-blue-50/50 hover:border-blue-300 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer transition-all"
+                className="p-2 border border-slate-200 hover:bg-blue-50/50 hover:border-blue-300 rounded-md flex flex-col items-center justify-center text-center cursor-pointer transition-all"
               >
                 <Database className="w-4 h-4 text-blue-500 mb-1" />
-                <span className="text-[10px] font-bold text-slate-650">查看对象</span>
+                <span className="text-[10px] font-bold text-slate-600">查看对象</span>
               </button>
               
               <button 
                 onClick={() => onNavigate('relation_model')}
-                className="p-2 border border-slate-150 hover:bg-blue-50/50 hover:border-blue-300 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer transition-all"
+                className="p-2 border border-slate-200 hover:bg-blue-50/50 hover:border-blue-300 rounded-md flex flex-col items-center justify-center text-center cursor-pointer transition-all"
               >
                 <Network className="w-4 h-4 text-emerald-500 mb-1" />
-                <span className="text-[10px] font-bold text-slate-650">查看关系</span>
+                <span className="text-[10px] font-bold text-slate-600">查看关系</span>
               </button>
 
               <button 
                 onClick={() => onNavigate('change_release')}
-                className="p-2 border border-slate-150 hover:bg-blue-50/50 hover:border-blue-300 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer transition-all"
+                className="p-2 border border-slate-200 hover:bg-blue-50/50 hover:border-blue-300 rounded-md flex flex-col items-center justify-center text-center cursor-pointer transition-all"
               >
                 <ShieldCheck className="w-4 h-4 text-amber-500 mb-1" />
-                <span className="text-[10px] font-bold text-slate-650">查看发布</span>
+                <span className="text-[10px] font-bold text-slate-600">查看发布</span>
               </button>
 
               <button 
                 onClick={() => onNavigate('knowledge_network')}
-                className="p-2 border border-slate-150 hover:bg-blue-50/50 hover:border-blue-300 rounded-lg flex flex-col items-center justify-center text-center cursor-pointer transition-all"
+                className="p-2 border border-slate-200 hover:bg-blue-50/50 hover:border-blue-300 rounded-md flex flex-col items-center justify-center text-center cursor-pointer transition-all"
               >
                 <Eye className="w-4 h-4 text-indigo-500 mb-1" />
-                <span className="text-[10px] font-bold text-slate-650">查看运行</span>
+                <span className="text-[10px] font-bold text-slate-600">查看运行</span>
               </button>
             </div>
           </div>
@@ -383,7 +383,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
         <div className="col-span-12 lg:col-span-8 space-y-4">
           
           {/* Main Horizontal Tab Header Bar */}
-          <div className="bg-white rounded-lg border border-slate-200 p-1 shadow-3xs flex items-center justify-between flex-wrap gap-1">
+          <div className="bg-white rounded-md border border-slate-200 p-1 shadow-3xs flex items-center justify-between flex-wrap gap-1">
             <div className="flex items-center space-x-1 overflow-x-auto scrollbar-none py-0.5 px-1 max-w-full">
               {tabs.map((tab) => {
                 const isActive = tab === activeSubTab;
@@ -399,7 +399,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                       else if (tab === '流程') onNavigate('workflow_orchestration');
                       else if (tab === '发布') onNavigate('change_release');
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all whitespace-nowrap ${
+                    className={`px-3 py-1.5 rounded-md text-xs font-bold cursor-pointer transition-all whitespace-nowrap ${
                       isActive 
                         ? 'bg-blue-600 text-white shadow-2xs' 
                         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
@@ -419,8 +419,8 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
           {/* 4 Dynamic KPI Overview Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             
-            <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs flex items-center gap-3">
-              <div className="p-2.5 bg-blue-50 text-blue-650 rounded-lg">
+            <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs flex items-center gap-3">
+              <div className="p-2.5 bg-blue-50 text-blue-650 rounded-md">
                 <Database className="w-5 h-5 text-blue-600 animate-pulse-slow" />
               </div>
               <div>
@@ -429,12 +429,12 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                   <span className="text-xl font-extrabold text-slate-900 leading-none">9</span>
                   <span className="text-[9px] font-bold text-slate-400 leading-none">类</span>
                 </div>
-                <p className="text-[9px] text-slate-450 mt-1 truncate">覆盖分类核心业务对象</p>
+                <p className="text-[9px] text-slate-400 mt-1 truncate">覆盖分类核心业务对象</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs flex items-center gap-3">
-              <div className="p-2.5 bg-emerald-50 text-emerald-650 rounded-lg">
+            <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-50 text-emerald-650 rounded-md">
                 <Network className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
@@ -443,12 +443,12 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                   <span className="text-xl font-extrabold text-slate-900 leading-none">14</span>
                   <span className="text-[9px] font-bold text-slate-400 leading-none">项</span>
                 </div>
-                <p className="text-[9px] text-slate-450 mt-1 truncate">语义级统一关联映射</p>
+                <p className="text-[9px] text-slate-400 mt-1 truncate">语义级统一关联映射</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs flex items-center gap-3">
-              <div className="p-2.5 bg-indigo-50 text-indigo-650 rounded-lg">
+            <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs flex items-center gap-3">
+              <div className="p-2.5 bg-indigo-50 text-indigo-650 rounded-md">
                 <Cpu className="w-5 h-5 text-indigo-600" />
               </div>
               <div>
@@ -457,12 +457,12 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                   <span className="text-xl font-extrabold text-slate-900 leading-none">12</span>
                   <span className="text-[9px] font-bold text-slate-400 leading-none">个</span>
                 </div>
-                <p className="text-[9px] text-slate-450 mt-1 truncate">驱动质量治理自动化</p>
+                <p className="text-[9px] text-slate-400 mt-1 truncate">驱动质量治理自动化</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs flex items-center gap-3">
-              <div className="p-2.5 bg-sky-50 text-sky-650 rounded-lg">
+            <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs flex items-center gap-3">
+              <div className="p-2.5 bg-sky-50 text-sky-650 rounded-md">
                 <Code className="w-5 h-5 text-sky-600" />
               </div>
               <div>
@@ -470,9 +470,9 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 <div className="flex items-baseline gap-1">
                   <span className="text-xl font-extrabold text-slate-900 leading-none">8</span>
                   <span className="text-[10px] font-bold text-slate-300">/</span>
-                  <span className="text-lg font-bold text-slate-650 leading-none">4</span>
+                  <span className="text-lg font-bold text-slate-600 leading-none">4</span>
                 </div>
-                <p className="text-[9px] text-slate-450 mt-1 truncate">服务编排与语义研判</p>
+                <p className="text-[9px] text-slate-400 mt-1 truncate">服务编排与语义研判</p>
               </div>
             </div>
 
@@ -482,7 +482,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             
             {/* Left box: Object Model Overview Table */}
-            <div className="md:col-span-6 bg-white rounded-lg border border-slate-200 shadow-3xs overflow-hidden flex flex-col justify-between">
+            <div className="md:col-span-6 bg-white rounded-md border border-slate-200 shadow-3xs overflow-hidden flex flex-col justify-between">
               
               <div>
                 <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
@@ -490,7 +490,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                     <span className="bg-blue-100 text-blue-700 p-1 rounded-md">
                       <Database className="w-3.5 h-3.5" />
                     </span>
-                    <h3 className="font-extrabold text-slate-850 text-xs">对象模型总览</h3>
+                    <h3 className="font-extrabold text-slate-800 text-xs">对象模型总览</h3>
                   </div>
                   <button 
                     onClick={() => onNavigate('dkn_object_model')}
@@ -543,14 +543,14 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
             </div>
 
             {/* Right box: Relationship flow canvas (mockup replication via gorgeous SVG nodes) */}
-            <div className="md:col-span-6 bg-white rounded-lg border border-slate-200 shadow-3xs flex flex-col justify-between">
+            <div className="md:col-span-6 bg-white rounded-md border border-slate-200 shadow-3xs flex flex-col justify-between">
               
               <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="bg-emerald-100 text-emerald-700 p-1 rounded-md">
                     <Network className="w-3.5 h-3.5" />
                   </span>
-                  <h3 className="font-extrabold text-slate-850 text-xs">关系模型总览</h3>
+                  <h3 className="font-extrabold text-slate-800 text-xs">关系模型总览</h3>
                 </div>
                 <button 
                   onClick={() => onNavigate('relation_model')}
@@ -602,7 +602,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 {/* TOP ROW: DataSource -> Dataset -> Field -> DataQuality */}
                 <div 
                   onClick={() => onNavigate('dkn_object_model', 'DataSource')}
-                  className="absolute top-6 left-4 bg-white border border-slate-200 hover:border-blue-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
+                  className="absolute top-6 left-4 bg-white border border-slate-200 hover:border-blue-500 rounded-md p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-blue-50 rounded text-blue-600 mb-1">
                     <Database className="w-3.5 h-3.5" />
@@ -612,7 +612,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
 
                 <div 
                   onClick={() => onNavigate('dkn_object_model', 'Dataset')}
-                  className="absolute top-6 left-32 bg-white border border-slate-200 hover:border-emerald-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
+                  className="absolute top-6 left-32 bg-white border border-slate-200 hover:border-emerald-500 rounded-md p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-emerald-50 rounded text-emerald-600 mb-1 col-span-12">
                     <Layers className="w-3.5 h-3.5" />
@@ -622,7 +622,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
 
                 <div 
                   onClick={() => onNavigate('dkn_object_model', 'Field')}
-                  className="absolute top-6 left-60 bg-white border-2 border-blue-600 rounded-lg p-2 flex flex-col items-center w-20 shadow-3xs cursor-pointer hover:shadow-2xs transition-all ring-4 ring-blue-50"
+                  className="absolute top-6 left-60 bg-white border-2 border-blue-600 rounded-md p-2 flex flex-col items-center w-20 shadow-3xs cursor-pointer hover:shadow-2xs transition-all ring-4 ring-blue-50"
                 >
                   <span className="p-1.5 bg-blue-50 rounded text-blue-600 mb-1">
                     <Code className="w-3.5 h-3.5" />
@@ -632,7 +632,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
 
                 <div 
                   onClick={() => onNavigate('dkn_object_model', 'DataQuality')}
-                  className="absolute top-6 left-84 bg-white border border-slate-200 hover:border-amber-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
+                  className="absolute top-6 left-84 bg-white border border-slate-200 hover:border-amber-500 rounded-md p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-amber-50 rounded text-amber-600 mb-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
@@ -643,7 +643,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 {/* BOTTOM ROW: Rule & Mapping & Evidence */}
                 <div 
                   onClick={() => onNavigate('dkn_object_model', 'Rule')}
-                  className="absolute bottom-6 left-32 bg-white border border-slate-200 hover:border-purple-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
+                  className="absolute bottom-6 left-32 bg-white border border-slate-200 hover:border-purple-500 rounded-md p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-purple-50 rounded text-purple-600 mb-1">
                     <Settings className="w-3.5 h-3.5" />
@@ -653,7 +653,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
 
                 <div 
                   onClick={() => onNavigate('dkn_object_model', 'Mapping')}
-                  className="absolute bottom-6 left-60 bg-white border-2 border-emerald-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-3xs cursor-pointer hover:shadow-2xs transition-all ring-4 ring-emerald-50"
+                  className="absolute bottom-6 left-60 bg-white border-2 border-emerald-500 rounded-md p-2 flex flex-col items-center w-20 shadow-3xs cursor-pointer hover:shadow-2xs transition-all ring-4 ring-emerald-50"
                 >
                   <span className="p-1.5 bg-emerald-50 rounded text-emerald-600 mb-1">
                     <Network className="w-3.5 h-3.5" />
@@ -663,7 +663,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
 
                 <div 
                   onClick={() => onNavigate('dkn_object_model', 'Evidence')}
-                  className="absolute bottom-6 left-84 bg-white border border-slate-200 hover:border-amber-500 rounded-lg p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
+                  className="absolute bottom-6 left-84 bg-white border border-slate-200 hover:border-amber-500 rounded-md p-2 flex flex-col items-center w-20 shadow-4xs cursor-pointer hover:shadow-2xs transition-all"
                 >
                   <span className="p-1.5 bg-amber-50 rounded text-amber-600 mb-1">
                     <Info className="w-3.5 h-3.5" />
@@ -681,7 +681,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             
             {/* Left box: Actions & Functions Overview (Split Column Layout) */}
-            <div className="md:col-span-6 bg-white rounded-lg border border-slate-200 shadow-3xs overflow-hidden flex flex-col justify-between">
+            <div className="md:col-span-6 bg-white rounded-md border border-slate-200 shadow-3xs overflow-hidden flex flex-col justify-between">
               
               <div>
                 <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
@@ -689,7 +689,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                     <span className="bg-indigo-100 text-indigo-700 p-1 rounded-md">
                       <Cpu className="w-3.5 h-3.5" />
                     </span>
-                    <h3 className="font-extrabold text-slate-850 text-xs">动作与函数概览</h3>
+                    <h3 className="font-extrabold text-slate-800 text-xs">动作与函数概览</h3>
                   </div>
                   <div className="flex gap-2">
                     <button 
@@ -751,10 +751,10 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                         <div key={func.name} className="py-2.5 flex items-center justify-between group">
                           <div>
                             <span className="font-mono font-bold text-slate-700 hover:text-blue-600 cursor-pointer block">{func.name}</span>
-                            <span className="text-[9.5px] text-slate-450 block">类型: {func.type}</span>
+                            <span className="text-[9.5px] text-slate-400 block">类型: {func.type}</span>
                           </div>
                           <div className="text-[10px] text-slate-400 font-medium font-mono shrink-0">
-                            绑定数: <span className="font-bold text-slate-850 font-sans">{func.params}</span>
+                            绑定数: <span className="font-bold text-slate-800 font-sans">{func.params}</span>
                           </div>
                         </div>
                       ))}
@@ -767,7 +767,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
             </div>
 
             {/* Right box: Workflow & Permissions Overview */}
-            <div className="md:col-span-6 bg-white rounded-lg border border-slate-200 shadow-3xs overflow-hidden flex flex-col justify-between">
+            <div className="md:col-span-6 bg-white rounded-md border border-slate-200 shadow-3xs overflow-hidden flex flex-col justify-between">
               
               <div>
                 <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
@@ -775,7 +775,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                     <span className="bg-sky-100 text-sky-700 p-1 rounded-md">
                       <Workflow className="w-3.5 h-3.5" />
                     </span>
-                    <h3 className="font-extrabold text-slate-850 text-xs">流程与权限概览</h3>
+                    <h3 className="font-extrabold text-slate-800 text-xs">流程与权限概览</h3>
                   </div>
                   <div className="flex gap-2">
                     <button 
@@ -827,7 +827,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                       {permissions.map(perm => (
                         <div key={perm.role} className="py-2 flex items-center justify-between">
                           <div>
-                            <span className="font-bold text-slate-750 block">{perm.role}</span>
+                            <span className="font-bold text-slate-700 block">{perm.role}</span>
                             <span className="text-[9.5px] text-slate-500 font-medium block leading-none">{perm.scope}</span>
                           </div>
                           <span className="text-[9.5px] text-slate-400 font-mono">IAM映射</span>
@@ -844,13 +844,13 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
           </div>
 
           {/* SECTION: Bottom width-wide Release Readiness & Validation Card */}
-          <div className="bg-white rounded-lg border border-slate-200 shadow-3xs overflow-hidden">
+          <div className="bg-white rounded-md border border-slate-200 shadow-3xs overflow-hidden">
             <div className="p-3.5 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="bg-amber-100 text-amber-700 p-1 rounded-md">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </span>
-                <h3 className="font-extrabold text-slate-850 text-xs">发布准备与校验摘要</h3>
+                <h3 className="font-extrabold text-slate-800 text-xs">发布准备与校验摘要</h3>
               </div>
               <button 
                 onClick={() => onNavigate('change_release')}
@@ -860,7 +860,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
               </button>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-150 p-4 gap-4 md:gap-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-200 p-4 gap-4 md:gap-0">
               
               {/* Part 1: Validation Results */}
               <div className="space-y-2.5 pr-2">
@@ -924,7 +924,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
         <div className="col-span-12 lg:col-span-2 space-y-4">
           
           {/* Impact Analysis section */}
-          <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs space-y-3">
+          <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs space-y-3">
             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <Network className="w-3.5 h-3.5 text-blue-500" /> 影响分析
             </h3>
@@ -946,21 +946,21 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
 
             <button 
               onClick={() => alert('🔍 打开全局血缘与下游影响度计算链看板...')}
-              className="w-full mt-2 py-1.5 border border-slate-250 hover:bg-slate-50 rounded-lg text-[10.5px] font-bold text-slate-700 cursor-pointer text-center block transition-all"
+              className="w-full mt-2 py-1.5 border border-slate-200 hover:bg-slate-50 rounded-md text-[10.5px] font-bold text-slate-700 cursor-pointer text-center block transition-all"
             >
               查看详细影响 →
             </button>
           </div>
 
           {/* AI Modeling suggestion panel */}
-          <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs space-y-3">
+          <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs space-y-3">
             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" /> AI 建模建议
             </h3>
 
             <div className="space-y-3 text-[11px]">
-              <div className="p-2 bg-slate-50 rounded-lg space-y-1 bg-amber-50/20 border border-amber-100/50">
-                <p className="font-bold text-slate-755 text-slate-800">建议为 Mapping 增加状态属性</p>
+              <div className="p-2 bg-slate-50 rounded-md space-y-1 bg-amber-50/20 border border-amber-100/50">
+                <p className="font-bold text-slate-700 text-slate-800">建议为 Mapping 增加状态属性</p>
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] text-slate-400">适配多源融合场景</span>
                   <button 
@@ -974,7 +974,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 </div>
               </div>
 
-              <div className="p-2 bg-slate-50 rounded-lg space-y-1">
+              <div className="p-2 bg-slate-50 rounded-md space-y-1">
                 <p className="font-semibold text-slate-700">建议为 Rule 补充生效范围字段</p>
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] text-slate-400">细化至表/过滤字段</span>
@@ -989,7 +989,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
                 </div>
               </div>
 
-              <div className="p-2 bg-slate-50 rounded-lg space-y-1">
+              <div className="p-2 bg-slate-50 rounded-md space-y-1">
                 <p className="font-semibold text-slate-700">建议将 Assertion 与 Task 建立关联</p>
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] text-slate-400">闭环错误对齐逻辑</span>
@@ -1007,7 +1007,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
           </div>
 
           {/* Risk panel */}
-          <div className="bg-white rounded-lg border border-slate-200 p-3.5 shadow-3xs space-y-3">
+          <div className="bg-white rounded-md border border-slate-200 p-3.5 shadow-3xs space-y-3">
             <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-rose-500" /> 风险提示
             </h3>
@@ -1033,7 +1033,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
       </div>
 
       {/* STICKY STATUS TRACKING BAR (At the very bottom of current panel) */}
-      <div className="bg-white border border-slate-200 text-slate-800 rounded-lg p-3.5 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs tracking-wider">
+      <div className="bg-white border border-slate-200 text-slate-800 rounded-md p-3.5 shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs tracking-wider">
         <div className="flex items-center gap-2.5">
           <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white font-bold text-xs shadow-md shadow-emerald-500/20">
             ✓
@@ -1046,7 +1046,7 @@ export default function DknOverview({ onNavigate, modelId = 'dkn-global-core', i
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-slate-600 font-semibold bg-slate-50 px-4 py-1.5 rounded-lg border border-slate-200">
+        <div className="flex items-center gap-4 text-slate-600 font-semibold bg-slate-50 px-4 py-1.5 rounded-md border border-slate-200">
           <span className="flex items-center gap-1 text-slate-700"><b className="text-blue-600 font-black">Draft</b> 摘要</span>
           <span className="text-slate-300">|</span>
           <span>对象 <b className="text-slate-950 font-mono">9</b></span>
