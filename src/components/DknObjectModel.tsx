@@ -38,6 +38,7 @@ import {
   GitBranch, HelpCircle as QuestionIcon, ArrowRight, ArrowLeft, ArrowUp, ChevronRight, CheckCircle2,
   GripVertical, Clock
 } from 'lucide-react';
+import { DknPageHeader } from './ui/DknPageHeader';
 
 interface DknObjectModelProps {
   onNavigate: (view: string, targetId?: string) => void;
@@ -5082,7 +5083,7 @@ export default function DknObjectModel({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans select-none" id="dkn-ontology-studio-workspace">
+    <div className="min-h-full font-sans bg-transparent flex flex-col select-none" id="dkn-ontology-studio-workspace">
       
       {/* 🔮 SLICK FLOATING TOASTS */}
       {toast && (
@@ -5092,121 +5093,44 @@ export default function DknObjectModel({
         </div>
       )}
 
-      {/* ================= 1. SYSTEM NAVIGATION HEADER ================= */}
-      <header className="bg-white border-b border-slate-200/80 h-14 shrink-0 flex items-center justify-between px-6 sticky top-0 z-40">
-        
-        {/* Left Brand Container */}
-        <div className="flex items-center gap-5">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-blue-650 flex items-center justify-center text-white font-extrabold text-lg shadow-sm">
-              S
-            </div>
-            <div>
-              <span className="text-[13px] font-black text-slate-900 tracking-tight flex items-center gap-1 leading-none">
-                Semovix <span className="text-blue-600 font-extrabold text-[12px] bg-blue-50/80 px-1 rounded">DRKN Studio</span>
-              </span>
-              <p className="text-[8.5px] text-slate-400 font-extrabold uppercase mt-0.5">本体与行动治理研判台</p>
-            </div>
-          </div>
-
-          <div className="h-4 w-px bg-slate-200"></div>
-
-          {/* Main Top Nav tabs */}
-          <nav className="flex items-center space-x-1">
-            {[
-              { label: '总览', view: 'overview_link' },
-              { label: 'Ontology 建模工作台', view: 'active', active: true },
-              { label: 'Object Type', view: 'object_model' },
-              { label: 'Link Type', view: 'relation_model' },
-              { label: 'Action Type', view: 'capability_binding' },
-              { label: 'Function', view: 'capability_binding' },
-              { label: 'Workflow', view: 'workflow_orchestration' },
-              { label: '版本管理', view: 'change_release' }
-            ].map((tab) => (
+      {/* ================= 1. DKN PAGE HEADER ================= */}
+      <DknPageHeader />
+      {/* 选项卡 Tabs 区域 */}
+      <div className="bg-white rounded-lg border border-slate-200 p-1 shadow-3xs flex items-center justify-between flex-wrap gap-1 mb-5 shrink-0">
+        <div className="flex items-center space-x-1 overflow-x-auto scrollbar-none py-0.5 px-1 max-w-full">
+          {[
+            '模型总览', '对象模型', '关系模型', '函数', '动作', '流程', '权限策略', '发布'
+          ].map((tab) => {
+            const isActive = tab === '对象模型';
+            return (
               <button
-                key={tab.label}
+                key={tab}
                 onClick={() => {
-                  if (tab.view !== 'active') {
-                    onNavigate(tab.view);
-                  }
+                  if (tab === '模型总览') onNavigate('dkn_overview');
+                  else if (tab === '对象模型') onNavigate('dkn_object_model');
+                  else if (tab === '关系模型') onNavigate('relation_model');
+                  else if (tab === '函数') onNavigate('capability_binding');
+                  else if (tab === '动作') onNavigate('action_model');
+                  else if (tab === '流程') onNavigate('workflow_orchestration');
+                  else if (tab === '发布') onNavigate('change_release');
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  tab.active 
-                    ? 'text-blue-600 bg-blue-50/50 font-black' 
-                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100/50'
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all whitespace-nowrap ${
+                  isActive 
+                    ? 'bg-blue-600 text-white shadow-2xs' 
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
                 }`}
               >
-                {tab.label}
+                {tab === '模型总览' ? '📊 模型总览' : tab}
               </button>
-            ))}
-          </nav>
+            );
+          })}
         </div>
-
-        {/* Header Rightmost Actions */}
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => showToast('💾 成功保存当前的本体语义关系集草稿！对应 changeset 沙箱 ID: CS-2026-012')}
-            className="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer"
-          >
-            <ClipboardList className="w-3.5 h-3.5 text-slate-400" />
-            保存草稿
-          </button>
-
-          <button 
-            onClick={() => {
-              showToast('✅ 模型一致性校验通过！全本体未检测出闭环死循环动作或无效阻断。', 'success');
-            }}
-            className="px-3 py-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-250 rounded-lg flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            校验模型
-          </button>
-
-          <button 
-            onClick={() => {
-              setIsRunPreviewOpen(true);
-              showToast('🔬 正在调起当前语义沙箱 CS-2026-012 实体血缘关系流向图...', 'info');
-            }}
-            className="px-3 py-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer"
-          >
-            <Eye className="w-3.5 h-3.5 text-slate-400" />
-            预览工作流
-          </button>
-
-          <button 
-            onClick={() => {
-              alert('📦 正在提交并发布「DRKN语义治理模型」 \n目标版本：v1.0.0 Draft \n状态: 已更新。');
-              showToast('🚀 本体结构生命周期已发布，元库感知重新加载！', 'success');
-            }}
-            className="px-4 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-1.5 transition-all shadow-sm shadow-blue-500/10 cursor-pointer"
-          >
-            <Play className="w-3 h-3 text-white fill-white" />
-            发布模型
-          </button>
-
-          <div className="h-5 w-px bg-slate-200 mx-1"></div>
-
-          {/* Social alert indicators */}
-          <div className="relative p-1.5 hover:bg-slate-100 rounded-lg cursor-pointer transition-all">
-            <Bell className="w-4 h-4 text-slate-500" />
-            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-[8px] text-white font-extrabold w-3.5 h-3.5 rounded-full flex items-center justify-center border border-white">
-              8
-            </span>
-          </div>
-
-          <p className="p-1 text-slate-450 hover:text-slate-700 cursor-pointer text-xs" title="帮助文档以及提示">
-            <QuestionIcon className="w-4 h-4" />
-          </p>
-
-          <div className="flex items-center gap-1.5 pl-1 cursor-pointer">
-            <div className="h-7 w-7 rounded-full bg-blue-500 text-white font-extrabold text-xs flex items-center justify-center shadow-inner">
-              A
-            </div>
-            <span className="text-xs font-bold text-slate-700">admin</span>
-            <ChevronDown className="w-3 h-3 text-slate-400" />
-          </div>
+        <div className="hidden sm:flex items-center gap-1.5 pr-2">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="text-[10px] font-mono font-bold text-slate-400">Sandbox.Active</span>
         </div>
-      </header>
+      </div>
+
 
       {/* ================= 2. THREE-PANEL CORE GRID WORKSPACE ================= */}
       <div className="flex-1 p-5 grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch overflow-hidden">

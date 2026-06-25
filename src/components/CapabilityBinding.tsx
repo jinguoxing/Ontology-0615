@@ -9,9 +9,11 @@ import {
 import CreateFunctionBindingDrawer from './CreateFunctionBindingDrawer';
 import {useUiStore} from '../store/uiStore';
 import {PageHeader} from './ui/PageHeader';
+import {DknPageHeader} from './ui/DknPageHeader';
 
 export default function CapabilityBinding() {
   const navigate = useUiStore((s) => s.navigate);
+  const modelType = useUiStore((s) => s.modelType);
 
   // Current active chosen Object Type (Hardcode Field per requirement)
   const selectedObjId = 'Field';
@@ -183,93 +185,153 @@ export default function CapabilityBinding() {
 
   return (
     <div className="min-h-full font-sans bg-transparent" id="capability-workspace">
-      
       {/* 顶部 Header */}
-      <PageHeader
-        breadcrumbs={[
-          {label: '管理中心', onClick: () => navigate('overview')},
-          {label: '本体管理'},
-          {label: 'DRKN 本体模型管理'},
-          {label: '函数（Function）'},
-        ]}
-        topRight={
-          <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-150 px-3 py-1 rounded-full shadow-2xs">
-             <span className="text-[10px] font-bold text-rose-500">当前变更集</span>
-             <span className="text-[11px] font-black text-rose-700 font-mono">CS-2026-012</span>
-             <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
-             <span className="text-[10px] font-extrabold text-[#9a3412] bg-amber-100 px-1 py-0.2 rounded leading-none">Editing</span>
-          </div>
-        }
-        titleRow={
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-               <div className="flex items-center gap-3">
-                  <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                    <span>DRKN-Core 数据语义治理模型</span>
-                  </h1>
-                  <span className="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-50 text-blue-600 border border-blue-200 shadow-3xs leading-none">已发布</span>
-               </div>
-               <div className="flex items-center gap-4 text-[11px] text-slate-450 font-medium">
-                  <span className="flex items-center gap-1"><span className="font-bold text-slate-650">当前版本:</span> <span className="text-blue-600 font-mono font-black text-[12px]">v1.3.0</span></span>
-                  <span className="text-slate-200">|</span>
-                  <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布于:</span> 2026-08-20 10:30:00</span>
-                  <span className="text-slate-200">|</span>
-                  <span className="flex items-center gap-1"><span className="font-bold text-slate-650">发布人:</span> 系统管理员</span>
-               </div>
+      {modelType === 'DKN' ? (
+        <DknPageHeader />
+      ) : (
+        <PageHeader
+          breadcrumbs={[
+            {label: '管理中心', onClick: () => navigate('overview')},
+            {label: '本体管理'},
+            {label: 'DRKN 本体模型管理'},
+            {label: '函数（Function）'},
+          ]}
+          topRight={
+            <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-150 px-3 py-1 rounded-full shadow-2xs">
+               <span className="text-[10px] font-bold text-rose-500">当前变更集</span>
+               <span className="text-[11px] font-black text-rose-700 font-mono">CS-2026-012</span>
+               <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+               <span className="text-[10px] font-extrabold text-[#9a3412] bg-amber-100 px-1 py-0.2 rounded leading-none">Editing</span>
             </div>
+          }
+          titleRow={
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                 <div className="flex items-center gap-3">
+                    <h1 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                      <span>DRKN-Core 数据语义治理模型</span>
+                    </h1>
+                    <span className="px-2 py-0.5 rounded text-[11px] font-extrabold bg-blue-50 text-blue-600 border border-blue-200 shadow-3xs leading-none">已发布</span>
+                 </div>
+                 <div className="flex items-center gap-4 text-[11px] text-slate-450 font-medium">
+                    <span className="flex items-center gap-1"><span className="font-bold text-slate-650">当前版本:</span> <span className="text-blue-600 font-mono font-black text-[12px]">v1.3.0</span></span>
+                    <span className="text-slate-200">|</span>
+                    <span className="flex items-center gap-1"><span className="font-bold text-slate-655">发布于:</span> 2026-08-20 10:30:00</span>
+                    <span className="text-slate-200">|</span>
+                    <span className="flex items-center gap-1"><span className="font-bold text-slate-655">发布人:</span> 系统管理员</span>
+                 </div>
+              </div>
 
-            {/* 右侧操作交互栏 */}
-            <div className="flex items-center gap-2">
-              <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
-                <RefreshCw className="w-3.5 h-3.5 text-slate-400" /> 版本对比
-              </button>
-              <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
-                <Download className="w-3.5 h-3.5 text-slate-400" /> 导出模型
-              </button>
-              <button className="p-1.5 bg-white border border-slate-200/50 hover:bg-slate-50/50 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all cursor-pointer">
-                <Settings className="w-4 h-4 text-slate-400" />
-              </button>
+              {/* 右侧操作交互栏 */}
+              <div className="flex items-center gap-2">
+                <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+                  <RefreshCw className="w-3.5 h-3.5 text-slate-400" /> 版本对比
+                </button>
+                <button className="px-3.5 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200/50 hover:bg-slate-50/50 hover:text-slate-800 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer">
+                  <Download className="w-3.5 h-3.5 text-slate-400" /> 导出模型
+                </button>
+                <button className="p-1.5 bg-white border border-slate-200/50 hover:bg-slate-50/50 rounded-lg shadow-3xs hover:border-slate-300/80 hover:shadow-2xs transition-all cursor-pointer">
+                  <Settings className="w-4 h-4 text-slate-400" />
+                </button>
 
-              <div className="h-6 w-px bg-slate-200/60 mx-1"></div>
+                <div className="h-6 w-px bg-slate-200/60 mx-1"></div>
 
-              <button
-                onClick={() => setIsDrawerOpen(true)}
-                className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
-              >
-                + 添加 Function 绑定 <ChevronDown className="w-3.5 h-3.5" />
-              </button>
+                <button
+                  onClick={() => setIsDrawerOpen(true)}
+                  className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
+                >
+                  + 添加 Function 绑定 <ChevronDown className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
-          </div>
-        }
-      />
+          }
+        />
+      )}
 
       {/* 选项卡 Tabs 区域：100% 遵照设计图排版 */}
-      <div className="flex gap-1.5 mb-5 border-b border-slate-200/80 shrink-0">
-        {[
-          '模型总览', '对象模型', '关系模型', '函数（Function）', '动作 (Action)', 
-          '流程 (Workflow)', '权限策略', '变更与发布'
-        ].map((tab) => (
-          <div 
-            key={tab}
-            onClick={() => {
-              if (tab === '模型总览') navigate('overview');
-              if (tab === '对象模型') navigate('object_model');
-              if (tab === '关系模型') navigate('relation_model');
-              if (tab === '能力绑定' || tab === '能力 (Function)' || tab === '函数（Function）') navigate('capability_binding');
-              if (tab === '动作 (Action)') navigate('action_model');
-              if (tab === '流程 (Workflow)') navigate('workflow_orchestration');
-              if (tab === '变更与发布') navigate('change_release');
-            }}
-            className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
-              tab === '函数（Function）' 
-                ? 'text-blue-600 font-black border-b-[2.5px] border-blue-600 -mb-[1px]' 
-                : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            {tab}
+      {modelType === 'DKN' ? (
+        <div className="bg-white rounded-lg border border-slate-200 p-1 shadow-3xs flex items-center justify-between flex-wrap gap-1 mb-5 shrink-0">
+          <div className="flex items-center space-x-1 overflow-x-auto scrollbar-none py-0.5 px-1 max-w-full">
+            {[
+              '模型总览', '对象模型', '关系模型', '函数', '动作', '流程', '权限策略', '发布'
+            ].map((tab) => {
+              const isActive = tab === '函数';
+              return (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    const targetViewMap: Record<string, string> = {
+                      '模型总览': 'dkn_overview',
+                      '对象模型': 'dkn_object_model',
+                      '关系模型': 'relation_model',
+                      '函数': 'capability_binding',
+                      '动作': 'action_model',
+                      '流程': 'workflow_orchestration',
+                      '发布': 'change_release',
+                    };
+                    const view = targetViewMap[tab];
+                    if (view) navigate(view);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all whitespace-nowrap ${
+                    isActive 
+                      ? 'bg-blue-600 text-white shadow-2xs' 
+                      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                  }`}
+                >
+                  {tab === '模型总览' ? '📊 模型总览' : tab}
+                </button>
+              );
+            })}
           </div>
-        ))}
-      </div>
+          <div className="flex items-center gap-2 pr-2">
+            <button
+              onClick={() => setIsDrawerOpen(true)}
+              className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
+            >
+              + 添加 Function 绑定 <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-[10px] font-mono font-bold text-slate-400">Sandbox.Active</span>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between mb-5 border-b border-slate-200/80 shrink-0">
+          <div className="flex gap-1.5">
+            {[
+              '模型总览', '对象模型', '关系模型', '函数（Function）', '动作 (Action)', 
+              '流程 (Workflow)', '权限策略', '变更与发布'
+            ].map((tab) => (
+              <div 
+                key={tab}
+                onClick={() => {
+                  const targetViewMap: Record<string, string> = {
+                    '模型总览': 'overview',
+                    '对象模型': 'object_model',
+                    '关系模型': 'relation_model',
+                    '能力绑定': 'capability_binding',
+                    '能力 (Function)': 'capability_binding',
+                    '函数（Function）': 'capability_binding',
+                    '动作 (Action)': 'action_model',
+                    '流程 (Workflow)': 'workflow_orchestration',
+                    '变更与发布': 'change_release',
+                  };
+                  const view = targetViewMap[tab];
+                  if (view) navigate(view);
+                }}
+                className={`px-3 pb-2 text-[13px] font-bold cursor-pointer transition-colors relative ${
+                  tab === '函数（Function）' 
+                    ? 'text-blue-600 font-black border-b-[2.5px] border-blue-600 -mb-[1px]' 
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                {tab}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-12">
         

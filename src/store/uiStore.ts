@@ -28,6 +28,8 @@ interface UiState {
   showSearchResults: boolean;
   /** Create-changeset drawer visibility. */
   isCreateDrawerOpen: boolean;
+  /** Active model type context: DRKN or DKN. */
+  modelType: 'DRKN' | 'DKN';
 
   // Actions
   /** Navigate to a view, optionally preselecting a target object. */
@@ -38,6 +40,7 @@ interface UiState {
   setGlobalSearch: (query: string) => void;
   setShowSearchResults: (show: boolean) => void;
   setCreateDrawerOpen: (open: boolean) => void;
+  setModelType: (type: 'DRKN' | 'DKN') => void;
 }
 
 export const useUiStore = create<UiState>((set) => ({
@@ -47,16 +50,36 @@ export const useUiStore = create<UiState>((set) => ({
   globalSearch: '',
   showSearchResults: false,
   isCreateDrawerOpen: false,
+  modelType: 'DKN', // Default to DKN for the current focus context
 
   navigate: (view, targetId) =>
-    set((s) => ({
-      activeView: view,
-      ...(targetId ? {selectedObjectId: targetId} : {}),
-    })),
-  setActiveView: (view) => set({activeView: view}),
+    set((s) => {
+      let modelType = s.modelType;
+      if (['dkn_overview', 'dkn_models', 'dkn_object_model'].includes(view)) {
+        modelType = 'DKN';
+      } else if (['overview', 'drkn_models', 'object_model'].includes(view)) {
+        modelType = 'DRKN';
+      }
+      return {
+        activeView: view,
+        modelType,
+        ...(targetId ? {selectedObjectId: targetId} : {}),
+      };
+    }),
+  setActiveView: (view) =>
+    set((s) => {
+      let modelType = s.modelType;
+      if (['dkn_overview', 'dkn_models', 'dkn_object_model'].includes(view)) {
+        modelType = 'DKN';
+      } else if (['overview', 'drkn_models', 'object_model'].includes(view)) {
+        modelType = 'DRKN';
+      }
+      return { activeView: view, modelType };
+    }),
   setSelectedObjectId: (id) => set({selectedObjectId: id}),
   setLocked: (locked) => set({isLocked: locked}),
   setGlobalSearch: (query) => set({globalSearch: query}),
   setShowSearchResults: (show) => set({showSearchResults: show}),
   setCreateDrawerOpen: (open) => set({isCreateDrawerOpen: open}),
+  setModelType: (type) => set({modelType: type}),
 }));
