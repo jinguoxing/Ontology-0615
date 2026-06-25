@@ -6,6 +6,7 @@ import {
   ChevronRight, Plus, Eye, Share2, Trash2, ArrowUpRight, Bell
 } from 'lucide-react';
 import { useUiStore } from '../store/uiStore';
+import CreateWorkflowDrawer from './CreateWorkflowDrawer';
 
 // 节点属性的接口定义
 interface NodeDetail {
@@ -37,15 +38,26 @@ export default function WorkflowOrchestrator() {
     functions: false,
     conditions: false
   });
+  const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
 
   // 与设计图相符合的模拟工作流列表
-  const workflows = [
+  const [workflowsList, setWorkflowsList] = useState([
     { id: 'source_ingestion_workflow', nameCn: '数据源入库清洗流程', status: '已发布', active: false },
     { id: 'semantic_governance_workflow', nameCn: '语义治理流程', status: '已发布', active: true },
     { id: 'quality_assessment_workflow', nameCn: '质量评估流程', status: '已发布', active: false },
     { id: 'mapping_validation_workflow', nameCn: '映射校验流程', status: '已发布', active: false },
     { id: 'model_publish_workflow', nameCn: '模型发布自动化流程', status: '已发布', active: false }
-  ];
+  ]);
+
+  const handleSaveWorkflow = (newWf: { id: string; nameCn: string; triggerType: string; scope: string[]; desc: string }) => {
+    setWorkflowsList(prev => [
+      ...prev,
+      { id: newWf.id, nameCn: newWf.nameCn, status: '编辑中', active: false }
+    ]);
+    setActiveWorkflowId(newWf.id);
+    setIsCreateDrawerOpen(false);
+    alert(`✅ 成功新建工作流: "${newWf.nameCn}" (${newWf.id})！当前状态为: 编辑中。`);
+  };
 
   // 节点详细属性数据库
   const nodeDetails: Record<string, NodeDetail> = {
@@ -306,7 +318,7 @@ export default function WorkflowOrchestrator() {
             <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col h-[320px]">
               <div className="flex items-center justify-between mb-3 shrink-0">
                 <span className="text-[13px] font-extrabold text-slate-800">A. 工作流列表</span>
-                <span className="text-[10px] text-slate-400 font-bold">共 {workflows.length} 个</span>
+                <span className="text-[10px] text-slate-400 font-bold">共 {workflowsList.length} 个</span>
               </div>
 
               <div className="flex gap-1.5 mb-3 shrink-0">
@@ -321,7 +333,7 @@ export default function WorkflowOrchestrator() {
                   />
                 </div>
                 <button 
-                  onClick={() => alert('新建工作流抽屉加载中...')}
+                  onClick={() => setIsCreateDrawerOpen(true)}
                   className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0 shadow-3xs"
                 >
                   <Plus className="w-3.5 h-3.5" /> 新建
@@ -329,7 +341,7 @@ export default function WorkflowOrchestrator() {
               </div>
 
               <div className="flex-1 overflow-y-auto space-y-1.5 pr-0.5">
-                {workflows
+                {workflowsList
                   .filter(wf => wf.id.toLowerCase().includes(searchTerm.toLowerCase()) || wf.nameCn.includes(searchTerm))
                   .map((wf) => {
                     const isSelected = wf.id === activeWorkflowId;
@@ -1096,6 +1108,12 @@ export default function WorkflowOrchestrator() {
         </div>
 
       </div>
+
+      <CreateWorkflowDrawer 
+        open={isCreateDrawerOpen} 
+        onClose={() => setIsCreateDrawerOpen(false)} 
+        onSave={handleSaveWorkflow} 
+      />
 
     </div>
   );
