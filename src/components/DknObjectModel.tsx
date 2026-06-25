@@ -36,7 +36,7 @@ import {
   Link2, Trash, ClipboardList, BookOpen, AlertCircle, BarChart3, HelpCircle as HelpIcon,
   PlayCircle, Activity, ShieldAlert, CheckSquare, Sparkles as SparkleIcon,
   GitBranch, HelpCircle as QuestionIcon, ArrowRight, ArrowLeft, ArrowUp, ChevronRight, CheckCircle2,
-  GripVertical, Clock
+  GripVertical, Clock, PanelRightOpen, PanelRightClose
 } from 'lucide-react';
 import { DknPageHeader } from './ui/DknPageHeader';
 
@@ -91,6 +91,7 @@ export default function DknObjectModel({
   const [searchTerm, setSearchTerm] = useState('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeStep, setActiveStep] = useState(2); // Step 2 "补充关系" is active by default in design sheet
+  const [rightSidebarCollapsed, setRightSidebarCollapsed] = useState(true);
 
   // ==================== WIZARD ON-CREATE STATE (RESTORING SCREENSHOT DESIGN) ====================
   const [isAddingObjectType, setIsAddingObjectType] = useState(true);
@@ -1339,16 +1340,37 @@ export default function DknObjectModel({
         </div>
 
         {/* ================= 3. SYSTEM PAGE TITLE AREA ================= */}
-        <div className="pt-6 px-10 pb-4 bg-[#f8fafc]">
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            新增对象类型
-            <span className="text-[10px] uppercase bg-blue-100 text-blue-800 font-extrabold px-1.5 py-0.5 rounded tracking-wide font-mono">
-              Drafting wizard
-            </span>
-          </h1>
-          <p className="text-[12px] text-slate-500 mt-1">
-            按步骤定义对象的结构、关系、动作与函数，完成 DRKN 对象建模
-          </p>
+        <div className="pt-6 px-10 pb-4 bg-[#f8fafc] flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              新增对象类型
+              <span className="text-[10px] uppercase bg-blue-100 text-blue-800 font-extrabold px-1.5 py-0.5 rounded tracking-wide font-mono">
+                Drafting wizard
+              </span>
+            </h1>
+            <p className="text-[12px] text-slate-500 mt-1">
+              按步骤定义对象的结构、关系、动作与函数，完成 DRKN 对象建模
+            </p>
+          </div>
+          
+          <button
+            type="button"
+            onClick={() => setRightSidebarCollapsed(!rightSidebarCollapsed)}
+            className="px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer select-none"
+            title={rightSidebarCollapsed ? "展开右侧建议栏" : "收起右侧建议栏"}
+          >
+            {rightSidebarCollapsed ? (
+              <>
+                <PanelRightOpen className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+                <span>展开建议栏</span>
+              </>
+            ) : (
+              <>
+                <PanelRightClose className="w-3.5 h-3.5 text-slate-500" />
+                <span>收起建议栏</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* ================= 4. MAIN WORKSPACE ROW split into Left, Center, Right ================= */}
@@ -1416,8 +1438,12 @@ export default function DknObjectModel({
             </div>
           </div>
 
-          {/* 4B. CENTER DYNAMIC FORM AREA (cols: 6.5/12) */}
-          <div className="col-span-12 lg:col-span-6.5 xl:col-span-7 flex flex-col gap-4 mt-2 h-full overflow-y-auto pr-1">
+          {/* 4B. CENTER DYNAMIC FORM AREA */}
+          <div className={`col-span-12 ${
+            rightSidebarCollapsed 
+              ? 'lg:col-span-9.5 xl:col-span-10' 
+              : 'lg:col-span-6.5 xl:col-span-7'
+          } flex flex-col gap-4 mt-2 h-full overflow-y-auto pr-1`}>
             
             {/* Step Content Wrapper inside a single big card */}
             <div className={wizardActiveStep === 5 
@@ -4538,7 +4564,8 @@ export default function DknObjectModel({
           </div>
 
           {/* 4C. RIGHT SIDEBAR: REAL-TIME PREVIEW + AI ADVISOR + CREATION TIPS (cols: 3.5/12) */}
-          <div className="col-span-12 lg:col-span-3 mt-2 space-y-4">
+          {!rightSidebarCollapsed && (
+            <div className="col-span-12 lg:col-span-3 mt-2 space-y-4">
             
             {wizardActiveStep === 5 ? (
               <>
@@ -4894,7 +4921,8 @@ export default function DknObjectModel({
               </>
             )}
 
-          </div>
+            </div>
+          )}
 
         </div>
 
