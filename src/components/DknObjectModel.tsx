@@ -4533,44 +4533,7 @@ export default function DknObjectModel({
               </div>
             </div>
 
-            {/* COLLAPSIBLE ACCORDION HEADERS FOR PROSPECTIVE STEPS UNDERNEATH INDIVIDUALLY */}
-            <div className="space-y-2 mt-1">
-              {[
-                { step: 2, title: 'Step 2 / 属性定义', desc: '将定义属性字段、语义类型、默认值、来源映射' },
-                { step: 3, title: 'Step 3 / 关系绑定', desc: '将配置与 Dataset、Mapping 等核心本体实体间的主外关系' },
-                { step: 4, title: 'Step 4 / 动作绑定', desc: '将绑定运行级语义识别与计算所必备 of Actions 动作列表' },
-                { step: 5, title: 'Step 5 / 函数绑定', desc: '将绑定底层 semantic_classification 等专用计算函数模块' },
-                { step: 6, title: 'Step 6 / 校验与创建', desc: '完成校验、影响分析及导出' }
-              ].map((acc) => {
-                const isSelected = wizardActiveStep === acc.step;
-                return (
-                  <div 
-                    key={acc.step}
-                    onClick={() => setWizardActiveStep(acc.step)}
-                    className={`border rounded-lg p-3 flex items-center justify-between cursor-pointer transition-all ${
-                      isSelected 
-                        ? 'bg-blue-50/40 border-blue-200' 
-                        : 'bg-white border-slate-200 hover:bg-slate-50/50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-black ${
-                        isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}>
-                        {acc.step}
-                      </div>
-                      <div>
-                        <span className={`text-[11px] font-bold block ${isSelected ? 'text-blue-700' : 'text-slate-700'}`}>
-                          {acc.title}
-                        </span>
-                        <p className="text-[9.5px] text-slate-400 font-semibold leading-relaxed font-sans">{acc.desc}</p>
-                      </div>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isSelected ? 'rotate-180 text-blue-605' : ''}`} />
-                  </div>
-                );
-              })}
-            </div>
+
 
           </div>
 
