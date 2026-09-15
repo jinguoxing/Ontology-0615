@@ -12,6 +12,7 @@ import {DEMO_WORKSPACE_ID, ontologyV1} from '../api/ontology-v1/client';
 import {ontologyKeys} from '../api/ontology-v1/queryKeys';
 import {newIdempotencyKey, OntologyApiError} from '../api/ontology-v1/ontologyClient';
 import type {
+  ActionTestRequest,
   ChangeSet,
   CreateModelRequest,
   CreateModelResult,
@@ -120,6 +121,94 @@ export function useAuditEvents(scope: ActorScope, modelId: string | undefined) {
     queryFn: () => ontologyV1.audit(modelId!),
     select: (r) => r.data,
     enabled: Boolean(modelId),
+  });
+}
+
+// ---- Batch 3：集合读取（GET /models/:id/{collection}，键含完整 ViewReference）----
+
+const FULL_PAGE: {limit: number} = {limit: 200};
+
+export function useRelations(scope: ActorScope, modelId: string | undefined, view: ViewReference | undefined) {
+  return useQuery({
+    queryKey: view && modelId
+      ? ontologyKeys.collection({...scope, modelId}, view, 'relations', FULL_PAGE)
+      : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.relations(modelId!, view!, FULL_PAGE, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && view),
+  });
+}
+
+export function useConstraints(scope: ActorScope, modelId: string | undefined, view: ViewReference | undefined) {
+  return useQuery({
+    queryKey: view && modelId
+      ? ontologyKeys.collection({...scope, modelId}, view, 'constraints', FULL_PAGE)
+      : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.constraints(modelId!, view!, FULL_PAGE, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && view),
+  });
+}
+
+export function useActions(scope: ActorScope, modelId: string | undefined, view: ViewReference | undefined) {
+  return useQuery({
+    queryKey: view && modelId
+      ? ontologyKeys.collection({...scope, modelId}, view, 'actions', FULL_PAGE)
+      : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.actions(modelId!, view!, FULL_PAGE, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && view),
+  });
+}
+
+export function useImplementationBindings(scope: ActorScope, modelId: string | undefined, view: ViewReference | undefined) {
+  return useQuery({
+    queryKey: view && modelId
+      ? ontologyKeys.collection({...scope, modelId}, view, 'implementation-bindings', FULL_PAGE)
+      : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.implementationBindings(modelId!, view!, FULL_PAGE, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && view),
+  });
+}
+
+export function useWorkflowRefs(scope: ActorScope, modelId: string | undefined, view: ViewReference | undefined) {
+  return useQuery({
+    queryKey: view && modelId
+      ? ontologyKeys.collection({...scope, modelId}, view, 'workflow-refs', FULL_PAGE)
+      : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.workflowRefs(modelId!, view!, FULL_PAGE, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && view),
+  });
+}
+
+// Registry / 验证用例与具体模型无关：按 workspace + actor 做会话级缓存。
+export function useRegistry(scope: ActorScope) {
+  return useQuery({
+    queryKey: [...ontologyKeys.root(scope), 'registry'],
+    queryFn: () => ontologyV1.registry(),
+    select: (r) => r.data,
+    staleTime: 60_000,
+  });
+}
+
+export function useActionFixtures(scope: ActorScope) {
+  return useQuery({
+    queryKey: [...ontologyKeys.root(scope), 'action-fixtures'],
+    queryFn: () => ontologyV1.actionFixtures(),
+    select: (r) => r.data,
+    staleTime: 60_000,
+  });
+}
+
+/**
+ * 行动契约验证（POST /models/:id/action-tests）。
+ * 只读验证：服务端返回 realExecution=false / modelChanged=false，不产生模型修订。
+ */
+export function useTestAction(modelId: string) {
+  return useMutation({
+    mutationFn: (body: ActionTestRequest) => ontologyV1.testAction(modelId, body, newIdempotencyKey()),
   });
 }
 

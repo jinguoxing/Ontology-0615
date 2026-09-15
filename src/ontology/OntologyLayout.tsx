@@ -3,9 +3,10 @@
  *
  * - 面包屑 + 模型头（profile/origin/责任方）+ 视图状态条（正式版本 vs 草稿、
  *   contentHash、只读原因、视图切换），全部来自 URL + HTTP 数据，无硬编码。
- * - 八个 Tab 来自 routeContext 的规范定义；overview / object-types 已完成
- *   HTTP 化，relations 为遗留只读视图（仅 drkn-core），其余 Tab 给出真实的
- *   统计占位并明确标注接入批次，不伪造编辑界面。
+ * - 八个 Tab 来自 routeContext 的规范定义；overview / object-types /
+ *   relations / actions / implementations / workflows 已完成 HTTP 化
+ *   （Batch 2 + Batch 3），validation / release 给出真实统计占位并标注
+ *   Batch 4 接入，不伪造编辑界面。
  * - 常驻“演示数据 · Mock API”徽标与演示身份切换（demo-maintainer / demo-viewer）。
  */
 import {useMemo, useState} from 'react';
@@ -29,6 +30,10 @@ import {ontologyKeys} from '../api/ontology-v1/queryKeys';
 import {ontologyV1} from '../api/ontology-v1/client';
 import Overview from '../components/Overview';
 import ObjectModel from '../components/ObjectModel';
+import RelationsPage from '../components/RelationsPage';
+import ActionsPage from '../components/ActionsPage';
+import ImplementationsPage from '../components/ImplementationsPage';
+import WorkflowsPage from '../components/WorkflowsPage';
 import {DEMO_ACTORS, useDemoIdentity} from './identity';
 import {useActorScope, useInvalidateOnActorChange} from './queries';
 import {ModelContextProvider, useModelContext, type ModelContextValue} from './ModelContext';
@@ -174,38 +179,10 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
       <main className="max-w-[1440px] mx-auto px-6 py-6">
         {tab === 'overview' && <Overview/>}
         {tab === 'object-types' && <ObjectModel/>}
-        {tab === 'relations' && (
-          <DeferredTab
-            ctx={ctx}
-            batch="Batch 3"
-            title="关系与约束"
-            description="关系（RelationDefinition）与约束（ConstraintDefinition）将直接通过 GET /relations、GET /constraints 读取，编辑经 ChangeSet operations（UPSERT / REMOVE）写入当前草稿。"
-          />
-        )}
-        {tab === 'actions' && (
-          <DeferredTab
-            ctx={ctx}
-            batch="Batch 3"
-            title="行动契约编辑"
-            description="行动契约（Action Contract）的创建与编辑将通过 ChangeSet operations（POST /changesets/:id/operations）写入草稿。"
-          />
-        )}
-        {tab === 'implementations' && (
-          <DeferredTab
-            ctx={ctx}
-            batch="Batch 3"
-            title="实现绑定编辑"
-            description="实现绑定（Implementation Binding）编辑将对接 Registry 与 operations；当前页面不提供伪造的绑定编辑。"
-          />
-        )}
-        {tab === 'workflows' && (
-          <DeferredTab
-            ctx={ctx}
-            batch="Batch 3"
-            title="流程关联编辑"
-            description="流程引用（Workflow Reference）编辑将在 Batch 3 接入；本页只读展示当前视图的流程引用统计。"
-          />
-        )}
+        {tab === 'relations' && <RelationsPage/>}
+        {tab === 'actions' && <ActionsPage/>}
+        {tab === 'implementations' && <ImplementationsPage/>}
+        {tab === 'workflows' && <WorkflowsPage/>}
         {tab === 'validation' && (
           <DeferredTab
             ctx={ctx}

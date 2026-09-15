@@ -10,6 +10,11 @@
     "src/components/OntologyModelsList.tsx",
     "src/components/Overview.tsx",
     "src/components/ObjectModel.tsx",
-    "scripts/smoke-batch2.ts"
+    "src/components/RelationsPage.tsx",
+    "src/components/ActionsPage.tsx",
+    "src/components/ImplementationsPage.tsx",
+    "src/components/WorkflowsPage.tsx",
+    "scripts/smoke-batch2.ts",
+    "scripts/smoke-batch3.ts"
   ]
 }
