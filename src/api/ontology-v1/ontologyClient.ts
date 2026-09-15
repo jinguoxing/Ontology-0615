@@ -36,10 +36,14 @@ export function createOntologyClient(options:ClientOptions) {
    if(write?.key)headers['Idempotency-Key']=write.key;
    if(write?.etag)headers['If-Match']=write.etag;
    const response=await fetch(options.baseUrl.replace(/\/$/,'')+url,{method,headers,body:body===undefined?undefined:JSON.stringify(body),signal});
-   const payload=await response.json() as Envelope<T>|ErrorResponse;
-   if(!response.ok || 'error' in payload){
-     const e=payload as ErrorResponse;
-     throw new OntologyApiError(response.status,e.error?.code||'HTTP_ERROR',e.error?.message||'接口请求失败',e.error?.details||{},e.meta?.requestId||'');
+   // 代理目标不可达（如 Mock 未启动）时 Vite 代理返回空 body 的 5xx；
+   // 直接 response.json() 会抛 "Unexpected end of JSON input"，这里降级为正常错误通道。
+   let payload:Envelope<T>|ErrorResponse|null=null;
+   try{payload=await response.json() as Envelope<T>|ErrorResponse;}catch{payload=null;}
+   if(!response.ok || !payload || 'error' in payload){
+     const e=(payload??{}) as Partial<ErrorResponse>;
+     const fallback=!payload?'服务不可达（API 未启动或网络中断）':'接口请求失败';
+     throw new OntologyApiError(response.status,e.error?.code||'HTTP_ERROR',e.error?.message||fallback,e.error?.details||{},e.meta?.requestId||'');
    }
    const p=payload as Envelope<T>;return {data:p.data,etag:response.headers.get('etag'),requestId:p.meta.requestId,dataMode:p.meta.dataMode};
  }
