@@ -106,11 +106,11 @@ export function SemovixShell({top, activeSub, children}: {
   const current = SEMOVIX_NAV_BY_ID[top];
 
   /**
-   * 一级菜单点击：全部走规划中的真实路由。“业务语义”保持既有演示入口，
-   * 直接进入业务本体列表（已实现的核心域），不切到任何遗留页面。
+   * 一级菜单点击：统一走该项的规划真实路由（业务语义 → /business-semantics/overview）。
+   * 应用根路径 / 仍重定向到业务本体列表，便于本仓库演示（见 App.tsx）。
    */
   const goTop = (item: SemovixNavItem) => {
-    navigate(item.id === 'semantics' ? '/business-semantics/ontologies' : item.path);
+    navigate(item.path);
   };
   /** 子菜单点击：走该项的规范路径（已实现项与占位项同样处理）。 */
   const goSub = (sub: SemovixSubItem) => {

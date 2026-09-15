@@ -19,6 +19,7 @@ import type {
   EditOperation,
   Graph,
   ModelSummary,
+  PublishRequest,
   ResolvedView,
   Session,
   VersionRecord,
@@ -134,6 +135,93 @@ export function useAuditEvents(scope: ActorScope, modelId: string | undefined) {
     queryFn: () => ontologyV1.audit(modelId!),
     select: (r) => r.data,
     enabled: Boolean(modelId),
+  });
+}
+
+// ---- Batch 4：校验 / 影响 / 发布（异步任务 + 轮询；报告状态存于服务端与 React Query）----
+
+/**
+ * 草稿修订 diff（GET /changesets/:id/diff?revision=）。仅草稿视图有意义。
+ */
+export function useDiff(scope: ActorScope, modelId: string | undefined, changeSetId: string | null | undefined, revision: number | undefined) {
+  return useQuery({
+    queryKey: modelId && changeSetId && revision !== undefined
+      ? [...ontologyKeys.model({...scope, modelId}), 'diff', changeSetId, revision]
+      : ['ontology-v1', 'disabled'],
+    queryFn: () => ontologyV1.diff(modelId!, changeSetId!, revision!),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && changeSetId && revision !== undefined),
+  });
+}
+
+/** 任务查询键：完整携带 workspaceId/actorId/modelId/changeSetId/revision/jobId。 */
+export function jobQueryKey(scope: ActorScope, modelId: string, changeSetId: string, revision: number, jobId: string) {
+  return [...ontologyKeys.model({...scope, modelId}), 'job', changeSetId, revision, jobId] as const;
+}
+
+/**
+ * 异步任务轮询（GET /models/:id/jobs/:jobId）。
+ * 202 的 Location/Retry-After 指向本资源；这里按固定间隔轮询，任务进入
+ * 终态（SUCCEEDED / FAILED）后 refetchInterval 返回 false，停止请求。
+ */
+export function useJobPolling(scope: ActorScope, modelId: string | undefined, changeSetId: string | undefined, revision: number | undefined, jobId: string | undefined) {
+  return useQuery({
+    queryKey: modelId && changeSetId && revision !== undefined && jobId
+      ? jobQueryKey(scope, modelId, changeSetId, revision, jobId)
+      : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.getJob(modelId!, jobId!, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && changeSetId && revision !== undefined && jobId),
+    refetchInterval: (query) => (query.state.data?.data.status === 'RUNNING' ? 400 : false),
+    refetchOnWindowFocus: false,
+    retry: 1,
+  });
+}
+
+/** 启动校验（POST …/validation-runs，202 + 任务）。If-Match + Idempotency-Key。 */
+export function useStartValidation(scope: ActorScope, modelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {changeSetId: string; revision: number; etag: string}) =>
+      ontologyV1.validate(modelId, input.changeSetId, input.revision, input.etag, newIdempotencyKey()),
+    onSuccess: (result, variables) => {
+      // 202 返回任务实体：写入任务缓存，轮询查询立即可用。
+      void queryClient.setQueryData(
+        jobQueryKey(scope, modelId, variables.changeSetId, variables.revision, result.data.id),
+        result,
+      );
+    },
+  });
+}
+
+/** 启动影响分析（POST …/impact-analyses，202 + 任务）。If-Match + Idempotency-Key。 */
+export function useStartImpact(scope: ActorScope, modelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {changeSetId: string; revision: number; etag: string}) =>
+      ontologyV1.analyzeImpact(modelId, input.changeSetId, input.revision, input.etag, newIdempotencyKey()),
+    onSuccess: (result, variables) => {
+      void queryClient.setQueryData(
+        jobQueryKey(scope, modelId, variables.changeSetId, variables.revision, result.data.id),
+        result,
+      );
+    },
+  });
+}
+
+/**
+ * 发布（POST …/publications，201）。服务端是最终裁决方：REPORT_STALE /
+ * IMPACT_ACK_REQUIRED 等全部原样抛回页面呈现。成功后模型缓存树整体失效。
+ */
+export function usePublishVersion(scope: ActorScope, modelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {changeSetId: string; body: PublishRequest; etag: string}) =>
+      ontologyV1.publish(modelId, input.changeSetId, input.body, input.etag, newIdempotencyKey()),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({queryKey: ontologyKeys.model({...scope, modelId})});
+      void queryClient.invalidateQueries({queryKey: [...ontologyKeys.root(scope), 'models']});
+    },
   });
 }
 

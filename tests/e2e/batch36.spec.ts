@@ -58,11 +58,12 @@ test.describe('Batch 3.6 IA / 品牌收口', () => {
     expect(labels).toEqual(SEMANTICS_SUB_LABELS);
   });
 
-  test('03 一级菜单点击：业务语义进入业务本体列表（Batch 3.5 入口保持）', async ({page}) => {
+  test('03 一级菜单点击：业务语义统一走 item.path（/business-semantics/overview）', async ({page}) => {
     await page.goto('/tasks');
     await page.getByTestId('semovix-top-nav').getByRole('button', {name: '业务语义', exact: true}).click();
-    await expect(page).toHaveURL(/\/business-semantics\/ontologies$/);
-    await expect(page.getByRole('heading', {name: '业务本体', exact: true, level: 1})).toBeVisible();
+    await expect(page).toHaveURL(/\/business-semantics\/overview$/);
+    await assertShell(page, {top: '业务语义', sub: '概览'});
+    await expect(page.getByTestId('out-of-scope')).toBeVisible();
   });
 
   test('04 未实现一级模块：规划路由 + 当前演示范围外（不切换遗留页面）', async ({page}) => {

@@ -1,9 +1,13 @@
 /**
- * Batch 3.6 浏览器截图（第七节视觉验证）。
+ * 浏览器截图（第七节视觉验证）。
  *
- * 7 张独立 1920×1080 viewport 截图（不拼接、非 fullPage）：
+ * batch-3.6：7 张独立 1920×1080 viewport 截图（不拼接、非 fullPage）：
  * 01 Models / 02 Overview / 03 Object Types / 04 Relations / 05 Actions /
  * 06 Implementations / 07 Workflows。
+ *
+ * batch-4：08 校验与影响（r12 阻断报告 + Inspector 定位修复）、
+ * 09 版本与发布（r12 草稿 Diff + 发布表单前置检查）。两张都停在 r12
+ * 草稿态（运行报告不推进修订），种子 diff（类型 + 外部依赖两组）完整可见。
  *
  * 每张截图共享的 Semovix 外壳元素逐张断言后再截图：
  * 官方 Semovix Logo、七项一级导航（业务语义高亮）、业务语义完整左侧
@@ -20,6 +24,7 @@ import {fileURLToPath} from 'node:url';
 
 // Playwright 以 ESM 编译 spec，无 __dirname；从 import.meta.url 推导仓库根。
 const OUT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/screenshots/batch-3.6');
+const OUT_DIR_B4 = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../docs/screenshots/batch-4');
 // 无视图参数的 URL 解析为正式版本（只读）；截图要呈现草稿工作态，
 // 直接深链接到种子修订 r12（spec 前已用全新 MOCK_DB_PATH 重启 mock）。
 // tab 是路径段：/business-semantics/ontologies/:modelId/:tab?changeSetId&revision。
@@ -27,6 +32,7 @@ const draftUrl = (tab: string) =>
   `/business-semantics/ontologies/drkn-core/${tab}?changeSetId=cs-drkn-demo&revision=12`;
 
 mkdirSync(OUT_DIR, {recursive: true});
+mkdirSync(OUT_DIR_B4, {recursive: true});
 
 const TOP_NAV_LABELS = [
   'Xino 智能伙伴',
@@ -132,5 +138,43 @@ test.describe('Batch 3.6 截图（1920×1080）', () => {
     await page.getByRole('button', {name: /SemanticReview/}).first().click();
     await expect(page.getByText('所需对象')).toBeVisible();
     await page.screenshot({path: path.join(OUT_DIR, '07-workflows.png')});
+  });
+});
+
+test.describe('Batch 4 截图（1920×1080）', () => {
+  test('08 Validation & Impact — r12 阻断报告 + Inspector 定位修复', async ({page}) => {
+    await page.goto(draftUrl('validation'));
+    await settled(page);
+    await assertShell(page);
+    await assertDetail(page, '校验与影响');
+    // 运行两份报告（只读计算任务，不推进修订），等待轮询完成。
+    await page.getByTestId('start-validation').click();
+    await expect(page.getByTestId('validation-status')).toHaveText(/已完成/, {timeout: 15_000});
+    await page.getByTestId('start-impact').click();
+    await expect(page.getByTestId('impact-status')).toHaveText(/已完成/, {timeout: 15_000});
+    await expect(page.getByTestId('validation-report')).toContainText('存在 1 个阻断项');
+    await expect(page.getByTestId('impact-completeness')).toContainText('PARTIAL');
+    // 打开阻断项 Inspector（定位修复入口）。
+    await page.getByTestId('issue-list').locator('button').first().click();
+    await expect(page.getByTestId('issue-inspector')).toContainText('DEPENDENCY_VERSION_REQUIRED');
+    await expect(page.getByTestId('issue-inspector')).toContainText('锁定 runtime @ v1.0.0');
+    await page.screenshot({path: path.join(OUT_DIR_B4, '08-validation-impact.png')});
+  });
+
+  test('09 Release — r12 草稿 Diff + 发布表单前置检查', async ({page}) => {
+    // 沿用上一张截图运行好的两份报告（任务不推进修订，r12 种子 diff 完整）。
+    await page.goto(draftUrl('release'));
+    await settled(page);
+    await assertShell(page);
+    await assertDetail(page, '版本与发布');
+    await expect(page.getByTestId('diff-panel')).toContainText('对象类型');
+    await expect(page.getByTestId('diff-panel')).toContainText('外部依赖');
+    await expect(page.getByTestId('diff-panel')).toContainText('SemanticAssertion');
+    await expect(page.getByTestId('versions-panel')).toContainText('目标版本');
+    await expect(page.getByTestId('versions-panel')).toContainText('v1.3.0');
+    // 未选报告时呈现引导与前置检查（真实禁用态，不伪造可发布）。
+    await expect(page.getByTestId('publish-button')).toBeDisabled();
+    await expect(page.getByTestId('publish-form')).toContainText('前往「校验与影响」运行');
+    await page.screenshot({path: path.join(OUT_DIR_B4, '09-release.png')});
   });
 });

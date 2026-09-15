@@ -39,8 +39,22 @@ const TAB_API_PATHS: Record<OntologyTab, string[]> = {
     'GET /api/v1/ontology/models/{modelId}/workflow-refs',
     'GET /api/v1/ontology/registry',
   ],
-  'validation': ['POST /api/v1/ontology/models/{modelId}/validation-runs（Batch 4 接入）'],
-  'release': ['POST /api/v1/ontology/models/{modelId}/publications（Batch 4 接入）'],
+  'validation': [
+    'GET /api/v1/ontology/changesets/{changeSetId}?revision=',
+    'GET /api/v1/ontology/changesets/{changeSetId}/diff?revision=',
+    'GET /api/v1/ontology/registry',
+    'POST /api/v1/ontology/models/{modelId}/validation-runs（If-Match + Idempotency-Key）',
+    'POST /api/v1/ontology/models/{modelId}/impact-analyses（If-Match + Idempotency-Key）',
+    'GET /api/v1/ontology/models/{modelId}/jobs/{jobId}',
+  ],
+  'release': [
+    'GET /api/v1/ontology/changesets/{changeSetId}?revision=',
+    'GET /api/v1/ontology/changesets/{changeSetId}/diff?revision=',
+    'GET /api/v1/ontology/models/{modelId}/versions',
+    'GET /api/v1/ontology/models/{modelId}/versions/{versionId}',
+    'GET /api/v1/ontology/models/{modelId}/audit-events',
+    'POST /api/v1/ontology/models/{modelId}/publications（If-Match + Idempotency-Key）',
+  ],
 };
 
 const WRITE_PATH = 'POST /api/v1/ontology/changesets/{changeSetId}/operations（If-Match + Idempotency-Key）';

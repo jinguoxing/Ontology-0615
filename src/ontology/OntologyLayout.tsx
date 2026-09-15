@@ -9,17 +9,16 @@
  *   登记值）、revision 与“正式版本未受草稿影响”；正式版本显示只读状态。
  * - 工程标识（contentHash、ETag、API Path、capabilities、transport、
  *   Registry 原始值）移入“技术详情”抽屉，不占用主界面。
- * - 八个 Tab 为本体详情内的能力页；validation / release 是 Batch 4 的
- *   诚实占位（真实统计 + 接入说明，不伪造编辑界面）。
+ * - 八个 Tab 为本体详情内的能力页；validation / release 自 Batch 4 起为
+ *   真实页面（异步校验 / 影响分析与版本发布，全部走 HTTP Mock 服务）。
  */
-import {useMemo, useState} from 'react';
+import {useState} from 'react';
 import {Link} from 'react-router-dom';
 import {useQueryClient} from '@tanstack/react-query';
 import {
   AlertTriangle,
   ArrowLeft,
   CheckCircle2,
-  Database,
   Eye,
   FileClock,
   Loader2,
@@ -36,6 +35,8 @@ import RelationsPage from '../components/RelationsPage';
 import ActionsPage from '../components/ActionsPage';
 import ImplementationsPage from '../components/ImplementationsPage';
 import WorkflowsPage from '../components/WorkflowsPage';
+import ValidationImpactPage from '../components/ValidationImpactPage';
+import ReleasePage from '../components/ReleasePage';
 import {useActorScope, useChangeSet} from './queries';
 import {ModelContextProvider, useModelContext, type ModelContextValue} from './ModelContext';
 import {TechnicalDetailsDrawer} from './TechnicalDetails';
@@ -173,20 +174,8 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
         {tab === 'actions' && <ActionsPage/>}
         {tab === 'implementations' && <ImplementationsPage/>}
         {tab === 'workflows' && <WorkflowsPage/>}
-        {tab === 'validation' && (
-          <DeferredTab
-            ctx={ctx}
-            title="校验与影响分析"
-            description="校验将以异步任务方式运行（提交校验运行并等待任务完成），并在通过后给出变更影响分析。"
-          />
-        )}
-        {tab === 'release' && (
-          <DeferredTab
-            ctx={ctx}
-            title="版本与发布"
-            description="发布将基于草稿变更与校验 / 影响分析结果创建新正式版本；已发布正式版本不可直接编辑。"
-          />
-        )}
+        {tab === 'validation' && <ValidationImpactPage/>}
+        {tab === 'release' && <ReleasePage/>}
       </main>
 
       <TechnicalDetailsDrawer open={techOpen} onClose={() => setTechOpen(false)}/>
@@ -285,61 +274,5 @@ function BandField({label, value, mono}: {label: string; value: string; mono?: b
       <span className="text-slate-400">{label}</span>
       <span className={`font-semibold text-slate-600 ${mono ? 'font-mono' : ''}`}>{value}</span>
     </span>
-  );
-}
-
-/** 未接线 Tab 的诚实占位：展示当前视图真实统计，说明接入批次，不伪造界面。 */
-function DeferredTab({ctx, title, description}: {
-  ctx: ModelContextValue;
-  title: string;
-  description: string;
-}) {
-  const doc = ctx.resolvedView?.document;
-  const stats = useMemo(() => {
-    if (!doc) return [];
-    return [
-      {label: '对象类型', count: doc.objectTypes.length, tab: 'object-types' as OntologyTab},
-      {label: '关系', count: doc.relations.length, tab: 'relations' as OntologyTab},
-      {label: '约束', count: doc.constraints.length, tab: 'relations' as OntologyTab},
-      {label: '行动契约', count: doc.actions.length, tab: 'actions' as OntologyTab},
-      {label: '实现绑定', count: doc.implementationBindings.length, tab: 'implementations' as OntologyTab},
-      {label: '流程引用', count: doc.workflowRefs.length, tab: 'workflows' as OntologyTab},
-    ];
-  }, [doc]);
-
-  return (
-    <div className="max-w-3xl space-y-4">
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
-        <div className="flex items-center gap-2">
-          <Eye className="h-4 w-4 text-slate-400"/>
-          <h2 className="text-sm font-bold text-slate-800">{title}</h2>
-          <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-            当前演示范围外
-          </span>
-        </div>
-        <p className="text-[13px] text-slate-600 leading-relaxed">{description}</p>
-        <p className="text-[11.5px] text-slate-400">
-          当前视图中的真实统计：
-        </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between"
-            >
-              <span className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-                <Database className="h-3.5 w-3.5 text-slate-400"/>{s.label}
-              </span>
-              <span className="text-sm font-bold text-slate-800 font-mono">{s.count}</span>
-            </div>
-          ))}
-        </div>
-        {ctx.isDraft && (
-          <p className="text-[11.5px] text-slate-400">
-            当前为草稿视图；以上集合的编辑仍以草稿修订的方式提交，发布不在本页进行。
-          </p>
-        )}
-      </div>
-    </div>
   );
 }
