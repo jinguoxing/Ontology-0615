@@ -1,0 +1,40 @@
+{
+  "result": "PASS",
+  "scope": "离线结构、引用与实际HTTP交换的JSON Schema校验；不是完整OpenAPI规范认证",
+  "modelSchemas": 59,
+  "operationIOSchemas": 56,
+  "operationsDefined": 30,
+  "operationsExercised": 30,
+  "unexercisedOperations": [],
+  "openapiInternalReferencesChecked": 475,
+  "httpResponsesValidated": 125,
+  "successfulRequestBodiesValidated": 28,
+  "responseStatuses": {
+    "200": 87,
+    "403": 2,
+    "404": 3,
+    "400": 4,
+    "401": 1,
+    "428": 1,
+    "412": 2,
+    "202": 12,
+    "409": 6,
+    "422": 3,
+    "201": 4
+  },
+  "seedCounts": {
+    "objectTypes": 31,
+    "relations": 39,
+    "constraints": 2,
+    "actions": 25,
+    "implementationBindings": 28,
+    "workflowRefs": 6,
+    "dependencies": 3
+  },
+  "notValidated": [
+    "原仓库九页React UI接入",
+    "原仓库整体构建",
+    "实际生产服务与真实数据扫描",
+    "所有JSON Schema关键词的一致性实现"
+  ]
+}

@@ -1,0 +1,3915 @@
+{
+  "packages": [
+    {
+      "id": "runtime",
+      "versions": [
+        {
+          "versionId": "v1.0.0",
+          "typeIds": [
+            "Run",
+            "GovernanceTask"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "business",
+      "versions": [
+        {
+          "versionId": "v1.0.0",
+          "typeIds": [
+            "BusinessObject",
+            "BusinessProperty",
+            "Metric"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "grounding",
+      "versions": [
+        {
+          "versionId": "v1.0.0",
+          "typeIds": [
+            "AlignmentCandidate",
+            "DataImplementation",
+            "PropertyGrounding",
+            "RelationshipGrounding",
+            "MetricImplementation"
+          ]
+        }
+      ]
+    }
+  ],
+  "implementations": [
+    {
+      "id": "impl-testDataSourceConnection",
+      "versionId": "v1.0.0",
+      "nameCn": "验证连接",
+      "kind": "ACTION",
+      "ownerService": "data-connection",
+      "inputContractRef": "testDataSourceConnection.input@1",
+      "outputContractRef": "testDataSourceConnection.output@1",
+      "sideEffects": [
+        "SOURCE_READ"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-createDataSource",
+      "versionId": "v1.0.0",
+      "nameCn": "创建数据源",
+      "kind": "ACTION",
+      "ownerService": "data-connection",
+      "inputContractRef": "createDataSource.input@1",
+      "outputContractRef": "createDataSource.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "SIMULATABLE"
+    },
+    {
+      "id": "impl-updateDataSource",
+      "versionId": "v1.0.0",
+      "nameCn": "更新数据源",
+      "kind": "ACTION",
+      "ownerService": "data-connection",
+      "inputContractRef": "updateDataSource.input@1",
+      "outputContractRef": "updateDataSource.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-disableDataSource",
+      "versionId": "v1.0.0",
+      "nameCn": "停用数据源",
+      "kind": "ACTION",
+      "ownerService": "data-connection",
+      "inputContractRef": "disableDataSource.input@1",
+      "outputContractRef": "disableDataSource.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-startMetadataScan",
+      "versionId": "v1.0.0",
+      "nameCn": "启动元数据扫描",
+      "kind": "ACTION",
+      "ownerService": "data-connection",
+      "inputContractRef": "startMetadataScan.input@1",
+      "outputContractRef": "startMetadataScan.output@1",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "SIMULATABLE"
+    },
+    {
+      "id": "impl-cancelRun",
+      "versionId": "v1.0.0",
+      "nameCn": "取消运行",
+      "kind": "ACTION",
+      "ownerService": "runtime",
+      "inputContractRef": "cancelRun.input@1",
+      "outputContractRef": "cancelRun.output@1",
+      "sideEffects": [
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-retryRun",
+      "versionId": "v1.0.0",
+      "nameCn": "重试失败运行",
+      "kind": "ACTION",
+      "ownerService": "runtime",
+      "inputContractRef": "retryRun.input@1",
+      "outputContractRef": "retryRun.output@1",
+      "sideEffects": [
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-startProfiling",
+      "versionId": "v1.0.0",
+      "nameCn": "执行数据画像",
+      "kind": "ACTION",
+      "ownerService": "profiling",
+      "inputContractRef": "startProfiling.input@1",
+      "outputContractRef": "startProfiling.output@1",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-rerunProfiling",
+      "versionId": "v1.0.0",
+      "nameCn": "重新画像",
+      "kind": "ACTION",
+      "ownerService": "profiling",
+      "inputContractRef": "rerunProfiling.input@1",
+      "outputContractRef": "rerunProfiling.output@1",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-createQualityRuleDraft",
+      "versionId": "v1.0.0",
+      "nameCn": "创建质量规则草稿",
+      "kind": "ACTION",
+      "ownerService": "quality",
+      "inputContractRef": "createQualityRuleDraft.input@1",
+      "outputContractRef": "createQualityRuleDraft.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-trialQualityRule",
+      "versionId": "v1.0.0",
+      "nameCn": "试跑质量规则",
+      "kind": "ACTION",
+      "ownerService": "quality",
+      "inputContractRef": "trialQualityRule.input@1",
+      "outputContractRef": "trialQualityRule.output@1",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-activateQualityRule",
+      "versionId": "v1.0.0",
+      "nameCn": "启用质量规则",
+      "kind": "ACTION",
+      "ownerService": "quality",
+      "inputContractRef": "activateQualityRule.input@1",
+      "outputContractRef": "activateQualityRule.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-runQualityPlan",
+      "versionId": "v1.0.0",
+      "nameCn": "运行质量监测方案",
+      "kind": "ACTION",
+      "ownerService": "quality",
+      "inputContractRef": "runQualityPlan.input@1",
+      "outputContractRef": "runQualityPlan.output@1",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-recordRemediation",
+      "versionId": "v1.0.0",
+      "nameCn": "登记问题处置",
+      "kind": "ACTION",
+      "ownerService": "quality",
+      "inputContractRef": "recordRemediation.input@1",
+      "outputContractRef": "recordRemediation.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-verifyRemediation",
+      "versionId": "v1.0.0",
+      "nameCn": "复核问题处置",
+      "kind": "ACTION",
+      "ownerService": "quality",
+      "inputContractRef": "verifyRemediation.input@1",
+      "outputContractRef": "verifyRemediation.output@1",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-generateTrustReport",
+      "versionId": "v1.0.0",
+      "nameCn": "生成可信报告",
+      "kind": "ACTION",
+      "ownerService": "quality",
+      "inputContractRef": "generateTrustReport.input@1",
+      "outputContractRef": "generateTrustReport.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-startSemanticUnderstanding",
+      "versionId": "v1.0.0",
+      "nameCn": "发起表/字段语义理解",
+      "kind": "ACTION",
+      "ownerService": "data-semantics",
+      "inputContractRef": "startSemanticUnderstanding.input@1",
+      "outputContractRef": "startSemanticUnderstanding.output@1",
+      "sideEffects": [
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-recomputeSemanticCandidates",
+      "versionId": "v1.0.0",
+      "nameCn": "补证据并重算候选",
+      "kind": "ACTION",
+      "ownerService": "data-semantics",
+      "inputContractRef": "recomputeSemanticCandidates.input@1",
+      "outputContractRef": "recomputeSemanticCandidates.output@1",
+      "sideEffects": [
+        "EXTERNAL_JOB"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-confirmAssertion",
+      "versionId": "v1.0.0",
+      "nameCn": "确认语义断言",
+      "kind": "ACTION",
+      "ownerService": "data-semantics",
+      "inputContractRef": "confirmAssertion.input@1",
+      "outputContractRef": "confirmAssertion.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "SIMULATABLE"
+    },
+    {
+      "id": "impl-rejectAssertion",
+      "versionId": "v1.0.0",
+      "nameCn": "拒绝候选断言",
+      "kind": "ACTION",
+      "ownerService": "data-semantics",
+      "inputContractRef": "rejectAssertion.input@1",
+      "outputContractRef": "rejectAssertion.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-confirmIgnoreRole",
+      "versionId": "v1.0.0",
+      "nameCn": "确认忽略字段角色",
+      "kind": "ACTION",
+      "ownerService": "data-semantics",
+      "inputContractRef": "confirmIgnoreRole.input@1",
+      "outputContractRef": "confirmIgnoreRole.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-assignSteward",
+      "versionId": "v1.0.0",
+      "nameCn": "设置责任归属",
+      "kind": "ACTION",
+      "ownerService": "governance",
+      "inputContractRef": "assignSteward.input@1",
+      "outputContractRef": "assignSteward.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-proposeObjectAlignment",
+      "versionId": "v1.0.0",
+      "nameCn": "发现业务对象候选",
+      "kind": "ACTION",
+      "ownerService": "business-object",
+      "inputContractRef": "proposeObjectAlignment.input@1",
+      "outputContractRef": "proposeObjectAlignment.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-confirmObjectSupport",
+      "versionId": "v1.0.0",
+      "nameCn": "确认对象数据支撑",
+      "kind": "ACTION",
+      "ownerService": "data-support",
+      "inputContractRef": "confirmObjectSupport.input@1",
+      "outputContractRef": "confirmObjectSupport.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "impl-correctPropertyGrounding",
+      "versionId": "v1.0.0",
+      "nameCn": "修正属性对应",
+      "kind": "ACTION",
+      "ownerService": "data-support",
+      "inputContractRef": "correctPropertyGrounding.input@1",
+      "outputContractRef": "correctPropertyGrounding.output@1",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "fn-classifyFieldSemantic",
+      "versionId": "v1.0.0",
+      "nameCn": "字段语义分类",
+      "kind": "FUNCTION",
+      "ownerService": "data-semantics",
+      "inputContractRef": "FieldEvidenceInput@1",
+      "outputContractRef": "SemanticCandidateResult@1",
+      "sideEffects": [
+        "NONE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "fn-inferTableSemantics",
+      "versionId": "v1.0.0",
+      "nameCn": "表语义理解",
+      "kind": "FUNCTION",
+      "ownerService": "data-semantics",
+      "inputContractRef": "AssetProfileInput@1",
+      "outputContractRef": "TableCandidateResult@1",
+      "sideEffects": [
+        "NONE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    },
+    {
+      "id": "fn-detectRelationshipCandidates",
+      "versionId": "v1.0.0",
+      "nameCn": "数据关系候选识别",
+      "kind": "FUNCTION",
+      "ownerService": "data-semantics",
+      "inputContractRef": "AssetPairInput@1",
+      "outputContractRef": "RelationshipCandidates@1",
+      "sideEffects": [
+        "NONE"
+      ],
+      "transport": "MOCK",
+      "liveEndpointVerified": false,
+      "demoMode": "CONTRACT_ONLY"
+    }
+  ],
+  "workflows": [
+    {
+      "id": "DataSourceSetup",
+      "versionId": "v1.0.0",
+      "nameCn": "数据源接入",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "testDataSourceConnection",
+        "createDataSource"
+      ],
+      "description": "演示注册项，真实流程定义和调度由原运行系统维护。",
+      "executable": false
+    },
+    {
+      "id": "MetadataScan",
+      "versionId": "v1.0.0",
+      "nameCn": "元数据扫描",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "startMetadataScan"
+      ],
+      "description": "演示注册项，真实流程定义和调度由原运行系统维护。",
+      "executable": false
+    },
+    {
+      "id": "Profiling",
+      "versionId": "v1.0.0",
+      "nameCn": "画像采集",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "startProfiling"
+      ],
+      "description": "演示注册项，真实流程定义和调度由原运行系统维护。",
+      "executable": false
+    },
+    {
+      "id": "SemanticReview",
+      "versionId": "v1.0.0",
+      "nameCn": "语义理解与例外处理",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "startSemanticUnderstanding",
+        "recomputeSemanticCandidates",
+        "confirmAssertion",
+        "rejectAssertion"
+      ],
+      "description": "演示注册项，真实流程定义和调度由原运行系统维护。",
+      "executable": false
+    },
+    {
+      "id": "QualityMonitoring",
+      "versionId": "v1.0.0",
+      "nameCn": "质量监测与复核",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "trialQualityRule",
+        "runQualityPlan",
+        "recordRemediation",
+        "verifyRemediation"
+      ],
+      "description": "演示注册项，真实流程定义和调度由原运行系统维护。",
+      "executable": false
+    },
+    {
+      "id": "DataSupportResolution",
+      "versionId": "v1.0.0",
+      "nameCn": "业务对象数据支撑",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "proposeObjectAlignment",
+        "confirmObjectSupport",
+        "correctPropertyGrounding"
+      ],
+      "description": "演示注册项，真实流程定义和调度由原运行系统维护。",
+      "executable": false
+    }
+  ],
+  "consumers": [
+    {
+      "id": "consumer-semantic",
+      "nameCn": "数据语义解释器",
+      "typeIds": [
+        "Field",
+        "SemanticAssertion",
+        "Evidence"
+      ],
+      "modelId": "drkn-core",
+      "pinnedVersionId": "v1.3.0"
+    },
+    {
+      "id": "consumer-quality",
+      "nameCn": "质量检测服务",
+      "typeIds": [
+        "DataQualityRule",
+        "QualityMeasurement",
+        "DataIssue"
+      ],
+      "modelId": "drkn-core",
+      "pinnedVersionId": "v1.3.0"
+    },
+    {
+      "id": "consumer-grounding",
+      "nameCn": "业务对象数据支撑",
+      "typeIds": [
+        "SemanticAssertion",
+        "Field",
+        "DataAsset"
+      ],
+      "modelId": "drkn-core",
+      "pinnedVersionId": "v1.3.0"
+    },
+    {
+      "id": "consumer-network",
+      "nameCn": "知识网络投影",
+      "typeIds": [
+        "SemanticAssertion",
+        "Evidence",
+        "DataImplementation"
+      ],
+      "modelId": "drkn-core",
+      "pinnedVersionId": "v1.3.0"
+    }
+  ],
+  "inventoryCompleteness": "PARTIAL",
+  "ioContracts": [
+    {
+      "id": "testDataSourceConnection.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "connectionDraftRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "secretRef": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "connectionDraftRef",
+          "secretRef"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "testDataSourceConnection.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "validationId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "draftRevision": {
+            "type": "integer"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "PASS",
+                    "FAIL",
+                    "NOT_SUPPORTED"
+                  ]
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "check",
+                "status",
+                "message"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "validationId",
+          "draftRevision",
+          "passed",
+          "checks",
+          "expiresAt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "createDataSource.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "verifiedDraftId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "validationId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "draftRevision": {
+            "type": "integer"
+          },
+          "explicitConfirmation": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "verifiedDraftId",
+          "validationId",
+          "draftRevision",
+          "explicitConfirmation"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "createDataSource.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "updateDataSource.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "patch": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "endpointRef": {
+                "type": "string",
+                "minLength": 1
+              },
+              "secretRef": {
+                "type": "string",
+                "minLength": 1
+              },
+              "readOnly": {
+                "type": "boolean"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "validationId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target",
+          "patch",
+          "validationId",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "updateDataSource.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "disableDataSource.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stopNewJobs": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "target",
+          "reason",
+          "stopNewJobs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "disableDataSource.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "startMetadataScan.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "scope": {
+            "type": "object",
+            "properties": {
+              "assetIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "includeFields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "assetIds"
+            ],
+            "additionalProperties": false
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "FULL",
+              "INCREMENTAL"
+            ]
+          }
+        },
+        "required": [
+          "target",
+          "scope",
+          "mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "startMetadataScan.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "cancelRun.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "cancelRun.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "retryRun.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "RETRY_FAILED_ONLY",
+              "RESUME"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target",
+          "mode",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "retryRun.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "startProfiling.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "assetVersionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sampling": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "SAMPLE",
+                  "FULL"
+                ]
+              },
+              "maxRows": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "target",
+          "assetVersionId",
+          "sampling"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "startProfiling.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "rerunProfiling.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "assetVersionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sampling": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "SAMPLE",
+                  "FULL"
+                ]
+              },
+              "maxRows": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target",
+          "assetVersionId",
+          "sampling",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "rerunProfiling.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "createQualityRuleDraft.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dimensionCode": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ruleDefinition": {
+            "type": "object",
+            "properties": {
+              "language": {
+                "type": "string",
+                "enum": [
+                  "STRUCTURED",
+                  "SQL",
+                  "DSL"
+                ]
+              },
+              "condition": {},
+              "expectation": {},
+              "fieldRefs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "resourceType": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "revision": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "resourceType",
+                    "id",
+                    "revision"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "language",
+              "condition",
+              "expectation",
+              "fieldRefs"
+            ],
+            "additionalProperties": false
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "BLOCKER"
+            ]
+          }
+        },
+        "required": [
+          "target",
+          "name",
+          "dimensionCode",
+          "ruleDefinition",
+          "severity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "createQualityRuleDraft.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "trialQualityRule.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "ruleVersionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "type": "object",
+            "properties": {
+              "assetIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "includeFields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "assetIds"
+            ],
+            "additionalProperties": false
+          },
+          "sampling": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "SAMPLE",
+                  "FULL"
+                ]
+              },
+              "maxRows": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "mode"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "target",
+          "ruleVersionId",
+          "scope",
+          "sampling"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "trialQualityRule.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "activateQualityRule.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "successfulTrialRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "explicitConfirmation": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "target",
+          "successfulTrialRunRef",
+          "explicitConfirmation"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "activateQualityRule.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "runQualityPlan.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "planVersionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "type": "object",
+            "properties": {
+              "assetIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "includeFields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "assetIds"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "target",
+          "planVersionId",
+          "scope"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "runQualityPlan.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "recordRemediation.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "actionTaken": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "verificationRuleRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "target",
+          "actionTaken",
+          "evidenceIds",
+          "verificationRuleRef"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "recordRemediation.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "verifyRemediation.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "ruleVersionRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "scope": {
+            "type": "object",
+            "properties": {
+              "assetIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "includeFields": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "assetIds"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "target",
+          "ruleVersionRef",
+          "scope"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "verifyRemediation.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "generateTrustReport.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "measurementRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "issueRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "target",
+          "measurementRefs",
+          "issueRefs",
+          "asOf"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "generateTrustReport.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "startSemanticUnderstanding.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "assetVersionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "profileSnapshotRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policyVersionRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "aspects": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "enum": [
+                "FIELD",
+                "TABLE",
+                "RELATIONSHIP"
+              ]
+            }
+          },
+          "preserveEffectiveSemantics": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "target",
+          "assetVersionId",
+          "policyVersionRef",
+          "aspects",
+          "preserveEffectiveSemantics"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "startSemanticUnderstanding.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "recomputeSemanticCandidates.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "policyVersionRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "preserveEffectiveSemantics": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "target",
+          "evidenceRefs",
+          "policyVersionRef",
+          "reason",
+          "preserveEffectiveSemantics"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "recomputeSemanticCandidates.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "QUEUED",
+              "RUNNING"
+            ]
+          },
+          "previousRunRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "accepted",
+          "runRef",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "confirmAssertion.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "subjectVersionRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "decisionReason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conflictResolutionRef": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target",
+          "subjectVersionRef",
+          "evidenceIds",
+          "decisionReason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "confirmAssertion.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "rejectAssertion.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "rejectAssertion.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "confirmIgnoreRole.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "preserveTechnicalAccess": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "target",
+          "reason",
+          "preserveTechnicalAccess"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "confirmIgnoreRole.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "assignSteward.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "principalId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "STEWARD"
+            ]
+          }
+        },
+        "required": [
+          "target",
+          "principalId",
+          "role"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "assignSteward.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "proposeObjectAlignment.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "assetVersionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "effectiveSemanticAssertionRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "preferredDomainRef": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target",
+          "assetVersionId",
+          "effectiveSemanticAssertionRefs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "proposeObjectAlignment.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "confirmObjectSupport.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "candidateRef": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "businessObjectVersionRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scope": {
+            "type": "object"
+          },
+          "evidenceIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "explicitConfirmation": {
+            "type": "boolean",
+            "const": true
+          }
+        },
+        "required": [
+          "candidateRef",
+          "businessObjectVersionRef",
+          "scope",
+          "evidenceIds",
+          "explicitConfirmation"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "confirmObjectSupport.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "correctPropertyGrounding.input@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "object",
+            "properties": {
+              "resourceType": {
+                "type": "string",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "resourceType",
+              "id",
+              "revision"
+            ],
+            "additionalProperties": false
+          },
+          "replacementFieldRefs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "target",
+          "replacementFieldRefs",
+          "reason",
+          "evidenceIds"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "correctPropertyGrounding.output@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "changedResourceRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "runStarted": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "changedResourceRefs",
+          "auditRef",
+          "runStarted"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "FieldEvidenceInput@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "targetRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "profileRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policyVersionRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "targetRefs",
+          "policyVersionRef",
+          "evidenceRefs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "SemanticCandidateResult@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {},
+                "score": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "evidenceRefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "score",
+                "evidenceRefs"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "queue": {
+            "type": "string",
+            "enum": [
+              "AUTO_PASS",
+              "NEEDS_CONFIRM",
+              "CONFLICT",
+              "ANOMALY",
+              "IGNORE_CANDIDATE"
+            ]
+          },
+          "effectiveDefinitionChanged": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "candidates",
+          "queue",
+          "effectiveDefinitionChanged"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "AssetProfileInput@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "targetRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "profileRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policyVersionRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "targetRefs",
+          "policyVersionRef",
+          "evidenceRefs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "TableCandidateResult@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {},
+                "score": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "evidenceRefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "score",
+                "evidenceRefs"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "queue": {
+            "type": "string",
+            "enum": [
+              "AUTO_PASS",
+              "NEEDS_CONFIRM",
+              "CONFLICT",
+              "ANOMALY",
+              "IGNORE_CANDIDATE"
+            ]
+          },
+          "effectiveDefinitionChanged": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "candidates",
+          "queue",
+          "effectiveDefinitionChanged"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "AssetPairInput@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "targetRefs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "resourceType",
+                "id",
+                "revision"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "profileRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "policyVersionRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidenceRefs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "targetRefs",
+          "policyVersionRef",
+          "evidenceRefs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "id": "RelationshipCandidates@1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {},
+                "score": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "evidenceRefs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "score",
+                "evidenceRefs"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "queue": {
+            "type": "string",
+            "enum": [
+              "AUTO_PASS",
+              "NEEDS_CONFIRM",
+              "CONFLICT",
+              "ANOMALY",
+              "IGNORE_CANDIDATE"
+            ]
+          },
+          "effectiveDefinitionChanged": {
+            "type": "boolean",
+            "const": false
+          }
+        },
+        "required": [
+          "candidates",
+          "queue",
+          "effectiveDefinitionChanged"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}

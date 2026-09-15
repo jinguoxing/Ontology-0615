@@ -1,0 +1,173 @@
+TAP version 13
+# Subtest: Semovix ontology HTTP reference implementation
+    # Subtest: 健康接口与读取模型是真实 HTTP
+    ok 1 - 健康接口与读取模型是真实 HTTP
+      ---
+      duration_ms: 37.344848
+      type: 'test'
+      ...
+    # Subtest: 全部页面读取同一快照，图表关系一致
+    ok 2 - 全部页面读取同一快照，图表关系一致
+      ---
+      duration_ms: 32.049119
+      type: 'test'
+      ...
+    # Subtest: 模型和工作空间隔离，不以 DRKN 标签冒充模型 ID
+    ok 3 - 模型和工作空间隔离，不以 DRKN 标签冒充模型 ID
+      ---
+      duration_ms: 4.669516
+      type: 'test'
+      ...
+    # Subtest: 精确视图引用必填，不接受同时版本和草稿
+    ok 4 - 精确视图引用必填，不接受同时版本和草稿
+      ---
+      duration_ms: 2.871485
+      type: 'test'
+      ...
+    # Subtest: 只读身份可查看不能写入，未认证返回401
+    ok 5 - 只读身份可查看不能写入，未认证返回401
+      ---
+      duration_ms: 10.682518
+      type: 'test'
+      ...
+    # Subtest: 缺少If-Match返回428，错误修订返回412
+    ok 6 - 缺少If-Match返回428，错误修订返回412
+      ---
+      duration_ms: 6.917582
+      type: 'test'
+      ...
+    # Subtest: r12由实际缺失依赖产生阻断而非写死失败
+    ok 7 - r12由实际缺失依赖产生阻断而非写死失败
+      ---
+      duration_ms: 52.213099
+      type: 'test'
+      ...
+    # Subtest: 阻断未修复不能发布
+    ok 8 - 阻断未修复不能发布
+      ---
+      duration_ms: 107.412653
+      type: 'test'
+      ...
+    # Subtest: 请求Schema拒绝额外字段和缺字段
+    ok 9 - 请求Schema拒绝额外字段和缺字段
+      ---
+      duration_ms: 3.427885
+      type: 'test'
+      ...
+    # Subtest: 批量操作全成或全败，不留下部分修改
+    ok 10 - 批量操作全成或全败，不留下部分修改
+      ---
+      duration_ms: 6.348813
+      type: 'test'
+      ...
+    # Subtest: 修复变为r13，正式版本与r12历史均不变
+    ok 11 - 修复变为r13，正式版本与r12历史均不变
+      ---
+      duration_ms: 81.154881
+      type: 'test'
+      ...
+    # Subtest: 保存后旧ETag不能覆盖新修订
+    ok 12 - 保存后旧ETag不能覆盖新修订
+      ---
+      duration_ms: 3.782598
+      type: 'test'
+      ...
+    # Subtest: Diff来自真实草稿，含dependency变化
+    ok 13 - Diff来自真实草稿，含dependency变化
+      ---
+      duration_ms: 3.415137
+      type: 'test'
+      ...
+    # Subtest: 校验结果绑定修订，保存后旧报告失效
+    ok 14 - 校验结果绑定修订，保存后旧报告失效
+      ---
+      duration_ms: 133.123299
+      type: 'test'
+      ...
+    # Subtest: 依赖影响由引用路径产生并披露未知范围
+    ok 15 - 依赖影响由引用路径产生并披露未知范围
+      ---
+      duration_ms: 55.264244
+      type: 'test'
+      ...
+    # Subtest: 发布必须知悉不完整影响范围，不能默认假装完整
+    ok 16 - 发布必须知悉不完整影响范围，不能默认假装完整
+      ---
+      duration_ms: 124.470774
+      type: 'test'
+      ...
+    # Subtest: 成功发布与幂等重试只产生同一个版本
+    ok 17 - 成功发布与幂等重试只产生同一个版本
+      ---
+      duration_ms: 116.267992
+      type: 'test'
+      ...
+    # Subtest: 发布后不能原地修改；版本和审计可查询
+    ok 18 - 发布后不能原地修改；版本和审计可查询
+      ---
+      duration_ms: 20.348759
+      type: 'test'
+      ...
+    # Subtest: 重启保留发布与草稿，不依赖浏览器本地缓存
+    ok 19 - 重启保留发布与草稿，不依赖浏览器本地缓存
+      ---
+      duration_ms: 79.338151
+      type: 'test'
+      ...
+    # Subtest: 新草稿必须当前基线，可显式恢复历史快照但不覆盖历史
+    ok 20 - 新草稿必须当前基线，可显式恢复历史快照但不覆盖历史
+      ---
+      duration_ms: 47.909643
+      type: 'test'
+      ...
+    # Subtest: 新建业务模型产生真实记录与草稿，不只是路由跳转
+    ok 21 - 新建业务模型产生真实记录与草稿，不只是路由跳转
+      ---
+      duration_ms: 8.704797
+      type: 'test'
+      ...
+    # Subtest: 行动用例：低分有依据通过，高分仅LLM拒绝，均不修改本体
+    ok 22 - 行动用例：低分有依据通过，高分仅LLM拒绝，均不修改本体
+      ---
+      duration_ms: 25.195115
+      type: 'test'
+      ...
+    # Subtest: 行动用例：创建连接不扫描，不支持扫描的连接器明确拒绝
+    ok 23 - 行动用例：创建连接不扫描，不支持扫描的连接器明确拒绝
+      ---
+      duration_ms: 23.511392
+      type: 'test'
+      ...
+    # Subtest: 无效关系目标、基数、实现契约不能通过校验
+    ok 24 - 无效关系目标、基数、实现契约不能通过校验
+      ---
+      duration_ms: 82.895768
+      type: 'test'
+      ...
+    # Subtest: 新建系统内核不允许借业务创建接口绕过
+    ok 25 - 新建系统内核不允许借业务创建接口绕过
+      ---
+      duration_ms: 1.295861
+      type: 'test'
+      ...
+    # Subtest: 重置只影响当前演示工作空间
+    ok 26 - 重置只影响当前演示工作空间
+      ---
+      duration_ms: 9.436015
+      type: 'test'
+      ...
+    1..26
+ok 1 - Semovix ontology HTTP reference implementation
+  ---
+  duration_ms: 1159.542581
+  type: 'test'
+  ...
+1..1
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1209.813176

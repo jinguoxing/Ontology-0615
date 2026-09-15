@@ -1,0 +1,9 @@
+{
+  "DataField": "Field",
+  "QualityRule": "DataQualityRule",
+  "QualityIssue": "DataIssue",
+  "EvidenceItem": "Evidence",
+  "Sanpshot": null,
+  "Snapshot": null,
+  "notes": "前四项为输入兼容别名；Snapshot 的模型版本职责迁入管理元模型 OntologyVersion，不批量改写为运行实例。Sanpshot 必须人工确认历史引用再修复。"
+}

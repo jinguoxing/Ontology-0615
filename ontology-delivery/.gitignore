@@ -1,0 +1,3 @@
+mock-server/.data/
+node_modules/
+*.lock.tmp

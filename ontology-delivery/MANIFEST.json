@@ -1,0 +1,200 @@
+{
+  "package": "Semovix Ontology-0615 Implementation V1",
+  "repository": "jinguoxing/Ontology-0615",
+  "baseRef": "v2026.6.22",
+  "baseCommit": "f5a87f76850d0c393b5709b8f69bd5af13f13ca9",
+  "remoteModified": false,
+  "uiIntegrationCompleted": false,
+  "artifacts": [
+    {
+      "path": ".gitignore",
+      "bytes": 44,
+      "sha256": "4d8150ba364ec725d3368ba25fc8c77be2c2de7cdff717b370344418137d73a9"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6392,
+      "sha256": "d00fdcfb96c2815f716054ba363117dde4c736c00a6f1117c36d96c38cf13138"
+    },
+    {
+      "path": "contracts/model.schema.json",
+      "bytes": 65077,
+      "sha256": "cd79ec601f864f87fa3bb522d1feedfd804d436a91da900f9a1041296eb1a97e"
+    },
+    {
+      "path": "contracts/openapi.json",
+      "bytes": 250822,
+      "sha256": "0894925c73c36091e2dc2914e6e9756e2dec6565ce31e21873eca96382e4cf6e"
+    },
+    {
+      "path": "contracts/openapi.yaml",
+      "bytes": 166590,
+      "sha256": "f2f413939efb0094cb3cd44966fcbee0e8e69b06bff5291d2d8295eab0a657ea"
+    },
+    {
+      "path": "contracts/operation-io.schema.json",
+      "bytes": 73161,
+      "sha256": "86f352628f6df2cc50a83c1cbdbddc2aab84bf2ef98df1d7f31645400635dcc7"
+    },
+    {
+      "path": "contracts/routes.json",
+      "bytes": 9414,
+      "sha256": "65f8b537c080c41acfe6d607368a0729c6da43175a942dc71ac42ead866d6397"
+    },
+    {
+      "path": "docs/CAPABILITY_ALIGNMENT.md",
+      "bytes": 18634,
+      "sha256": "8d425e9ad775fe307193d54757dc329963fbffd5782885ea22278c92e6d88320"
+    },
+    {
+      "path": "docs/CODE_AGENT_TASK.md",
+      "bytes": 5421,
+      "sha256": "12c0cdaf2055a6a3cbef0b6ebc3f64063130d37ebd8f36a9763ad6feadbab74b"
+    },
+    {
+      "path": "docs/DEMO_ACCEPTANCE.md",
+      "bytes": 4460,
+      "sha256": "0c8738eb7ddd793deef68352f29c8b6b078bf531e343fc232123d43803452750"
+    },
+    {
+      "path": "docs/IMPLEMENTATION_SPEC.md",
+      "bytes": 21831,
+      "sha256": "caa395788afc74b13819c5439b931a840d1fe704ef6ab1e86ef19b0882af532b"
+    },
+    {
+      "path": "docs/PAGE_API_MATRIX.md",
+      "bytes": 6976,
+      "sha256": "3b7b9f246f070cc85a64aca12e23612bd1f40497c3984e9ba1f793b2f1db5f8b"
+    },
+    {
+      "path": "docs/SOURCE_LEDGER.md",
+      "bytes": 3988,
+      "sha256": "e4f0bb2a8e86f0a9e38f2a1d00f51f4c78f63beaf42b5a003a147197cfa45ec0"
+    },
+    {
+      "path": "docs/TEST_REPORT.md",
+      "bytes": 3189,
+      "sha256": "4309c89e447a4ce3e4f584bbeffc576eb810bea1ff9bb88c41a6787584a4b525"
+    },
+    {
+      "path": "frontend/ontologyClient.ts",
+      "bytes": 6468,
+      "sha256": "85f36680ed1eda1471e3c9c45f2bea04c875a9141ec94631ef8be8a8cdeb624c"
+    },
+    {
+      "path": "frontend/queryKeys.ts",
+      "bytes": 764,
+      "sha256": "7a783cc6628ccba073ff9c45d2dbe6e71244ea380e5f72ddd7af30f4e51fbd7d"
+    },
+    {
+      "path": "frontend/routeContext.ts",
+      "bytes": 1375,
+      "sha256": "37f1e97315b4a9f17628e2b6ecd461554654ff3af89ef95bfd77fe5e9ccb40a0"
+    },
+    {
+      "path": "frontend/types.generated.ts",
+      "bytes": 11137,
+      "sha256": "6a66037423af6e44a8445efad853913faedfcca56cc90b59b9c712becdb3b257"
+    },
+    {
+      "path": "frontend/useOntology.example.tsx",
+      "bytes": 1651,
+      "sha256": "ff0f36e6fb01d150c06cb319c26541c0f18767881fca99bba7c1f1075f2b13d2"
+    },
+    {
+      "path": "integration.patch",
+      "bytes": 685,
+      "sha256": "b6dc754bd507959fedf399ce861def5a2646e1c4d17878240625a3e9f85b0f00"
+    },
+    {
+      "path": "mock-server/domain.mjs",
+      "bytes": 12675,
+      "sha256": "01b87165f0cdd301ca5ebce27e0c161ba8370b3d0ce0c80e00f77efa1d5e7eb9"
+    },
+    {
+      "path": "mock-server/package.json",
+      "bytes": 249,
+      "sha256": "2abb8cbe64adb7c48e36da99e0f98dc7d6e72270a2a2e5e47c01c4862da6b93a"
+    },
+    {
+      "path": "mock-server/schema.mjs",
+      "bytes": 3268,
+      "sha256": "68054f7fb303e3cb6c5fe483000bfa7aaf17954321e8e8ba35b0f42e7d17da87"
+    },
+    {
+      "path": "mock-server/server.mjs",
+      "bytes": 23095,
+      "sha256": "3f70e12fed5d20c5fa4686bc5b889bf33446e50a3e0c8e3e3794f1cd43fee59f"
+    },
+    {
+      "path": "scripts/check_contracts.py",
+      "bytes": 4672,
+      "sha256": "a0dec19acb512af10845120cb2fac68045cc2aca4d672077cfec06752ff76554"
+    },
+    {
+      "path": "scripts/demo.mjs",
+      "bytes": 3915,
+      "sha256": "e51ea7b4aa7f8536dac5161595c443dd34c16de7d8265d4d2193e9ad7451dfd9"
+    },
+    {
+      "path": "scripts/sync_contracts.py",
+      "bytes": 5551,
+      "sha256": "16fa65cfa6071291a619bdcb85c33d36a25e88e4e928014a6849e7160230cda8"
+    },
+    {
+      "path": "seed/action-fixtures.json",
+      "bytes": 1534,
+      "sha256": "d1dceaa9c5dc7244ea96a5d4d4b9e88e8ec410c3de4ad42548285bbfb8bf520a"
+    },
+    {
+      "path": "seed/data-governance-model.json",
+      "bytes": 89581,
+      "sha256": "16b0362cc600bcd92377052844234ee5b120565fd81957ccae3f4144d1b15b91"
+    },
+    {
+      "path": "seed/legacy-aliases.json",
+      "bytes": 366,
+      "sha256": "0789ad8ad69b75437d877427ceaa7345d74e0432324ae3e08d53941807e82e50"
+    },
+    {
+      "path": "seed/registry.json",
+      "bytes": 98150,
+      "sha256": "1b33a59f015dfe4a4697b1d1f893c561eb90f54c7a20c4cdc2155c3728264442"
+    },
+    {
+      "path": "tests/api.test.mjs",
+      "bytes": 15029,
+      "sha256": "ccf52b81b5ffd2853e148ec0fc67b02098a275277be506cdcadb43d4c245df53"
+    },
+    {
+      "path": "tests/contract-audit.json",
+      "bytes": 947,
+      "sha256": "0e1ab03905b68f1925942b84c46240b92c0201cd611ed3c68008f8ab366bb56e"
+    },
+    {
+      "path": "tests/demo-results.txt",
+      "bytes": 623,
+      "sha256": "afe420c34ecbc37a0eeeac9f08f19f03d220366efd5f05461d555aef19f65e75"
+    },
+    {
+      "path": "tests/http-exchanges.json",
+      "bytes": 1727122,
+      "sha256": "c22a6322c556e785d56389bc022cc3060294baa8dd7514852492cd7c8db784b1"
+    },
+    {
+      "path": "tests/startup-patch-check.txt",
+      "bytes": 215,
+      "sha256": "7322c82a3f3265105377777c370352acddfc3163bb1e1b58ded0431551316116"
+    },
+    {
+      "path": "tests/test-results.tap",
+      "bytes": 5621,
+      "sha256": "eb28b584677ed7c22ee64895d26da5f860603cd606a0c91bcca1ebeb592673f4"
+    },
+    {
+      "path": "tests/typescript-check.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

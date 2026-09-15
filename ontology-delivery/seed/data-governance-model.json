@@ -1,0 +1,3179 @@
+{
+  "objectTypes": [
+    {
+      "id": "DataSystem",
+      "code": "DataSystem",
+      "nameCn": "数据系统",
+      "group": "来源与结构",
+      "ownerService": "data-connection",
+      "origin": "SYSTEM",
+      "definition": "产生或承载数据的系统登记信息；不等于连接配置。",
+      "properties": [
+        {
+          "id": "systemId",
+          "code": "systemId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "name",
+          "code": "name",
+          "nameCn": "系统名称",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "系统名称"
+        },
+        {
+          "id": "ownerRef",
+          "code": "ownerRef",
+          "nameCn": "责任归属引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "责任归属引用"
+        }
+      ]
+    },
+    {
+      "id": "DataSource",
+      "code": "DataSource",
+      "nameCn": "数据源",
+      "group": "来源与结构",
+      "ownerService": "data-connection",
+      "origin": "SYSTEM",
+      "definition": "Semovix 可连接、扫描或查询的入口。凭证仅为引用，不存密码。",
+      "properties": [
+        {
+          "id": "dataSourceId",
+          "code": "dataSourceId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "name",
+          "code": "name",
+          "nameCn": "连接名称",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "连接名称"
+        },
+        {
+          "id": "connectorId",
+          "code": "connectorId",
+          "nameCn": "连接器引用",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "连接器引用"
+        },
+        {
+          "id": "secretRef",
+          "code": "secretRef",
+          "nameCn": "安全凭证引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "安全凭证引用"
+        },
+        {
+          "id": "lifecycleStatus",
+          "code": "lifecycleStatus",
+          "nameCn": "启停状态",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "启停状态",
+          "enumValues": [
+            "DRAFT",
+            "ACTIVE",
+            "DISABLED",
+            "DEPRECATED"
+          ]
+        },
+        {
+          "id": "healthStatus",
+          "code": "healthStatus",
+          "nameCn": "连接健康",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "连接健康",
+          "enumValues": [
+            "UNKNOWN",
+            "HEALTHY",
+            "DEGRADED",
+            "UNAVAILABLE"
+          ]
+        },
+        {
+          "id": "lastCheckedAt",
+          "code": "lastCheckedAt",
+          "nameCn": "最近检测时间",
+          "valueType": "datetime",
+          "required": false,
+          "isIdentity": false,
+          "definition": "最近检测时间"
+        }
+      ]
+    },
+    {
+      "id": "Namespace",
+      "code": "Namespace",
+      "nameCn": "命名空间",
+      "group": "来源与结构",
+      "ownerService": "data-connection",
+      "origin": "SYSTEM",
+      "definition": "兼容数据库、Catalog、Schema，允许层级但不强制每种连接器具备每层。",
+      "properties": [
+        {
+          "id": "namespaceId",
+          "code": "namespaceId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "qualifiedName",
+          "code": "qualifiedName",
+          "nameCn": "限定名",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "限定名"
+        },
+        {
+          "id": "kind",
+          "code": "kind",
+          "nameCn": "类别",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "类别",
+          "enumValues": [
+            "CATALOG",
+            "DATABASE",
+            "SCHEMA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "DataAsset",
+      "code": "DataAsset",
+      "nameCn": "数据资产",
+      "group": "来源与结构",
+      "ownerService": "asset-service",
+      "origin": "SYSTEM",
+      "definition": "可治理的数据资源；具体类型支持程度由连接器能力决定。",
+      "properties": [
+        {
+          "id": "assetId",
+          "code": "assetId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "technicalName",
+          "code": "technicalName",
+          "nameCn": "技术名",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "技术名"
+        },
+        {
+          "id": "businessName",
+          "code": "businessName",
+          "nameCn": "业务名",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "业务名"
+        },
+        {
+          "id": "assetType",
+          "code": "assetType",
+          "nameCn": "资产类型",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "资产类型",
+          "enumValues": [
+            "TABLE",
+            "VIEW",
+            "DATASET",
+            "FILE",
+            "API",
+            "STREAM"
+          ]
+        },
+        {
+          "id": "currentVersionId",
+          "code": "currentVersionId",
+          "nameCn": "结构版本引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "结构版本引用"
+        },
+        {
+          "id": "lifecycleStatus",
+          "code": "lifecycleStatus",
+          "nameCn": "资产状态",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "资产状态",
+          "enumValues": [
+            "DISCOVERED",
+            "ACTIVE",
+            "DEPRECATED",
+            "REMOVED"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "Field",
+      "code": "Field",
+      "nameCn": "字段",
+      "group": "来源与结构",
+      "ownerService": "asset-service",
+      "origin": "SYSTEM",
+      "definition": "保留原仓库 Field 稳定类型 ID；不把本轮 AI 置信度写入字段定义。",
+      "properties": [
+        {
+          "id": "fieldId",
+          "code": "fieldId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "technicalName",
+          "code": "technicalName",
+          "nameCn": "字段技术名",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "字段技术名"
+        },
+        {
+          "id": "dataType",
+          "code": "dataType",
+          "nameCn": "物理数据类型",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "物理数据类型"
+        },
+        {
+          "id": "nullable",
+          "code": "nullable",
+          "nameCn": "是否可空",
+          "valueType": "boolean",
+          "required": false,
+          "isIdentity": false,
+          "definition": "是否可空"
+        },
+        {
+          "id": "currentVersionId",
+          "code": "currentVersionId",
+          "nameCn": "结构版本引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "结构版本引用"
+        }
+      ]
+    },
+    {
+      "id": "AssetVersion",
+      "code": "AssetVersion",
+      "nameCn": "资产结构版本",
+      "group": "来源与结构",
+      "ownerService": "asset-service",
+      "origin": "SYSTEM",
+      "definition": "扫描形成的结构快照；不是本体模型发布版本。",
+      "properties": [
+        {
+          "id": "versionId",
+          "code": "versionId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "schemaHash",
+          "code": "schemaHash",
+          "nameCn": "结构摘要",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "结构摘要"
+        },
+        {
+          "id": "observedAt",
+          "code": "observedAt",
+          "nameCn": "发现时间",
+          "valueType": "datetime",
+          "required": false,
+          "isIdentity": false,
+          "definition": "发现时间"
+        },
+        {
+          "id": "previousVersionId",
+          "code": "previousVersionId",
+          "nameCn": "上版引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "上版引用"
+        }
+      ]
+    },
+    {
+      "id": "ProfileSnapshot",
+      "code": "ProfileSnapshot",
+      "nameCn": "画像快照",
+      "group": "画像与观测",
+      "ownerService": "profiling",
+      "origin": "SYSTEM",
+      "definition": "一次画像产物；运行状态由 Run 维护，快照保留时间和采样边界。",
+      "properties": [
+        {
+          "id": "profileId",
+          "code": "profileId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "assetVersionId",
+          "code": "assetVersionId",
+          "nameCn": "观察的结构版本",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "观察的结构版本"
+        },
+        {
+          "id": "samplingPolicy",
+          "code": "samplingPolicy",
+          "nameCn": "采样说明",
+          "valueType": "object",
+          "required": false,
+          "isIdentity": false,
+          "definition": "采样说明"
+        },
+        {
+          "id": "observedAt",
+          "code": "observedAt",
+          "nameCn": "观测时间",
+          "valueType": "datetime",
+          "required": false,
+          "isIdentity": false,
+          "definition": "观测时间"
+        },
+        {
+          "id": "availability",
+          "code": "availability",
+          "nameCn": "结果完整性",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "结果完整性",
+          "enumValues": [
+            "AVAILABLE",
+            "PARTIAL",
+            "FAILED"
+          ]
+        },
+        {
+          "id": "freshness",
+          "code": "freshness",
+          "nameCn": "时效",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "时效",
+          "enumValues": [
+            "CURRENT",
+            "STALE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ProfileObservation",
+      "code": "ProfileObservation",
+      "nameCn": "画像观测项",
+      "group": "画像与观测",
+      "ownerService": "profiling",
+      "origin": "SYSTEM",
+      "definition": "空值率、唯一率、模式等观测值；真实 Top Values 只能受控引用。",
+      "properties": [
+        {
+          "id": "observationId",
+          "code": "observationId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "measureCode",
+          "code": "measureCode",
+          "nameCn": "观测指标",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "观测指标"
+        },
+        {
+          "id": "value",
+          "code": "value",
+          "nameCn": "观测值",
+          "valueType": "json",
+          "required": false,
+          "isIdentity": false,
+          "definition": "观测值"
+        },
+        {
+          "id": "unit",
+          "code": "unit",
+          "nameCn": "单位",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "单位"
+        }
+      ]
+    },
+    {
+      "id": "DataQualityRule",
+      "code": "DataQualityRule",
+      "nameCn": "质量规则",
+      "group": "数据质量",
+      "ownerService": "quality",
+      "origin": "SYSTEM",
+      "definition": "保留旧 DataQualityRule ID；具体 IF/THEN、SQL/DSL 编辑属于质量模块。",
+      "properties": [
+        {
+          "id": "ruleId",
+          "code": "ruleId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "name",
+          "code": "name",
+          "nameCn": "规则名称",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "规则名称"
+        },
+        {
+          "id": "dimensionCode",
+          "code": "dimensionCode",
+          "nameCn": "质量维度",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "质量维度"
+        },
+        {
+          "id": "condition",
+          "code": "condition",
+          "nameCn": "检测条件",
+          "valueType": "object",
+          "required": false,
+          "isIdentity": false,
+          "definition": "检测条件"
+        },
+        {
+          "id": "expectation",
+          "code": "expectation",
+          "nameCn": "期望条件",
+          "valueType": "object",
+          "required": false,
+          "isIdentity": false,
+          "definition": "期望条件"
+        },
+        {
+          "id": "status",
+          "code": "status",
+          "nameCn": "规则状态",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "规则状态",
+          "enumValues": [
+            "DRAFT",
+            "ACTIVE",
+            "DISABLED",
+            "DEPRECATED"
+          ]
+        },
+        {
+          "id": "version",
+          "code": "version",
+          "nameCn": "规则版本",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "规则版本"
+        }
+      ]
+    },
+    {
+      "id": "QualityPlan",
+      "code": "QualityPlan",
+      "nameCn": "质量监测方案",
+      "group": "数据质量",
+      "ownerService": "quality",
+      "origin": "SYSTEM",
+      "definition": "组织目标范围和多个质量规则；本体只定义其结构和关联。",
+      "properties": [
+        {
+          "id": "planId",
+          "code": "planId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "name",
+          "code": "name",
+          "nameCn": "方案名称",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "方案名称"
+        },
+        {
+          "id": "targetScope",
+          "code": "targetScope",
+          "nameCn": "监测范围",
+          "valueType": "object",
+          "required": false,
+          "isIdentity": false,
+          "definition": "监测范围"
+        },
+        {
+          "id": "scheduleRef",
+          "code": "scheduleRef",
+          "nameCn": "外部调度引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "外部调度引用"
+        },
+        {
+          "id": "status",
+          "code": "status",
+          "nameCn": "方案状态",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "方案状态",
+          "enumValues": [
+            "DRAFT",
+            "ACTIVE",
+            "PAUSED",
+            "DEPRECATED"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "QualityMeasurement",
+      "code": "QualityMeasurement",
+      "nameCn": "质量测量",
+      "group": "数据质量",
+      "ownerService": "quality",
+      "origin": "SYSTEM",
+      "definition": "检测结果与问题分离；测量值不自动成为质量问题。",
+      "properties": [
+        {
+          "id": "measurementId",
+          "code": "measurementId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "ruleVersionId",
+          "code": "ruleVersionId",
+          "nameCn": "检测规则版本",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "检测规则版本"
+        },
+        {
+          "id": "assetVersionId",
+          "code": "assetVersionId",
+          "nameCn": "资产结构版本",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "资产结构版本"
+        },
+        {
+          "id": "measuredValue",
+          "code": "measuredValue",
+          "nameCn": "测量值",
+          "valueType": "number",
+          "required": false,
+          "isIdentity": false,
+          "definition": "测量值"
+        },
+        {
+          "id": "evaluatedCount",
+          "code": "evaluatedCount",
+          "nameCn": "受检记录数",
+          "valueType": "integer",
+          "required": false,
+          "isIdentity": false,
+          "definition": "受检记录数"
+        },
+        {
+          "id": "failedCount",
+          "code": "failedCount",
+          "nameCn": "未通过数",
+          "valueType": "integer",
+          "required": false,
+          "isIdentity": false,
+          "definition": "未通过数"
+        },
+        {
+          "id": "result",
+          "code": "result",
+          "nameCn": "测量结论",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "测量结论",
+          "enumValues": [
+            "PASS",
+            "FAIL",
+            "INCONCLUSIVE"
+          ]
+        },
+        {
+          "id": "observedAt",
+          "code": "observedAt",
+          "nameCn": "测量时间",
+          "valueType": "datetime",
+          "required": false,
+          "isIdentity": false,
+          "definition": "测量时间"
+        }
+      ]
+    },
+    {
+      "id": "DataIssue",
+      "code": "DataIssue",
+      "nameCn": "质量问题",
+      "group": "数据质量",
+      "ownerService": "quality",
+      "origin": "SYSTEM",
+      "definition": "保留旧 DataIssue ID；违反规则后形成的问题，不等于执行任务。",
+      "properties": [
+        {
+          "id": "issueId",
+          "code": "issueId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "title",
+          "code": "title",
+          "nameCn": "问题摘要",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "问题摘要"
+        },
+        {
+          "id": "status",
+          "code": "status",
+          "nameCn": "处置状态",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "处置状态",
+          "enumValues": [
+            "OPEN",
+            "IN_PROGRESS",
+            "RESOLVED",
+            "DISMISSED",
+            "EXPIRED"
+          ]
+        },
+        {
+          "id": "severity",
+          "code": "severity",
+          "nameCn": "严重度",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "严重度",
+          "enumValues": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "BLOCKER"
+          ]
+        },
+        {
+          "id": "dedupKey",
+          "code": "dedupKey",
+          "nameCn": "去重键",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "去重键"
+        }
+      ]
+    },
+    {
+      "id": "Remediation",
+      "code": "Remediation",
+      "nameCn": "问题处置记录",
+      "group": "数据质量",
+      "ownerService": "quality",
+      "origin": "SYSTEM",
+      "definition": "记录处置与复核；不代表默认可以修改源业务数据。",
+      "properties": [
+        {
+          "id": "remediationId",
+          "code": "remediationId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "description",
+          "code": "description",
+          "nameCn": "处置说明",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "处置说明"
+        },
+        {
+          "id": "status",
+          "code": "status",
+          "nameCn": "验证状态",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "验证状态",
+          "enumValues": [
+            "PROPOSED",
+            "APPLIED",
+            "VERIFIED",
+            "FAILED"
+          ]
+        },
+        {
+          "id": "verificationRef",
+          "code": "verificationRef",
+          "nameCn": "复核依据",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "复核依据"
+        }
+      ]
+    },
+    {
+      "id": "SemanticAssertion",
+      "code": "SemanticAssertion",
+      "nameCn": "语义断言",
+      "group": "数据语义",
+      "ownerService": "data-semantics",
+      "origin": "SYSTEM",
+      "definition": "表、字段、数据关系的语义判断。UNKNOWN 是语义值，IGNORE 是角色值，二者都不是生命周期。",
+      "properties": [
+        {
+          "id": "assertionId",
+          "code": "assertionId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "subjectRef",
+          "code": "subjectRef",
+          "nameCn": "表、字段或关系目标引用",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "表、字段或关系目标引用"
+        },
+        {
+          "id": "subjectVersionRef",
+          "code": "subjectVersionRef",
+          "nameCn": "解释时的结构版本",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "解释时的结构版本"
+        },
+        {
+          "id": "predicate",
+          "code": "predicate",
+          "nameCn": "断言方面",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "断言方面",
+          "enumValues": [
+            "BUSINESS_NAME",
+            "DEFINITION",
+            "SEMANTIC_TYPE",
+            "FIELD_ROLE",
+            "RECORD_GRAIN",
+            "SUBJECT_IDENTIFIER",
+            "KEY_TIME",
+            "VALUE_SEMANTIC",
+            "UNIT_SCALE",
+            "RELATIONSHIP"
+          ]
+        },
+        {
+          "id": "candidateValue",
+          "code": "candidateValue",
+          "nameCn": "语义值",
+          "valueType": "json",
+          "required": false,
+          "isIdentity": false,
+          "definition": "语义值"
+        },
+        {
+          "id": "lifecycleStatus",
+          "code": "lifecycleStatus",
+          "nameCn": "定义状态",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "定义状态",
+          "enumValues": [
+            "CANDIDATE",
+            "CONFIRMED",
+            "REJECTED",
+            "SUPERSEDED"
+          ]
+        },
+        {
+          "id": "resolutionQueue",
+          "code": "resolutionQueue",
+          "nameCn": "处理队列",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "处理队列",
+          "enumValues": [
+            "AUTO_PASS",
+            "NEEDS_CONFIRM",
+            "CONFLICT",
+            "ANOMALY",
+            "IGNORE_CANDIDATE",
+            "NONE"
+          ]
+        },
+        {
+          "id": "confidence",
+          "code": "confidence",
+          "nameCn": "候选评分",
+          "valueType": "number",
+          "required": false,
+          "isIdentity": false,
+          "definition": "候选评分"
+        },
+        {
+          "id": "evidenceCompleteness",
+          "code": "evidenceCompleteness",
+          "nameCn": "证据完整度",
+          "valueType": "number",
+          "required": false,
+          "isIdentity": false,
+          "definition": "证据完整度"
+        },
+        {
+          "id": "decisionRef",
+          "code": "decisionRef",
+          "nameCn": "确认依据引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "确认依据引用"
+        }
+      ]
+    },
+    {
+      "id": "SemanticType",
+      "code": "SemanticType",
+      "nameCn": "语义类型字典项",
+      "group": "数据语义",
+      "ownerService": "semantic-config",
+      "origin": "SYSTEM",
+      "definition": "语义类型配置引用。既有 UNKNOWN 等枚举由原字典维护，不在本体另造字典编辑器。",
+      "properties": [
+        {
+          "id": "typeId",
+          "code": "typeId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "code",
+          "code": "code",
+          "nameCn": "语义类型编码",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "语义类型编码"
+        },
+        {
+          "id": "name",
+          "code": "name",
+          "nameCn": "名称",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "名称"
+        },
+        {
+          "id": "definition",
+          "code": "definition",
+          "nameCn": "含义",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "含义"
+        }
+      ]
+    },
+    {
+      "id": "FieldRole",
+      "code": "FieldRole",
+      "nameCn": "字段角色字典项",
+      "group": "数据语义",
+      "ownerService": "semantic-config",
+      "origin": "SYSTEM",
+      "definition": "字段的结构/业务作用；保留 IGNORE 与 TECHNICAL、AUDIT_FIELD 的区别。",
+      "properties": [
+        {
+          "id": "roleId",
+          "code": "roleId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "code",
+          "code": "code",
+          "nameCn": "角色编码",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "角色编码"
+        },
+        {
+          "id": "name",
+          "code": "name",
+          "nameCn": "名称",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "名称"
+        },
+        {
+          "id": "definition",
+          "code": "definition",
+          "nameCn": "含义",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "含义"
+        }
+      ]
+    },
+    {
+      "id": "SemanticPolicy",
+      "code": "SemanticPolicy",
+      "nameCn": "语义理解配置版本",
+      "group": "数据语义",
+      "ownerService": "semantic-config",
+      "origin": "SYSTEM",
+      "definition": "引用表/字段理解规则、字典和分流配置；不把算法阈值散落在本体关系上。",
+      "properties": [
+        {
+          "id": "policyId",
+          "code": "policyId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "version",
+          "code": "version",
+          "nameCn": "配置版本",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "配置版本"
+        },
+        {
+          "id": "scope",
+          "code": "scope",
+          "nameCn": "应用范围",
+          "valueType": "object",
+          "required": false,
+          "isIdentity": false,
+          "definition": "应用范围"
+        },
+        {
+          "id": "configurationRef",
+          "code": "configurationRef",
+          "nameCn": "配置内容引用",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "配置内容引用"
+        }
+      ]
+    },
+    {
+      "id": "Evidence",
+      "code": "Evidence",
+      "nameCn": "证据",
+      "group": "证据与责任",
+      "ownerService": "evidence",
+      "origin": "SYSTEM",
+      "definition": "D1–D8 为既有证据信号；人工决定单列来源。证据摘要不复制真实敏感样本。",
+      "properties": [
+        {
+          "id": "evidenceId",
+          "code": "evidenceId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "dimension",
+          "code": "dimension",
+          "nameCn": "证据维度",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "证据维度",
+          "enumValues": [
+            "NAMING",
+            "PROFILE",
+            "METADATA",
+            "USAGE_LINEAGE",
+            "STANDARDS",
+            "INTRA_TABLE",
+            "INTER_TABLE",
+            "LLM",
+            "HUMAN_DECISION"
+          ]
+        },
+        {
+          "id": "summary",
+          "code": "summary",
+          "nameCn": "依据摘要",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "依据摘要"
+        },
+        {
+          "id": "rawRef",
+          "code": "rawRef",
+          "nameCn": "受控原始引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "受控原始引用"
+        },
+        {
+          "id": "targetVersionRef",
+          "code": "targetVersionRef",
+          "nameCn": "被解释版本",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "被解释版本"
+        },
+        {
+          "id": "observedAt",
+          "code": "observedAt",
+          "nameCn": "证据时间",
+          "valueType": "datetime",
+          "required": false,
+          "isIdentity": false,
+          "definition": "证据时间"
+        }
+      ]
+    },
+    {
+      "id": "GovernanceAssignment",
+      "code": "GovernanceAssignment",
+      "nameCn": "责任归属",
+      "group": "证据与责任",
+      "ownerService": "governance",
+      "origin": "SYSTEM",
+      "definition": "记录谁维护，不替代授权判定。",
+      "properties": [
+        {
+          "id": "assignmentId",
+          "code": "assignmentId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "targetRef",
+          "code": "targetRef",
+          "nameCn": "责任对象",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "责任对象"
+        },
+        {
+          "id": "principalRef",
+          "code": "principalRef",
+          "nameCn": "责任主体引用",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "责任主体引用"
+        },
+        {
+          "id": "role",
+          "code": "role",
+          "nameCn": "责任角色",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "责任角色",
+          "enumValues": [
+            "OWNER",
+            "STEWARD"
+          ]
+        },
+        {
+          "id": "effectiveFrom",
+          "code": "effectiveFrom",
+          "nameCn": "生效时间",
+          "valueType": "datetime",
+          "required": false,
+          "isIdentity": false,
+          "definition": "生效时间"
+        }
+      ]
+    },
+    {
+      "id": "Classification",
+      "code": "Classification",
+      "nameCn": "分类标记",
+      "group": "证据与责任",
+      "ownerService": "governance",
+      "origin": "SYSTEM",
+      "definition": "敏感分类、主题分类等既有治理标签的类型契约；不自行授予权限。",
+      "properties": [
+        {
+          "id": "classificationId",
+          "code": "classificationId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "code",
+          "code": "code",
+          "nameCn": "分类编码",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "分类编码"
+        },
+        {
+          "id": "name",
+          "code": "name",
+          "nameCn": "分类名称",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "分类名称"
+        },
+        {
+          "id": "schemeRef",
+          "code": "schemeRef",
+          "nameCn": "分类方案引用",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "分类方案引用"
+        }
+      ]
+    },
+    {
+      "id": "TrustReport",
+      "code": "TrustReport",
+      "nameCn": "质量可信报告",
+      "group": "数据质量",
+      "ownerService": "quality",
+      "origin": "SYSTEM",
+      "definition": "在给定范围与时间上汇总测量和问题；没有测量不得生成虚构满分。",
+      "properties": [
+        {
+          "id": "reportId",
+          "code": "reportId",
+          "nameCn": "稳定标识",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": true,
+          "definition": "稳定标识"
+        },
+        {
+          "id": "targetVersionRef",
+          "code": "targetVersionRef",
+          "nameCn": "评估版本",
+          "valueType": "string",
+          "required": true,
+          "isIdentity": false,
+          "definition": "评估版本"
+        },
+        {
+          "id": "dimensions",
+          "code": "dimensions",
+          "nameCn": "维度汇总",
+          "valueType": "array",
+          "required": false,
+          "isIdentity": false,
+          "definition": "维度汇总"
+        },
+        {
+          "id": "limitations",
+          "code": "limitations",
+          "nameCn": "使用局限",
+          "valueType": "string",
+          "required": false,
+          "isIdentity": false,
+          "definition": "使用局限"
+        },
+        {
+          "id": "observedAt",
+          "code": "observedAt",
+          "nameCn": "形成时间",
+          "valueType": "datetime",
+          "required": false,
+          "isIdentity": false,
+          "definition": "形成时间"
+        }
+      ]
+    },
+    {
+      "id": "Run",
+      "code": "Run",
+      "nameCn": "运行引用",
+      "group": "外部契约引用",
+      "ownerService": "runtime",
+      "origin": "EXTERNAL",
+      "definition": "引用 runtime 的 Run 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "runtime",
+        "typeId": "Run",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "GovernanceTask",
+      "code": "GovernanceTask",
+      "nameCn": "治理任务引用",
+      "group": "外部契约引用",
+      "ownerService": "task-center",
+      "origin": "EXTERNAL",
+      "definition": "引用 task-center 的 GovernanceTask 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "runtime",
+        "typeId": "GovernanceTask",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "BusinessObject",
+      "code": "BusinessObject",
+      "nameCn": "业务对象引用",
+      "group": "外部契约引用",
+      "ownerService": "business-object",
+      "origin": "EXTERNAL",
+      "definition": "引用 business-object 的 BusinessObject 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "business",
+        "typeId": "BusinessObject",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "BusinessProperty",
+      "code": "BusinessProperty",
+      "nameCn": "业务属性引用",
+      "group": "外部契约引用",
+      "ownerService": "business-object",
+      "origin": "EXTERNAL",
+      "definition": "引用 business-object 的 BusinessProperty 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "business",
+        "typeId": "BusinessProperty",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "AlignmentCandidate",
+      "code": "AlignmentCandidate",
+      "nameCn": "数据支撑候选引用",
+      "group": "外部契约引用",
+      "ownerService": "data-support",
+      "origin": "EXTERNAL",
+      "definition": "引用 data-support 的 AlignmentCandidate 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "grounding",
+        "typeId": "AlignmentCandidate",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "DataImplementation",
+      "code": "DataImplementation",
+      "nameCn": "对象数据实现引用",
+      "group": "外部契约引用",
+      "ownerService": "data-support",
+      "origin": "EXTERNAL",
+      "definition": "引用 data-support 的 DataImplementation 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "grounding",
+        "typeId": "DataImplementation",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "PropertyGrounding",
+      "code": "PropertyGrounding",
+      "nameCn": "属性对应引用",
+      "group": "外部契约引用",
+      "ownerService": "data-support",
+      "origin": "EXTERNAL",
+      "definition": "引用 data-support 的 PropertyGrounding 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "grounding",
+        "typeId": "PropertyGrounding",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "RelationshipGrounding",
+      "code": "RelationshipGrounding",
+      "nameCn": "关系对应引用",
+      "group": "外部契约引用",
+      "ownerService": "data-support",
+      "origin": "EXTERNAL",
+      "definition": "引用 data-support 的 RelationshipGrounding 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "grounding",
+        "typeId": "RelationshipGrounding",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "MetricImplementation",
+      "code": "MetricImplementation",
+      "nameCn": "指标实现引用",
+      "group": "外部契约引用",
+      "ownerService": "metrics",
+      "origin": "EXTERNAL",
+      "definition": "引用 metrics 的 MetricImplementation 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "grounding",
+        "typeId": "MetricImplementation",
+        "versionId": "v1.0.0"
+      }
+    },
+    {
+      "id": "Metric",
+      "code": "Metric",
+      "nameCn": "指标定义引用",
+      "group": "外部契约引用",
+      "ownerService": "metrics",
+      "origin": "EXTERNAL",
+      "definition": "引用 metrics 的 Metric 类型契约；不在本体复制实例或管理其运行状态。",
+      "properties": [],
+      "externalContract": {
+        "packageId": "business",
+        "typeId": "Metric",
+        "versionId": "v1.0.0"
+      }
+    }
+  ],
+  "relations": [
+    {
+      "id": "source_of_system",
+      "code": "source_of_system",
+      "nameCn": "归属系统",
+      "sourceTypeId": "DataSource",
+      "targetTypeId": "DataSystem",
+      "category": "CONTAINMENT",
+      "targetCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "归属系统：DataSource → DataSystem"
+    },
+    {
+      "id": "exposes_namespace",
+      "code": "exposes_namespace",
+      "nameCn": "暴露命名空间",
+      "sourceTypeId": "DataSource",
+      "targetTypeId": "Namespace",
+      "category": "CONTAINMENT",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "definition": "暴露命名空间：DataSource → Namespace"
+    },
+    {
+      "id": "namespace_parent",
+      "code": "namespace_parent",
+      "nameCn": "上级命名空间",
+      "sourceTypeId": "Namespace",
+      "targetTypeId": "Namespace",
+      "category": "CONTAINMENT",
+      "targetCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "上级命名空间：Namespace → Namespace"
+    },
+    {
+      "id": "contains_asset",
+      "code": "contains_asset",
+      "nameCn": "包含资产",
+      "sourceTypeId": "Namespace",
+      "targetTypeId": "DataAsset",
+      "category": "CONTAINMENT",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "definition": "包含资产：Namespace → DataAsset"
+    },
+    {
+      "id": "has_field",
+      "code": "has_field",
+      "nameCn": "包含字段",
+      "sourceTypeId": "DataAsset",
+      "targetTypeId": "Field",
+      "category": "CONTAINMENT",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "definition": "包含字段：DataAsset → Field"
+    },
+    {
+      "id": "has_asset_version",
+      "code": "has_asset_version",
+      "nameCn": "具有结构版本",
+      "sourceTypeId": "DataAsset",
+      "targetTypeId": "AssetVersion",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "definition": "具有结构版本：DataAsset → AssetVersion"
+    },
+    {
+      "id": "profile_of",
+      "code": "profile_of",
+      "nameCn": "画像针对结构版本",
+      "sourceTypeId": "ProfileSnapshot",
+      "targetTypeId": "AssetVersion",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "画像针对结构版本：ProfileSnapshot → AssetVersion"
+    },
+    {
+      "id": "has_observation",
+      "code": "has_observation",
+      "nameCn": "包含观测",
+      "sourceTypeId": "ProfileSnapshot",
+      "targetTypeId": "ProfileObservation",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "definition": "包含观测：ProfileSnapshot → ProfileObservation"
+    },
+    {
+      "id": "field_observed_by",
+      "code": "field_observed_by",
+      "nameCn": "字段被观测",
+      "sourceTypeId": "Field",
+      "targetTypeId": "ProfileObservation",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "字段被观测：Field → ProfileObservation"
+    },
+    {
+      "id": "plan_uses_rule",
+      "code": "plan_uses_rule",
+      "nameCn": "方案采用规则",
+      "sourceTypeId": "QualityPlan",
+      "targetTypeId": "DataQualityRule",
+      "category": "QUALITY",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "方案采用规则：QualityPlan → DataQualityRule"
+    },
+    {
+      "id": "plan_targets_asset",
+      "code": "plan_targets_asset",
+      "nameCn": "方案检测资产",
+      "sourceTypeId": "QualityPlan",
+      "targetTypeId": "DataAsset",
+      "category": "QUALITY",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "方案检测资产：QualityPlan → DataAsset"
+    },
+    {
+      "id": "measurement_uses_rule",
+      "code": "measurement_uses_rule",
+      "nameCn": "测量采用规则",
+      "sourceTypeId": "QualityMeasurement",
+      "targetTypeId": "DataQualityRule",
+      "category": "QUALITY",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "测量采用规则：QualityMeasurement → DataQualityRule"
+    },
+    {
+      "id": "measurement_of_version",
+      "code": "measurement_of_version",
+      "nameCn": "测量针对结构版本",
+      "sourceTypeId": "QualityMeasurement",
+      "targetTypeId": "AssetVersion",
+      "category": "QUALITY",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "测量针对结构版本：QualityMeasurement → AssetVersion"
+    },
+    {
+      "id": "issue_from_measurement",
+      "code": "issue_from_measurement",
+      "nameCn": "问题源自测量",
+      "sourceTypeId": "DataIssue",
+      "targetTypeId": "QualityMeasurement",
+      "category": "QUALITY",
+      "targetCardinality": {
+        "min": 1,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "问题源自测量：DataIssue → QualityMeasurement"
+    },
+    {
+      "id": "issue_affects_field",
+      "code": "issue_affects_field",
+      "nameCn": "问题影响字段",
+      "sourceTypeId": "DataIssue",
+      "targetTypeId": "Field",
+      "category": "QUALITY",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "问题影响字段：DataIssue → Field"
+    },
+    {
+      "id": "resolved_by",
+      "code": "resolved_by",
+      "nameCn": "由处置记录处理",
+      "sourceTypeId": "DataIssue",
+      "targetTypeId": "Remediation",
+      "category": "QUALITY",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "由处置记录处理：DataIssue → Remediation"
+    },
+    {
+      "id": "has_assertion",
+      "code": "has_assertion",
+      "nameCn": "具有语义断言",
+      "sourceTypeId": "Field",
+      "targetTypeId": "SemanticAssertion",
+      "category": "SEMANTIC",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "具有语义断言：Field → SemanticAssertion"
+    },
+    {
+      "id": "asset_has_assertion",
+      "code": "asset_has_assertion",
+      "nameCn": "表级语义断言",
+      "sourceTypeId": "DataAsset",
+      "targetTypeId": "SemanticAssertion",
+      "category": "SEMANTIC",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "表级语义断言：DataAsset → SemanticAssertion"
+    },
+    {
+      "id": "assertion_of_version",
+      "code": "assertion_of_version",
+      "nameCn": "断言引用结构版本",
+      "sourceTypeId": "SemanticAssertion",
+      "targetTypeId": "AssetVersion",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "断言引用结构版本：SemanticAssertion → AssetVersion"
+    },
+    {
+      "id": "supported_by",
+      "code": "supported_by",
+      "nameCn": "由证据支持",
+      "sourceTypeId": "SemanticAssertion",
+      "targetTypeId": "Evidence",
+      "category": "EVIDENCE",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "由证据支持：SemanticAssertion → Evidence"
+    },
+    {
+      "id": "uses_semantic_type",
+      "code": "uses_semantic_type",
+      "nameCn": "采用语义类型",
+      "sourceTypeId": "SemanticAssertion",
+      "targetTypeId": "SemanticType",
+      "category": "SEMANTIC",
+      "targetCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "采用语义类型：SemanticAssertion → SemanticType"
+    },
+    {
+      "id": "uses_field_role",
+      "code": "uses_field_role",
+      "nameCn": "采用字段角色",
+      "sourceTypeId": "SemanticAssertion",
+      "targetTypeId": "FieldRole",
+      "category": "SEMANTIC",
+      "targetCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "采用字段角色：SemanticAssertion → FieldRole"
+    },
+    {
+      "id": "generated_by",
+      "code": "generated_by",
+      "nameCn": "由运行生成",
+      "sourceTypeId": "SemanticAssertion",
+      "targetTypeId": "Run",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "由运行生成：SemanticAssertion → Run"
+    },
+    {
+      "id": "profile_generated_by",
+      "code": "profile_generated_by",
+      "nameCn": "画像由运行生成",
+      "sourceTypeId": "ProfileSnapshot",
+      "targetTypeId": "Run",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "画像由运行生成：ProfileSnapshot → Run"
+    },
+    {
+      "id": "measurement_generated_by",
+      "code": "measurement_generated_by",
+      "nameCn": "测量由运行生成",
+      "sourceTypeId": "QualityMeasurement",
+      "targetTypeId": "Run",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "测量由运行生成：QualityMeasurement → Run"
+    },
+    {
+      "id": "uses_semantic_policy",
+      "code": "uses_semantic_policy",
+      "nameCn": "使用语义配置版本",
+      "sourceTypeId": "Run",
+      "targetTypeId": "SemanticPolicy",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "使用语义配置版本：Run → SemanticPolicy"
+    },
+    {
+      "id": "handled_by_task",
+      "code": "handled_by_task",
+      "nameCn": "由治理任务处理",
+      "sourceTypeId": "DataIssue",
+      "targetTypeId": "GovernanceTask",
+      "category": "PROVENANCE",
+      "targetCardinality": {
+        "min": 0,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "由治理任务处理：DataIssue → GovernanceTask"
+    },
+    {
+      "id": "report_uses_measurement",
+      "code": "report_uses_measurement",
+      "nameCn": "报告引用测量",
+      "sourceTypeId": "TrustReport",
+      "targetTypeId": "QualityMeasurement",
+      "category": "QUALITY",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "报告引用测量：TrustReport → QualityMeasurement"
+    },
+    {
+      "id": "classified_as",
+      "code": "classified_as",
+      "nameCn": "分类为",
+      "sourceTypeId": "DataAsset",
+      "targetTypeId": "Classification",
+      "category": "OWNERSHIP",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "分类为：DataAsset → Classification"
+    },
+    {
+      "id": "assigned_to",
+      "code": "assigned_to",
+      "nameCn": "具有责任归属",
+      "sourceTypeId": "DataAsset",
+      "targetTypeId": "GovernanceAssignment",
+      "category": "OWNERSHIP",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "具有责任归属：DataAsset → GovernanceAssignment"
+    },
+    {
+      "id": "candidate_for_object",
+      "code": "candidate_for_object",
+      "nameCn": "候选支撑对象",
+      "sourceTypeId": "AlignmentCandidate",
+      "targetTypeId": "BusinessObject",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "候选支撑对象：AlignmentCandidate → BusinessObject"
+    },
+    {
+      "id": "candidate_uses_asset",
+      "code": "candidate_uses_asset",
+      "nameCn": "候选引用资产",
+      "sourceTypeId": "AlignmentCandidate",
+      "targetTypeId": "DataAsset",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 1,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "候选引用资产：AlignmentCandidate → DataAsset"
+    },
+    {
+      "id": "implementation_of",
+      "code": "implementation_of",
+      "nameCn": "数据实现支撑对象",
+      "sourceTypeId": "DataImplementation",
+      "targetTypeId": "BusinessObject",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "数据实现支撑对象：DataImplementation → BusinessObject"
+    },
+    {
+      "id": "implementation_uses_asset",
+      "code": "implementation_uses_asset",
+      "nameCn": "数据实现引用资产",
+      "sourceTypeId": "DataImplementation",
+      "targetTypeId": "DataAsset",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 1,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "数据实现引用资产：DataImplementation → DataAsset"
+    },
+    {
+      "id": "implementation_has_property_grounding",
+      "code": "implementation_has_property_grounding",
+      "nameCn": "实现具有属性对应",
+      "sourceTypeId": "DataImplementation",
+      "targetTypeId": "PropertyGrounding",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "实现具有属性对应：DataImplementation → PropertyGrounding"
+    },
+    {
+      "id": "property_grounding_uses_field",
+      "code": "property_grounding_uses_field",
+      "nameCn": "属性对应引用字段",
+      "sourceTypeId": "PropertyGrounding",
+      "targetTypeId": "Field",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 1,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "属性对应引用字段：PropertyGrounding → Field"
+    },
+    {
+      "id": "property_grounding_of",
+      "code": "property_grounding_of",
+      "nameCn": "对应业务属性",
+      "sourceTypeId": "PropertyGrounding",
+      "targetTypeId": "BusinessProperty",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 1,
+        "max": 1
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "对应业务属性：PropertyGrounding → BusinessProperty"
+    },
+    {
+      "id": "implementation_has_relation_grounding",
+      "code": "implementation_has_relation_grounding",
+      "nameCn": "实现具有关系对应",
+      "sourceTypeId": "DataImplementation",
+      "targetTypeId": "RelationshipGrounding",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "实现具有关系对应：DataImplementation → RelationshipGrounding"
+    },
+    {
+      "id": "metric_implemented_by",
+      "code": "metric_implemented_by",
+      "nameCn": "指标由实现支撑",
+      "sourceTypeId": "Metric",
+      "targetTypeId": "MetricImplementation",
+      "category": "DATA_GROUNDING",
+      "targetCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "sourceCardinality": {
+        "min": 0,
+        "max": null
+      },
+      "definition": "指标由实现支撑：Metric → MetricImplementation"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "confirmed_assertion_has_evidence",
+      "nameCn": "正式断言必须有依据",
+      "scope": "GOVERNANCE_RECORD",
+      "targetTypeId": "SemanticAssertion",
+      "ruleCode": "CONFIRMED_REQUIRES_EVIDENCE",
+      "expression": {
+        "when": {
+          "lifecycleStatus": "CONFIRMED"
+        },
+        "requiresRelation": "supported_by"
+      },
+      "definition": "未连接真实治理记录时只校验规则定义；演示 fixture 可验证成功/拒绝。"
+    },
+    {
+      "id": "field_owner_required",
+      "nameCn": "字段归属唯一资产",
+      "scope": "GOVERNANCE_RECORD",
+      "targetTypeId": "Field",
+      "ruleCode": "SINGLE_ASSET_OWNER",
+      "expression": {
+        "inverseRelation": "has_field",
+        "min": 1,
+        "max": 1
+      },
+      "definition": "约束字段实例只属于一个资产。"
+    }
+  ],
+  "actions": [
+    {
+      "id": "testDataSourceConnection",
+      "code": "testDataSourceConnection",
+      "nameCn": "验证连接",
+      "ownerService": "data-connection",
+      "inputTypeIds": [
+        "DataSource"
+      ],
+      "outputTypeIds": [
+        "Evidence"
+      ],
+      "inputContractRef": "testDataSourceConnection.input@1",
+      "outputContractRef": "testDataSourceConnection.output@1",
+      "confirmationMode": "NONE",
+      "sideEffects": [
+        "SOURCE_READ"
+      ],
+      "preconditions": [
+        "凭证只能经 secretRef 解析",
+        "遵守连接器只读检测能力"
+      ],
+      "definition": "验证连接"
+    },
+    {
+      "id": "createDataSource",
+      "code": "createDataSource",
+      "nameCn": "创建数据源",
+      "ownerService": "data-connection",
+      "inputTypeIds": [],
+      "outputTypeIds": [
+        "DataSource"
+      ],
+      "inputContractRef": "createDataSource.input@1",
+      "outputContractRef": "createDataSource.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "连接草稿验证有效",
+        "用户明确确认创建"
+      ],
+      "definition": "创建数据源，不自动开始扫描。"
+    },
+    {
+      "id": "updateDataSource",
+      "code": "updateDataSource",
+      "nameCn": "更新数据源",
+      "ownerService": "data-connection",
+      "inputTypeIds": [
+        "DataSource"
+      ],
+      "outputTypeIds": [
+        "DataSource"
+      ],
+      "inputContractRef": "updateDataSource.input@1",
+      "outputContractRef": "updateDataSource.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "目标修订未变化",
+        "变更前完成必要连接检测"
+      ],
+      "definition": "更新数据源"
+    },
+    {
+      "id": "disableDataSource",
+      "code": "disableDataSource",
+      "nameCn": "停用数据源",
+      "ownerService": "data-connection",
+      "inputTypeIds": [
+        "DataSource"
+      ],
+      "outputTypeIds": [
+        "DataSource"
+      ],
+      "inputContractRef": "disableDataSource.input@1",
+      "outputContractRef": "disableDataSource.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "说明对后续扫描和查询的影响"
+      ],
+      "definition": "停用数据源"
+    },
+    {
+      "id": "startMetadataScan",
+      "code": "startMetadataScan",
+      "nameCn": "启动元数据扫描",
+      "ownerService": "data-connection",
+      "inputTypeIds": [
+        "DataSource"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "startMetadataScan.input@1",
+      "outputContractRef": "startMetadataScan.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "连接器支持扫描",
+        "范围合法且数据源可用"
+      ],
+      "definition": "启动元数据扫描"
+    },
+    {
+      "id": "cancelRun",
+      "code": "cancelRun",
+      "nameCn": "取消运行",
+      "ownerService": "runtime",
+      "inputTypeIds": [
+        "Run"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "cancelRun.input@1",
+      "outputContractRef": "cancelRun.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "运行未进入终态",
+        "仅取消指定运行"
+      ],
+      "definition": "取消运行"
+    },
+    {
+      "id": "retryRun",
+      "code": "retryRun",
+      "nameCn": "重试失败运行",
+      "ownerService": "runtime",
+      "inputTypeIds": [
+        "Run"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "retryRun.input@1",
+      "outputContractRef": "retryRun.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "原运行失败且可重试",
+        "保留原运行与新尝试关系"
+      ],
+      "definition": "重试失败运行"
+    },
+    {
+      "id": "startProfiling",
+      "code": "startProfiling",
+      "nameCn": "执行数据画像",
+      "ownerService": "profiling",
+      "inputTypeIds": [
+        "DataAsset"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "startProfiling.input@1",
+      "outputContractRef": "startProfiling.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "限定资产结构版本与采样范围",
+        "样本权限在原服务判定"
+      ],
+      "definition": "执行数据画像"
+    },
+    {
+      "id": "rerunProfiling",
+      "code": "rerunProfiling",
+      "nameCn": "重新画像",
+      "ownerService": "profiling",
+      "inputTypeIds": [
+        "ProfileSnapshot"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "rerunProfiling.input@1",
+      "outputContractRef": "rerunProfiling.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "明确观察范围",
+        "不覆盖历史画像"
+      ],
+      "definition": "重新画像"
+    },
+    {
+      "id": "createQualityRuleDraft",
+      "code": "createQualityRuleDraft",
+      "nameCn": "创建质量规则草稿",
+      "ownerService": "quality",
+      "inputTypeIds": [
+        "DataAsset"
+      ],
+      "outputTypeIds": [
+        "DataQualityRule"
+      ],
+      "inputContractRef": "createQualityRuleDraft.input@1",
+      "outputContractRef": "createQualityRuleDraft.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "规则条件与期望可解析"
+      ],
+      "definition": "创建质量规则草稿"
+    },
+    {
+      "id": "trialQualityRule",
+      "code": "trialQualityRule",
+      "nameCn": "试跑质量规则",
+      "ownerService": "quality",
+      "inputTypeIds": [
+        "DataQualityRule"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "trialQualityRule.input@1",
+      "outputContractRef": "trialQualityRule.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "固定规则版本和采样范围"
+      ],
+      "definition": "试跑质量规则"
+    },
+    {
+      "id": "activateQualityRule",
+      "code": "activateQualityRule",
+      "nameCn": "启用质量规则",
+      "ownerService": "quality",
+      "inputTypeIds": [
+        "DataQualityRule"
+      ],
+      "outputTypeIds": [
+        "DataQualityRule"
+      ],
+      "inputContractRef": "activateQualityRule.input@1",
+      "outputContractRef": "activateQualityRule.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "必要试跑已完成",
+        "用户确认启用范围"
+      ],
+      "definition": "启用质量规则"
+    },
+    {
+      "id": "runQualityPlan",
+      "code": "runQualityPlan",
+      "nameCn": "运行质量监测方案",
+      "ownerService": "quality",
+      "inputTypeIds": [
+        "QualityPlan"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "runQualityPlan.input@1",
+      "outputContractRef": "runQualityPlan.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "方案使用有效规则版本",
+        "目标连接器具备执行能力"
+      ],
+      "definition": "运行质量监测方案"
+    },
+    {
+      "id": "recordRemediation",
+      "code": "recordRemediation",
+      "nameCn": "登记问题处置",
+      "ownerService": "quality",
+      "inputTypeIds": [
+        "DataIssue"
+      ],
+      "outputTypeIds": [
+        "Remediation"
+      ],
+      "inputContractRef": "recordRemediation.input@1",
+      "outputContractRef": "recordRemediation.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "处置说明与责任归属明确"
+      ],
+      "definition": "登记问题处置"
+    },
+    {
+      "id": "verifyRemediation",
+      "code": "verifyRemediation",
+      "nameCn": "复核问题处置",
+      "ownerService": "quality",
+      "inputTypeIds": [
+        "Remediation"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "verifyRemediation.input@1",
+      "outputContractRef": "verifyRemediation.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "依据同一规则重测或明确规则版本差异"
+      ],
+      "definition": "复核问题处置"
+    },
+    {
+      "id": "generateTrustReport",
+      "code": "generateTrustReport",
+      "nameCn": "生成可信报告",
+      "ownerService": "quality",
+      "inputTypeIds": [
+        "DataAsset"
+      ],
+      "outputTypeIds": [
+        "TrustReport"
+      ],
+      "inputContractRef": "generateTrustReport.input@1",
+      "outputContractRef": "generateTrustReport.output@1",
+      "confirmationMode": "NONE",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "仅引用现有测量",
+        "明确时效和局限"
+      ],
+      "definition": "生成可信报告"
+    },
+    {
+      "id": "startSemanticUnderstanding",
+      "code": "startSemanticUnderstanding",
+      "nameCn": "发起表/字段语义理解",
+      "ownerService": "data-semantics",
+      "inputTypeIds": [
+        "DataAsset"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "startSemanticUnderstanding.input@1",
+      "outputContractRef": "startSemanticUnderstanding.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "引用当前画像和结构版本",
+        "未知允许 UNKNOWN"
+      ],
+      "definition": "发起表/字段语义理解"
+    },
+    {
+      "id": "recomputeSemanticCandidates",
+      "code": "recomputeSemanticCandidates",
+      "nameCn": "补证据并重算候选",
+      "ownerService": "data-semantics",
+      "inputTypeIds": [
+        "SemanticAssertion"
+      ],
+      "outputTypeIds": [
+        "Run"
+      ],
+      "inputContractRef": "recomputeSemanticCandidates.input@1",
+      "outputContractRef": "recomputeSemanticCandidates.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "EXTERNAL_JOB"
+      ],
+      "preconditions": [
+        "保留当前有效语义",
+        "新结果不直接覆盖正式语义"
+      ],
+      "definition": "补证据并重算候选"
+    },
+    {
+      "id": "confirmAssertion",
+      "code": "confirmAssertion",
+      "nameCn": "确认语义断言",
+      "ownerService": "data-semantics",
+      "inputTypeIds": [
+        "SemanticAssertion"
+      ],
+      "outputTypeIds": [
+        "SemanticAssertion"
+      ],
+      "inputContractRef": "confirmAssertion.input@1",
+      "outputContractRef": "confirmAssertion.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "目标仍为 CANDIDATE",
+        "目标结构版本未变化",
+        "有非 LLM 依据或可追溯业务确认",
+        "冲突已解决",
+        "当前用户有确认权限"
+      ],
+      "definition": "确认语义断言"
+    },
+    {
+      "id": "rejectAssertion",
+      "code": "rejectAssertion",
+      "nameCn": "拒绝候选断言",
+      "ownerService": "data-semantics",
+      "inputTypeIds": [
+        "SemanticAssertion"
+      ],
+      "outputTypeIds": [
+        "SemanticAssertion"
+      ],
+      "inputContractRef": "rejectAssertion.input@1",
+      "outputContractRef": "rejectAssertion.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "填写拒绝理由"
+      ],
+      "definition": "拒绝候选断言"
+    },
+    {
+      "id": "confirmIgnoreRole",
+      "code": "confirmIgnoreRole",
+      "nameCn": "确认忽略字段角色",
+      "ownerService": "data-semantics",
+      "inputTypeIds": [
+        "Field"
+      ],
+      "outputTypeIds": [
+        "SemanticAssertion"
+      ],
+      "inputContractRef": "confirmIgnoreRole.input@1",
+      "outputContractRef": "confirmIgnoreRole.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "保护主体标识及关键关联字段",
+        "说明为何可忽略"
+      ],
+      "definition": "确认忽略字段角色"
+    },
+    {
+      "id": "assignSteward",
+      "code": "assignSteward",
+      "nameCn": "设置责任归属",
+      "ownerService": "governance",
+      "inputTypeIds": [
+        "DataAsset"
+      ],
+      "outputTypeIds": [
+        "GovernanceAssignment"
+      ],
+      "inputContractRef": "assignSteward.input@1",
+      "outputContractRef": "assignSteward.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "主体引用可解析",
+        "不改变授权策略"
+      ],
+      "definition": "设置责任归属"
+    },
+    {
+      "id": "proposeObjectAlignment",
+      "code": "proposeObjectAlignment",
+      "nameCn": "发现业务对象候选",
+      "ownerService": "business-object",
+      "inputTypeIds": [
+        "DataAsset"
+      ],
+      "outputTypeIds": [
+        "AlignmentCandidate"
+      ],
+      "inputContractRef": "proposeObjectAlignment.input@1",
+      "outputContractRef": "proposeObjectAlignment.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "只生成候选",
+        "同表不等于同对象"
+      ],
+      "definition": "发现业务对象候选"
+    },
+    {
+      "id": "confirmObjectSupport",
+      "code": "confirmObjectSupport",
+      "nameCn": "确认对象数据支撑",
+      "ownerService": "data-support",
+      "inputTypeIds": [
+        "AlignmentCandidate"
+      ],
+      "outputTypeIds": [
+        "DataImplementation"
+      ],
+      "inputContractRef": "confirmObjectSupport.input@1",
+      "outputContractRef": "confirmObjectSupport.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "对象定义有效",
+        "范围/粒度/主体标识明确",
+        "依据与版本齐全"
+      ],
+      "definition": "确认对象数据支撑"
+    },
+    {
+      "id": "correctPropertyGrounding",
+      "code": "correctPropertyGrounding",
+      "nameCn": "修正属性对应",
+      "ownerService": "data-support",
+      "inputTypeIds": [
+        "PropertyGrounding"
+      ],
+      "outputTypeIds": [
+        "PropertyGrounding"
+      ],
+      "inputContractRef": "correctPropertyGrounding.input@1",
+      "outputContractRef": "correctPropertyGrounding.output@1",
+      "confirmationMode": "EXPLICIT",
+      "sideEffects": [
+        "GOVERNANCE_STATE"
+      ],
+      "preconditions": [
+        "只修改对应修订",
+        "不改业务对象定义或资产结构"
+      ],
+      "definition": "修正属性对应"
+    }
+  ],
+  "implementationBindings": [
+    {
+      "id": "bind-testDataSourceConnection",
+      "kind": "ACTION",
+      "actionId": "testDataSourceConnection",
+      "implementationId": "impl-testDataSourceConnection",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "testDataSourceConnection.input@1",
+      "outputContractRef": "testDataSourceConnection.output@1",
+      "expectedSideEffects": [
+        "SOURCE_READ"
+      ]
+    },
+    {
+      "id": "bind-createDataSource",
+      "kind": "ACTION",
+      "actionId": "createDataSource",
+      "implementationId": "impl-createDataSource",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "createDataSource.input@1",
+      "outputContractRef": "createDataSource.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-updateDataSource",
+      "kind": "ACTION",
+      "actionId": "updateDataSource",
+      "implementationId": "impl-updateDataSource",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "updateDataSource.input@1",
+      "outputContractRef": "updateDataSource.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-disableDataSource",
+      "kind": "ACTION",
+      "actionId": "disableDataSource",
+      "implementationId": "impl-disableDataSource",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "disableDataSource.input@1",
+      "outputContractRef": "disableDataSource.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-startMetadataScan",
+      "kind": "ACTION",
+      "actionId": "startMetadataScan",
+      "implementationId": "impl-startMetadataScan",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "startMetadataScan.input@1",
+      "outputContractRef": "startMetadataScan.output@1",
+      "expectedSideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-cancelRun",
+      "kind": "ACTION",
+      "actionId": "cancelRun",
+      "implementationId": "impl-cancelRun",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "cancelRun.input@1",
+      "outputContractRef": "cancelRun.output@1",
+      "expectedSideEffects": [
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-retryRun",
+      "kind": "ACTION",
+      "actionId": "retryRun",
+      "implementationId": "impl-retryRun",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "retryRun.input@1",
+      "outputContractRef": "retryRun.output@1",
+      "expectedSideEffects": [
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-startProfiling",
+      "kind": "ACTION",
+      "actionId": "startProfiling",
+      "implementationId": "impl-startProfiling",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "startProfiling.input@1",
+      "outputContractRef": "startProfiling.output@1",
+      "expectedSideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-rerunProfiling",
+      "kind": "ACTION",
+      "actionId": "rerunProfiling",
+      "implementationId": "impl-rerunProfiling",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "rerunProfiling.input@1",
+      "outputContractRef": "rerunProfiling.output@1",
+      "expectedSideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-createQualityRuleDraft",
+      "kind": "ACTION",
+      "actionId": "createQualityRuleDraft",
+      "implementationId": "impl-createQualityRuleDraft",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "createQualityRuleDraft.input@1",
+      "outputContractRef": "createQualityRuleDraft.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-trialQualityRule",
+      "kind": "ACTION",
+      "actionId": "trialQualityRule",
+      "implementationId": "impl-trialQualityRule",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "trialQualityRule.input@1",
+      "outputContractRef": "trialQualityRule.output@1",
+      "expectedSideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-activateQualityRule",
+      "kind": "ACTION",
+      "actionId": "activateQualityRule",
+      "implementationId": "impl-activateQualityRule",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "activateQualityRule.input@1",
+      "outputContractRef": "activateQualityRule.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-runQualityPlan",
+      "kind": "ACTION",
+      "actionId": "runQualityPlan",
+      "implementationId": "impl-runQualityPlan",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "runQualityPlan.input@1",
+      "outputContractRef": "runQualityPlan.output@1",
+      "expectedSideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-recordRemediation",
+      "kind": "ACTION",
+      "actionId": "recordRemediation",
+      "implementationId": "impl-recordRemediation",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "recordRemediation.input@1",
+      "outputContractRef": "recordRemediation.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-verifyRemediation",
+      "kind": "ACTION",
+      "actionId": "verifyRemediation",
+      "implementationId": "impl-verifyRemediation",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "verifyRemediation.input@1",
+      "outputContractRef": "verifyRemediation.output@1",
+      "expectedSideEffects": [
+        "SOURCE_READ",
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-generateTrustReport",
+      "kind": "ACTION",
+      "actionId": "generateTrustReport",
+      "implementationId": "impl-generateTrustReport",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "generateTrustReport.input@1",
+      "outputContractRef": "generateTrustReport.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-startSemanticUnderstanding",
+      "kind": "ACTION",
+      "actionId": "startSemanticUnderstanding",
+      "implementationId": "impl-startSemanticUnderstanding",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "startSemanticUnderstanding.input@1",
+      "outputContractRef": "startSemanticUnderstanding.output@1",
+      "expectedSideEffects": [
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-recomputeSemanticCandidates",
+      "kind": "ACTION",
+      "actionId": "recomputeSemanticCandidates",
+      "implementationId": "impl-recomputeSemanticCandidates",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "recomputeSemanticCandidates.input@1",
+      "outputContractRef": "recomputeSemanticCandidates.output@1",
+      "expectedSideEffects": [
+        "EXTERNAL_JOB"
+      ]
+    },
+    {
+      "id": "bind-confirmAssertion",
+      "kind": "ACTION",
+      "actionId": "confirmAssertion",
+      "implementationId": "impl-confirmAssertion",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "confirmAssertion.input@1",
+      "outputContractRef": "confirmAssertion.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-rejectAssertion",
+      "kind": "ACTION",
+      "actionId": "rejectAssertion",
+      "implementationId": "impl-rejectAssertion",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "rejectAssertion.input@1",
+      "outputContractRef": "rejectAssertion.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-confirmIgnoreRole",
+      "kind": "ACTION",
+      "actionId": "confirmIgnoreRole",
+      "implementationId": "impl-confirmIgnoreRole",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "confirmIgnoreRole.input@1",
+      "outputContractRef": "confirmIgnoreRole.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-assignSteward",
+      "kind": "ACTION",
+      "actionId": "assignSteward",
+      "implementationId": "impl-assignSteward",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "assignSteward.input@1",
+      "outputContractRef": "assignSteward.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-proposeObjectAlignment",
+      "kind": "ACTION",
+      "actionId": "proposeObjectAlignment",
+      "implementationId": "impl-proposeObjectAlignment",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "proposeObjectAlignment.input@1",
+      "outputContractRef": "proposeObjectAlignment.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-confirmObjectSupport",
+      "kind": "ACTION",
+      "actionId": "confirmObjectSupport",
+      "implementationId": "impl-confirmObjectSupport",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "confirmObjectSupport.input@1",
+      "outputContractRef": "confirmObjectSupport.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-correctPropertyGrounding",
+      "kind": "ACTION",
+      "actionId": "correctPropertyGrounding",
+      "implementationId": "impl-correctPropertyGrounding",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "correctPropertyGrounding.input@1",
+      "outputContractRef": "correctPropertyGrounding.output@1",
+      "expectedSideEffects": [
+        "GOVERNANCE_STATE"
+      ]
+    },
+    {
+      "id": "bind-classifyFieldSemantic",
+      "kind": "FUNCTION",
+      "implementationId": "fn-classifyFieldSemantic",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "FieldEvidenceInput@1",
+      "outputContractRef": "SemanticCandidateResult@1",
+      "expectedSideEffects": [
+        "NONE"
+      ]
+    },
+    {
+      "id": "bind-inferTableSemantics",
+      "kind": "FUNCTION",
+      "implementationId": "fn-inferTableSemantics",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "AssetProfileInput@1",
+      "outputContractRef": "TableCandidateResult@1",
+      "expectedSideEffects": [
+        "NONE"
+      ]
+    },
+    {
+      "id": "bind-detectRelationshipCandidates",
+      "kind": "FUNCTION",
+      "implementationId": "fn-detectRelationshipCandidates",
+      "implementationVersionId": "v1.0.0",
+      "inputContractRef": "AssetPairInput@1",
+      "outputContractRef": "RelationshipCandidates@1",
+      "expectedSideEffects": [
+        "NONE"
+      ]
+    }
+  ],
+  "workflowRefs": [
+    {
+      "id": "ref-DataSourceSetup",
+      "workflowId": "DataSourceSetup",
+      "workflowVersionId": "v1.0.0",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "testDataSourceConnection",
+        "createDataSource"
+      ]
+    },
+    {
+      "id": "ref-MetadataScan",
+      "workflowId": "MetadataScan",
+      "workflowVersionId": "v1.0.0",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "startMetadataScan"
+      ]
+    },
+    {
+      "id": "ref-Profiling",
+      "workflowId": "Profiling",
+      "workflowVersionId": "v1.0.0",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "startProfiling"
+      ]
+    },
+    {
+      "id": "ref-SemanticReview",
+      "workflowId": "SemanticReview",
+      "workflowVersionId": "v1.0.0",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "startSemanticUnderstanding",
+        "recomputeSemanticCandidates",
+        "confirmAssertion",
+        "rejectAssertion"
+      ]
+    },
+    {
+      "id": "ref-QualityMonitoring",
+      "workflowId": "QualityMonitoring",
+      "workflowVersionId": "v1.0.0",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "trialQualityRule",
+        "runQualityPlan",
+        "recordRemediation",
+        "verifyRemediation"
+      ]
+    },
+    {
+      "id": "ref-DataSupportResolution",
+      "workflowId": "DataSupportResolution",
+      "workflowVersionId": "v1.0.0",
+      "ownerService": "runtime",
+      "requiredActionIds": [
+        "proposeObjectAlignment",
+        "confirmObjectSupport",
+        "correctPropertyGrounding"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "runtime",
+      "packageId": "runtime",
+      "versionId": "v1.0.0"
+    },
+    {
+      "id": "business",
+      "packageId": "business",
+      "versionId": "v1.0.0"
+    },
+    {
+      "id": "grounding",
+      "packageId": "grounding",
+      "versionId": "v1.0.0"
+    }
+  ]
+}

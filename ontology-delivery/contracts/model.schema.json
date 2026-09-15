@@ -1,0 +1,2867 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:semovix:ontology:contract:1",
+  "$defs": {
+    "PropertyDefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "valueType": {
+          "type": "string",
+          "enum": [
+            "string",
+            "integer",
+            "number",
+            "boolean",
+            "datetime",
+            "object",
+            "array",
+            "json"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "isIdentity": {
+          "type": "boolean"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "enumValues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "nameCn",
+        "valueType",
+        "required",
+        "isIdentity",
+        "definition"
+      ],
+      "additionalProperties": false
+    },
+    "ExternalContractRef": {
+      "type": "object",
+      "properties": {
+        "packageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "typeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "versionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "packageId",
+        "typeId",
+        "versionId"
+      ],
+      "additionalProperties": false
+    },
+    "ObjectTypeDefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "group": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "ownerService": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "SYSTEM",
+            "LOCAL",
+            "EXTERNAL"
+          ]
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PropertyDefinition"
+          }
+        },
+        "externalContract": {
+          "$ref": "#/$defs/ExternalContractRef"
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "nameCn",
+        "group",
+        "ownerService",
+        "origin",
+        "definition",
+        "properties"
+      ],
+      "additionalProperties": false
+    },
+    "Cardinality": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "min",
+        "max"
+      ],
+      "additionalProperties": false
+    },
+    "RelationDefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "sourceTypeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "targetTypeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "CONTAINMENT",
+            "SEMANTIC",
+            "QUALITY",
+            "EVIDENCE",
+            "PROVENANCE",
+            "DATA_GROUNDING",
+            "OWNERSHIP"
+          ]
+        },
+        "targetCardinality": {
+          "$ref": "#/$defs/Cardinality"
+        },
+        "sourceCardinality": {
+          "$ref": "#/$defs/Cardinality"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "nameCn",
+        "sourceTypeId",
+        "targetTypeId",
+        "category",
+        "targetCardinality",
+        "sourceCardinality",
+        "definition"
+      ],
+      "additionalProperties": false
+    },
+    "ConstraintDefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "MODEL_DEFINITION",
+            "GOVERNANCE_RECORD"
+          ]
+        },
+        "targetTypeId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "ruleCode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "expression": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "id",
+        "nameCn",
+        "scope",
+        "targetTypeId",
+        "ruleCode",
+        "expression",
+        "definition"
+      ],
+      "additionalProperties": false
+    },
+    "ActionContract": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "ownerService": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "inputTypeIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 140,
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "outputTypeIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 140,
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "inputContractRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outputContractRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confirmationMode": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "EXPLICIT"
+          ]
+        },
+        "sideEffects": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "SOURCE_READ",
+              "GOVERNANCE_STATE",
+              "EXTERNAL_JOB",
+              "SOURCE_WRITE"
+            ]
+          },
+          "minItems": 1
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          }
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "id",
+        "code",
+        "nameCn",
+        "ownerService",
+        "inputTypeIds",
+        "outputTypeIds",
+        "inputContractRef",
+        "outputContractRef",
+        "confirmationMode",
+        "sideEffects",
+        "preconditions",
+        "definition"
+      ],
+      "additionalProperties": false
+    },
+    "ImplementationBinding": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "ACTION",
+            "FUNCTION"
+          ]
+        },
+        "actionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "implementationId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "implementationVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "inputContractRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "outputContractRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expectedSideEffects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "implementationId",
+        "implementationVersionId",
+        "inputContractRef",
+        "outputContractRef",
+        "expectedSideEffects"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowReference": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "workflowId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "workflowVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "ownerService": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "requiredActionIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 140,
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "workflowId",
+        "workflowVersionId",
+        "ownerService",
+        "requiredActionIds"
+      ],
+      "additionalProperties": false
+    },
+    "PackageDependency": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "packageId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "versionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "packageId",
+        "versionId"
+      ],
+      "additionalProperties": false
+    },
+    "ModelDocument": {
+      "type": "object",
+      "properties": {
+        "objectTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObjectTypeDefinition"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RelationDefinition"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConstraintDefinition"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ActionContract"
+          }
+        },
+        "implementationBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ImplementationBinding"
+          }
+        },
+        "workflowRefs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowReference"
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PackageDependency"
+          }
+        }
+      },
+      "required": [
+        "objectTypes",
+        "relations",
+        "constraints",
+        "actions",
+        "implementationBindings",
+        "workflowRefs",
+        "dependencies"
+      ],
+      "additionalProperties": false
+    },
+    "ApiMeta": {
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string"
+        },
+        "dataMode": {
+          "type": "string",
+          "enum": [
+            "MOCK",
+            "LIVE"
+          ]
+        },
+        "contractVersion": {
+          "type": "string",
+          "enum": [
+            "1.0.0"
+          ]
+        }
+      },
+      "required": [
+        "requestId",
+        "dataMode",
+        "contractVersion"
+      ],
+      "additionalProperties": false
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            },
+            "details": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "details"
+          ],
+          "additionalProperties": false
+        },
+        "meta": {
+          "$ref": "#/$defs/ApiMeta"
+        }
+      },
+      "required": [
+        "error",
+        "meta"
+      ],
+      "additionalProperties": false
+    },
+    "ModelSummary": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "profile": {
+          "type": "string",
+          "enum": [
+            "DATA_GOVERNANCE",
+            "BUSINESS"
+          ]
+        },
+        "origin": {
+          "type": "string",
+          "enum": [
+            "SYSTEM",
+            "TENANT"
+          ]
+        },
+        "ownerRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "currentVersionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currentVersionHash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "activeChangeSetId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "profile",
+        "origin",
+        "ownerRef",
+        "currentVersionId",
+        "currentVersionHash",
+        "activeChangeSetId"
+      ],
+      "additionalProperties": false
+    },
+    "ChangeSet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "baseVersionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "OPEN",
+            "PUBLISHED",
+            "ABANDONED"
+          ]
+        },
+        "etag": {
+          "type": "string"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "modelId",
+        "name",
+        "reason",
+        "baseVersionId",
+        "targetVersionId",
+        "revision",
+        "status",
+        "etag",
+        "contentHash",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    },
+    "ResolvedView": {
+      "type": "object",
+      "properties": {
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "VERSION",
+            "DRAFT"
+          ]
+        },
+        "versionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "changeSetId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "document": {
+          "$ref": "#/$defs/ModelDocument"
+        },
+        "readOnly": {
+          "type": "boolean"
+        },
+        "etag": {
+          "type": "string"
+        },
+        "currentVersionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "modelId",
+        "mode",
+        "versionId",
+        "changeSetId",
+        "revision",
+        "contentHash",
+        "document",
+        "readOnly",
+        "etag",
+        "currentVersionId"
+      ],
+      "additionalProperties": false
+    },
+    "Graph": {
+      "type": "object",
+      "properties": {
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 140,
+                "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+              },
+              "nameCn": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "origin": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "nameCn",
+              "origin"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RelationDefinition"
+          }
+        }
+      },
+      "required": [
+        "modelId",
+        "contentHash",
+        "nodes",
+        "edges"
+      ],
+      "additionalProperties": false
+    },
+    "VersionRecord": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "document": {
+          "$ref": "#/$defs/ModelDocument"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "releaseNotes": {
+          "type": "string"
+        },
+        "baseVersionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "modelId",
+        "document",
+        "contentHash",
+        "publishedAt",
+        "releaseNotes",
+        "baseVersionId"
+      ],
+      "additionalProperties": false
+    },
+    "DiffItem": {
+      "type": "object",
+      "properties": {
+        "collection": {
+          "type": "string",
+          "enum": [
+            "objectTypes",
+            "relations",
+            "constraints",
+            "actions",
+            "implementationBindings",
+            "workflowRefs",
+            "dependencies"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "change": {
+          "type": "string",
+          "enum": [
+            "ADD",
+            "MODIFY",
+            "REMOVE"
+          ]
+        },
+        "before": {
+          "description": "JSON 值；仅数据，不执行表达式。"
+        },
+        "after": {
+          "description": "JSON 值；仅数据，不执行表达式。"
+        }
+      },
+      "required": [
+        "collection",
+        "id",
+        "change",
+        "before",
+        "after"
+      ],
+      "additionalProperties": false
+    },
+    "DiffResult": {
+      "type": "object",
+      "properties": {
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "changeSetId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DiffItem"
+          }
+        }
+      },
+      "required": [
+        "modelId",
+        "changeSetId",
+        "revision",
+        "contentHash",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "ValidationIssue": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "ERROR",
+            "WARNING",
+            "INFO"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "path": {
+          "type": "string"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "remediation": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "severity",
+        "message",
+        "path",
+        "targetId",
+        "remediation"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactItem": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "TYPE",
+            "RELATION",
+            "ACTION",
+            "IMPLEMENTATION",
+            "WORKFLOW",
+            "CONSUMER"
+          ]
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "path",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "ValidationResult": {
+      "type": "object",
+      "properties": {
+        "passed": {
+          "type": "boolean"
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ValidationIssue"
+          }
+        },
+        "evaluatedChecks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notExecuted": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "passed",
+        "issues",
+        "evaluatedChecks",
+        "notExecuted"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactResult": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ImpactItem"
+          }
+        },
+        "inventoryCompleteness": {
+          "type": "string",
+          "enum": [
+            "PARTIAL",
+            "COMPLETE"
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "consumerPinUpdates": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "items",
+        "inventoryCompleteness",
+        "limitations",
+        "consumerPinUpdates"
+      ],
+      "additionalProperties": false
+    },
+    "AsyncJob": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "VALIDATION",
+            "IMPACT"
+          ]
+        },
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "changeSetId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "dependencyDigest": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "RUNNING",
+            "SUCCEEDED",
+            "FAILED"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "isCurrent": {
+          "type": "boolean"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/ValidationResult"
+                },
+                {
+                  "$ref": "#/$defs/ImpactResult"
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "modelId",
+        "changeSetId",
+        "revision",
+        "contentHash",
+        "dependencyDigest",
+        "status",
+        "createdAt",
+        "completedAt",
+        "isCurrent",
+        "result",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "Publication": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "changeSetId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "versionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "workflowStarted": {
+          "type": "boolean",
+          "const": false
+        },
+        "consumerPinsUpdated": {
+          "type": "boolean",
+          "const": false
+        },
+        "outboxEventId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        }
+      },
+      "required": [
+        "id",
+        "modelId",
+        "changeSetId",
+        "versionId",
+        "contentHash",
+        "publishedAt",
+        "workflowStarted",
+        "consumerPinsUpdated",
+        "outboxEventId"
+      ],
+      "additionalProperties": false
+    },
+    "AuditEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "eventType": {
+          "type": "string"
+        },
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "eventType",
+        "actorId",
+        "modelId",
+        "targetId",
+        "occurredAt",
+        "summary"
+      ],
+      "additionalProperties": false
+    },
+    "Implementation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "versionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "ACTION",
+            "FUNCTION"
+          ]
+        },
+        "ownerService": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "inputContractRef": {
+          "type": "string"
+        },
+        "outputContractRef": {
+          "type": "string"
+        },
+        "sideEffects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "transport": {
+          "type": "string",
+          "enum": [
+            "MOCK",
+            "HTTP",
+            "INTERNAL"
+          ]
+        },
+        "liveEndpointVerified": {
+          "type": "boolean"
+        },
+        "demoMode": {
+          "type": "string",
+          "enum": [
+            "SIMULATABLE",
+            "CONTRACT_ONLY"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "versionId",
+        "nameCn",
+        "kind",
+        "ownerService",
+        "inputContractRef",
+        "outputContractRef",
+        "sideEffects",
+        "transport",
+        "liveEndpointVerified",
+        "demoMode"
+      ],
+      "additionalProperties": false
+    },
+    "RegisteredWorkflow": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "versionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "ownerService": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "requiredActionIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 140,
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "executable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "versionId",
+        "nameCn",
+        "ownerService",
+        "requiredActionIds",
+        "description",
+        "executable"
+      ],
+      "additionalProperties": false
+    },
+    "Consumer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "typeIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 140,
+            "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+          }
+        },
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "pinnedVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        }
+      },
+      "required": [
+        "id",
+        "nameCn",
+        "typeIds",
+        "modelId",
+        "pinnedVersionId"
+      ],
+      "additionalProperties": false
+    },
+    "Registry": {
+      "type": "object",
+      "properties": {
+        "ioContracts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "required": [
+              "id",
+              "schema"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 140,
+                "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+              },
+              "versions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "versionId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 140,
+                      "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                    },
+                    "typeIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 140,
+                        "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+                      }
+                    }
+                  },
+                  "required": [
+                    "versionId",
+                    "typeIds"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "required": [
+              "id",
+              "versions"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "implementations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Implementation"
+          }
+        },
+        "workflows": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RegisteredWorkflow"
+          }
+        },
+        "consumers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Consumer"
+          }
+        },
+        "inventoryCompleteness": {
+          "type": "string",
+          "enum": [
+            "PARTIAL",
+            "COMPLETE"
+          ]
+        }
+      },
+      "required": [
+        "ioContracts",
+        "packages",
+        "implementations",
+        "workflows",
+        "consumers",
+        "inventoryCompleteness"
+      ],
+      "additionalProperties": false
+    },
+    "ActionFixture": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "nameCn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "actionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "state": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "id",
+        "nameCn",
+        "actionId",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "ActionTestResult": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "modelId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "contentHash": {
+          "type": "string"
+        },
+        "actionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "fixtureId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "ALLOW",
+            "DENY",
+            "NOT_IMPLEMENTED"
+          ]
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "passed": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "name",
+              "passed"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "expectedEffects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "realExecution": {
+          "type": "boolean",
+          "const": false
+        },
+        "modelChanged": {
+          "type": "boolean",
+          "const": false
+        },
+        "simulatedAfterState": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "modelId",
+        "contentHash",
+        "actionId",
+        "fixtureId",
+        "decision",
+        "checks",
+        "expectedEffects",
+        "realExecution",
+        "modelChanged",
+        "simulatedAfterState",
+        "limitations"
+      ],
+      "additionalProperties": false
+    },
+    "Session": {
+      "type": "object",
+      "properties": {
+        "actorId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "workspaceId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "DEMO",
+            "LIVE"
+          ]
+        }
+      },
+      "required": [
+        "actorId",
+        "workspaceId",
+        "capabilities",
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    "CreateModelRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "profile": {
+          "type": "string",
+          "enum": [
+            "BUSINESS"
+          ]
+        },
+        "ownerRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "profile",
+        "ownerRef"
+      ],
+      "additionalProperties": false
+    },
+    "CreateModelResult": {
+      "type": "object",
+      "properties": {
+        "model": {
+          "$ref": "#/$defs/ModelSummary"
+        },
+        "changeSet": {
+          "$ref": "#/$defs/ChangeSet"
+        }
+      },
+      "required": [
+        "model",
+        "changeSet"
+      ],
+      "additionalProperties": false
+    },
+    "CreateChangeSetRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "baseVersionId": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "targetVersionId": {
+          "type": "string",
+          "pattern": "^v\\d+\\.\\d+\\.\\d+$"
+        },
+        "restoreFromVersionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        }
+      },
+      "required": [
+        "name",
+        "reason",
+        "baseVersionId",
+        "targetVersionId"
+      ],
+      "additionalProperties": false
+    },
+    "EditOperation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "UPSERT"
+            },
+            "collection": {
+              "type": "string",
+              "const": "objectTypes"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            "value": {
+              "$ref": "#/$defs/ObjectTypeDefinition"
+            }
+          },
+          "required": [
+            "op",
+            "collection",
+            "id",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "UPSERT"
+            },
+            "collection": {
+              "type": "string",
+              "const": "relations"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            "value": {
+              "$ref": "#/$defs/RelationDefinition"
+            }
+          },
+          "required": [
+            "op",
+            "collection",
+            "id",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "UPSERT"
+            },
+            "collection": {
+              "type": "string",
+              "const": "constraints"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            "value": {
+              "$ref": "#/$defs/ConstraintDefinition"
+            }
+          },
+          "required": [
+            "op",
+            "collection",
+            "id",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "UPSERT"
+            },
+            "collection": {
+              "type": "string",
+              "const": "actions"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            "value": {
+              "$ref": "#/$defs/ActionContract"
+            }
+          },
+          "required": [
+            "op",
+            "collection",
+            "id",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "UPSERT"
+            },
+            "collection": {
+              "type": "string",
+              "const": "implementationBindings"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            "value": {
+              "$ref": "#/$defs/ImplementationBinding"
+            }
+          },
+          "required": [
+            "op",
+            "collection",
+            "id",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "UPSERT"
+            },
+            "collection": {
+              "type": "string",
+              "const": "workflowRefs"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            "value": {
+              "$ref": "#/$defs/WorkflowReference"
+            }
+          },
+          "required": [
+            "op",
+            "collection",
+            "id",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "UPSERT"
+            },
+            "collection": {
+              "type": "string",
+              "const": "dependencies"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            "value": {
+              "$ref": "#/$defs/PackageDependency"
+            }
+          },
+          "required": [
+            "op",
+            "collection",
+            "id",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "op": {
+              "type": "string",
+              "const": "REMOVE"
+            },
+            "collection": {
+              "type": "string",
+              "enum": [
+                "objectTypes",
+                "relations",
+                "constraints",
+                "actions",
+                "implementationBindings",
+                "workflowRefs",
+                "dependencies"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            }
+          },
+          "required": [
+            "op",
+            "collection",
+            "id"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ApplyOperationsRequest": {
+      "type": "object",
+      "properties": {
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EditOperation"
+          },
+          "minItems": 1,
+          "maxItems": 100
+        }
+      },
+      "required": [
+        "operations"
+      ],
+      "additionalProperties": false
+    },
+    "RevisionRequest": {
+      "type": "object",
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "revision"
+      ],
+      "additionalProperties": false
+    },
+    "AbandonRequest": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "PublishRequest": {
+      "type": "object",
+      "properties": {
+        "revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "validationRunId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "impactAnalysisId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "releaseNotes": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "acknowledgePartialCoverage": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "revision",
+        "validationRunId",
+        "impactAnalysisId",
+        "releaseNotes",
+        "acknowledgePartialCoverage"
+      ],
+      "additionalProperties": false
+    },
+    "ViewReference": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "versionId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            }
+          },
+          "required": [
+            "versionId"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "changeSetId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140,
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "changeSetId",
+            "revision"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ActionTestRequest": {
+      "type": "object",
+      "properties": {
+        "view": {
+          "$ref": "#/$defs/ViewReference"
+        },
+        "actionId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        },
+        "fixtureId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]*$"
+        }
+      },
+      "required": [
+        "view",
+        "actionId",
+        "fixtureId"
+      ],
+      "additionalProperties": false
+    },
+    "ResetRequest": {
+      "type": "object",
+      "properties": {
+        "confirmation": {
+          "type": "string",
+          "const": "RESET_DEMO_DATA"
+        }
+      },
+      "required": [
+        "confirmation"
+      ],
+      "additionalProperties": false
+    },
+    "ResetResult": {
+      "type": "object",
+      "properties": {
+        "reset": {
+          "type": "boolean",
+          "const": true
+        },
+        "scenario": {
+          "type": "string",
+          "enum": [
+            "dependency-blocked"
+          ]
+        }
+      },
+      "required": [
+        "reset",
+        "scenario"
+      ],
+      "additionalProperties": false
+    },
+    "Health": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok"
+          ]
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "MOCK",
+            "LIVE"
+          ]
+        },
+        "contractVersion": {
+          "type": "string",
+          "enum": [
+            "1.0.0"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "mode",
+        "contractVersion"
+      ],
+      "additionalProperties": false
+    },
+    "ObjectTypesList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ObjectTypeDefinition"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "RelationsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RelationDefinition"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "ConstraintsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConstraintDefinition"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "ActionsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ActionContract"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "ImplementationBindingsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ImplementationBinding"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowRefsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowReference"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "DependenciesList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PackageDependency"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "ModelsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ModelSummary"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "ChangesetsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChangeSet"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "VersionsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VersionRecord"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "AuditEventsList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AuditEvent"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    },
+    "ActionFixturesList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ActionFixture"
+          }
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200
+        }
+      },
+      "required": [
+        "items",
+        "total",
+        "offset",
+        "limit"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

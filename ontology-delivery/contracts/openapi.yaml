@@ -1,0 +1,6017 @@
+openapi: 3.1.0
+info:
+  title: Semovix Ontology Management API
+  version: 1.0.0
+  description: 新定义的页面 HTTP 合同；Mock 服务实现模型管理状态流，不声称连接 Semovix 生产服务。
+servers:
+- url: http://127.0.0.1:4310
+  description: 本地契约 Mock（非生产地址）
+security:
+- bearerAuth: []
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: health
+      parameters: []
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/healthResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security: []
+  /api/v1/ontology/session:
+    get:
+      operationId: getSession
+      summary: getSession
+      parameters:
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getSessionResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/models:
+    get:
+      operationId: listModels
+      summary: listModels
+      parameters:
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listModelsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createModel
+      summary: createModel
+      parameters:
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '201':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createModelResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateModelRequest'
+  /api/v1/ontology/models/{modelId}:
+    get:
+      operationId: getModel
+      summary: getModel
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: &id001
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: ^[A-Za-z0-9][A-Za-z0-9_.:-]*$
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getModelResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/models/{modelId}/view:
+    get:
+      operationId: getView
+      summary: getView
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: versionId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: changeSetId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: revision
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getViewResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      description: versionId 与 changeSetId 二选一；指定 changeSetId 时 revision 必填。返回精确快照；不隐式读
+        latest。
+  /api/v1/ontology/models/{modelId}/graph:
+    get:
+      operationId: getGraph
+      summary: getGraph
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: versionId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: changeSetId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: revision
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getGraphResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      description: versionId 与 changeSetId 二选一；指定 changeSetId 时 revision 必填。返回精确快照；不隐式读
+        latest。
+  /api/v1/ontology/models/{modelId}/object-types:
+    get:
+      operationId: listObjectTypes
+      summary: listObjectTypes
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: versionId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: changeSetId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: revision
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listObjectTypesResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      description: versionId 与 changeSetId 二选一；指定 changeSetId 时 revision 必填。返回精确快照；不隐式读
+        latest。
+  /api/v1/ontology/models/{modelId}/relations:
+    get:
+      operationId: listRelations
+      summary: listRelations
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: versionId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: changeSetId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: revision
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listRelationsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      description: versionId 与 changeSetId 二选一；指定 changeSetId 时 revision 必填。返回精确快照；不隐式读
+        latest。
+  /api/v1/ontology/models/{modelId}/constraints:
+    get:
+      operationId: listConstraints
+      summary: listConstraints
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: versionId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: changeSetId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: revision
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listConstraintsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      description: versionId 与 changeSetId 二选一；指定 changeSetId 时 revision 必填。返回精确快照；不隐式读
+        latest。
+  /api/v1/ontology/models/{modelId}/actions:
+    get:
+      operationId: listActions
+      summary: listActions
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: versionId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: changeSetId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: revision
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listActionsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      description: versionId 与 changeSetId 二选一；指定 changeSetId 时 revision 必填。返回精确快照；不隐式读
+        latest。
+  /api/v1/ontology/models/{modelId}/implementation-bindings:
+    get:
+      operationId: listImplementationBindings
+      summary: listImplementationBindings
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: versionId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: changeSetId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: revision
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listImplementationBindingsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      description: versionId 与 changeSetId 二选一；指定 changeSetId 时 revision 必填。返回精确快照；不隐式读
+        latest。
+  /api/v1/ontology/models/{modelId}/workflow-refs:
+    get:
+      operationId: listWorkflowRefs
+      summary: listWorkflowRefs
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: versionId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: changeSetId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: revision
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listWorkflowRefsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      description: versionId 与 changeSetId 二选一；指定 changeSetId 时 revision 必填。返回精确快照；不隐式读
+        latest。
+  /api/v1/ontology/models/{modelId}/changesets:
+    get:
+      operationId: listChangeSets
+      summary: listChangeSets
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listChangeSetsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      operationId: createChangeSet
+      summary: createChangeSet
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '201':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createChangeSetResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChangeSetRequest'
+  /api/v1/ontology/models/{modelId}/changesets/{changeSetId}:
+    get:
+      operationId: getChangeSet
+      summary: getChangeSet
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: changeSetId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getChangeSetResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/models/{modelId}/changesets/{changeSetId}/operations:
+    post:
+      operationId: applyOperations
+      summary: applyOperations
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: changeSetId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: 当前变更集强 ETag，例如 "cs-drkn-demo:r12"。不接受 *。
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applyOperationsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyOperationsRequest'
+  /api/v1/ontology/models/{modelId}/changesets/{changeSetId}/abandon:
+    post:
+      operationId: abandonChangeSet
+      summary: abandonChangeSet
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: changeSetId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: 当前变更集强 ETag，例如 "cs-drkn-demo:r12"。不接受 *。
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/abandonChangeSetResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AbandonRequest'
+  /api/v1/ontology/models/{modelId}/changesets/{changeSetId}/diff:
+    get:
+      operationId: getDiff
+      summary: getDiff
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: changeSetId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: revision
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 0
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getDiffResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/models/{modelId}/changesets/{changeSetId}/validation-runs:
+    post:
+      operationId: startValidation
+      summary: startValidation
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: changeSetId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: 当前变更集强 ETag，例如 "cs-drkn-demo:r12"。不接受 *。
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '202':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/startValidationResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionRequest'
+  /api/v1/ontology/models/{modelId}/changesets/{changeSetId}/impact-analyses:
+    post:
+      operationId: startImpact
+      summary: startImpact
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: changeSetId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: 当前变更集强 ETag，例如 "cs-drkn-demo:r12"。不接受 *。
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '202':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/startImpactResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevisionRequest'
+  /api/v1/ontology/models/{modelId}/jobs/{jobId}:
+    get:
+      operationId: getJob
+      summary: getJob
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: jobId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getJobResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/models/{modelId}/changesets/{changeSetId}/publications:
+    post:
+      operationId: publishVersion
+      summary: publishVersion
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: changeSetId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: If-Match
+        in: header
+        required: true
+        schema:
+          type: string
+        description: 当前变更集强 ETag，例如 "cs-drkn-demo:r12"。不接受 *。
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '201':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/publishVersionResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishRequest'
+  /api/v1/ontology/models/{modelId}/versions:
+    get:
+      operationId: listVersions
+      summary: listVersions
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listVersionsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/models/{modelId}/versions/{versionId}:
+    get:
+      operationId: getVersion
+      summary: getVersion
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: versionId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getVersionResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/models/{modelId}/audit-events:
+    get:
+      operationId: listAuditEvents
+      summary: listAuditEvents
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listAuditEventsResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/registry:
+    get:
+      operationId: getRegistry
+      summary: getRegistry
+      parameters:
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getRegistryResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/action-fixtures:
+    get:
+      operationId: listActionFixtures
+      summary: listActionFixtures
+      parameters:
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/listActionFixturesResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/ontology/models/{modelId}/action-tests:
+    post:
+      operationId: testAction
+      summary: testAction
+      parameters:
+      - name: modelId
+        in: path
+        required: true
+        schema: *id001
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 128
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/testActionResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActionTestRequest'
+  /__demo/reset:
+    post:
+      operationId: resetDemo
+      summary: resetDemo
+      parameters:
+      - name: X-Workspace-Id
+        in: header
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: 工作空间标识；服务端验证身份授权。Mock 仅提供 ws-demo 与 ws-isolation。
+      responses:
+        '200':
+          description: 成功；Mock 数据会带 meta.dataMode=MOCK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/resetDemoResponse'
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: ChangeSet 响应返回强 ETag
+            Location:
+              schema:
+                type: string
+              description: 异步任务轮询位置
+            Retry-After:
+              schema:
+                type: string
+              description: 异步任务建议轮询秒数
+        '400':
+          description: 请求不合法
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 缺少或错误身份
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 无操作权限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 资源不在当前范围或不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 幂等冲突/基线变化/发布条件不成立
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '412':
+          description: If-Match 修订不匹配
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: 请求体过大
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '415':
+          description: 请求媒体类型错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: 请求 Schema 不符合合同
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '428':
+          description: 缺少 If-Match 前置条件
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 内部错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetRequest'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'Mock: demo-maintainer 或 demo-viewer。生产接入现有身份服务，禁止使用这些演示 Token。'
+  schemas:
+    PropertyDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        code:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        valueType:
+          type: string
+          enum:
+          - string
+          - integer
+          - number
+          - boolean
+          - datetime
+          - object
+          - array
+          - json
+        required:
+          type: boolean
+        isIdentity:
+          type: boolean
+        definition:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        enumValues:
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - code
+      - nameCn
+      - valueType
+      - required
+      - isIdentity
+      - definition
+      additionalProperties: false
+    ExternalContractRef:
+      type: object
+      properties:
+        packageId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        typeId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        versionId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+      required:
+      - packageId
+      - typeId
+      - versionId
+      additionalProperties: false
+    ObjectTypeDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        code:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        group:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        ownerService:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        origin:
+          type: string
+          enum:
+          - SYSTEM
+          - LOCAL
+          - EXTERNAL
+        definition:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyDefinition'
+        externalContract:
+          $ref: '#/components/schemas/ExternalContractRef'
+      required:
+      - id
+      - code
+      - nameCn
+      - group
+      - ownerService
+      - origin
+      - definition
+      - properties
+      additionalProperties: false
+    Cardinality:
+      type: object
+      properties:
+        min:
+          type: integer
+          minimum: 0
+        max:
+          anyOf:
+          - type: integer
+            minimum: 0
+          - type: 'null'
+      required:
+      - min
+      - max
+      additionalProperties: false
+    RelationDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        code:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        sourceTypeId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        targetTypeId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        category:
+          type: string
+          enum:
+          - CONTAINMENT
+          - SEMANTIC
+          - QUALITY
+          - EVIDENCE
+          - PROVENANCE
+          - DATA_GROUNDING
+          - OWNERSHIP
+        targetCardinality:
+          $ref: '#/components/schemas/Cardinality'
+        sourceCardinality:
+          $ref: '#/components/schemas/Cardinality'
+        definition:
+          type: string
+          minLength: 1
+          maxLength: 4000
+      required:
+      - id
+      - code
+      - nameCn
+      - sourceTypeId
+      - targetTypeId
+      - category
+      - targetCardinality
+      - sourceCardinality
+      - definition
+      additionalProperties: false
+    ConstraintDefinition:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        scope:
+          type: string
+          enum:
+          - MODEL_DEFINITION
+          - GOVERNANCE_RECORD
+        targetTypeId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        ruleCode:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        expression:
+          type: object
+          additionalProperties: true
+        definition:
+          type: string
+          minLength: 1
+          maxLength: 4000
+      required:
+      - id
+      - nameCn
+      - scope
+      - targetTypeId
+      - ruleCode
+      - expression
+      - definition
+      additionalProperties: false
+    ActionContract:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        code:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        ownerService:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        inputTypeIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        outputTypeIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        inputContractRef:
+          type: string
+          minLength: 1
+        outputContractRef:
+          type: string
+          minLength: 1
+        confirmationMode:
+          type: string
+          enum:
+          - NONE
+          - EXPLICIT
+        sideEffects:
+          type: array
+          items:
+            type: string
+            enum:
+            - NONE
+            - SOURCE_READ
+            - GOVERNANCE_STATE
+            - EXTERNAL_JOB
+            - SOURCE_WRITE
+          minItems: 1
+        preconditions:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 4000
+        definition:
+          type: string
+          minLength: 1
+          maxLength: 4000
+      required:
+      - id
+      - code
+      - nameCn
+      - ownerService
+      - inputTypeIds
+      - outputTypeIds
+      - inputContractRef
+      - outputContractRef
+      - confirmationMode
+      - sideEffects
+      - preconditions
+      - definition
+      additionalProperties: false
+    ImplementationBinding:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        kind:
+          type: string
+          enum:
+          - ACTION
+          - FUNCTION
+        actionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        implementationId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        implementationVersionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        inputContractRef:
+          type: string
+          minLength: 1
+        outputContractRef:
+          type: string
+          minLength: 1
+        expectedSideEffects:
+          type: array
+          items:
+            type: string
+          minItems: 1
+      required:
+      - id
+      - kind
+      - implementationId
+      - implementationVersionId
+      - inputContractRef
+      - outputContractRef
+      - expectedSideEffects
+      additionalProperties: false
+    WorkflowReference:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        workflowId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        workflowVersionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        ownerService:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        requiredActionIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+      required:
+      - id
+      - workflowId
+      - workflowVersionId
+      - ownerService
+      - requiredActionIds
+      additionalProperties: false
+    PackageDependency:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        packageId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        versionId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+      required:
+      - id
+      - packageId
+      - versionId
+      additionalProperties: false
+    ModelDocument:
+      type: object
+      properties:
+        objectTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectTypeDefinition'
+        relations:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationDefinition'
+        constraints:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConstraintDefinition'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionContract'
+        implementationBindings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImplementationBinding'
+        workflowRefs:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowReference'
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/PackageDependency'
+      required:
+      - objectTypes
+      - relations
+      - constraints
+      - actions
+      - implementationBindings
+      - workflowRefs
+      - dependencies
+      additionalProperties: false
+    ApiMeta:
+      type: object
+      properties:
+        requestId:
+          type: string
+        dataMode:
+          type: string
+          enum:
+          - MOCK
+          - LIVE
+        contractVersion:
+          type: string
+          enum:
+          - 1.0.0
+      required:
+      - requestId
+      - dataMode
+      - contractVersion
+      additionalProperties: false
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
+          required:
+          - code
+          - message
+          - details
+          additionalProperties: false
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - error
+      - meta
+      additionalProperties: false
+    ModelSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        profile:
+          type: string
+          enum:
+          - DATA_GOVERNANCE
+          - BUSINESS
+        origin:
+          type: string
+          enum:
+          - SYSTEM
+          - TENANT
+        ownerRef:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        currentVersionId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+        currentVersionHash:
+          anyOf:
+          - type: string
+          - type: 'null'
+        activeChangeSetId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+      required:
+      - id
+      - name
+      - profile
+      - origin
+      - ownerRef
+      - currentVersionId
+      - currentVersionHash
+      - activeChangeSetId
+      additionalProperties: false
+    ChangeSet:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        baseVersionId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+        targetVersionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        revision:
+          type: integer
+          minimum: 0
+        status:
+          type: string
+          enum:
+          - OPEN
+          - PUBLISHED
+          - ABANDONED
+        etag:
+          type: string
+        contentHash:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+      - id
+      - modelId
+      - name
+      - reason
+      - baseVersionId
+      - targetVersionId
+      - revision
+      - status
+      - etag
+      - contentHash
+      - createdAt
+      additionalProperties: false
+    ResolvedView:
+      type: object
+      properties:
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        mode:
+          type: string
+          enum:
+          - VERSION
+          - DRAFT
+        versionId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+        changeSetId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+        revision:
+          type: integer
+          minimum: 0
+        contentHash:
+          type: string
+        document:
+          $ref: '#/components/schemas/ModelDocument'
+        readOnly:
+          type: boolean
+        etag:
+          type: string
+        currentVersionId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+      required:
+      - modelId
+      - mode
+      - versionId
+      - changeSetId
+      - revision
+      - contentHash
+      - document
+      - readOnly
+      - etag
+      - currentVersionId
+      additionalProperties: false
+    Graph:
+      type: object
+      properties:
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        contentHash:
+          type: string
+        nodes:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                minLength: 1
+                maxLength: 140
+                pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+              nameCn:
+                type: string
+                minLength: 1
+                maxLength: 4000
+              origin:
+                type: string
+            required:
+            - id
+            - nameCn
+            - origin
+            additionalProperties: false
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationDefinition'
+      required:
+      - modelId
+      - contentHash
+      - nodes
+      - edges
+      additionalProperties: false
+    VersionRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        document:
+          $ref: '#/components/schemas/ModelDocument'
+        contentHash:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        releaseNotes:
+          type: string
+        baseVersionId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+      required:
+      - id
+      - modelId
+      - document
+      - contentHash
+      - publishedAt
+      - releaseNotes
+      - baseVersionId
+      additionalProperties: false
+    DiffItem:
+      type: object
+      properties:
+        collection:
+          type: string
+          enum:
+          - objectTypes
+          - relations
+          - constraints
+          - actions
+          - implementationBindings
+          - workflowRefs
+          - dependencies
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        change:
+          type: string
+          enum:
+          - ADD
+          - MODIFY
+          - REMOVE
+        before:
+          description: JSON 值；仅数据，不执行表达式。
+        after:
+          description: JSON 值；仅数据，不执行表达式。
+      required:
+      - collection
+      - id
+      - change
+      - before
+      - after
+      additionalProperties: false
+    DiffResult:
+      type: object
+      properties:
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        changeSetId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        revision:
+          type: integer
+          minimum: 0
+        contentHash:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiffItem'
+      required:
+      - modelId
+      - changeSetId
+      - revision
+      - contentHash
+      - items
+      additionalProperties: false
+    ValidationIssue:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        severity:
+          type: string
+          enum:
+          - ERROR
+          - WARNING
+          - INFO
+        message:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        path:
+          type: string
+        targetId:
+          type: string
+        remediation:
+          type: string
+      required:
+      - code
+      - severity
+      - message
+      - path
+      - targetId
+      - remediation
+      additionalProperties: false
+    ImpactItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        kind:
+          type: string
+          enum:
+          - TYPE
+          - RELATION
+          - ACTION
+          - IMPLEMENTATION
+          - WORKFLOW
+          - CONSUMER
+        path:
+          type: array
+          items:
+            type: string
+        reason:
+          type: string
+      required:
+      - id
+      - name
+      - kind
+      - path
+      - reason
+      additionalProperties: false
+    ValidationResult:
+      type: object
+      properties:
+        passed:
+          type: boolean
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
+        evaluatedChecks:
+          type: array
+          items:
+            type: string
+        notExecuted:
+          type: array
+          items:
+            type: string
+      required:
+      - passed
+      - issues
+      - evaluatedChecks
+      - notExecuted
+      additionalProperties: false
+    ImpactResult:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImpactItem'
+        inventoryCompleteness:
+          type: string
+          enum:
+          - PARTIAL
+          - COMPLETE
+        limitations:
+          type: array
+          items:
+            type: string
+        consumerPinUpdates:
+          type: integer
+          minimum: 0
+      required:
+      - items
+      - inventoryCompleteness
+      - limitations
+      - consumerPinUpdates
+      additionalProperties: false
+    AsyncJob:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        kind:
+          type: string
+          enum:
+          - VALIDATION
+          - IMPACT
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        changeSetId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        revision:
+          type: integer
+          minimum: 0
+        contentHash:
+          type: string
+        dependencyDigest:
+          type: string
+        status:
+          type: string
+          enum:
+          - RUNNING
+          - SUCCEEDED
+          - FAILED
+        createdAt:
+          type: string
+          format: date-time
+        completedAt:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+        isCurrent:
+          type: boolean
+        result:
+          anyOf:
+          - oneOf:
+            - $ref: '#/components/schemas/ValidationResult'
+            - $ref: '#/components/schemas/ImpactResult'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+      required:
+      - id
+      - kind
+      - modelId
+      - changeSetId
+      - revision
+      - contentHash
+      - dependencyDigest
+      - status
+      - createdAt
+      - completedAt
+      - isCurrent
+      - result
+      - error
+      additionalProperties: false
+    Publication:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        changeSetId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        versionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        contentHash:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        workflowStarted:
+          type: boolean
+          const: false
+        consumerPinsUpdated:
+          type: boolean
+          const: false
+        outboxEventId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+      required:
+      - id
+      - modelId
+      - changeSetId
+      - versionId
+      - contentHash
+      - publishedAt
+      - workflowStarted
+      - consumerPinsUpdated
+      - outboxEventId
+      additionalProperties: false
+    AuditEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        eventType:
+          type: string
+        actorId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        targetId:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+        summary:
+          type: string
+      required:
+      - id
+      - eventType
+      - actorId
+      - modelId
+      - targetId
+      - occurredAt
+      - summary
+      additionalProperties: false
+    Implementation:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        versionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        kind:
+          type: string
+          enum:
+          - ACTION
+          - FUNCTION
+        ownerService:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        inputContractRef:
+          type: string
+        outputContractRef:
+          type: string
+        sideEffects:
+          type: array
+          items:
+            type: string
+        transport:
+          type: string
+          enum:
+          - MOCK
+          - HTTP
+          - INTERNAL
+        liveEndpointVerified:
+          type: boolean
+        demoMode:
+          type: string
+          enum:
+          - SIMULATABLE
+          - CONTRACT_ONLY
+      required:
+      - id
+      - versionId
+      - nameCn
+      - kind
+      - ownerService
+      - inputContractRef
+      - outputContractRef
+      - sideEffects
+      - transport
+      - liveEndpointVerified
+      - demoMode
+      additionalProperties: false
+    RegisteredWorkflow:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        versionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        ownerService:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        requiredActionIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        description:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        executable:
+          type: boolean
+      required:
+      - id
+      - versionId
+      - nameCn
+      - ownerService
+      - requiredActionIds
+      - description
+      - executable
+      additionalProperties: false
+    Consumer:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        typeIds:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        pinnedVersionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+      required:
+      - id
+      - nameCn
+      - typeIds
+      - modelId
+      - pinnedVersionId
+      additionalProperties: false
+    Registry:
+      type: object
+      properties:
+        ioContracts:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              schema:
+                type: object
+                additionalProperties: true
+            required:
+            - id
+            - schema
+            additionalProperties: false
+        packages:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                minLength: 1
+                maxLength: 140
+                pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+              versions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    versionId:
+                      type: string
+                      minLength: 1
+                      maxLength: 140
+                      pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+                    typeIds:
+                      type: array
+                      items:
+                        type: string
+                        minLength: 1
+                        maxLength: 140
+                        pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+                  required:
+                  - versionId
+                  - typeIds
+                  additionalProperties: false
+            required:
+            - id
+            - versions
+            additionalProperties: false
+        implementations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Implementation'
+        workflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegisteredWorkflow'
+        consumers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Consumer'
+        inventoryCompleteness:
+          type: string
+          enum:
+          - PARTIAL
+          - COMPLETE
+      required:
+      - ioContracts
+      - packages
+      - implementations
+      - workflows
+      - consumers
+      - inventoryCompleteness
+      additionalProperties: false
+    ActionFixture:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        nameCn:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        actionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        state:
+          type: object
+          additionalProperties: true
+      required:
+      - id
+      - nameCn
+      - actionId
+      - state
+      additionalProperties: false
+    ActionTestResult:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        modelId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        contentHash:
+          type: string
+        actionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        fixtureId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        decision:
+          type: string
+          enum:
+          - ALLOW
+          - DENY
+          - NOT_IMPLEMENTED
+        checks:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              passed:
+                type: boolean
+            required:
+            - name
+            - passed
+            additionalProperties: false
+        expectedEffects:
+          type: array
+          items:
+            type: string
+        realExecution:
+          type: boolean
+          const: false
+        modelChanged:
+          type: boolean
+          const: false
+        simulatedAfterState:
+          anyOf:
+          - type: object
+            additionalProperties: true
+          - type: 'null'
+        limitations:
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - modelId
+      - contentHash
+      - actionId
+      - fixtureId
+      - decision
+      - checks
+      - expectedEffects
+      - realExecution
+      - modelChanged
+      - simulatedAfterState
+      - limitations
+      additionalProperties: false
+    Session:
+      type: object
+      properties:
+        actorId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        workspaceId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        capabilities:
+          type: array
+          items:
+            type: string
+        mode:
+          type: string
+          enum:
+          - DEMO
+          - LIVE
+      required:
+      - actorId
+      - workspaceId
+      - capabilities
+      - mode
+      additionalProperties: false
+    CreateModelRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        profile:
+          type: string
+          enum:
+          - BUSINESS
+        ownerRef:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+      required:
+      - id
+      - name
+      - profile
+      - ownerRef
+      additionalProperties: false
+    CreateModelResult:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/ModelSummary'
+        changeSet:
+          $ref: '#/components/schemas/ChangeSet'
+      required:
+      - model
+      - changeSet
+      additionalProperties: false
+    CreateChangeSetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        baseVersionId:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          - type: 'null'
+        targetVersionId:
+          type: string
+          pattern: ^v\d+\.\d+\.\d+$
+        restoreFromVersionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+      required:
+      - name
+      - reason
+      - baseVersionId
+      - targetVersionId
+      additionalProperties: false
+    EditOperation:
+      oneOf:
+      - type: object
+        properties:
+          op:
+            type: string
+            const: UPSERT
+          collection:
+            type: string
+            const: objectTypes
+          id:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          value:
+            $ref: '#/components/schemas/ObjectTypeDefinition'
+        required:
+        - op
+        - collection
+        - id
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          op:
+            type: string
+            const: UPSERT
+          collection:
+            type: string
+            const: relations
+          id:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          value:
+            $ref: '#/components/schemas/RelationDefinition'
+        required:
+        - op
+        - collection
+        - id
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          op:
+            type: string
+            const: UPSERT
+          collection:
+            type: string
+            const: constraints
+          id:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          value:
+            $ref: '#/components/schemas/ConstraintDefinition'
+        required:
+        - op
+        - collection
+        - id
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          op:
+            type: string
+            const: UPSERT
+          collection:
+            type: string
+            const: actions
+          id:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          value:
+            $ref: '#/components/schemas/ActionContract'
+        required:
+        - op
+        - collection
+        - id
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          op:
+            type: string
+            const: UPSERT
+          collection:
+            type: string
+            const: implementationBindings
+          id:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          value:
+            $ref: '#/components/schemas/ImplementationBinding'
+        required:
+        - op
+        - collection
+        - id
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          op:
+            type: string
+            const: UPSERT
+          collection:
+            type: string
+            const: workflowRefs
+          id:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          value:
+            $ref: '#/components/schemas/WorkflowReference'
+        required:
+        - op
+        - collection
+        - id
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          op:
+            type: string
+            const: UPSERT
+          collection:
+            type: string
+            const: dependencies
+          id:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          value:
+            $ref: '#/components/schemas/PackageDependency'
+        required:
+        - op
+        - collection
+        - id
+        - value
+        additionalProperties: false
+      - type: object
+        properties:
+          op:
+            type: string
+            const: REMOVE
+          collection:
+            type: string
+            enum:
+            - objectTypes
+            - relations
+            - constraints
+            - actions
+            - implementationBindings
+            - workflowRefs
+            - dependencies
+          id:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        required:
+        - op
+        - collection
+        - id
+        additionalProperties: false
+    ApplyOperationsRequest:
+      type: object
+      properties:
+        operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/EditOperation'
+          minItems: 1
+          maxItems: 100
+      required:
+      - operations
+      additionalProperties: false
+    RevisionRequest:
+      type: object
+      properties:
+        revision:
+          type: integer
+          minimum: 0
+      required:
+      - revision
+      additionalProperties: false
+    AbandonRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 4000
+      required:
+      - reason
+      additionalProperties: false
+    PublishRequest:
+      type: object
+      properties:
+        revision:
+          type: integer
+          minimum: 0
+        validationRunId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        impactAnalysisId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        releaseNotes:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        acknowledgePartialCoverage:
+          type: boolean
+      required:
+      - revision
+      - validationRunId
+      - impactAnalysisId
+      - releaseNotes
+      - acknowledgePartialCoverage
+      additionalProperties: false
+    ViewReference:
+      oneOf:
+      - type: object
+        properties:
+          versionId:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        required:
+        - versionId
+        additionalProperties: false
+      - type: object
+        properties:
+          changeSetId:
+            type: string
+            minLength: 1
+            maxLength: 140
+            pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+          revision:
+            type: integer
+            minimum: 0
+        required:
+        - changeSetId
+        - revision
+        additionalProperties: false
+    ActionTestRequest:
+      type: object
+      properties:
+        view:
+          $ref: '#/components/schemas/ViewReference'
+        actionId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+        fixtureId:
+          type: string
+          minLength: 1
+          maxLength: 140
+          pattern: ^[A-Za-z][A-Za-z0-9_.:-]*$
+      required:
+      - view
+      - actionId
+      - fixtureId
+      additionalProperties: false
+    ResetRequest:
+      type: object
+      properties:
+        confirmation:
+          type: string
+          const: RESET_DEMO_DATA
+      required:
+      - confirmation
+      additionalProperties: false
+    ResetResult:
+      type: object
+      properties:
+        reset:
+          type: boolean
+          const: true
+        scenario:
+          type: string
+          enum:
+          - dependency-blocked
+      required:
+      - reset
+      - scenario
+      additionalProperties: false
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+          - ok
+        mode:
+          type: string
+          enum:
+          - MOCK
+          - LIVE
+        contractVersion:
+          type: string
+          enum:
+          - 1.0.0
+      required:
+      - status
+      - mode
+      - contractVersion
+      additionalProperties: false
+    ObjectTypesList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectTypeDefinition'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    RelationsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationDefinition'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    ConstraintsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConstraintDefinition'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    ActionsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionContract'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    ImplementationBindingsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImplementationBinding'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    WorkflowRefsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowReference'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    DependenciesList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PackageDependency'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    ModelsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelSummary'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    ChangesetsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChangeSet'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    VersionsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/VersionRecord'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    AuditEventsList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    ActionFixturesList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionFixture'
+        total:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 200
+      required:
+      - items
+      - total
+      - offset
+      - limit
+      additionalProperties: false
+    healthResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Health'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getSessionResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Session'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listModelsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ModelsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    createModelResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CreateModelResult'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getModelResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ModelSummary'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getViewResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResolvedView'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getGraphResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Graph'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listObjectTypesResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ObjectTypesList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listRelationsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/RelationsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listConstraintsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ConstraintsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listActionsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ActionsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listImplementationBindingsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ImplementationBindingsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listWorkflowRefsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/WorkflowRefsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listChangeSetsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ChangesetsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    createChangeSetResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ChangeSet'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getChangeSetResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ChangeSet'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    applyOperationsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ChangeSet'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    abandonChangeSetResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ChangeSet'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getDiffResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/DiffResult'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    startValidationResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AsyncJob'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    startImpactResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AsyncJob'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getJobResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AsyncJob'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    publishVersionResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Publication'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listVersionsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/VersionsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getVersionResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/VersionRecord'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listAuditEventsResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AuditEventsList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    getRegistryResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Registry'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    listActionFixturesResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ActionFixturesList'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    testActionResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ActionTestResult'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false
+    resetDemoResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/ResetResult'
+        meta:
+          $ref: '#/components/schemas/ApiMeta'
+      required:
+      - data
+      - meta
+      additionalProperties: false

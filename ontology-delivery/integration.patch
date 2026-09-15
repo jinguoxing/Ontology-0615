@@ -1,0 +1,20 @@
+--- a/package.json
++++ b/package.json
+@@ -9,5 +9,7 @@
+     "preview": "vite preview",
+     "clean": "rm -rf dist server.js",
+-    "lint": "tsc --noEmit"
++    "lint": "tsc --noEmit",
++    "dev:mock-api": "node ontology-delivery/mock-server/server.mjs",
++    "test:ontology-contract": "node --test ontology-delivery/tests/api.test.mjs"
+   },
+   "dependencies": {
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -14,2 +14,6 @@
+     server: {
++      proxy: {
++        '/api/v1/ontology': {target: 'http://127.0.0.1:4310', changeOrigin: true},
++        '/__demo': {target: 'http://127.0.0.1:4310', changeOrigin: true},
++      },
+       // HMR is disabled in AI Studio via DISABLE_HMR env var.

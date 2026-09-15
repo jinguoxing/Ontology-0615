@@ -1,0 +1,65 @@
+[
+  {
+    "id": "assertion-good",
+    "nameCn": "有业务依据的低分候选",
+    "actionId": "confirmAssertion",
+    "state": {
+      "lifecycleStatus": "CANDIDATE",
+      "confidence": 0.63,
+      "hasNonLlmEvidence": true,
+      "conflictResolved": true,
+      "targetVersionCurrent": true
+    }
+  },
+  {
+    "id": "assertion-llm-only",
+    "nameCn": "仅 LLM 证据的高分候选",
+    "actionId": "confirmAssertion",
+    "state": {
+      "lifecycleStatus": "CANDIDATE",
+      "confidence": 0.99,
+      "hasNonLlmEvidence": false,
+      "conflictResolved": true,
+      "targetVersionCurrent": true
+    }
+  },
+  {
+    "id": "assertion-stale",
+    "nameCn": "结构版本已变化",
+    "actionId": "confirmAssertion",
+    "state": {
+      "lifecycleStatus": "CANDIDATE",
+      "confidence": 0.94,
+      "hasNonLlmEvidence": true,
+      "conflictResolved": true,
+      "targetVersionCurrent": false
+    }
+  },
+  {
+    "id": "scan-available",
+    "nameCn": "支持扫描的数据源",
+    "actionId": "startMetadataScan",
+    "state": {
+      "connectorSupportsScan": true,
+      "sourceActive": true
+    }
+  },
+  {
+    "id": "scan-unsupported",
+    "nameCn": "当前连接器不支持扫描",
+    "actionId": "startMetadataScan",
+    "state": {
+      "connectorSupportsScan": false,
+      "sourceActive": true
+    }
+  },
+  {
+    "id": "source-verified",
+    "nameCn": "已验证未创建的连接草稿",
+    "actionId": "createDataSource",
+    "state": {
+      "verified": true,
+      "explicitConfirmation": true
+    }
+  }
+]

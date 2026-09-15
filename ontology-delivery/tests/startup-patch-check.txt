@@ -1,0 +1,3 @@
+PASS: git apply --check
+Scope: the package.json and vite.config.ts baseline text retrieved at f5a87f76850d0c393b5709b8f69bd5af13f13ca9.
+This is not a full repository build or a patch implementing the nine UI pages.
