@@ -1,41 +1,92 @@
-import {useState} from 'react';
-import {useObjectTypes, useActivateDraftChangeSet} from './hooks/useOntology';
+import {useEffect, useState} from 'react';
+import {useLocation, useNavigate} from 'react-router-dom';
+import {useObjectTypes} from './hooks/useOntology';
 import { useApp } from './context/AppContext';
 import { useUiStore } from './store/uiStore';
 import { useRouteSync } from './hooks/useRouteSync';
 import { Badge } from './components/ui/Badge';
 
 // Importing page components
-import Overview from './components/Overview';
-import ObjectModel from './components/ObjectModel';
-import RelationModel from './components/RelationModel';
-import CapabilityBinding from './components/CapabilityBinding';
-import WorkflowOrchestrator from './components/WorkflowOrchestrator';
-import ChangeRelease from './components/ChangeRelease';
-import ActionModel from './components/ActionModel';
 import OntologyModelsList from './components/OntologyModelsList';
+import OntologyLayout from './ontology/OntologyLayout';
 import DknOverview from './components/DknOverview';
 import DknObjectModel from './components/DknObjectModel';
-import CreateChangeSetDrawer from './components/CreateChangeSetDrawer';
-import CreateModelWizard from './components/CreateModelWizard';
 import KnowledgeNetworkOverview from './components/KnowledgeNetworkOverview';
 import KnowledgeNetworkAssets from './components/KnowledgeNetworkAssets';
 import KnowledgeNetworkExplorer from './components/KnowledgeNetworkExplorer';
 
+// 规范本体路径（Batch 2）：/business-semantics/ontologies/...
+import {isOntologyUrl, ONTOLOGY_LIST_PATH} from './api/ontology-v1/routeContext';
+
 // Icons
-import { 
-  LayoutDashboard, Layers, Link2, Code, Workflow, 
-  GitPullRequest, Search, CheckCircle, AlertTriangle, 
-  Compass, HelpCircle, User, Cpu, ChevronDown, Lock, Unlock, Sparkles, Database,
-  Settings, GitBranch, Network, ClipboardList
+import {
+  Search,
+  Compass, HelpCircle, User, Cpu, ChevronDown, Lock, Sparkles,
+  Settings, GitBranch, Network, ClipboardList, CircleDot
 } from 'lucide-react';
 
+/**
+ * 旧路由 → 规范本体路径。本体域入口统一为“业务语义 → 业务本体”
+ * （/business-semantics/ontologies）。带 ?id= 的三个详情路由把 id 折叠为
+ * selected 参数。仅做重定向，不渲染遗留本体页面。
+ */
+const LEGACY_ONTOLOGY_REDIRECTS: Record<string, string> = {
+  '/ontology': ONTOLOGY_LIST_PATH,
+  '/ontology/drkn': ONTOLOGY_LIST_PATH,
+  '/ontology/dkn': ONTOLOGY_LIST_PATH,
+  '/create-model': ONTOLOGY_LIST_PATH,
+  '/overview': '/business-semantics/ontologies/drkn-core/overview',
+  '/object-model': '/business-semantics/ontologies/drkn-core/object-types',
+  '/relation-model': '/business-semantics/ontologies/drkn-core/relations',
+  '/capability-binding': '/business-semantics/ontologies/drkn-core/implementations',
+  '/action-model': '/business-semantics/ontologies/drkn-core/actions',
+  '/workflow': '/business-semantics/ontologies/drkn-core/workflows',
+  '/change-release': '/business-semantics/ontologies/drkn-core/release',
+};
+
+/** store 视图 id → 规范本体路径（侧边栏 / 搜索 / 知识网络页跳转时直接进入本体空间）。 */
+const ONTOLOGY_VIEW_TARGETS: Record<string, string> = {
+  ...LEGACY_ONTOLOGY_REDIRECTS,
+  workflow_orchestration: '/business-semantics/ontologies/drkn-core/workflows',
+  change_release: '/business-semantics/ontologies/drkn-core/release',
+};
+
 export default function App() {
-  const { user, aiVersion, aiReady } = useApp();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Keep the URL (react-router) in sync with the UI store's active view +
   // selected object, and vice versa (deep links / back / refresh).
+  // 对 /business-semantics/* 本体路径，该桥接保持惰性（URL 是唯一事实来源）。
   useRouteSync();
+
+  // 旧本体路由重定向到规范路径（保留 ?id= → selected）。
+  useEffect(() => {
+    const target = LEGACY_ONTOLOGY_REDIRECTS[location.pathname];
+    if (!target) return;
+    const carriesId = ['/object-model', '/capability-binding', '/action-model'].includes(location.pathname);
+    const id = carriesId ? new URLSearchParams(location.search).get('id') : null;
+    navigate(id ? `${target}?selected=${encodeURIComponent(id)}` : target, {replace: true});
+  }, [location.pathname, location.search, navigate]);
+
+  // 本体空间（列表 + 模型页）由独立布局渲染，不复用遗留外壳。
+  if (isOntologyUrl(location.pathname)) {
+    return location.pathname === ONTOLOGY_LIST_PATH
+      ? <OntologyModelsList/>
+      : <OntologyLayout/>;
+  }
+
+  return <LegacyWorkbench/>;
+}
+
+/**
+ * 遗留工作台（知识网络 / 数据助手 / DKN 页面）。
+ * 本体域（列表、总览、对象类型等）已迁移至 /business-semantics 空间，
+ * 这里不再渲染任何本体页面。
+ */
+function LegacyWorkbench() {
+  const navigate = useNavigate();
+  const { user, aiVersion, aiReady } = useApp();
 
   // UI state — sourced from the global UI store (no prop drilling).
   const {
@@ -43,18 +94,14 @@ export default function App() {
     isLocked,
     globalSearch,
     showSearchResults,
-    isCreateDrawerOpen,
     navigate: navigateStore,
-    setActiveView,
-    setLocked,
     setGlobalSearch,
     setShowSearchResults,
-    setCreateDrawerOpen,
   } = useUiStore();
 
   // Server/domain data — sourced from React Query (the data layer).
-  // Only objectTypes is consumed here (header global search). Each page now
-  // pulls its own data via the useOntology hooks.
+  // Only objectTypes is consumed here (header global search over the DRKN
+  // legacy model, via the Batch 1 HTTP adapter). Each page pulls its own data.
   const {data: objectTypes = []} = useObjectTypes();
 
   // Selected object + edit lock for the DKN views, which still receive these
@@ -62,24 +109,17 @@ export default function App() {
   const selectedObjectId = useUiStore((s) => s.selectedObjectId);
   const setSelectedObjectId = useUiStore((s) => s.setSelectedObjectId);
 
-  // Sidebar submenu expand/collapse is purely presentational → local state.
-  const [ontologySubmenuOpen, setOntologySubmenuOpen] = useState<boolean>(true);
-
-  // Activate the draft changeset when the Create-ChangeSet drawer is submitted.
-  const activateDraftChangeSetMutation = useActivateDraftChangeSet();
-
   // Handle routing navigate with optional preselected targets (used by the
   // header search results, the sidebar nav, and the three Knowledge Network
-  // pages which still receive onNavigate).
+  // pages which still receive onNavigate). 本体域视图直接进入规范路径，
+  // 不再切换遗留 store 视图。
   const handleNavigate = (view: string, targetId?: string) => {
+    const ontologyTarget = ONTOLOGY_VIEW_TARGETS[view];
+    if (ontologyTarget) {
+      navigate(targetId ? `${ontologyTarget}?selected=${encodeURIComponent(targetId)}` : ontologyTarget);
+      return;
+    }
     navigateStore(view, targetId);
-
-  };
-
-  // Turn on editing changeset (Unlock mode): promote draft CS + unlock UI.
-  const submitCreateChangeSet = () => {
-    activateDraftChangeSetMutation.mutate();
-    setLocked(false);
   };
 
   // Global search filtering
@@ -91,20 +131,10 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-blue-100 selection:text-blue-800" id="drkn-app">
-      
-      {/* Conditional Router views rendering */}
-      {activeView === 'create_model' && (
-        <div className="fixed inset-0 z-50 bg-[#f8fafc]">
-          <CreateModelWizard 
-            onCancel={() => setActiveView('ontology_models')}
-            onComplete={() => setActiveView('overview')}
-          />
-        </div>
-      )}
 
       {/* 1. 全局顶部导航条 / 控制台 */}
       <header className="bg-white border-b border-slate-200/60 h-14 shrink-0 flex items-center justify-between px-6 sticky top-0 z-40 shadow-xs">
-        
+
         {/* 左侧：系统标识与快照版本 */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -119,19 +149,15 @@ export default function App() {
 
           <div className="h-5 w-px bg-slate-200"></div>
 
-          {/* 变更集草案常驻指示器 */}
+          {/* 演示数据标识（Mock 服务，非生产连接） */}
           <div className="flex items-center gap-1.5 text-xs">
-            {isLocked ? (
-              <span className="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 text-slate-500 px-2.5 py-1 rounded-full font-semibold">
-                <Lock className="h-3 w-3" />
-                模型锁定 (发布中)
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-150 text-blue-700 px-2.5 py-1 rounded-full font-bold animate-none shadow-xs">
-                <Unlock className="h-3.5 w-3.5 text-blue-500" />
-                编辑沙箱中 | CS-2026-012
-              </span>
-            )}
+            <span
+              className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 px-2.5 py-1 rounded-full font-bold"
+              title="数据来自 ontology-delivery 契约 Mock 服务（meta.dataMode=MOCK），未连接任何生产服务"
+            >
+              <CircleDot className="h-3 w-3" />
+              演示数据 · Mock API
+            </span>
           </div>
         </div>
 
@@ -202,10 +228,9 @@ export default function App() {
       <div className="flex-1 flex overflow-hidden relative">
         
         {/* 左侧垂直导航菜单 */}
-        {activeView !== 'create_model' && (
         <aside className="w-[200px] shrink-0 bg-slate-50 border-r border-slate-200 p-4 space-y-6 flex flex-col justify-between overflow-y-auto">
           <div className="space-y-6">
-            
+
             {/* Logo */}
             <div className="flex items-center gap-2 pl-2">
               <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
@@ -219,32 +244,31 @@ export default function App() {
               {[
                 { id: 'desktop', label: 'AI工作台', icon: <Cpu className="w-4 h-4" /> },
                 { id: 'tasks', label: '任务中心', icon: <ClipboardList className="w-4 h-4" /> },
-                { id: 'semantics', label: '语义治理', icon: <Network className="w-4 h-4" /> },
-                { 
-                  id: 'knowledge_network_group', 
-                  label: '知识网络', 
+                {
+                  id: 'semantics_group',
+                  label: '业务语义',
+                  icon: <Network className="w-4 h-4" />,
+                  children: [
+                    // Batch 2 起本体域入口：业务语义 → 业务本体（规范路径 /business-semantics/ontologies）。
+                    { id: 'ontology_models', label: '业务本体' },
+                  ],
+                },
+                {
+                  id: 'knowledge_network_group',
+                  label: '知识网络',
                   icon: <GitBranch className="w-4 h-4" />,
                   children: [
                     { id: 'knowledge_network', label: '网络总览' },
-                    { 
-                      id: 'ontology_group', 
-                      label: '本体管理',
-                      subChildren: [
-                        { id: 'drkn_models', label: 'DRKN模型' },
-                        { id: 'dkn_models', label: 'DKN模型' }
-                      ]
-                    },
-                    { id: 'knowledge_network_assets', label: '网络资产' }
-                  ]
+                    { id: 'knowledge_network_assets', label: '网络资产' },
+                  ],
                 },
                 { id: 'admin', label: '管理中心', icon: <Settings className="w-4 h-4" /> }
               ].map((item) => {
-                const isGroupActive = item.id === 'knowledge_network_group' && [
-                  'knowledge_network', 'knowledge_network_assets', 'ontology_models', 'drkn_models', 'dkn_models', 
-                  'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'
-                ].includes(activeView);
-                const isActive = activeView === item.id || isGroupActive;
-                
+                const isGroupActive = item.id === 'knowledge_network_group'
+                  ? ['knowledge_network', 'knowledge_network_assets', 'knowledge_network_explorer'].includes(activeView)
+                  : item.id === 'semantics_group';
+                const isActive = activeView === item.id || (item.id === 'knowledge_network_group' && isGroupActive);
+
                 return (
                   <div key={item.id} className="space-y-1">
                     <button
@@ -269,60 +293,12 @@ export default function App() {
                         <ChevronDown className={`w-4 h-4 transition-transform ${isGroupActive ? 'rotate-180' : ''}`} />
                       )}
                     </button>
-                    
-                    {/* Submenu rendering */}
-                    {item.children && isGroupActive && (
+
+                    {/* Submenu rendering：业务语义组的“业务本体”常驻展示（本体域为独立路由空间） */}
+                    {item.children && (item.id === 'semantics_group' || isGroupActive) && (
                       <div className="pl-4 pr-2 pt-1 pb-2 space-y-1">
                         {item.children.map(child => {
-                          if (child.subChildren) {
-                            const isSubActive = child.subChildren.some(sub => {
-                              if (sub.id === 'drkn_models') {
-                                return ['drkn_models', 'ontology_models', 'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'].includes(activeView);
-                              }
-                              return activeView === sub.id;
-                            });
-                            return (
-                              <div key={child.id} className="space-y-1">
-                                <button
-                                  onClick={() => setOntologySubmenuOpen(!ontologySubmenuOpen)}
-                                  className={`w-full px-3 py-1.5 rounded-lg flex items-center justify-between text-[13px] font-medium transition-colors cursor-pointer ${
-                                    isSubActive ? 'text-blue-700 font-bold bg-blue-50/40' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-850'
-                                  }`}
-                                >
-                                  <div className="flex items-center">
-                                    <div className="w-1.5 h-1.5 rounded-full mr-2.5 opacity-50 bg-current"></div>
-                                    <span>{child.label}</span>
-                                  </div>
-                                  <ChevronDown className={`w-3 h-3 transition-transform ${ontologySubmenuOpen ? 'rotate-180' : ''}`} />
-                                </button>
-                                {ontologySubmenuOpen && (
-                                  <div className="pl-3.5 space-y-1 border-l border-slate-205 ml-3.5 pt-0.5 pb-0.5">
-                                    {child.subChildren.map(sub => {
-                                      let isSubChildActive = activeView === sub.id;
-                                      if (sub.id === 'drkn_models' && ['drkn_models', 'ontology_models', 'overview', 'object_model', 'relation_model', 'capability_binding', 'action_model', 'workflow_orchestration', 'change_release'].includes(activeView)) {
-                                        isSubChildActive = true;
-                                      }
-                                      return (
-                                        <button
-                                          key={sub.id}
-                                          onClick={() => handleNavigate(sub.id)}
-                                          className={`w-full px-2.5 py-1 rounded-md flex items-center text-[12.5px] font-medium transition-colors cursor-pointer ${
-                                            isSubChildActive
-                                              ? 'bg-blue-50 text-blue-700 font-extrabold'
-                                              : 'text-slate-500 hover:bg-slate-100 hover:text-slate-800'
-                                          }`}
-                                        >
-                                          <span className="truncate">{sub.label}</span>
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          }
-
-                          let isChildActive = activeView === child.id;
+                          const isChildActive = activeView === child.id;
                           return (
                             <button
                               key={child.id}
@@ -363,11 +339,10 @@ export default function App() {
             </button>
           </div>
         </aside>
-        )}
 
-        {/* 右侧核心功能页面主视口 */}
+        {/* 右侧核心功能页面主视口（本体域页面已迁移至 /business-semantics 空间） */}
         <main className="flex-1 p-6 overflow-y-auto scrollbar-thin">
-          
+
           {/* Conditional Router views rendering */}
           {activeView === 'knowledge_network' && (
             <KnowledgeNetworkOverview
@@ -387,28 +362,12 @@ export default function App() {
              />
           )}
 
-          {(activeView === 'drkn_models' || activeView === 'ontology_models') && (
-            <OntologyModelsList modelType="DRKN" />
-          )}
-
-          {activeView === 'dkn_models' && (
-            <OntologyModelsList modelType="DKN" />
-          )}
-
-          {activeView === 'overview' && (
-            <Overview />
-          )}
-
           {activeView === 'dkn_overview' && (
             <DknOverview
               onNavigate={handleNavigate}
               modelId={selectedObjectId}
               isLocked={isLocked}
             />
-          )}
-
-          {activeView === 'object_model' && (
-            <ObjectModel />
           )}
 
           {activeView === 'dkn_object_model' && (
@@ -420,35 +379,9 @@ export default function App() {
             />
           )}
 
-          {activeView === 'relation_model' && (
-            <RelationModel />
-          )}
-
-          {activeView === 'capability_binding' && (
-            <CapabilityBinding />
-          )}
-
-          {activeView === 'action_model' && (
-            <ActionModel />
-          )}
-
-          {activeView === 'workflow_orchestration' && (
-            <WorkflowOrchestrator />
-          )}
-
-          {activeView === 'change_release' && (
-            <ChangeRelease />
-          )}
-
         </main>
 
       </div>
-
-      <CreateChangeSetDrawer 
-        isOpen={isCreateDrawerOpen} 
-        onClose={() => setCreateDrawerOpen(false)} 
-        onSubmit={submitCreateChangeSet} 
-      />
 
     </div>
   );

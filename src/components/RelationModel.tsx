@@ -12,6 +12,13 @@ import {useUiStore} from '../store/uiStore';
 import {PageHeader} from './ui/PageHeader';
 import {DknPageHeader} from './ui/DknPageHeader';
 
+/**
+ * Batch 2 只读声明：关系与约束的编辑保存将在 Batch 3 接入 ChangeSet
+ * operations（服务端持有精确双端基数/分类，旧 LinkType 形状无法无损往返）。
+ * 在此之前所有写入口（编辑 / 保存 / 新建）禁用，不产生任何写入。
+ */
+const BATCH3_READONLY_NOTE = '关系编辑将在 Batch 3 接入 ChangeSet operations，当前只读';
+
 export default function RelationModel() {
   const {data: linkTypes = []} = useLinkTypes();
   const replaceLinkTypesMutation = useReplaceLinkTypes();
@@ -253,9 +260,11 @@ export default function RelationModel() {
 
                 <button
                   onClick={() => setIsDrawerOpen(true)}
-                  className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
+                  disabled
+                  title={BATCH3_READONLY_NOTE}
+                  className="px-4 py-1.5 text-xs font-black text-white bg-slate-300 rounded-lg shadow-xs flex items-center gap-1 cursor-not-allowed"
                 >
-                  创建关系类型 <ChevronDown className="w-3.5 h-3.5" />
+                  创建关系类型（Batch 3 接线） <ChevronDown className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -301,9 +310,11 @@ export default function RelationModel() {
           <div className="flex items-center gap-2 pr-2">
             <button
               onClick={() => setIsDrawerOpen(true)}
-              className="px-4 py-1.5 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs hover:shadow-blue-500/10 flex items-center gap-1 cursor-pointer transition-all"
+              disabled
+              title={BATCH3_READONLY_NOTE}
+              className="px-4 py-1.5 text-xs font-black text-white bg-slate-300 rounded-lg shadow-xs flex items-center gap-1 cursor-not-allowed"
             >
-              创建关系类型 <ChevronDown className="w-3.5 h-3.5" />
+              创建关系类型（Batch 3 接线） <ChevronDown className="w-3.5 h-3.5" />
             </button>
             <div className="hidden sm:flex items-center gap-1.5">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -838,11 +849,13 @@ export default function RelationModel() {
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                <h3 className="text-base font-extrabold text-slate-900">{isEditingDetails ? "编辑关系" : "关系详情"}</h3>
                {!isEditingDetails && (
-                 <button 
+                 <button
                    onClick={startEditing}
-                   className="flex items-center gap-1.5 text-[12px] font-bold text-blue-600 bg-blue-50/60 px-2.5 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100/80 transition-colors cursor-pointer"
+                   disabled
+                   title={BATCH3_READONLY_NOTE}
+                   className="flex items-center gap-1.5 text-[12px] font-bold text-slate-400 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100 cursor-not-allowed"
                  >
-                   <Edit className="w-3.5 h-3.5" /> 编辑
+                   <Edit className="w-3.5 h-3.5" /> 编辑（Batch 3 接线，当前只读）
                  </button>
                )}
             </div>
@@ -962,11 +975,13 @@ export default function RelationModel() {
                   >
                     取消
                   </button>
-                  <button 
+                  <button
                     onClick={handleSaveDetails}
-                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-bold text-[11.5px] cursor-pointer transition-all shadow-xs"
+                    disabled
+                    title={BATCH3_READONLY_NOTE}
+                    className="px-3.5 py-1.5 bg-slate-300 text-white rounded-md font-bold text-[11.5px] cursor-not-allowed shadow-xs"
                   >
-                    保存修改
+                    保存修改（Batch 3 接线，当前只读）
                   </button>
                 </div>
               </div>

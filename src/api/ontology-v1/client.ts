@@ -10,16 +10,17 @@
  */
 
 import {createOntologyClient} from './ontologyClient';
+import {getDemoToken} from '../../ontology/identity';
 
 const baseUrl =
   (typeof process !== 'undefined' && process.env?.ONTOLOGY_API_BASE) || '';
 
-/** 演示身份：具有读/写/发布/模拟权限。Batch 2 接入 ModelContext 后由会话层提供。 */
-export const DEMO_TOKEN = 'demo-maintainer';
+/** 演示工作区。生产接入需替换为真实租户上下文。 */
 export const DEMO_WORKSPACE_ID = 'ws-demo';
 
 export const ontologyV1 = createOntologyClient({
   baseUrl,
-  getToken: () => DEMO_TOKEN,
+  // 演示身份由会话层（src/ontology/identity.ts）提供，可在界面中切换 maintainer/viewer。
+  getToken: () => getDemoToken(),
   getWorkspaceId: () => DEMO_WORKSPACE_ID,
 });

@@ -1,0 +1,208 @@
+/**
+ * Batch 2 页面专用的 React Query hooks（ontology-v1 契约空间）。
+ *
+ * 与旧 hooks/useOntology.ts（Batch 1 适配层，服务遗留页面）区分：
+ * 这里直接消费 generated types，不做旧形状投影；查询键全部经
+ * ontologyKeys 的 CacheScope（workspaceId + actorId + modelId）隔离，
+ * 切换演示身份或模型不会串缓存。所有读写都走真实 HTTP（Mock 服务）。
+ */
+import {useEffect} from 'react';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {DEMO_WORKSPACE_ID, ontologyV1} from '../api/ontology-v1/client';
+import {ontologyKeys} from '../api/ontology-v1/queryKeys';
+import {newIdempotencyKey, OntologyApiError} from '../api/ontology-v1/ontologyClient';
+import type {
+  ChangeSet,
+  CreateModelRequest,
+  CreateModelResult,
+  EditOperation,
+  Graph,
+  ModelSummary,
+  ResolvedView,
+  Session,
+  VersionRecord,
+  AuditEvent,
+  ViewReference,
+} from '../api/ontology-v1/types.generated';
+import {useDemoIdentity} from './identity';
+
+export type ActorScope = {workspaceId: string; actorId: string};
+
+/** actorId 来自演示身份 store；身份切换会改变查询键，自然触发重新请求。 */
+export function useActorScope(): ActorScope {
+  const actor = useDemoIdentity((s) => s.actor);
+  return {workspaceId: DEMO_WORKSPACE_ID, actorId: actor};
+}
+
+/**
+ * 身份切换时使整个 ontology-v1 缓存失效（capabilities、视图、草稿等
+ * 都随身份变化），挂在 OntologyLayout / 列表页顶层各一次。
+ */
+export function useInvalidateOnActorChange(): void {
+  const actor = useDemoIdentity((s) => s.actor);
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    void queryClient.invalidateQueries({queryKey: ['ontology-v1']});
+  }, [actor, queryClient]);
+}
+
+// ---- 读（select 投影为契约 payload，便于消费；etag 走 ResolvedView.etag 字段）----
+
+export function useSession(scope: ActorScope) {
+  return useQuery({
+    queryKey: [...ontologyKeys.root(scope), 'session'],
+    queryFn: ({signal}) => ontologyV1.session(),
+    select: (r) => r.data,
+    staleTime: 60_000,
+  });
+}
+
+export function useModels(scope: ActorScope) {
+  return useQuery({
+    queryKey: [...ontologyKeys.root(scope), 'models'],
+    queryFn: ({signal}) => ontologyV1.listModels({}, signal),
+    select: (r) => r.data,
+  });
+}
+
+export function useModelSummary(scope: ActorScope, modelId: string | undefined) {
+  return useQuery({
+    queryKey: modelId ? ontologyKeys.model({...scope, modelId}) : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.getModel(modelId!, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId),
+  });
+}
+
+export function useResolvedView(scope: ActorScope, modelId: string | undefined, view: ViewReference | undefined) {
+  return useQuery({
+    queryKey: view && modelId
+      ? ontologyKeys.view({...scope, modelId}, view)
+      : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.getView(modelId!, view!, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && view),
+  });
+}
+
+export function useGraph(scope: ActorScope, modelId: string | undefined, view: ViewReference | undefined) {
+  return useQuery({
+    queryKey: view && modelId
+      ? [...ontologyKeys.view({...scope, modelId}, view), 'graph']
+      : ['ontology-v1', 'disabled'],
+    queryFn: ({signal}) => ontologyV1.getGraph(modelId!, view!, signal),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && view),
+  });
+}
+
+export function useChangeSets(scope: ActorScope, modelId: string | undefined) {
+  return useQuery({
+    queryKey: modelId ? [...ontologyKeys.model({...scope, modelId}), 'changesets'] : ['ontology-v1', 'disabled'],
+    queryFn: () => ontologyV1.listChangeSets(modelId!),
+    select: (r) => r.data,
+    enabled: Boolean(modelId),
+  });
+}
+
+export function useVersions(scope: ActorScope, modelId: string | undefined) {
+  return useQuery({
+    queryKey: modelId ? [...ontologyKeys.model({...scope, modelId}), 'versions'] : ['ontology-v1', 'disabled'],
+    queryFn: () => ontologyV1.listVersions(modelId!),
+    select: (r) => r.data,
+    enabled: Boolean(modelId),
+  });
+}
+
+export function useAuditEvents(scope: ActorScope, modelId: string | undefined) {
+  return useQuery({
+    queryKey: modelId ? [...ontologyKeys.model({...scope, modelId}), 'audit'] : ['ontology-v1', 'disabled'],
+    queryFn: () => ontologyV1.audit(modelId!),
+    select: (r) => r.data,
+    enabled: Boolean(modelId),
+  });
+}
+
+// ---- 写（全部携带 Idempotency-Key；operations 另带 If-Match）----
+
+export function useCreateModel(scope: ActorScope) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: CreateModelRequest) => ontologyV1.createModel(body, newIdempotencyKey()),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({queryKey: [...ontologyKeys.root(scope), 'models']});
+    },
+  });
+}
+
+export function useCreateChangeSet(scope: ActorScope, modelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {name: string; reason: string; baseVersionId: string | null; targetVersionId: string}) =>
+      ontologyV1.createChangeSet(modelId, input, newIdempotencyKey()),
+    onSuccess: (result) => {
+      void queryClient.invalidateQueries({queryKey: ontologyKeys.model({...scope, modelId})});
+      void queryClient.invalidateQueries({queryKey: [...ontologyKeys.root(scope), 'models']});
+      void queryClient.setQueryData(ontologyKeys.changeSet({...scope, modelId}, result.data.id), result);
+    },
+  });
+}
+
+/**
+ * 提交 operations 到 OPEN 草稿。If-Match 使用当前 ResolvedView 的 etag
+ * （服务端强校验：修订已被推进时返回 412 REVISION_CONFLICT）。
+ */
+export function useApplyOperations(scope: ActorScope, modelId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {changeSetId: string; operations: EditOperation[]; etag: string}) =>
+      ontologyV1.applyOperations(modelId, input.changeSetId, {operations: input.operations}, input.etag, newIdempotencyKey()),
+    onSuccess: (result, variables) => {
+      // 服务端返回递增后的修订；更新草稿缓存并使该模型视图树失效。
+      void queryClient.setQueryData(ontologyKeys.changeSet({...scope, modelId}, variables.changeSetId), result);
+      void queryClient.invalidateQueries({queryKey: ontologyKeys.model({...scope, modelId})});
+    },
+  });
+}
+
+// ---- 错误呈现（真实 HTTP 错误，不吞掉、不改写为假成功）----
+
+export function isApiError(e: unknown): e is OntologyApiError {
+  return e instanceof OntologyApiError;
+}
+
+export function apiErrorMessage(e: unknown): string {
+  if (isApiError(e)) {
+    switch (e.status) {
+      case 401:
+      case 403:
+        return `当前演示身份没有该操作权限（${e.code}）`;
+      case 404:
+        return `资源不存在（${e.code}）：${e.message}`;
+      case 412:
+        return `草稿已被更新（${e.code}），请重新加载后再保存`;
+      case 422: {
+        const errors = (e.details?.errors as Array<{path?: string; message?: string}> | undefined) ?? [];
+        const first = errors[0];
+        return first ? `请求不符合合同（${first.path ?? ''} ${first.message ?? ''}）` : `请求不符合合同（${e.message}）`;
+      }
+      default:
+        return `${e.message}（${e.code}）`;
+    }
+  }
+  if (e instanceof Error && e.message === 'Failed to fetch') {
+    return '无法连接 Mock API 服务（请确认 npm run dev:mock-api 已在 4310 端口启动）';
+  }
+  return e instanceof Error ? e.message : '未知错误';
+}
+
+/** 412 冲突时服务端会带回最新修订号，用于“载入最新修订”引导。 */
+export function conflictRevision(e: unknown): number | null {
+  if (isApiError(e) && e.status === 412) {
+    const rev = e.details?.currentRevision;
+    return typeof rev === 'number' ? rev : null;
+  }
+  return null;
+}
+
+export type {ChangeSet, CreateModelResult, ModelSummary, ResolvedView, Session, VersionRecord, AuditEvent, Graph};

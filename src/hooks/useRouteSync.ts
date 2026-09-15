@@ -2,6 +2,7 @@ import {useEffect, useRef} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useUiStore} from '../store/uiStore';
 import {locationToView, viewToLocation} from '../lib/routeMap';
+import {isOntologyUrl} from '../api/ontology-v1/routeContext';
 
 /**
  * Bidirectional bridge between the URL (react-router) and the UI store.
@@ -18,6 +19,10 @@ import {locationToView, viewToLocation} from '../lib/routeMap';
  *
  * On first mount the URL wins (deep link / refresh). The store->URL effect is
  * suppressed until it has observed the initial location.
+ *
+ * Batch 2 起，/business-semantics/* 本体路由由 ModelContext（URL 即领域上下文）
+ * 管理，本桥接在两个方向上对其保持惰性：URL→store 不回写、store→URL 不推跳，
+ * 避免遗留 store 状态把用户带离本体空间。
  */
 export function useRouteSync() {
   const navigate = useNavigate();
@@ -35,6 +40,11 @@ export function useRouteSync() {
 
   // URL -> store (runs first per mount; effects run in declaration order)
   useEffect(() => {
+    // 本体路由不回写遗留 store（其 activeView 与本体 URL 无对应关系）。
+    if (isOntologyUrl(location.pathname)) {
+      lastPushed.current = location.pathname + location.search;
+      return;
+    }
     if (applyingExternal.current) {
       applyingExternal.current = false;
       return;
@@ -61,6 +71,11 @@ export function useRouteSync() {
     if (!initialized.current) {
       initialized.current = true;
       // Still record what the URL currently is so we don't echo it.
+      lastPushed.current = location.pathname + location.search;
+      return;
+    }
+    // 位于本体空间时不把遗留 store 视图推到 URL。
+    if (isOntologyUrl(location.pathname)) {
       lastPushed.current = location.pathname + location.search;
       return;
     }
