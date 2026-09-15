@@ -17,7 +17,8 @@ export default defineConfig({
   workers: 1,
   reporter: [['list']],
   use: {
-    baseURL: 'http://127.0.0.1:3000',
+    // e2e 编排脚本（scripts/e2e-ontology.mjs）会注入本次 vite 端口。
+    baseURL: process.env.E2E_BASE_URL || 'http://127.0.0.1:3000',
     viewport: {width: 1920, height: 1080},
     locale: 'zh-CN',
     trace: 'off',

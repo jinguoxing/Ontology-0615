@@ -15,15 +15,19 @@ import KnowledgeNetworkExplorer from './components/KnowledgeNetworkExplorer';
 // 规范本体路径（Batch 2）：/business-semantics/ontologies/...
 import {isOntologyUrl, ONTOLOGY_LIST_PATH} from './api/ontology-v1/routeContext';
 
-// Semovix 产品外壳（Batch 3.5）：本体列表 / 详情不再是独立子应用
-import {SemovixShell, type SemovixTopNav} from './ontology/SemovixShell';
+// Semovix 产品外壳（Batch 3.5 建立，Batch 3.6 对齐 IA）：
+// 本体列表 / 详情不再是独立子应用，未实现模块走规划路由的诚实占位。
+import {SemovixShell, SEMOVIX_TOP_NAV, SEMOVIX_NAV_BY_ID, SEMANTICS_SUB_BY_ID, type SemovixTopNav} from './ontology/SemovixShell';
+import {OutOfScopePage} from './ontology/OutOfScope';
 
 /**
  * 旧路由 → 规范本体路径。本体域入口统一为“业务语义 → 业务本体”
  * （/business-semantics/ontologies）。带 ?id= 的三个详情路由把 id 折叠为
- * selected 参数。仅做重定向，不渲染遗留本体页面。
+ * selected 参数。仅做重定向，不渲染遗留本体页面。应用根路径进入演示
+ * 聚焦的业务本体列表。
  */
 const LEGACY_ONTOLOGY_REDIRECTS: Record<string, string> = {
+  '/': ONTOLOGY_LIST_PATH,
   '/ontology': ONTOLOGY_LIST_PATH,
   '/ontology/drkn': ONTOLOGY_LIST_PATH,
   '/ontology/dkn': ONTOLOGY_LIST_PATH,
@@ -44,13 +48,26 @@ const ONTOLOGY_VIEW_TARGETS: Record<string, string> = {
   change_release: '/business-semantics/ontologies/drkn-core/release',
 };
 
-/** 遗留 store 视图 → Semovix 一级菜单。 */
-function legacyTopOf(activeView: string): SemovixTopNav {
-  if (activeView.startsWith('knowledge_network')) return 'knowledge';
-  if (activeView.startsWith('dkn_')) return 'semantics';
-  if (activeView === 'tasks') return 'tasks';
-  if (activeView === 'admin') return 'admin';
-  return 'desktop';
+/**
+ * 一级模块的规划路由（无子菜单的模块）→ 一级菜单 id。
+ * 这些模块当前仓库未实现：呈现“当前演示范围外”，不切换到遗留页面。
+ */
+const MODULE_PAGE_BY_PATH: Record<string, SemovixTopNav> = Object.fromEntries(
+  SEMOVIX_TOP_NAV
+    .filter((item) => !item.sub)
+    .map((item) => [item.path, item.id]),
+);
+
+/** 已在仓库实现的业务语义子能力（左侧子菜单可真实进入）。 */
+const IMPLEMENTED_SEMANTICS_SUBS = new Set(['ontology_models', 'knowledge_network']);
+
+/** 业务语义左侧子菜单中未实现项的规划路由 → 子菜单项。 */
+function semanticsScopeSubOf(pathname: string) {
+  if (pathname !== '/business-semantics' && !pathname.startsWith('/business-semantics/')) return undefined;
+  const sub = pathname === '/business-semantics'
+    ? SEMANTICS_SUB_BY_ID.semantics_overview
+    : Object.values(SEMANTICS_SUB_BY_ID).find((s) => s.path === pathname);
+  return sub && !IMPLEMENTED_SEMANTICS_SUBS.has(sub.id) ? sub : undefined;
 }
 
 export default function App() {
@@ -62,7 +79,7 @@ export default function App() {
   // 对 /business-semantics/* 本体路径，该桥接保持惰性（URL 是唯一事实来源）。
   useRouteSync();
 
-  // 旧本体路由重定向到规范路径（保留 ?id= → selected）。
+  // 旧本体路由 / 应用根路径重定向到规范路径（保留 ?id= → selected）。
   useEffect(() => {
     const target = LEGACY_ONTOLOGY_REDIRECTS[location.pathname];
     if (!target) return;
@@ -83,11 +100,34 @@ export default function App() {
     );
   }
 
+  // 未实现的一级模块：规划路由 + 诚实占位（不伪造页面，不切换遗留视图）。
+  const moduleTop = MODULE_PAGE_BY_PATH[location.pathname];
+  if (moduleTop) {
+    return (
+      <SemovixShell top={moduleTop}>
+        <OutOfScopePage moduleLabel={SEMOVIX_NAV_BY_ID[moduleTop].label}/>
+      </SemovixShell>
+    );
+  }
+
+  // 业务语义下未实现的子能力（概览 / 业务域 / 业务术语 / 指标）：
+  // 同样走规划路由 + 诚实占位，左侧子菜单保持该项高亮。
+  const scopeSub = semanticsScopeSubOf(location.pathname);
+  if (scopeSub) {
+    return (
+      <SemovixShell top="semantics" activeSub={scopeSub.id}>
+        <OutOfScopePage moduleLabel={scopeSub.label} groupLabel="业务语义"/>
+      </SemovixShell>
+    );
+  }
+
+  // 其余路径：知识网络（业务语义的内部能力）与遗留 DKN 页面，
+  // 同样运行在 Semovix 外壳内（一级“业务语义”高亮）。
   return <LegacyWorkbench/>;
 }
 
 /**
- * 遗留工作台（知识网络 / DKN 页面），同样运行在 Semovix 外壳内。
+ * 遗留工作台（知识网络 / DKN 页面），运行在 Semovix 外壳的业务语义域内。
  * 本体域（列表、总览、对象类型等）已迁移至 /business-semantics 空间，
  * 这里不再渲染任何本体页面，也不再渲染 DRKN ON-DEV CENTER、AI · Insight
  * 或字母 D Logo。
@@ -116,8 +156,12 @@ function LegacyWorkbench() {
     navigateStore(view, targetId);
   };
 
+  // 遗留视图全部归属“业务语义”：知识网络 → 左侧“知识网络”高亮；
+  // DKN 页面 → 左侧“业务本体”高亮。
+  const legacySub = activeView.startsWith('knowledge_network') ? 'knowledge_network' : 'ontology_models';
+
   return (
-    <SemovixShell top={legacyTopOf(activeView)} activeSub={activeView}>
+    <SemovixShell top="semantics" activeSub={legacySub}>
       <div className="p-6">
 
         {activeView === 'knowledge_network' && (

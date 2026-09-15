@@ -69,7 +69,7 @@ export default function OntologyModelsList() {
   const submitCreate = () => {
     setFormError(null);
     if (!ID_PATTERN.test(form.id)) {
-      setFormError('模型 ID 需匹配 ^[A-Za-z][A-Za-z0-9_.:-]*$（字母开头）');
+      setFormError('模型 ID 需以字母开头，可含数字与 _ . : -');
       return;
     }
     if (!form.name.trim()) {
@@ -77,7 +77,7 @@ export default function OntologyModelsList() {
       return;
     }
     if (!form.ownerRef.trim()) {
-      setFormError('请填写责任方（ownerRef）');
+      setFormError('请填写责任归属');
       return;
     }
     createModel.mutate(
@@ -107,13 +107,13 @@ export default function OntologyModelsList() {
               业务本体
             </h1>
             <p className="text-[13px] text-slate-500 mt-1">
-              系统模型（数据治理域）与各业务域本体的当前版本与草稿，全部读取自 GET /models。
+              系统模型（数据治理域）与各业务域本体的当前版本与草稿。
             </p>
           </div>
           <button
             onClick={() => { setCreateOpen(true); setFormError(null); }}
             disabled={!canEdit}
-            title={canEdit ? 'POST /models（profile=BUSINESS）' : '当前演示身份仅 ontology.read，无创建权限'}
+            title={canEdit ? '创建业务本体并获得初始草稿' : '当前演示身份为只读，无创建权限'}
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-lg ${
               canEdit
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -121,7 +121,7 @@ export default function OntologyModelsList() {
             }`}
           >
             <Plus className="h-3.5 w-3.5"/>
-            新建本体{!canEdit && '（需 ontology.edit）'}
+            新建本体{!canEdit && '（需编辑权限）'}
           </button>
         </div>
 
@@ -129,7 +129,7 @@ export default function OntologyModelsList() {
         {modelsQuery.isLoading && (
           <div className="flex items-center justify-center gap-2 py-16 text-slate-500 text-sm">
             <Loader2 className="h-4 w-4 animate-spin"/>
-            正在读取模型列表（GET /models）…
+            正在读取模型列表…
           </div>
         )}
         {modelsQuery.isError && (
@@ -155,14 +155,14 @@ export default function OntologyModelsList() {
               description="数据治理域内置模型，由平台团队维护，不可新建或删除。"
               models={systemModels}
               canEdit={canEdit}
-              emptyHint="Mock 服务未返回系统模型。"
+              emptyHint="演示服务未返回系统模型。"
             />
             <ModelSection
               title="业务本体"
-              description="业务域自建本体（profile=BUSINESS），从“新建本体”创建并获得初始草稿。"
+              description="业务域自建本体，从“新建本体”创建并获得初始草稿。"
               models={tenantModels}
               canEdit={canEdit}
-              emptyHint="暂无业务本体。点击右上角“新建本体”创建第一个（POST /models，真实写入 Mock 服务）。"
+              emptyHint="暂无业务本体。点击右上角“新建本体”创建第一个业务本体。"
             />
           </>
         )}
@@ -178,7 +178,7 @@ export default function OntologyModelsList() {
                 </button>
               </div>
               <p className="text-[11.5px] text-slate-500">
-                POST /models（profile 固定 BUSINESS）。服务端会创建初始 OPEN 草稿，成功后直接进入该草稿。
+                服务端会为新本体创建初始草稿，创建成功后直接进入该草稿。
               </p>
               <div className="space-y-3">
                 <Field label="模型 ID" hint="字母开头，可含数字与 _ . : -">
@@ -197,12 +197,12 @@ export default function OntologyModelsList() {
                     className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </Field>
-                <Field label="责任方 ownerRef">
+                <Field label="责任归属">
                   <input
                     value={form.ownerRef}
                     onChange={(e) => setForm((f) => ({...f, ownerRef: e.target.value}))}
                     placeholder="例如 marketing-team"
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono"
+                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </Field>
               </div>
@@ -346,12 +346,7 @@ function ModelCard({model, canEdit}: {model: ModelSummary; canEdit: boolean}) {
             <span className="text-[10.5px] font-mono text-slate-400">{model.id}</span>
           </div>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            责任方 <span className="font-mono">{model.ownerRef}</span>
-            {model.currentVersionHash && (
-              <span className="ml-2 text-slate-400 font-mono" title={model.currentVersionHash}>
-                hash {model.currentVersionHash.slice(0, 8)}…
-              </span>
-            )}
+            责任归属 <span className="font-semibold text-slate-600">{model.ownerRef}</span>
           </p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
@@ -405,7 +400,7 @@ function ModelCard({model, canEdit}: {model: ModelSummary; canEdit: boolean}) {
           <button
             onClick={() => { setChangeFormOpen((v) => !v); setChangeError(null); }}
             disabled={!hasVersion}
-            title={hasVersion ? 'POST /models/:id/changesets' : '新模型请直接在初始草稿上编辑'}
+            title={hasVersion ? '基于当前正式版本创建变更草稿' : '新模型请直接在初始草稿上编辑'}
             className={`px-3 py-1.5 text-[11.5px] font-bold rounded-lg ${
               hasVersion
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -415,8 +410,8 @@ function ModelCard({model, canEdit}: {model: ModelSummary; canEdit: boolean}) {
             创建变更
           </button>
         ) : (
-          <span className="text-[10.5px] text-slate-400" title="当前演示身份仅 ontology.read">
-            创建变更（需 ontology.edit）
+          <span className="text-[10.5px] text-slate-400" title="当前演示身份为只读">
+            创建变更（需编辑权限）
           </span>
         )}
       </div>

@@ -47,8 +47,8 @@ const TAB_LABELS: Record<OntologyTab, string> = {
   'actions': '行动契约',
   'implementations': '实现绑定',
   'workflows': '流程关联',
-  'validation': '校验',
-  'release': '发布',
+  'validation': '校验与影响',
+  'release': '版本与发布',
 };
 
 const PROFILE_LABELS: Record<string, string> = {
@@ -74,8 +74,7 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
       <div className="py-24 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-slate-500">
           <Loader2 className="h-6 w-6 animate-spin text-blue-500"/>
-          <p className="text-sm font-medium">正在解析模型视图（{modelId}）…</p>
-          <p className="text-xs text-slate-400">读取 GET /models/:id 与 GET /models/:id/view</p>
+          <p className="text-sm font-medium">正在加载模型（{modelId}）…</p>
         </div>
       </div>
     );
@@ -131,7 +130,7 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
                 <span className="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
                   {ORIGIN_LABELS[model.origin] ?? model.origin}
                 </span>
-                <span className="text-[11px] text-slate-400">责任方 <span className="font-mono">{model.ownerRef}</span></span>
+                <span className="text-[11px] text-slate-400">责任归属 <span className="font-semibold text-slate-500">{model.ownerRef}</span></span>
               </div>
             )}
           </div>
@@ -139,7 +138,7 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
             onClick={() => setTechOpen(true)}
             data-testid="technical-details"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11.5px] font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-slate-800 shrink-0"
-            title="contentHash、ETag、API Path、capabilities、transport 与 Registry 原始值"
+            title="查看当前页面与视图的工程标识（接口、内容校验值与登记原始值）"
           >
             <Terminal className="h-3.5 w-3.5 text-slate-400"/>技术详情
           </button>
@@ -177,17 +176,15 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
         {tab === 'validation' && (
           <DeferredTab
             ctx={ctx}
-            batch="Batch 4"
             title="校验与影响分析"
-            description="校验将走 POST validation-runs → 202 → 轮询 AsyncJob 的真实任务（Batch 4 新增 OntologyValidation 页面）。"
+            description="校验将以异步任务方式运行（提交校验运行并等待任务完成），并在通过后给出变更影响分析。"
           />
         )}
         {tab === 'release' && (
           <DeferredTab
             ctx={ctx}
-            batch="Batch 4"
-            title="发布"
-            description="发布将基于草稿 diff + 校验/影响任务结果走 POST /publications（Batch 4）；已发布正式版本不可直接编辑。"
+            title="版本与发布"
+            description="发布将基于草稿变更与校验 / 影响分析结果创建新正式版本；已发布正式版本不可直接编辑。"
           />
         )}
       </main>
@@ -243,7 +240,7 @@ function StatusBand({ctx}: {ctx: ModelContextValue}) {
           <BandField label="基线版本" value={csQuery.data?.baseVersionId ?? resolvedView?.versionId ?? '初始草稿（无基线）'}/>
           <BandField label="目标版本" value={csQuery.data?.targetVersionId ?? (csQuery.isLoading ? '…' : '—')} mono/>
           {model?.currentVersionId && (
-            <span className="inline-flex items-center gap-1 text-slate-500" title="草稿修改不影响已发布正式版本；发布（Batch 4）才会产生新版本">
+            <span className="inline-flex items-center gap-1 text-slate-500" title="草稿修改不影响已发布正式版本；正式发布后才会产生新版本">
               <ShieldCheck className="h-3 w-3 text-emerald-500"/>
               正式版本 <span className="font-mono font-semibold">{model.currentVersionId}</span> 未受草稿影响
             </span>
@@ -292,9 +289,8 @@ function BandField({label, value, mono}: {label: string; value: string; mono?: b
 }
 
 /** 未接线 Tab 的诚实占位：展示当前视图真实统计，说明接入批次，不伪造界面。 */
-function DeferredTab({ctx, batch, title, description}: {
+function DeferredTab({ctx, title, description}: {
   ctx: ModelContextValue;
-  batch: string;
   title: string;
   description: string;
 }) {
@@ -318,12 +314,12 @@ function DeferredTab({ctx, batch, title, description}: {
           <Eye className="h-4 w-4 text-slate-400"/>
           <h2 className="text-sm font-bold text-slate-800">{title}</h2>
           <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-            {batch} 接入
+            当前演示范围外
           </span>
         </div>
         <p className="text-[13px] text-slate-600 leading-relaxed">{description}</p>
         <p className="text-[11.5px] text-slate-400">
-          当前视图（contentHash {(ctx.resolvedView?.contentHash ?? '').slice(0, 10)}…）中的真实统计：
+          当前视图中的真实统计：
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
           {stats.map((s) => (
@@ -340,8 +336,7 @@ function DeferredTab({ctx, batch, title, description}: {
         </div>
         {ctx.isDraft && (
           <p className="text-[11.5px] text-slate-400">
-            当前为草稿视图；这些集合的编辑操作（UPSERT / REMOVE）将在 {batch} 通过
-            POST /changesets/{String(ctx.resolvedView?.changeSetId ?? ':id')}/operations 提交。
+            当前为草稿视图；以上集合的编辑仍以草稿修订的方式提交，发布不在本页进行。
           </p>
         )}
       </div>

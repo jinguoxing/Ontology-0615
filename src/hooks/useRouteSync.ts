@@ -3,6 +3,7 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import {useUiStore} from '../store/uiStore';
 import {locationToView, viewToLocation} from '../lib/routeMap';
 import {isOntologyUrl} from '../api/ontology-v1/routeContext';
+import {SEMOVIX_SHELL_OWNED_PATHS} from '../ontology/SemovixShell';
 
 /**
  * Bidirectional bridge between the URL (react-router) and the UI store.
@@ -41,7 +42,9 @@ export function useRouteSync() {
   // URL -> store (runs first per mount; effects run in declaration order)
   useEffect(() => {
     // 本体路由不回写遗留 store（其 activeView 与本体 URL 无对应关系）。
-    if (isOntologyUrl(location.pathname)) {
+    // 外壳原生规划路由（未实现模块 / 业务语义未实现子能力）同样不回写：
+    // 这些路径由 App 直接渲染占位页，折算成遗留视图会把用户带离当前模块。
+    if (isOntologyUrl(location.pathname) || SEMOVIX_SHELL_OWNED_PATHS.has(location.pathname)) {
       lastPushed.current = location.pathname + location.search;
       return;
     }
@@ -74,8 +77,9 @@ export function useRouteSync() {
       lastPushed.current = location.pathname + location.search;
       return;
     }
-    // 位于本体空间时不把遗留 store 视图推到 URL。
-    if (isOntologyUrl(location.pathname)) {
+    // 位于本体空间或外壳规划路由时，不把遗留 store 视图推到 URL
+    // （否则会把 /tasks 等规划路径覆盖成知识网络）。
+    if (isOntologyUrl(location.pathname) || SEMOVIX_SHELL_OWNED_PATHS.has(location.pathname)) {
       lastPushed.current = location.pathname + location.search;
       return;
     }

@@ -66,7 +66,7 @@ export default function Overview() {
           <FileClock className="h-4 w-4 shrink-0 mt-0.5"/>
           <p>
             当前展示<strong>草稿</strong> <span className="font-mono">{resolvedView?.changeSetId}</span> r{resolvedView?.revision}
-            （基于 {resolvedView?.versionId ?? '初始草稿'}）的未发布内容；统计与图谱均来自该草稿视图的 contentHash。
+            （基于 {resolvedView?.versionId ?? '初始草稿'}）的未发布内容；统计与图谱均来自该草稿视图。
             {model?.currentVersionId && (
               <button
                 onClick={() => navigateToView({versionId: model.currentVersionId!})}
@@ -81,7 +81,7 @@ export default function Overview() {
 
       {/* 统计 */}
       <section className="space-y-2.5">
-        <SectionTitle title="模型统计" hint={`来自当前视图 document 计数 · contentHash ${(resolvedView?.contentHash ?? '').slice(0, 10)}…`}/>
+        <SectionTitle title="模型统计" hint="按当前视图统计"/>
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
           {stats.map((s) => (
             <button
@@ -106,7 +106,7 @@ export default function Overview() {
       <section className="space-y-2.5">
         <SectionTitle
           title="模型图谱"
-          hint="GET /models/:id/graph · 与视图同 contentHash · 点击节点进入对象类型"
+          hint="与当前视图一致 · 点击节点进入对象类型"
         />
         <GraphPanel
           graph={graphQuery.data}
@@ -120,7 +120,7 @@ export default function Overview() {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         {/* 发布记录 */}
         <section className="space-y-2.5">
-          <SectionTitle title="发布记录" hint="GET /models/:id/versions"/>
+          <SectionTitle title="发布记录"/>
           <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
             {versionsQuery.isLoading && (
               <p className="flex items-center justify-center gap-2 py-8 text-xs text-slate-400">
@@ -132,7 +132,7 @@ export default function Overview() {
             )}
             {versionsQuery.isSuccess && ((versionsQuery.data?.items ?? []).length === 0 ? (
               <p className="px-4 py-8 text-center text-xs text-slate-400">
-                尚无正式发布版本（新本体发布后出现在这里，发布流程在 Batch 4 接入）。
+                尚无正式发布版本（新本体发布后出现在这里；正式发布流程在当前演示范围外）。
               </p>
             ) : (
               <table className="w-full text-xs">
@@ -140,7 +140,6 @@ export default function Overview() {
                   <tr className="bg-slate-50 text-slate-500 text-[10.5px] uppercase tracking-wide">
                     <th className="text-left px-4 py-2 font-bold">版本</th>
                     <th className="text-left px-4 py-2 font-bold">发布时间</th>
-                    <th className="text-left px-4 py-2 font-bold">contentHash</th>
                     <th className="text-left px-4 py-2 font-bold">说明</th>
                     <th className="px-4 py-2"/>
                   </tr>
@@ -150,7 +149,6 @@ export default function Overview() {
                     <tr key={v.id} className="border-t border-slate-100">
                       <td className="px-4 py-2.5 font-mono font-bold text-emerald-700">{v.id}</td>
                       <td className="px-4 py-2.5 text-slate-500">{formatTime(v.publishedAt)}</td>
-                      <td className="px-4 py-2.5 font-mono text-slate-400" title={v.contentHash}>{v.contentHash.slice(0, 8)}…</td>
                       <td className="px-4 py-2.5 text-slate-600 max-w-[220px] truncate" title={v.releaseNotes}>{v.releaseNotes}</td>
                       <td className="px-4 py-2.5 text-right">
                         <button
@@ -170,7 +168,7 @@ export default function Overview() {
 
         {/* 最近事件 */}
         <section className="space-y-2.5">
-          <SectionTitle title="最近事件" hint="GET /models/:id/audit-events"/>
+          <SectionTitle title="最近事件"/>
           <div className="bg-white border border-slate-200 rounded-2xl p-4">
             {auditQuery.isLoading && (
               <p className="flex items-center justify-center gap-2 py-8 text-xs text-slate-400">
@@ -182,7 +180,7 @@ export default function Overview() {
             )}
             {auditQuery.isSuccess && ((auditQuery.data?.items ?? []).length === 0 ? (
               <p className="py-8 text-center text-xs text-slate-400">
-                暂无审计事件。Mock 服务中，草稿写入 / 发布等操作发生后才会产生事件记录。
+                暂无审计事件。演示服务中，草稿写入 / 发布等操作发生后才会产生事件记录。
               </p>
             ) : (
               <ul className="space-y-2.5">
@@ -212,7 +210,7 @@ function SectionTitle({title, hint}: {title: string; hint?: string}) {
   return (
     <div className="flex items-baseline gap-3 flex-wrap">
       <h2 className="text-sm font-bold text-slate-700">{title}</h2>
-      {hint && <span className="text-[11px] text-slate-400 font-mono">{hint}</span>}
+      {hint && <span className="text-[11px] text-slate-400">{hint}</span>}
     </div>
   );
 }
@@ -245,7 +243,7 @@ function GraphPanel({graph, loading, error, onRetry, onSelect}: {
   if (loading) {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl flex items-center justify-center gap-2 py-16 text-xs text-slate-400">
-        <Loader2 className="h-4 w-4 animate-spin"/>读取图谱（GET /graph）…
+        <Loader2 className="h-4 w-4 animate-spin"/>正在读取图谱…
       </div>
     );
   }

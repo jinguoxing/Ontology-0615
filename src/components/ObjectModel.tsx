@@ -188,7 +188,7 @@ export default function ObjectModel() {
     if (!current || !propModal) return;
     setFormError(null);
     if (!ID_PATTERN.test(propDraft.code)) {
-      setFormError('属性 code 需匹配 ^[A-Za-z][A-Za-z0-9_.:-]*$');
+      setFormError('属性代码需以字母开头，可含数字与 _ . : -');
       return;
     }
     const dup = current.properties.some((p, i) => i !== propModal.index && p.code === propDraft.code);
@@ -224,7 +224,7 @@ export default function ObjectModel() {
   const submitNewType = () => {
     setFormError(null);
     if (!ID_PATTERN.test(typeDraft.id)) {
-      setFormError('类型 ID 需匹配 ^[A-Za-z][A-Za-z0-9_.:-]*$');
+      setFormError('类型 ID 需以字母开头，可含数字与 _ . : -');
       return;
     }
     if (!typeDraft.nameCn.trim()) {
@@ -314,7 +314,7 @@ export default function ObjectModel() {
         <div className="flex items-start gap-2 px-4 py-3 bg-orange-50 border border-orange-300 rounded-xl text-[12.5px] text-orange-800">
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5"/>
           <div className="flex-1">
-            <p className="font-bold">保存冲突（412 REVISION_CONFLICT）</p>
+            <p className="font-bold">保存冲突（草稿已被他人更新）</p>
             <p className="mt-0.5">
               草稿已被更新到 <strong>r{conflict.serverRevision}</strong>，本次提交未生效。
               你的修改仍保留在表单中；可载入最新修订后重试。
@@ -447,7 +447,7 @@ export default function ObjectModel() {
 
       {/* 新增对象类型弹层 */}
       {addTypeOpen && (
-        <Modal title="新增对象类型" onClose={() => setAddTypeOpen(false)} subtitle="UPSERT objectTypes 到当前草稿（POST /changesets/:id/operations）">
+        <Modal title="新增对象类型" onClose={() => setAddTypeOpen(false)} subtitle="新增的类型将写入当前草稿。">
           <div className="space-y-3">
             <InputField label="类型 ID" hint="字母开头，可含数字与 _ . : -">
               <input value={typeDraft.id} onChange={(e) => setTypeDraft((f) => ({...f, id: e.target.value}))}
@@ -461,7 +461,7 @@ export default function ObjectModel() {
               <input value={typeDraft.group} onChange={(e) => setTypeDraft((f) => ({...f, group: e.target.value}))}
                 placeholder="可沿用现有分组或填写新分组" className="input" />
             </InputField>
-            <InputField label="责任服务 ownerService">
+            <InputField label="责任服务">
               <input value={typeDraft.ownerService} onChange={(e) => setTypeDraft((f) => ({...f, ownerService: e.target.value}))}
                 placeholder="platform-team" className="input font-mono" />
             </InputField>
@@ -505,7 +505,7 @@ function EmptyDetail({typesCount, canAdd, onAdd}: {typesCount: number; canAdd: b
         </button>
       )}
       {typesCount === 0 && !canAdd && (
-        <p className="text-xs text-slate-400">当前身份或视图为只读（需草稿视图 + ontology.edit 权限）。</p>
+        <p className="text-xs text-slate-400">当前身份或视图为只读（需草稿视图与编辑权限）。</p>
       )}
     </div>
   );
@@ -551,9 +551,8 @@ function ReadOnlyNote({reason, isDraft, externalContract, hasDraftChangeSet, can
       <div className="flex items-start gap-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[12.5px] text-slate-700">
         <Eye className="h-4 w-4 shrink-0 mt-0.5 text-slate-500"/>
         <p>
-          当前演示身份 <span className="font-mono font-bold">demo-viewer</span> 仅具备
-          <span className="font-mono"> ontology.read</span>；{SERVER_GUARD['viewer-permission']}。
-          {isDraft && ' 可在右上角切换为 demo-maintainer 后编辑。'}
+          当前演示身份 <span className="font-mono font-bold">demo-viewer</span> 仅具备只读权限；{SERVER_GUARD['viewer-permission']}。
+          {isDraft && ' 可在右上角切换为维护人员身份后编辑。'}
         </p>
       </div>
     );
@@ -730,7 +729,7 @@ function TypeDetail(props: {
                           <button
                             onClick={() => props.setRemovingIndex(i)}
                             className="p-1.5 text-slate-400 hover:text-red-600 rounded-md hover:bg-red-50"
-                            title="移除属性（UPSERT 不含该属性）"
+                            title="移除属性（保存后的类型不再包含该属性）"
                           ><Trash2 className="h-3.5 w-3.5"/></button>
                         </span>
                       )}

@@ -28,9 +28,9 @@ export type EditDenyReason =
 
 /** 每个拒绝原因对应的服务端最终防线，用于界面解释。 */
 export const SERVER_GUARD: Record<Exclude<EditDenyReason, 'loading'>, string> = {
-  'published-version': '已发布版本不可直接编辑，写入必须进入 ChangeSet 草稿',
-  'viewer-permission': '写接口返回 403 ACTION_DENIED（服务端拒绝，非仅前端隐藏）',
-  'external-reference': '写接口返回 EXTERNAL_READ_ONLY（权威定义在外部契约包）',
+  'published-version': '已发布版本不可直接编辑，修改需创建变更草稿后进行',
+  'viewer-permission': '服务端同样会拒绝该身份的写入（非仅界面隐藏）',
+  'external-reference': '权威定义在外部契约包，本页不提供编辑',
 };
 
 export interface EditPolicyInput {
@@ -54,8 +54,8 @@ export interface EditPolicyResult {
 
 const ORIGIN_NOTES: Record<ElementOrigin, string> = {
   LOCAL: '本模型自建定义，草稿中可编辑',
-  SYSTEM: '系统模型内置定义，草稿中可编辑（服务端接受 UPSERT）',
-  EXTERNAL: '外部契约包引用，只读（服务端 EXTERNAL_READ_ONLY）',
+  SYSTEM: '系统模型内置定义，在自身草稿中可编辑',
+  EXTERNAL: '外部契约包引用，只读（权威定义在外部契约包）',
 };
 
 export function editPolicy({origin, model, view, capabilities}: EditPolicyInput): EditPolicyResult {

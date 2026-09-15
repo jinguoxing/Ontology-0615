@@ -113,14 +113,14 @@ export default function ActionsPage() {
         <Ban className="h-4 w-4 shrink-0 mt-0.5 text-slate-400"/>
         <p>
           本页只维护行动契约并通过验证用例做<b>只读模拟验证</b>：行动契约<b>不直接执行治理实例、不发布本体、不启动流程</b>。
-          治理执行需要真实治理运行时，发布走发布流程（Batch 4），流程启动属于 Workflow Runtime（本演示均未连接）。
+          治理执行需要真实治理运行时，发布需走正式发布流程，流程启动属于流程运行时——本演示均未连接。
         </p>
       </div>
 
       {actionsQuery.isLoading ? (
         <div className="bg-white border border-slate-200 rounded-2xl py-16 flex flex-col items-center gap-2 text-slate-500">
           <Loader2 className="h-5 w-5 animate-spin text-blue-500"/>
-          <p className="text-xs">正在读取 GET /models/{modelId}/actions …</p>
+          <p className="text-xs">正在读取行动契约…</p>
         </div>
       ) : actionsQuery.isError ? (
         <div className="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-start gap-2 text-[12.5px] text-red-700">
@@ -173,7 +173,7 @@ export default function ActionsPage() {
           {/* 中栏 + 右栏 */}
           {!current ? (
             <div className="flex-1 bg-white border border-dashed border-slate-300 rounded-2xl py-16 text-center text-xs text-slate-400">
-              在左侧选择一个行动契约{selectedId && <>（URL 中的 selected={selectedId} 不存在于当前视图）</>}
+              在左侧选择一个行动契约{selectedId && <>（所选行动不存在于当前视图）</>}
             </div>
           ) : (
             <>
@@ -187,13 +187,13 @@ export default function ActionsPage() {
                     </div>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                        Owner {current.ownerService}
+                        责任服务 {current.ownerService}
                       </span>
                       {/* Fixture 次级入口：抽屉，不占据主界面 */}
                       <button
                         onClick={() => setFixturesOpen(true)}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10.5px] font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
-                        title="GET /action-fixtures · POST /action-tests · 只读模拟，不改变 revision"
+                        title="只读模拟验证，不改变草稿修订"
                       >
                         <FlaskConical className="h-3 w-3"/>验证用例（{currentFixtures.length}）
                       </button>
@@ -215,7 +215,6 @@ export default function ActionsPage() {
                           <p key={s} className="text-[12px] text-slate-600 flex items-center gap-1.5">
                             <CircleDot className="h-3 w-3 text-slate-400 shrink-0"/>
                             {SIDE_EFFECT_LABEL[s] ?? s}
-                            <span className="font-mono text-[9.5px] text-slate-400">{s}</span>
                           </p>
                         ))}
                         <p className="text-[10.5px] text-slate-400">状态变化来自契约的 sideEffects 声明；本演示环境不执行任何真实状态写入。</p>
@@ -260,8 +259,8 @@ export default function ActionsPage() {
                   <Section label="副作用">
                     <div className="flex flex-wrap gap-1.5">
                       {current.sideEffects.map((s) => (
-                        <span key={s} className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 font-mono">
-                          {s}{SIDE_EFFECT_LABEL[s] ? `（${SIDE_EFFECT_LABEL[s]}）` : ''}
+                        <span key={s} className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                          {SIDE_EFFECT_LABEL[s] ?? s}
                         </span>
                       ))}
                     </div>
@@ -314,7 +313,7 @@ export default function ActionsPage() {
                             <p className="font-mono text-[9.5px] text-slate-400">{b.implementationId}@{b.implementationVersionId}</p>
                             {r.implementation && (
                               <p className="text-[10.5px] text-slate-500">
-                                {r.implementation.transport === 'MOCK' ? '当前使用演示实现（MOCK）' : `transport ${r.implementation.transport}`}
+                                {r.implementation.transport === 'MOCK' ? '当前使用演示实现' : `传输方式 ${r.implementation.transport}`}
                                 {!r.implementation.liveEndpointVerified && ' · 生产端点尚未验证'}
                               </p>
                             )}
@@ -334,7 +333,6 @@ export default function ActionsPage() {
                   <div className="space-y-1.5 text-[11.5px] text-slate-600">
                     <p>
                       确认模式：<b className={current.confirmationMode === 'EXPLICIT' ? 'text-amber-700' : ''}>{CONFIRMATION_LABEL[current.confirmationMode]}</b>
-                      <span className="font-mono text-[9.5px] text-slate-400 ml-1">{current.confirmationMode}</span>
                     </p>
                     {current.sideEffects.some((s) => GOVERNED_SIDE_EFFECTS.has(s)) ? (
                       <p className="text-slate-600">
@@ -357,7 +355,7 @@ export default function ActionsPage() {
       {fixturesOpen && current && (
         <Drawer
           title={`验证用例 · ${current.nameCn}`}
-          subtitle="GET /action-fixtures · POST /action-tests。用例按 actionId 过滤；验证是只读模拟（MOCK），结果不改变模型 revision。"
+          subtitle="用例按当前行动过滤；验证是只读模拟，结果不改变草稿修订。"
           onClose={() => setFixturesOpen(false)}
         >
           <div className="space-y-3">
@@ -424,18 +422,18 @@ function TestResultPanel({result, fixtureName}: {result: ActionTestResult; fixtu
           <span className="text-[12px] font-bold text-slate-700">验证结果 · {fixtureName}</span>
           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border font-mono ${decisionCls}`}>{result.decision}</span>
         </div>
-        {/* MOCK 标识：模拟验证，未连接生产 Runtime */}
+        {/* 模拟验证标识：当前使用演示实现，未连接生产服务 */}
         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-          <CircleDot className="h-3 w-3"/>模拟验证（MOCK）
+          <CircleDot className="h-3 w-3"/>模拟验证（演示实现）
         </span>
       </div>
       <div className="p-4 space-y-3">
         <div className="grid grid-cols-2 gap-2 max-w-md">
-          <MockFlag ok={result.realExecution === false} label="realExecution=false（未真实执行）"/>
-          <MockFlag ok={result.modelChanged === false} label="modelChanged=false（不产生修订）"/>
+          <MockFlag ok={result.realExecution === false} label="未真实执行（模拟）"/>
+          <MockFlag ok={result.modelChanged === false} label="不产生修订（只读模拟）"/>
         </div>
         <div className="space-y-1">
-          <p className="text-[11px] font-bold text-slate-600">检查项 checks</p>
+          <p className="text-[11px] font-bold text-slate-600">检查项</p>
           <div className="grid grid-cols-1 gap-1.5">
             {result.checks.map((c) => (
               <div key={c.name} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-mono ${
@@ -448,7 +446,7 @@ function TestResultPanel({result, fixtureName}: {result: ActionTestResult; fixtu
         </div>
         {result.expectedEffects.length > 0 && (
           <div className="space-y-1">
-            <p className="text-[11px] font-bold text-slate-600">预期效果 expectedEffects（模拟）</p>
+            <p className="text-[11px] font-bold text-slate-600">预期效果（模拟）</p>
             <div className="flex flex-wrap gap-1.5">
               {result.expectedEffects.map((e) => (
                 <span key={e} className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-100 border border-slate-200 text-slate-600">{e}</span>
@@ -458,13 +456,13 @@ function TestResultPanel({result, fixtureName}: {result: ActionTestResult; fixtu
         )}
         {result.simulatedAfterState !== null && (
           <details>
-            <summary className="text-[11px] font-bold text-slate-600 cursor-pointer">模拟后状态 simulatedAfterState</summary>
+            <summary className="text-[11px] font-bold text-slate-600 cursor-pointer">模拟后状态</summary>
             <pre className="mt-1.5 p-3 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-mono overflow-x-auto">{JSON.stringify(result.simulatedAfterState, null, 2)}</pre>
           </details>
         )}
         {result.limitations.length > 0 && (
           <div className="space-y-1">
-            <p className="text-[11px] font-bold text-amber-700">限制说明 limitations</p>
+            <p className="text-[11px] font-bold text-amber-700">限制说明</p>
             <ul className="space-y-0.5">
               {result.limitations.map((l) => <li key={l} className="text-[11px] text-amber-700">· {l}</li>)}
             </ul>

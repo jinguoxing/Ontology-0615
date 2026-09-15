@@ -52,16 +52,16 @@ export function resolveBinding(binding: ImplementationBinding, registry: Registr
   const sideEffectsMatch = Boolean(impl && sameSet(binding.expectedSideEffects, impl.sideEffects));
   const issues: string[] = [];
   if (!impl) {
-    issues.push(`Registry 中不存在实现 ${binding.implementationId}（版本未锁定）`);
+    issues.push(`登记信息中不存在实现 ${binding.implementationId}（版本未锁定）`);
   } else {
     if (!versionLocked) {
-      issues.push(`版本未锁定：绑定 ${binding.implementationVersionId} ≠ Registry 登记 ${impl.versionId}`);
+      issues.push(`版本未锁定：绑定 ${binding.implementationVersionId} 与登记版本 ${impl.versionId} 不一致`);
     }
     if (!ioCompatible) {
-      issues.push('IO Contract 与 Registry 实现不一致（Batch 4 校验将阻塞发布）');
+      issues.push('IO 合同与登记实现不一致（发布前校验将阻塞发布）');
     }
     if (!sideEffectsMatch) {
-      issues.push('副作用清单与 Registry 实现不匹配（Batch 4 校验将阻塞发布）');
+      issues.push('副作用清单与登记实现不匹配（发布前校验将阻塞发布）');
     }
   }
   return {resolved, versionLocked, ioCompatible, sideEffectsMatch, issues, implementation: impl};

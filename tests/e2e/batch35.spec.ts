@@ -101,9 +101,9 @@ test.describe('Batch 3.5 交互回归', () => {
     await enterDraftHead(a);
     await editFirstRelationName(a, `conflict-a-r${from}`);
     await expect(a).toHaveURL(new RegExp(`revision=${from + 1}`));
-    // B 用陈旧 ETag 保存 → 412 REVISION_CONFLICT，表单保留。
+    // B 用陈旧 ETag 保存 → 服务端 412 冲突，表单保留。
     await editFirstRelationName(b, 'stale-view');
-    await expect(b.getByText('保存冲突（412 REVISION_CONFLICT）')).toBeVisible();
+    await expect(b.getByText('保存冲突（草稿已被他人更新）')).toBeVisible();
     await expect(b.getByText(/草稿已被更新到/)).toBeVisible();
     await expect(b.getByRole('button', {name: '载入最新修订'})).toBeVisible();
     await ctxA.close();
@@ -136,8 +136,8 @@ test.describe('Batch 3.5 交互回归', () => {
     await page.getByRole('button', {name: /验证用例（\d+）/}).click();
     await expect(page.getByRole('heading', {name: /验证用例 · /})).toBeVisible();
     await page.getByRole('button', {name: '运行验证用例'}).first().click();
-    await expect(page.getByText('模拟验证（MOCK）')).toBeVisible();
-    await expect(page.getByText('modelChanged=false（不产生修订）')).toBeVisible();
+    await expect(page.getByText('模拟验证（演示实现）')).toBeVisible();
+    await expect(page.getByText('不产生修订（只读模拟）')).toBeVisible();
     expect(page.url()).toBe(urlBefore);
   });
 

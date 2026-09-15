@@ -1,44 +1,98 @@
 /**
- * Semovix 产品外壳（Batch 3.5 恢复）。
+ * Semovix 产品外壳（Batch 3.5 建立，Batch 3.6 对齐 Semovix IA 与品牌）。
  *
- * - 顶部一级导航：工作台 / 任务中心 / 业务语义 / 知识网络 / 管理中心。
- *   本体域（列表 + 详情）不再作为独立子应用渲染，而是在此外壳内呈现，
- *   当前一级菜单高亮“业务语义”。
- * - 左侧只显示当前一级菜单的子菜单：业务语义组仅“业务本体”（高亮）；
- *   不新增 DRKN / DKN 产品菜单，也不再渲染 DRKN ON-DEV CENTER、
- *   AI · Insight 与字母 D Logo。
- * - 右上角常驻“演示数据 · Mock API”徽标与演示身份切换（maintainer/viewer），
- *   身份切换在这里统一使 ontology-v1 缓存失效。
+ * - 顶部一级导航（严格七项）：Xino 智能伙伴 / 任务中心 / 智能体中心 /
+ *   业务语义 / 数据服务超市 / 数据治理 / 管理中心；本体演示期间高亮
+ *   “业务语义”。“知识网络”不是一级菜单，它是业务语义的内部能力。
+ * - 左侧子菜单只显示当前一级菜单的能力：业务语义组为 概览 / 业务域 /
+ *   业务本体 / 业务术语 / 指标 / 知识网络（本体演示期间高亮“业务本体”）。
+ *   其中 业务本体（/business-semantics/ontologies）与 知识网络
+ *   （/business-semantics/knowledge-network）在仓库中已实现，其余项与
+ *   未实现的一级模块走规划中的真实路由并呈现“当前演示范围外”，
+ *   不伪造页面或数据。
+ * - 品牌：官方 Semovix Logo（public/brand/semovix-logo.svg，原图引用，
+ *   不重绘、不变形）；产品定位“企业 AI 原生语义智能平台”。
+ * - 右上角保留唯一的低权重“演示数据”标识与演示身份切换
+ *   （maintainer/viewer），身份切换在这里统一使 ontology-v1 缓存失效。
  * - 本体的八项能力（总览/对象类型/关系/行动/实现绑定/流程/校验/发布）
- *   只是模型详情页内的 Tabs，不进入一级导航。
+ *   只是模型详情页内的 Tabs，不进入一级导航或左侧产品菜单。
  */
 import {type ReactNode} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {CircleDot, User} from 'lucide-react';
-import {ONTOLOGY_LIST_PATH} from '../api/ontology-v1/routeContext';
-import {useUiStore} from '../store/uiStore';
+import {User} from 'lucide-react';
 import {DEMO_ACTORS, useDemoIdentity} from './identity';
 import {useInvalidateOnActorChange} from './queries';
 
-export type SemovixTopNav = 'desktop' | 'tasks' | 'semantics' | 'knowledge' | 'admin';
+export type SemovixTopNav =
+  | 'xino'
+  | 'tasks'
+  | 'agents'
+  | 'semantics'
+  | 'data-services'
+  | 'data-governance'
+  | 'admin';
 
-interface TopItem {
-  id: SemovixTopNav;
+export interface SemovixSubItem {
+  id: string;
   label: string;
-  /** 该一级菜单的子菜单（左侧栏内容）；无子菜单的模块不进入本体演示范围。 */
-  sub?: Array<{id: string; label: string}>;
+  /** 规划中的真实路由（点击左侧子菜单即导航到该路径）。 */
+  path: string;
 }
 
-const TOP_NAV: TopItem[] = [
-  {id: 'desktop', label: '工作台'},
-  {id: 'tasks', label: '任务中心'},
-  {id: 'semantics', label: '业务语义', sub: [{id: 'ontology_models', label: '业务本体'}]},
-  {id: 'knowledge', label: '知识网络', sub: [
-    {id: 'knowledge_network', label: '网络总览'},
-    {id: 'knowledge_network_assets', label: '网络资产'},
-  ]},
-  {id: 'admin', label: '管理中心'},
+export interface SemovixNavItem {
+  id: SemovixTopNav;
+  label: string;
+  /** 规划中的真实路由。 */
+  path: string;
+  /** 该一级菜单的子菜单（左侧栏内容）。 */
+  sub?: SemovixSubItem[];
+}
+
+/** Semovix 一级导航（顺序与命名不可调整；路由为规划中的真实路径）。 */
+export const SEMOVIX_TOP_NAV: SemovixNavItem[] = [
+  {id: 'xino', label: 'Xino 智能伙伴', path: '/xino'},
+  {id: 'tasks', label: '任务中心', path: '/tasks'},
+  {id: 'agents', label: '智能体中心', path: '/agents'},
+  {
+    id: 'semantics',
+    label: '业务语义',
+    path: '/business-semantics/overview',
+    sub: [
+      {id: 'semantics_overview', label: '概览', path: '/business-semantics/overview'},
+      {id: 'semantics_domains', label: '业务域', path: '/business-semantics/domains'},
+      {id: 'ontology_models', label: '业务本体', path: '/business-semantics/ontologies'},
+      {id: 'semantics_terms', label: '业务术语', path: '/business-semantics/terms'},
+      {id: 'semantics_metrics', label: '指标', path: '/business-semantics/metrics'},
+      {id: 'knowledge_network', label: '知识网络', path: '/business-semantics/knowledge-network'},
+    ],
+  },
+  {id: 'data-services', label: '数据服务超市', path: '/data-services'},
+  {id: 'data-governance', label: '数据治理', path: '/data-governance'},
+  {id: 'admin', label: '管理中心', path: '/admin'},
 ];
+
+/** 一级菜单 id → 导航项（App 路由与外壳共用同一份 IA 定义）。 */
+export const SEMOVIX_NAV_BY_ID: Record<SemovixTopNav, SemovixNavItem> = Object.fromEntries(
+  SEMOVIX_TOP_NAV.map((item) => [item.id, item]),
+) as Record<SemovixTopNav, SemovixNavItem>;
+
+/** 业务语义左侧子菜单 id → 子菜单项。 */
+export const SEMANTICS_SUB_BY_ID: Record<string, SemovixSubItem> = Object.fromEntries(
+  (SEMOVIX_NAV_BY_ID.semantics.sub ?? []).map((s) => [s.id, s]),
+);
+
+/**
+ * 外壳原生渲染的规划路由：未实现的一级模块 + 业务语义下不由遗留 store
+ * 驱动的子能力路径（知识网络页仍由遗留 store 视图驱动，不在此列）。
+ * useRouteSync 对这些路径保持惰性——既不把路径折算成遗留 store 视图，
+ * 也不把 store 视图推过去覆盖，否则深链接会被重定向到知识网络。
+ */
+export const SEMOVIX_SHELL_OWNED_PATHS: ReadonlySet<string> = new Set([
+  ...SEMOVIX_TOP_NAV.filter((item) => !item.sub).map((item) => item.path),
+  ...(SEMOVIX_NAV_BY_ID.semantics.sub ?? [])
+    .filter((s) => s.id !== 'knowledge_network')
+    .map((s) => s.path),
+]);
 
 export function SemovixShell({top, activeSub, children}: {
   top: SemovixTopNav;
@@ -48,58 +102,50 @@ export function SemovixShell({top, activeSub, children}: {
 }) {
   useInvalidateOnActorChange();
   const navigate = useNavigate();
-  const navigateStore = useUiStore((s) => s.navigate);
 
-  const current = TOP_NAV.find((t) => t.id === top) ?? TOP_NAV[0];
+  const current = SEMOVIX_NAV_BY_ID[top];
 
-  /** 一级菜单 / 子菜单点击：本体域走规范路径，其余走遗留 store 视图。 */
-  const goTop = (item: TopItem) => {
-    if (item.id === 'semantics') {
-      navigate(ONTOLOGY_LIST_PATH);
-      return;
-    }
-    if (item.sub && item.sub.length > 0) {
-      navigateStore(item.sub[0].id);
-      return;
-    }
-    navigateStore(item.id);
+  /**
+   * 一级菜单点击：全部走规划中的真实路由。“业务语义”保持既有演示入口，
+   * 直接进入业务本体列表（已实现的核心域），不切到任何遗留页面。
+   */
+  const goTop = (item: SemovixNavItem) => {
+    navigate(item.id === 'semantics' ? '/business-semantics/ontologies' : item.path);
   };
-  const goSub = (id: string) => {
-    if (top === 'semantics') {
-      navigate(ONTOLOGY_LIST_PATH);
-      return;
-    }
-    navigateStore(id);
+  /** 子菜单点击：走该项的规范路径（已实现项与占位项同样处理）。 */
+  const goSub = (sub: SemovixSubItem) => {
+    navigate(sub.path);
   };
 
   return (
     <div className="h-screen flex flex-col bg-slate-50 font-sans text-slate-800">
       {/* 一级导航条 */}
       <header className="bg-white border-b border-slate-200/70 h-14 shrink-0 flex items-center justify-between px-6 gap-6 sticky top-0 z-40">
-        <div className="flex items-center gap-6 min-w-0">
-          {/* 产品标识：Semovix（替代 DRKN ON-DEV CENTER / D Logo / AI · Insight） */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <div className="h-8 w-8 rounded-lg bg-slate-800 flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2 2 7l10 5 10-5-10-5Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>
-              </svg>
-            </div>
-            <div className="leading-none">
-              <span className="text-[15px] font-bold text-slate-800 tracking-tight" style={{fontFamily: "'Inter', sans-serif"}}>Semovix</span>
-              <p className="text-[9.5px] text-slate-400 font-semibold mt-1 tracking-wider">企业语义运营平台</p>
-            </div>
+        <div className="flex items-center gap-5 min-w-0">
+          {/* 产品标识：官方 Semovix Logo（原图引用）+ 产品定位 */}
+          <div className="flex items-center gap-3 shrink-0">
+            <img
+              src="/brand/semovix-logo.svg"
+              alt="Semovix"
+              className="h-7 w-auto"
+              data-testid="semovix-logo"
+            />
+            <div className="h-5 w-px bg-slate-200"/>
+            <p className="text-[10px] text-slate-400 font-semibold tracking-wider leading-tight">
+              企业 AI 原生<br/>语义智能平台
+            </p>
           </div>
 
           <div className="h-5 w-px bg-slate-200 shrink-0"/>
 
-          <nav className="flex items-center gap-1 min-w-0 overflow-x-auto">
-            {TOP_NAV.map((item) => {
+          <nav className="flex items-center gap-1 min-w-0 overflow-x-auto" data-testid="semovix-top-nav">
+            {SEMOVIX_TOP_NAV.map((item) => {
               const active = item.id === top;
               return (
                 <button
                   key={item.id}
                   onClick={() => goTop(item)}
-                  className={`px-3.5 py-1.5 text-[13.5px] font-semibold rounded-lg whitespace-nowrap transition-colors ${
+                  className={`px-3 py-1.5 text-[13px] font-semibold rounded-lg whitespace-nowrap transition-colors ${
                     active ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
@@ -130,13 +176,13 @@ export function SemovixShell({top, activeSub, children}: {
           <div className="px-5 pt-5 pb-3">
             <p className="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider">{current.label}</p>
           </div>
-          <nav className="px-3 space-y-1">
+          <nav className="px-3 space-y-1" data-testid="semovix-sub-nav">
             {(current.sub ?? []).map((sub) => {
               const active = sub.id === activeSub;
               return (
                 <button
                   key={sub.id}
-                  onClick={() => goSub(sub.id)}
+                  onClick={() => goSub(sub)}
                   className={`w-full px-3 py-2 rounded-lg flex items-center text-[13px] font-medium transition-colors ${
                     active ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
@@ -148,15 +194,10 @@ export function SemovixShell({top, activeSub, children}: {
             })}
             {!current.sub && (
               <p className="px-3 py-2 text-[11.5px] text-slate-400 leading-relaxed">
-                该模块在本演示范围外（演示聚焦业务语义 → 业务本体）。
+                当前演示范围外（演示聚焦业务语义 → 业务本体）。
               </p>
             )}
           </nav>
-          <div className="mt-auto px-5 py-4 border-t border-slate-100">
-            <p className="text-[10.5px] text-slate-400 leading-relaxed">
-              演示环境 · 契约 Mock 服务<br/>meta.dataMode=MOCK
-            </p>
-          </div>
         </aside>
 
         <main className="flex-1 min-w-0 overflow-y-auto scrollbar-thin" data-testid="semovix-main">
@@ -167,15 +208,14 @@ export function SemovixShell({top, activeSub, children}: {
   );
 }
 
-/** 演示数据标识（Mock 服务，非生产连接）。 */
+/** 全页唯一的演示数据标识（低权重；工程原值见「技术详情」抽屉）。 */
 export function MockBadge() {
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200"
-      title="数据来自 ontology-delivery 契约 Mock 服务（meta.dataMode=MOCK），未连接任何生产服务"
+      className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-slate-100 text-slate-500 border border-slate-200"
+      title="当前使用演示实现，数据来自演示服务，未连接任何生产服务"
     >
-      <CircleDot className="h-3 w-3"/>
-      演示数据 · Mock API
+      演示数据
     </span>
   );
 }

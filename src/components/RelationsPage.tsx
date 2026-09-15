@@ -188,7 +188,7 @@ export default function RelationsPage() {
     if (!relDraft) return;
     setFormError(null);
     if (relModal?.mode === 'add') {
-      if (!ID_PATTERN.test(relDraft.id)) {setFormError('关系 ID 需匹配 ^[A-Za-z][A-Za-z0-9_.:-]*$'); return;}
+      if (!ID_PATTERN.test(relDraft.id)) {setFormError('关系 ID 需以字母开头，可含数字与 _ . : -'); return;}
       if (relations.some((r) => r.id === relDraft.id)) {setFormError(`关系 ${relDraft.id} 已存在`); return;}
     }
     if (!relDraft.nameCn.trim()) {setFormError('请填写关系名称'); return;}
@@ -268,7 +268,7 @@ export default function RelationsPage() {
       {relationsQuery.isLoading || constraintsQuery.isLoading ? (
         <div className="bg-white border border-slate-200 rounded-2xl py-16 flex flex-col items-center gap-2 text-slate-500">
           <Loader2 className="h-5 w-5 animate-spin text-blue-500"/>
-          <p className="text-xs">正在读取 GET /models/{modelId}/relations 与 /constraints …</p>
+          <p className="text-xs">正在读取关系与约束…</p>
         </div>
       ) : relationsQuery.isError || constraintsQuery.isError ? (
         <div className="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-start gap-2 text-[12.5px] text-red-700">
@@ -284,7 +284,6 @@ export default function RelationsPage() {
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <h2 className="text-[13px] font-bold text-slate-700">
                     关系定义 <span className="font-mono text-slate-400">({relations.length})</span>
-                    <span className="ml-2 text-[10.5px] font-normal text-slate-400">GET /models/{modelId}/relations</span>
                   </h2>
                   <div className="flex items-center gap-2">
                     {/* 表格视图 / 结构视图切换：同一主区域 */}
@@ -439,7 +438,6 @@ export default function RelationsPage() {
                 <ShieldCheck className="h-3.5 w-3.5 text-slate-400"/>
                 相关约束
                 <span className="font-mono text-slate-400">({relatedConstraints.length})</span>
-                <span className="ml-1 text-[10.5px] font-normal text-slate-400">GET /models/{modelId}/constraints</span>
               </h2>
               <button
                 onClick={() => setAllConstraintsOpen(true)}
@@ -489,7 +487,7 @@ export default function RelationsPage() {
       {allConstraintsOpen && (
         <Drawer
           title={`全部约束（${constraints.length}）`}
-          subtitle={`GET /models/${modelId}/constraints · 与关系同一 ViewReference。点击行选中；GOVERNANCE_RECORD 仅保证规则定义有效，不宣称治理实例已验证。`}
+          subtitle="与关系读取同一视图。点击行选中；治理记录仅保证规则定义有效，不宣称治理实例已验证。"
           onClose={() => setAllConstraintsOpen(false)}
         >
           <div className="overflow-x-auto">
@@ -552,11 +550,11 @@ export default function RelationsPage() {
               {currentConstraint.scope === 'GOVERNANCE_RECORD' ? (
                 <p className="flex items-start gap-1.5 text-[11px] text-amber-700">
                   <ShieldCheck className="h-3.5 w-3.5 shrink-0 mt-0.5"/>
-                  治理记录（GOVERNANCE_RECORD）：Mock 环境仅保证规则定义有效（表达式可解析、目标存在），
+                  治理记录：演示环境仅保证规则定义有效（表达式可解析、目标存在），
                   不宣称治理实例已经验证或满足——实例验证需要真实治理运行时（本演示未连接）。
                 </p>
               ) : (
-                <p className="text-[11px] text-slate-500">模型定义约束（MODEL_DEFINITION）：约束随模型定义一起版本化。</p>
+                <p className="text-[11px] text-slate-500">模型定义约束：约束随模型定义一起版本化。</p>
               )}
             </div>
           )}
@@ -567,7 +565,7 @@ export default function RelationsPage() {
       {relModal && relDraft && (
         <Modal
           title={relModal.mode === 'add' ? '新增关系' : `编辑关系 ${relDraft.id}`}
-          subtitle="UPSERT relations 到当前草稿（POST /changesets/:id/operations）。外部类型（EXTERNAL）可作为端点，但其类型定义本身不可编辑。"
+          subtitle="修改将写入当前草稿。外部引用类型可作为端点，但其类型定义本身不可编辑。"
           onClose={() => setRelModal(null)}
         >
           <div className="space-y-3">
@@ -576,7 +574,7 @@ export default function RelationsPage() {
                 <InputField label="关系 ID" hint="字母开头，可含数字与 _ . : -">
                   <input value={relDraft.id} onChange={(e) => setRelDraft({...relDraft, id: e.target.value})} placeholder="例如 consumesMetric" className="input font-mono"/>
                 </InputField>
-                <InputField label="code" hint="留空则使用 ID">
+                <InputField label="关系代码" hint="留空则使用 ID">
                   <input value={relDraft.code} onChange={(e) => setRelDraft({...relDraft, code: e.target.value})} placeholder="consumesMetric" className="input font-mono"/>
                 </InputField>
               </div>
@@ -585,14 +583,14 @@ export default function RelationsPage() {
               <input value={relDraft.nameCn} onChange={(e) => setRelDraft({...relDraft, nameCn: e.target.value})} className="input"/>
             </InputField>
             <div className="grid grid-cols-2 gap-3">
-              <InputField label="源类型 sourceTypeId">
+              <InputField label="源类型">
                 <TypeSelect value={relDraft.sourceTypeId} types={types} onChange={(v) => setRelDraft({...relDraft, sourceTypeId: v})}/>
               </InputField>
-              <InputField label="目标类型 targetTypeId">
+              <InputField label="目标类型">
                 <TypeSelect value={relDraft.targetTypeId} types={types} onChange={(v) => setRelDraft({...relDraft, targetTypeId: v})}/>
               </InputField>
             </div>
-            <InputField label="类别 category">
+            <InputField label="类别">
               <select value={relDraft.category} onChange={(e) => setRelDraft({...relDraft, category: e.target.value as RelationDefinition['category']})} className="input">
                 {RELATION_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.id}（{c.label}）</option>)}
               </select>
@@ -621,7 +619,7 @@ export default function RelationsPage() {
       {constraintEdit && (
         <Modal
           title={`编辑约束 ${constraintEdit.id}`}
-          subtitle={`UPSERT constraints（${SCOPE_BADGE[constraintEdit.scope].label}）。${constraintEdit.scope === 'GOVERNANCE_RECORD' ? 'Mock 环境仅校验规则定义，不验证治理实例。' : ''}`}
+          subtitle={`修改将写入当前草稿（${SCOPE_BADGE[constraintEdit.scope].label}）。${constraintEdit.scope === 'GOVERNANCE_RECORD' ? '演示环境仅校验规则定义，不验证治理实例。' : ''}`}
           onClose={() => setConstraintEdit(null)}
         >
           <div className="space-y-3">
@@ -631,10 +629,10 @@ export default function RelationsPage() {
             <InputField label="定义说明">
               <textarea value={constraintDraft.definition} onChange={(e) => setConstraintDraft({...constraintDraft, definition: e.target.value})} rows={2} className="input"/>
             </InputField>
-            <InputField label="表达式 expression（JSON 对象）">
+            <InputField label="约束表达式（JSON 对象）">
               <textarea value={constraintDraft.expression} onChange={(e) => setConstraintDraft({...constraintDraft, expression: e.target.value})} rows={6} className="input font-mono text-[11px]"/>
             </InputField>
-            <p className="text-[10.5px] text-slate-400 font-mono">ruleCode {constraintEdit.ruleCode} · 目标 {constraintEdit.targetTypeId}（只读，随规则定义）</p>
+            <p className="text-[10.5px] text-slate-400">规则 <span className="font-mono">{constraintEdit.ruleCode}</span> · 目标类型 <span className="font-mono">{constraintEdit.targetTypeId}</span>（只读，随规则定义）</p>
             {constraintError && <p className="text-[11.5px] text-red-600">{constraintError}</p>}
           </div>
           <div className="flex justify-end gap-2 pt-3">
@@ -699,7 +697,7 @@ function RelationInspector({relation, typeById, editable, removing, onEdit, onRe
         <InspectorRow label="目标类型"><TypeRef id={relation.targetTypeId} type={typeById.get(relation.targetTypeId)}/></InspectorRow>
         <InspectorRow label="源端基数"><span className="font-mono text-slate-600">{fmtCard(relation.sourceCardinality)}</span></InspectorRow>
         <InspectorRow label="目标端基数"><span className="font-mono text-slate-600">{fmtCard(relation.targetCardinality)}</span></InspectorRow>
-        <InspectorRow label="类别"><span className="font-mono text-slate-600">{relation.category}</span></InspectorRow>
+        <InspectorRow label="类别">{cat && <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${cat.cls}`}>{cat.label}</span>}</InspectorRow>
       </div>
       <p className="text-[12px] text-slate-600 leading-relaxed border-t border-slate-100 pt-2.5">{relation.definition}</p>
       {editable && (

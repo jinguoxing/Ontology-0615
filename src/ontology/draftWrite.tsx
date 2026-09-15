@@ -61,7 +61,7 @@ export function useDraftWrite(input: {
       },
       {
         onSuccess: (cs) => {
-          setBanner({kind: 'success', text: `${note} 已提交到草稿 ${cs.data.id} r${cs.data.revision}（服务端修订号）`});
+          setBanner({kind: 'success', text: `${note} 已提交到草稿 ${cs.data.id} r${cs.data.revision}`});
           // URL revision 更新为服务端返回值；tab 由 ModelContext 保持。
           const nextSelected = opts && 'selectedId' in opts ? opts.selectedId : input.selectedId;
           input.navigateToView(
@@ -174,7 +174,7 @@ export function WriteBanners({w}: {w: DraftWrite}) {
         <div className="flex items-start gap-2 px-4 py-3 bg-orange-50 border border-orange-300 rounded-xl text-[12.5px] text-orange-800">
           <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5"/>
           <div className="flex-1">
-            <p className="font-bold">保存冲突（412 REVISION_CONFLICT）</p>
+            <p className="font-bold">保存冲突（草稿已被他人更新）</p>
             <p className="mt-0.5">
               草稿已被更新到 <strong>r{w.conflict.serverRevision}</strong>，本次提交未生效。
               你的修改仍保留在表单中；可载入最新修订后重试。
@@ -242,8 +242,7 @@ export function DraftGateNotice({reason, canEdit, enter}: {
     <div className="flex items-start gap-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[12.5px] text-slate-700">
       <Eye className="h-4 w-4 shrink-0 mt-0.5 text-slate-500"/>
       <p>
-        当前演示身份仅具备 <span className="font-mono">ontology.read</span>；
-        {SERVER_GUARD['viewer-permission']}。可在右上角切换为 demo-maintainer 后编辑。
+        当前演示身份仅具备只读权限；{SERVER_GUARD['viewer-permission']}。可在右上角切换为维护人员身份后编辑。
       </p>
     </div>
   );
@@ -257,8 +256,7 @@ export function DraftTargetNote({draftId, revision}: {draftId: string; revision:
       <p>
         修改将提交到当前草稿 <span className="font-mono font-bold">{draftId}</span>
         {revision !== undefined && <> · r<span className="font-mono font-bold">{revision}</span></>}
-        （POST /changesets/{draftId}/operations，携带 If-Match 与 Idempotency-Key）。
-        草稿需经 Batch 4 校验与发布才会成为正式版本。
+        。草稿需经校验与发布才会成为正式版本。
       </p>
     </div>
   );

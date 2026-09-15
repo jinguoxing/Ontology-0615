@@ -160,13 +160,13 @@ export default function ImplementationsPage() {
     if (!draft) return;
     setFormError(null);
     if (modal?.mode === 'add') {
-      if (!ID_PATTERN.test(draft.id)) {setFormError('绑定 ID 需匹配 ^[A-Za-z][A-Za-z0-9_.:-]*$'); return;}
+      if (!ID_PATTERN.test(draft.id)) {setFormError('绑定 ID 需以字母开头，可含数字与 _ . : -'); return;}
       if (bindings.some((b) => b.id === draft.id)) {setFormError(`绑定 ${draft.id} 已存在`); return;}
     }
-    if (!draft.implementationId.trim()) {setFormError('请从 Registry 选择 implementationId'); return;}
-    if (!draft.implementationVersionId.trim()) {setFormError('请填写明确的 implementationVersionId（未锁版本的草稿可在 Batch 4 校验前保留）'); return;}
-    if (draft.kind === 'ACTION' && !draft.actionId) {setFormError('ACTION 绑定需关联行动契约 actionId'); return;}
-    if (draft.expectedSideEffects.length === 0) {setFormError('expectedSideEffects 至少一项（契约 minItems=1）'); return;}
+    if (!draft.implementationId.trim()) {setFormError('请从登记实现中选择'); return;}
+    if (!draft.implementationVersionId.trim()) {setFormError('请填写明确的实现版本（未锁版本的草稿可在发布校验前保留）'); return;}
+    if (draft.kind === 'ACTION' && !draft.actionId) {setFormError('ACTION 绑定需选择关联的行动契约'); return;}
+    if (draft.expectedSideEffects.length === 0) {setFormError('预期副作用至少一项（契约要求至少声明一项）'); return;}
     const value: ImplementationBinding = {
       id: draft.id,
       kind: draft.kind,
@@ -190,7 +190,7 @@ export default function ImplementationsPage() {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl py-16 flex flex-col items-center gap-2 text-slate-500">
         <Loader2 className="h-5 w-5 animate-spin text-blue-500"/>
-        <p className="text-xs">正在读取 GET /models/{modelId}/implementation-bindings 与 GET /registry …</p>
+        <p className="text-xs">正在读取实现绑定…</p>
       </div>
     );
   }
@@ -217,9 +217,8 @@ export default function ImplementationsPage() {
       <div className="flex items-start gap-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[12px] text-slate-600">
         <Unlink className="h-4 w-4 shrink-0 mt-0.5 text-slate-400"/>
         <p>
-          本页只维护<b>本体模型 → Registry 实现</b>的绑定关系；不编辑实现的 URL、密钥、代码、重试与调度
-          （部署信息由 Registry / 部署侧管理）。演示实现均为<b>当前使用演示实现</b>（transport=MOCK）且
-          <b>生产端点尚未验证</b>（liveEndpointVerified=false）。
+          本页只维护<b>本体模型 → 实现登记</b>的绑定关系；不编辑实现的地址、密钥、代码、重试与调度
+          （部署信息由实现登记与部署侧管理）。演示实现均为<b>当前使用演示实现</b>，且<b>生产端点尚未验证</b>。
         </p>
       </div>
 
@@ -230,7 +229,6 @@ export default function ImplementationsPage() {
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <h2 className="text-[13px] font-bold text-slate-700">
                 实现绑定 <span className="font-mono text-slate-400">({filtered.length}/{bindings.length})</span>
-                <span className="ml-2 text-[10.5px] font-normal text-slate-400">GET /models/{modelId}/implementation-bindings</span>
               </h2>
               <div className="flex items-center gap-2">
                 <div className="relative">
@@ -253,8 +251,8 @@ export default function ImplementationsPage() {
             <div className="flex items-center gap-1.5 flex-wrap" data-testid="binding-kind-filter">
               {([
                 {id: 'ALL' as const, label: `全部 ${bindings.length}`},
-                {id: 'ACTION' as const, label: `行动实现（ACTION） ${actionCount}`},
-                {id: 'FUNCTION' as const, label: `函数实现（FUNCTION） ${functionCount}`},
+                {id: 'ACTION' as const, label: `行动实现 ${actionCount}`},
+                {id: 'FUNCTION' as const, label: `函数实现 ${functionCount}`},
               ]).map((k) => (
                 <button
                   key={k.id}
@@ -276,7 +274,7 @@ export default function ImplementationsPage() {
                   <th className="text-left px-4 py-2 font-bold">绑定</th>
                   <th className="text-left px-3 py-2 font-bold">类型</th>
                   <th className="text-left px-3 py-2 font-bold">行动契约</th>
-                  <th className="text-left px-3 py-2 font-bold">Registry 实现</th>
+                  <th className="text-left px-3 py-2 font-bold">登记实现</th>
                   <th className="text-left px-3 py-2 font-bold">解析状态</th>
                   <th className="text-left px-3 py-2 font-bold">端点状态</th>
                   {editable && <th className="px-4 py-2"/>}
@@ -362,8 +360,8 @@ export default function ImplementationsPage() {
               兼容性对照 · <span className="font-mono text-slate-500">{current.id}</span>
             </h2>
             {currentResolution.issues.length === 0
-              ? <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">与 Registry 登记一致</span>
-              : <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">{currentResolution.issues.length} 项不一致（可保留在草稿中，Batch 4 校验将阻塞发布）</span>}
+              ? <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">与登记信息一致</span>
+              : <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200">{currentResolution.issues.length} 项不一致（可保留在草稿中，发布前校验将阻塞发布）</span>}
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs min-w-[680px]">
@@ -371,7 +369,7 @@ export default function ImplementationsPage() {
                 <tr className="bg-slate-50 text-slate-500 text-[10.5px] uppercase tracking-wide">
                   <th className="text-left px-4 py-2 font-bold">对照项</th>
                   <th className="text-left px-3 py-2 font-bold">绑定值（当前视图）</th>
-                  <th className="text-left px-3 py-2 font-bold">Registry 登记值</th>
+                  <th className="text-left px-3 py-2 font-bold">登记值</th>
                   <th className="text-left px-3 py-2 font-bold w-16">一致</th>
                 </tr>
               </thead>
@@ -414,7 +412,7 @@ export default function ImplementationsPage() {
           )}
           {!currentResolution.implementation && (
             <p className="px-4 py-3 border-t border-slate-100 text-[11.5px] text-amber-700">
-              Registry 中未找到实现 <span className="font-mono">{current.implementationId}</span>，版本未锁定。
+              登记信息中未找到实现 <span className="font-mono">{current.implementationId}</span>，版本未锁定。
             </p>
           )}
         </div>
@@ -423,7 +421,7 @@ export default function ImplementationsPage() {
       {modal && draft && (
         <Modal
           title={modal.mode === 'add' ? '新增实现绑定' : `编辑绑定 ${draft.id}`}
-          subtitle="UPSERT implementationBindings 到当前草稿。implementationId / implementationVersionId 从 Registry 选择；版本未锁定、IO 不兼容、副作用不匹配也允许保存草稿（显示未解决，Batch 4 校验阻塞发布）。"
+          subtitle="修改将写入当前草稿。实现与版本从登记信息中选择；版本未锁定、输入输出不兼容、副作用不匹配也允许保存草稿（显示为未解决，后续校验将阻塞发布）。"
           onClose={() => setModal(null)}
         >
           <div className="space-y-3">
@@ -432,25 +430,25 @@ export default function ImplementationsPage() {
                 <InputField label="绑定 ID" hint="字母开头，可含数字与 _ . : -">
                   <input value={draft.id} onChange={(e) => setDraft({...draft, id: e.target.value})} className="input font-mono" placeholder="例如 bind-confirmAssertion-v2"/>
                 </InputField>
-                <InputField label="类型 kind">
+                <InputField label="类型">
                   <select value={draft.kind} onChange={(e) => setDraft({...draft, kind: e.target.value as ImplementationBinding['kind']})} className="input">
-                    <option value="ACTION">ACTION（关联行动契约）</option>
-                    <option value="FUNCTION">FUNCTION（函数实现）</option>
+                    <option value="ACTION">行动实现（关联行动契约）</option>
+                    <option value="FUNCTION">函数实现</option>
                   </select>
                 </InputField>
               </div>
             )}
             {draft.kind === 'ACTION' && (
-              <InputField label="行动契约 actionId" hint="来自 GET /models/:id/actions（当前视图）">
+              <InputField label="行动契约" hint="来自当前视图的行动契约">
                 <select value={draft.actionId} onChange={(e) => setDraft({...draft, actionId: e.target.value})} className="input font-mono">
                   <option value="">— 选择行动契约 —</option>
                   {actions.map((a) => <option key={a.id} value={a.id}>{a.id}（{a.nameCn}）</option>)}
                 </select>
               </InputField>
             )}
-            <InputField label="Registry 实现 implementationId" hint={`Registry 登记实现 ${registry?.implementations.length ?? '…'} 个`}>
+            <InputField label="登记实现" hint={`登记在册的实现 ${registry?.implementations.length ?? '…'} 个`}>
               <select value={draft.implementationId} onChange={(e) => pickImplementation(e.target.value)} className="input font-mono">
-                <option value="">— 从 Registry 选择 —</option>
+                <option value="">— 从登记信息选择 —</option>
                 {(registry?.implementations ?? [])
                   .filter((i) => i.kind === draft.kind)
                   .map((i) => (
@@ -458,7 +456,7 @@ export default function ImplementationsPage() {
                   ))}
               </select>
             </InputField>
-            <InputField label="实现版本 implementationVersionId" hint="选择实现时自动带出 Registry 登记版本；可手改（用于演示未锁版本草稿）">
+            <InputField label="实现版本" hint="选择实现时自动带出登记版本；可手改（用于演示未锁版本的草稿）">
               <input value={draft.implementationVersionId} onChange={(e) => setDraft({...draft, implementationVersionId: e.target.value})} className="input font-mono"/>
             </InputField>
             <div className="grid grid-cols-2 gap-3">
@@ -505,7 +503,7 @@ function CompareRow({label, bound, registered, ok}: {label: string; bound: strin
     <tr className="border-t border-slate-100">
       <td className="px-4 py-2.5 text-[11.5px] font-bold text-slate-600">{label}</td>
       <td className="px-3 py-2.5 font-mono text-[10.5px] text-slate-600 break-all">{bound}</td>
-      <td className="px-3 py-2.5 font-mono text-[10.5px] text-slate-500 break-all">{registered ?? '（Registry 未登记）'}</td>
+      <td className="px-3 py-2.5 font-mono text-[10.5px] text-slate-500 break-all">{registered ?? '（未登记）'}</td>
       <td className="px-3 py-2.5">
         {ok
           ? <span className="text-emerald-600 font-bold text-[13px]">✓</span>
@@ -553,26 +551,26 @@ function BindingInspector({binding, registry, editable, onEdit}: {
       </div>
 
       <div className="border-t border-slate-100 pt-2.5 space-y-1.5">
-        <p className="text-[11px] font-bold text-slate-600">Registry 对照</p>
+        <p className="text-[11px] font-bold text-slate-600">登记对照</p>
         {impl ? (
           <div className="space-y-1.5 text-[11.5px] text-slate-600">
             <p className="font-semibold text-slate-700">{impl.nameCn}</p>
             {impl.transport === 'MOCK'
-              ? <p className="text-slate-500">当前使用演示实现（transport=MOCK）</p>
+              ? <p className="text-slate-500">当前使用演示实现</p>
               : <p className="text-slate-500">传输方式 {impl.transport}</p>}
-            {!impl.liveEndpointVerified && <p className="text-slate-500">生产端点尚未验证（liveEndpointVerified=false）</p>}
+            {!impl.liveEndpointVerified && <p className="text-slate-500">生产端点尚未验证</p>}
             <p className="text-slate-500">实现副作用：{impl.sideEffects.join('、') || '—'}</p>
           </div>
         ) : (
-          <p className="text-[11.5px] text-amber-700">Registry 中未找到 {binding.implementationId}。</p>
+          <p className="text-[11.5px] text-amber-700">登记信息中未找到 {binding.implementationId}。</p>
         )}
-        <p className="text-[10.5px] text-slate-400">原始工程字段（versionId / transport / demoMode 等）见页面头「技术详情」抽屉。</p>
+        <p className="text-[10.5px] text-slate-400">工程原始值见页面头「技术详情」抽屉。</p>
       </div>
 
       {resolution.issues.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5 space-y-1">
           <p className="text-[11px] font-bold text-amber-800 flex items-center gap-1">
-            <CircleDot className="h-3 w-3"/>未解决（可保留在草稿中，Batch 4 校验将阻塞发布）
+            <CircleDot className="h-3 w-3"/>未解决（可保留在草稿中，发布前校验将阻塞发布）
           </p>
           {resolution.issues.map((issue) => <p key={issue} className="text-[11px] text-amber-700">· {issue}</p>)}
         </div>

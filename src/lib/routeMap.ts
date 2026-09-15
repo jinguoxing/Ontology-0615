@@ -19,9 +19,11 @@ interface RouteDef {
 }
 
 const VIEW_TO_ROUTE: Record<string, RouteDef> = {
-  knowledge_network: {path: '/'},
-  knowledge_network_assets: {path: '/assets'},
-  knowledge_network_explorer: {path: '/explorer'},
+  // 知识网络是业务语义的内部能力（Batch 3.6 起）：规范路径在
+  // /business-semantics/knowledge-network 下，不再占据一级菜单或根路径。
+  knowledge_network: {path: '/business-semantics/knowledge-network'},
+  knowledge_network_assets: {path: '/business-semantics/knowledge-network/assets'},
+  knowledge_network_explorer: {path: '/business-semantics/knowledge-network/explorer'},
   ontology_models: {path: '/ontology'},
   drkn_models: {path: '/ontology/drkn'},
   dkn_models: {path: '/ontology/dkn'},
@@ -38,21 +40,11 @@ const VIEW_TO_ROUTE: Record<string, RouteDef> = {
 };
 
 /**
- * Top-level nav entries (sidebar groups that are not real routes) map onto
- * their first child view. Kept separate so VIEW_TO_ROUTE keys stay unique.
+ * Resolve a view id + optional object id into a router location path + search.
+ * 未知视图回落到业务语义根（App 会重定向到业务本体列表）。
  */
-const NAV_ALIASES: Record<string, ViewId> = {
-  desktop: 'knowledge_network',
-  tasks: 'knowledge_network',
-  semantics: 'ontology_models',
-  knowledge_network_group: 'knowledge_network',
-  admin: 'knowledge_network',
-};
-
-/** Resolve a view id + optional object id into a router location path + search. */
 export function viewToLocation(view: ViewId, objectId?: string): {pathname: string; search: string} {
-  const resolved = VIEW_TO_ROUTE[view] ? view : NAV_ALIASES[view];
-  const def = VIEW_TO_ROUTE[resolved ?? ''] ?? {path: '/'};
+  const def = VIEW_TO_ROUTE[view] ?? {path: '/'};
   const search = def.hasObjectId && objectId ? `?id=${encodeURIComponent(objectId)}` : '';
   return {pathname: def.path, search};
 }

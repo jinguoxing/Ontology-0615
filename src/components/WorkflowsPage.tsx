@@ -128,11 +128,11 @@ export default function WorkflowsPage() {
     setFormError(null);
     const registered = registryWorkflow(registry, pickedWorkflowId);
     if (!registered) {
-      setFormError('请从 Registry 登记的流程中选择（workflowId 必须存在于 Registry）');
+      setFormError('请从登记流程中选择');
       return;
     }
     if (!registered.versionId || !pickedVersionId.trim()) {
-      setFormError('必须固定明确的 workflowVersionId');
+      setFormError('必须固定明确的流程版本');
       return;
     }
     // 修改的仅是本体对流程契约的引用；ownerService / requiredActionIds 以 Registry 登记为准。
@@ -155,7 +155,7 @@ export default function WorkflowsPage() {
     return (
       <div className="bg-white border border-slate-200 rounded-2xl py-16 flex flex-col items-center gap-2 text-slate-500">
         <Loader2 className="h-5 w-5 animate-spin text-blue-500"/>
-        <p className="text-xs">正在读取 GET /models/{modelId}/workflow-refs 与 GET /registry …</p>
+        <p className="text-xs">正在读取流程引用…</p>
       </div>
     );
   }
@@ -183,7 +183,7 @@ export default function WorkflowsPage() {
         <Ban className="h-4 w-4 shrink-0 mt-0.5"/>
         <p>
           本页不是 Workflow 编排器：不编辑流程节点、条件、重试与调度，也不提供启动或运行按钮。
-          <b>发布本体不等于启动流程</b>；<b>演示环境未连接实际 Runtime</b>（Registry 中所有流程 executable=false）。
+          <b>发布本体不等于启动流程</b>；<b>演示环境未连接实际流程运行时</b>。
           修改的仅是当前本体对流程契约的引用（workflowId + workflowVersionId）。
         </p>
       </div>
@@ -196,7 +196,7 @@ export default function WorkflowsPage() {
             <h2 className="text-[13px] font-bold text-slate-700">
               流程引用 <span className="font-mono text-slate-400">({workflowRefs.length})</span>
             </h2>
-            <p className="text-[10.5px] text-slate-400 mt-0.5">GET /models/{modelId}/workflow-refs</p>
+            <p className="text-[10.5px] text-slate-400 mt-0.5">与登记信息对照 · 点击选择流程</p>
           </div>
           <div className="divide-y divide-slate-100 max-h-[640px] overflow-y-auto">
             {workflowRefs.map((ref) => {
@@ -223,7 +223,7 @@ export default function WorkflowsPage() {
                       ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0"/>
                       : <XCircle className="h-4 w-4 text-red-500 shrink-0"/>}
                   </div>
-                  {!registered && <p className="text-[10px] text-amber-600 font-bold mt-1">Registry 未登记该流程</p>}
+                  {!registered && <p className="text-[10px] text-amber-600 font-bold mt-1">登记信息中未登记该流程</p>}
                 </button>
               );
             })}
@@ -236,7 +236,7 @@ export default function WorkflowsPage() {
         {/* 中：只读步骤预览 */}
         {!current ? (
           <div className="flex-1 bg-white border border-dashed border-slate-300 rounded-2xl py-16 text-center text-xs text-slate-400">
-            在左侧选择一个流程引用{selectedId && <>（URL 中的 selected={selectedId} 不存在于当前视图）</>}
+            在左侧选择一个流程引用{selectedId && <>（所选流程不存在于当前视图）</>}
           </div>
         ) : (
           <div className="flex-1 min-w-0 space-y-4">
@@ -244,14 +244,13 @@ export default function WorkflowsPage() {
               <div className="px-5 py-3 border-b border-slate-100 space-y-0.5">
                 <h2 className="text-[14px] font-bold text-slate-800">{currentRegistered?.nameCn ?? current.workflowId}</h2>
                 <p className="text-[11px] text-slate-500">
-                  只读步骤预览 · Owner <span className="font-mono">{current.ownerService}</span>
+                  只读步骤预览 · 责任服务 <span className="font-mono">{current.ownerService}</span>
                   <span className="ml-2 font-mono text-[10px] text-slate-400">{current.workflowId}@{current.workflowVersionId}</span>
                 </p>
               </div>
               <div className="p-5 space-y-4">
                 <p className="text-[11.5px] text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5">
-                  Registry 未登记节点编排（RegisteredWorkflow 无 steps 字段）；下方步骤由 requiredActionIds 顺序推导，<b>只读</b>，
-                  不代表真实 Runtime 的执行图。
+                  登记信息未包含节点编排；下方步骤由流程声明的所需行动顺序推导，<b>只读</b>，不代表真实运行时的执行图。
                 </p>
                 <ol className="space-y-2">
                   {current.requiredActionIds.map((aid, i) => {
@@ -275,7 +274,7 @@ export default function WorkflowsPage() {
                     );
                   })}
                   {current.requiredActionIds.length === 0 && (
-                    <p className="text-[11.5px] text-slate-400">该流程引用未声明所需行动（requiredActionIds 为空）。</p>
+                    <p className="text-[11.5px] text-slate-400">该流程引用未声明所需行动。</p>
                   )}
                 </ol>
                 {currentRegistered && (
@@ -283,7 +282,7 @@ export default function WorkflowsPage() {
                 )}
                 {currentRegistered && !currentRegistered.executable && (
                   <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                    演示环境未连接实际 Runtime（Registry executable=false）：本页不提供启动或运行入口；发布本体也不会启动该流程。
+                    演示环境未连接实际流程运行时：本页不提供启动或运行入口；发布本体也不会启动该流程。
                   </p>
                 )}
               </div>
@@ -340,7 +339,7 @@ export default function WorkflowsPage() {
               <h3 className="text-[12.5px] font-bold text-slate-700">
                 所需行动 <span className="font-mono text-slate-400">({current.requiredActionIds.length})</span>
               </h3>
-              <p className="text-[10.5px] text-slate-400 mt-0.5">requiredActionIds 是否存在于当前视图</p>
+              <p className="text-[10.5px] text-slate-400 mt-0.5">所需行动是否存在于当前视图</p>
             </div>
             <div className="p-4 space-y-1.5">
               {current.requiredActionIds.map((aid) => {
@@ -400,11 +399,11 @@ export default function WorkflowsPage() {
       {editRef && (
         <Modal
           title={`修改流程引用 ${editRef.id}`}
-          subtitle="只切换本体引用的流程契约（workflowId + workflowVersionId，来自 Registry 登记）。ownerService 与 requiredActionIds 以 Registry 为准，不可在本页编排。"
+          subtitle="只切换本体引用的流程契约（流程与版本来自登记信息）。责任服务与所需行动以登记信息为准，不可在本页编排。"
           onClose={() => setEditRef(null)}
         >
           <div className="space-y-3">
-            <InputField label="Registry 登记流程" hint={`共 ${registry?.workflows.length ?? 0} 个登记流程，全部 executable=false（未连接实际 Runtime）`}>
+            <InputField label="登记流程" hint={`共 ${registry?.workflows.length ?? 0} 个登记流程，均未连接实际流程运行时`}>
               <select
                 value={pickedWorkflowId}
                 onChange={(e) => {
@@ -427,13 +426,13 @@ export default function WorkflowsPage() {
                   <p className="font-bold text-slate-700">{picked.nameCn}</p>
                   <p>{picked.description}</p>
                   <p className="text-[10.5px] text-slate-500">
-                    Registry 版本 <span className="font-mono">{picked.versionId}</span> · Owner <span className="font-mono">{picked.ownerService}</span> · 未连接 Runtime（executable=false）
+                    登记版本 <span className="font-mono">{picked.versionId}</span> · 责任服务 <span className="font-mono">{picked.ownerService}</span> · 未连接运行时
                   </p>
                   <p className="font-mono text-[10.5px] text-slate-400 break-all">所需行动 {picked.requiredActionIds.join(' | ')}</p>
                 </div>
               ) : null;
             })()}
-            <InputField label="workflowVersionId" hint="必须固定明确版本（默认取 Registry 登记版本）">
+            <InputField label="流程版本" hint="必须固定明确版本（默认取登记版本）">
               <input value={pickedVersionId} onChange={(e) => setPickedVersionId(e.target.value)} className="input font-mono"/>
             </InputField>
             {formError && <p className="text-[11.5px] text-red-600">{formError}</p>}
@@ -470,30 +469,30 @@ function WorkflowInspector({ref_, registered, compat, editable, onEdit}: {
       </div>
       <div className="space-y-2 text-[12px]">
         <div className="flex items-start justify-between gap-3">
-          <span className="text-slate-400 text-[11px] font-semibold shrink-0">workflowId</span>
+          <span className="text-slate-400 text-[11px] font-semibold shrink-0">流程</span>
           <span className="font-mono text-slate-600 text-right break-all">{ref_.workflowId}</span>
         </div>
         <div className="flex items-start justify-between gap-3">
-          <span className="text-slate-400 text-[11px] font-semibold shrink-0">workflowVersionId</span>
+          <span className="text-slate-400 text-[11px] font-semibold shrink-0">流程版本</span>
           <span className="font-mono text-slate-600 text-right break-all">{ref_.workflowVersionId}</span>
         </div>
         <div className="flex items-start justify-between gap-3">
-          <span className="text-slate-400 text-[11px] font-semibold shrink-0">ownerService</span>
+          <span className="text-slate-400 text-[11px] font-semibold shrink-0">责任服务</span>
           <span className="font-mono text-slate-600 text-right">{ref_.ownerService}</span>
         </div>
         <div className="flex items-start justify-between gap-3">
-          <span className="text-slate-400 text-[11px] font-semibold shrink-0">Runtime</span>
+          <span className="text-slate-400 text-[11px] font-semibold shrink-0">运行时</span>
           <span className="text-right">
             {registered
               ? registered.executable
                 ? <span className="text-emerald-600 font-semibold">可执行</span>
-                : <span className="text-amber-700 font-semibold">未连接（executable=false）</span>
-              : <span className="text-amber-700 font-semibold">Registry 未登记</span>}
+                : <span className="text-amber-700 font-semibold">未连接运行时</span>
+              : <span className="text-amber-700 font-semibold">未登记</span>}
           </span>
         </div>
       </div>
       <div className="space-y-1.5">
-        <p className="text-[11px] font-bold text-slate-600">requiredActionIds（{ref_.requiredActionIds.length}）</p>
+        <p className="text-[11px] font-bold text-slate-600">所需行动（{ref_.requiredActionIds.length}）</p>
         {ref_.requiredActionIds.map((aid) => (
           <p key={aid} className={`text-[10.5px] font-mono flex items-center gap-1 ${compat.missing.includes(aid) ? 'text-red-600' : 'text-slate-500'}`}>
             <CircleDot className="h-2.5 w-2.5 shrink-0"/>{aid}
