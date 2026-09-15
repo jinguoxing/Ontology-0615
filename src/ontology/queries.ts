@@ -106,6 +106,19 @@ export function useChangeSets(scope: ActorScope, modelId: string | undefined) {
   });
 }
 
+/** 单个 ChangeSet（Batch 3.5 状态带：草稿目标版本 targetVersionId 等真实登记值）。 */
+export function useChangeSet(scope: ActorScope, modelId: string | undefined, changeSetId: string | null | undefined) {
+  return useQuery({
+    queryKey: modelId && changeSetId
+      ? ontologyKeys.changeSet({...scope, modelId}, changeSetId)
+      : ['ontology-v1', 'disabled'],
+    queryFn: () => ontologyV1.getChangeSet(modelId!, changeSetId!),
+    select: (r) => r.data,
+    enabled: Boolean(modelId && changeSetId),
+    staleTime: 15_000,
+  });
+}
+
 export function useVersions(scope: ActorScope, modelId: string | undefined) {
   return useQuery({
     queryKey: modelId ? [...ontologyKeys.model({...scope, modelId}), 'versions'] : ['ontology-v1', 'disabled'],

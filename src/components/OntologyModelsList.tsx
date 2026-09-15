@@ -1,5 +1,5 @@
 /**
- * 业务本体列表（Batch 2 重写）。
+ * 业务本体列表（Batch 2 重写；Batch 3.5 并入 Semovix 外壳）。
  *
  * 数据只来自 GET /models（契约 Mock 服务）。区分系统模型（origin=SYSTEM，
  * 数据治理域，不可新建）与业务本体（origin=TENANT，经 POST /models 创建，
@@ -10,6 +10,7 @@
  * - 创建变更：POST /models/:id/changesets（基于当前正式版本）。
  * - 继续草稿：读取 GET /models/:id/changesets/:cid 获取最新修订号后跳转。
  * 没有筛选器/统计卡的伪造；loading、error、empty、无权限（viewer）均有明确状态。
+ * 顶部导航 / 演示标识 / 身份切换由 SemovixShell 提供。
  */
 import {useState, type ReactNode} from 'react';
 import {useNavigate} from 'react-router-dom';
@@ -17,7 +18,6 @@ import {useQueryClient} from '@tanstack/react-query';
 import {
   AlertTriangle,
   CheckCircle2,
-  CircleDot,
   FileClock,
   GitBranch,
   Loader2,
@@ -34,11 +34,9 @@ import {
   useActorScope,
   useCreateChangeSet,
   useCreateModel,
-  useInvalidateOnActorChange,
   useModels,
   useSession,
 } from '../ontology/queries';
-import {DEMO_ACTORS, useDemoIdentity} from '../ontology/identity';
 
 const ID_PATTERN = /^[A-Za-z][A-Za-z0-9_.:-]*$/;
 
@@ -51,14 +49,11 @@ function nextTargetVersion(current: string | null | undefined): string {
 }
 
 export default function OntologyModelsList() {
-  useInvalidateOnActorChange();
   const actorScope = useActorScope();
   const sessionQuery = useSession(actorScope);
   const modelsQuery = useModels(actorScope);
   const createModel = useCreateModel(actorScope);
   const navigate = useNavigate();
-  const actor = useDemoIdentity((s) => s.actor);
-  const setActor = useDemoIdentity((s) => s.setActor);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [form, setForm] = useState({id: '', name: '', ownerRef: ''});
@@ -102,41 +97,9 @@ export default function OntologyModelsList() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
-      {/* 顶栏 */}
-      <div className="bg-white border-b border-slate-200/70">
-        <div className="max-w-[1440px] mx-auto px-6 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span className="font-semibold text-slate-800">业务语义</span>
-            <span className="text-slate-300">/</span>
-            <span>业务本体</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200"
-              title="数据来自 ontology-delivery 契约 Mock 服务（meta.dataMode=MOCK），未连接任何生产服务"
-            >
-              <CircleDot className="h-3 w-3"/>
-              演示数据 · Mock API
-            </span>
-            <label className="inline-flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
-              演示身份
-              <select
-                value={actor}
-                onChange={(e) => setActor(e.target.value as 'demo-maintainer' | 'demo-viewer')}
-                className="px-2 py-1 text-[11px] font-semibold border border-slate-200 rounded-lg bg-white text-slate-700 focus:outline-none focus:border-blue-500"
-              >
-                {DEMO_ACTORS.map((a) => (
-                  <option key={a.id} value={a.id}>{a.label}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <main className="max-w-[1440px] mx-auto px-6 py-6 space-y-6">
-        {/* 页头 */}
+    <div className="min-h-full">
+      <main className="px-8 py-6 space-y-6">
+        {/* 页头（面包屑 / 演示标识 / 身份切换由 SemovixShell 渲染） */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-lg font-bold text-slate-800 flex items-center gap-2">

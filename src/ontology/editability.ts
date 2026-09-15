@@ -64,13 +64,14 @@ export function editPolicy({origin, model, view, capabilities}: EditPolicyInput)
   if (!view) {
     return {editable: false, reason: 'loading', originNote: note};
   }
-  // 2) 草稿状态：正式版本（readOnly）只读。
-  if (view.readOnly) {
-    return {editable: false, reason: 'published-version', originNote: note};
-  }
-  // 3) Session Capability：无 ontology.edit 只读（服务端 403 兜底）。
+  // 2) Session Capability：无 ontology.edit 只读（服务端 403 兜底）。先于视图判断：
+  //    viewer 读草稿时服务端也会给 readOnly=true，但真实原因是权限而非版本。
   if (!capabilities?.includes('ontology.edit')) {
     return {editable: false, reason: 'viewer-permission', originNote: note};
+  }
+  // 3) 草稿状态：正式版本（readOnly）只读。
+  if (view.readOnly) {
+    return {editable: false, reason: 'published-version', originNote: note};
   }
   // 4) 类型来源：EXTERNAL 永不可写；LOCAL/SYSTEM 在草稿中可编辑。
   //    （model.origin 只影响语义说明：SYSTEM 模型的内置类型在自身草稿中可编辑。）

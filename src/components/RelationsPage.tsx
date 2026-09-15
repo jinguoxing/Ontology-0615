@@ -1,9 +1,12 @@
 /**
- * 关系与约束页（Batch 3 · 04）。
+ * 关系与约束页（Batch 3 · 04；Batch 3.5 结构对齐）。
  *
  * - 读取：GET /models/:id/relations 与 GET /models/:id/constraints（同一
  *   ViewReference）；端点类型的名称 / origin 取自同一视图的 objectTypes。
- * - 表格、关系图与 Inspector 消费同一份 relations 查询（单一数据源）。
+ * - 表格视图 / 结构视图共用同一主区域（默认表格），与 Inspector 消费同一份
+ *   relations 查询（单一数据源）；七类关系只用于筛选与轻量标识。
+ * - 下方只显示当前选中关系端点上的相关约束摘要；“查看全部约束”在抽屉中
+ *   展示完整约束表（含编辑）。
  * - 写入：UPSERT / REMOVE 经 POST /changesets/:id/operations（If-Match +
  *   Idempotency-Key）；外部类型（EXTERNAL）可作为关系端点，但其自身定义
  *   仍不可编辑（服务端 EXTERNAL_READ_ONLY）。删除关系只写入 REMOVE 操作，
@@ -16,11 +19,14 @@ import {useEffect, useMemo, useState, type ReactNode} from 'react';
 import {
   AlertTriangle,
   ExternalLink,
+  LayoutGrid,
   Loader2,
   Pencil,
   Plus,
   Search,
+  Share2,
   ShieldCheck,
+  Table2,
   Trash2,
 } from 'lucide-react';
 import type {
@@ -38,6 +44,7 @@ import {useModelContext} from '../ontology/ModelContext';
 import {
   DraftGateNotice,
   DraftTargetNote,
+  Drawer,
   FormStyles,
   InputField,
   Modal,
@@ -118,6 +125,9 @@ export default function RelationsPage() {
 
   const [filter, setFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<RelationDefinition['category'] | 'ALL'>('ALL');
+  // 表格视图 / 结构视图共用同一主区域（默认表格）。
+  const [viewMode, setViewMode] = useState<'table' | 'graph'>('table');
+  const [allConstraintsOpen, setAllConstraintsOpen] = useState(false);
   const [relModal, setRelModal] = useState<{mode: 'add' | 'edit'} | null>(null);
   const [relDraft, setRelDraft] = useState<RelationDraft | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -151,6 +161,14 @@ export default function RelationsPage() {
 
   const current = selRelationId ? relations.find((r) => r.id === selRelationId) : undefined;
   const currentConstraint = selConstraintId ? constraints.find((c) => c.id === selConstraintId) : undefined;
+
+  // 当前关系端点上的相关约束（约束的 targetTypeId 命中源 / 目标类型）。
+  const relatedConstraints = useMemo(() => {
+    if (!current) return [];
+    return constraints.filter(
+      (c) => c.targetTypeId === current.sourceTypeId || c.targetTypeId === current.targetTypeId,
+    );
+  }, [constraints, current]);
 
   // 打开编辑弹层时同步表单；关闭时清理，避免残留上一次的输入。
   useEffect(() => {
@@ -260,7 +278,7 @@ export default function RelationsPage() {
       ) : (
         <>
           <div className="flex flex-col xl:flex-row gap-4 items-start">
-            {/* 关系表 */}
+            {/* 主区域：表格视图 / 结构视图共用（默认表格） */}
             <div className="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl overflow-hidden w-full">
               <div className="px-4 py-3 border-b border-slate-100 space-y-2.5">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -269,13 +287,24 @@ export default function RelationsPage() {
                     <span className="ml-2 text-[10.5px] font-normal text-slate-400">GET /models/{modelId}/relations</span>
                   </h2>
                   <div className="flex items-center gap-2">
+                    {/* 表格视图 / 结构视图切换：同一主区域 */}
+                    <div className="inline-flex items-center rounded-lg border border-slate-200 overflow-hidden" data-testid="relation-view-toggle">
+                      <button
+                        onClick={() => setViewMode('table')}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-bold transition-colors ${viewMode === 'table' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                      ><Table2 className="h-3 w-3"/>表格视图</button>
+                      <button
+                        onClick={() => setViewMode('graph')}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-bold transition-colors border-l border-slate-200 ${viewMode === 'graph' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                      ><Share2 className="h-3 w-3"/>结构视图</button>
+                    </div>
                     <div className="relative">
                       <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"/>
                       <input
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                         placeholder="按 ID / 名称 / 端点过滤"
-                        className="pl-8 pr-2 py-1.5 text-[11.5px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 w-56"
+                        className="pl-8 pr-2 py-1.5 text-[11.5px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 w-52"
                       />
                     </div>
                     {editable && (
@@ -288,6 +317,7 @@ export default function RelationsPage() {
                     )}
                   </div>
                 </div>
+                {/* 七类关系只用于筛选与轻量标识 */}
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <button
                     onClick={() => setCategoryFilter('ALL')}
@@ -304,66 +334,88 @@ export default function RelationsPage() {
                   ))}
                 </div>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs min-w-[720px]">
-                  <thead>
-                    <tr className="bg-slate-50 text-slate-500 text-[10.5px] uppercase tracking-wide">
-                      <th className="text-left px-4 py-2 font-bold">关系</th>
-                      <th className="text-left px-3 py-2 font-bold">源类型</th>
-                      <th className="text-left px-3 py-2 font-bold">目标类型</th>
-                      <th className="text-left px-3 py-2 font-bold">类别</th>
-                      <th className="text-left px-3 py-2 font-bold">基数（源 / 目标）</th>
-                      {editable && <th className="px-4 py-2"/>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((r) => {
-                      const cat = CATEGORY_BY_ID.get(r.category);
-                      const active = r.id === selRelationId;
-                      return (
-                        <tr
-                          key={r.id}
-                          onClick={() => {select(r.id); setRemoving(null);}}
-                          className={`border-t border-slate-100 cursor-pointer ${active ? 'bg-blue-50/70' : 'hover:bg-slate-50/60'}`}
-                        >
-                          <td className="px-4 py-2.5">
-                            <p className="font-bold text-slate-700">{r.nameCn}</p>
-                            <p className="font-mono text-[9.5px] text-slate-400">{r.id}</p>
-                          </td>
-                          <td className="px-3 py-2.5"><TypeRef id={r.sourceTypeId} type={typeById.get(r.sourceTypeId)}/></td>
-                          <td className="px-3 py-2.5"><TypeRef id={r.targetTypeId} type={typeById.get(r.targetTypeId)}/></td>
-                          <td className="px-3 py-2.5">
-                            {cat && <span className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${cat.cls}`}>{cat.label}</span>}
-                          </td>
-                          <td className="px-3 py-2.5 font-mono text-[10.5px] text-slate-500">
-                            {fmtCard(r.sourceCardinality)} / {fmtCard(r.targetCardinality)}
-                          </td>
-                          {editable && (
-                            <td className="px-4 py-2.5 text-right whitespace-nowrap">
-                              <button
-                                onClick={(e) => {e.stopPropagation(); select(r.id); setRelModal({mode: 'edit'});}}
-                                className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50"
-                                title="编辑关系"
-                              ><Pencil className="h-3.5 w-3.5"/></button>
+              {viewMode === 'table' ? (
+                <div className="overflow-auto max-h-[46vh]" data-testid="relation-table">
+                  <table className="w-full text-xs min-w-[720px]">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-500 text-[10.5px] uppercase tracking-wide sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
+                        <th className="text-left px-4 py-2 font-bold">关系</th>
+                        <th className="text-left px-3 py-2 font-bold">源类型</th>
+                        <th className="text-left px-3 py-2 font-bold">目标类型</th>
+                        <th className="text-left px-3 py-2 font-bold">类别</th>
+                        <th className="text-left px-3 py-2 font-bold">基数（源 / 目标）</th>
+                        {editable && <th className="px-4 py-2"/>}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filtered.map((r) => {
+                        const cat = CATEGORY_BY_ID.get(r.category);
+                        const active = r.id === selRelationId;
+                        return (
+                          <tr
+                            key={r.id}
+                            onClick={() => {select(r.id); setRemoving(null);}}
+                            className={`border-t border-slate-100 cursor-pointer ${active ? 'bg-blue-50/70' : 'hover:bg-slate-50/60'}`}
+                          >
+                            <td className="px-4 py-2.5">
+                              <p className="font-bold text-slate-700">{r.nameCn}</p>
+                              <p className="font-mono text-[9.5px] text-slate-400">{r.id}</p>
                             </td>
-                          )}
-                        </tr>
-                      );
-                    })}
-                    {filtered.length === 0 && (
-                      <tr><td colSpan={editable ? 6 : 5} className="px-4 py-8 text-center text-slate-400">无匹配的关系</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                            <td className="px-3 py-2.5"><TypeRef id={r.sourceTypeId} type={typeById.get(r.sourceTypeId)}/></td>
+                            <td className="px-3 py-2.5"><TypeRef id={r.targetTypeId} type={typeById.get(r.targetTypeId)}/></td>
+                            <td className="px-3 py-2.5">
+                              {cat && <span className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${cat.cls}`}>{cat.label}</span>}
+                            </td>
+                            <td className="px-3 py-2.5 font-mono text-[10.5px] text-slate-500">
+                              {fmtCard(r.sourceCardinality)} / {fmtCard(r.targetCardinality)}
+                            </td>
+                            {editable && (
+                              <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                                <button
+                                  onClick={(e) => {e.stopPropagation(); select(r.id); setRelModal({mode: 'edit'});}}
+                                  className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50"
+                                  title="编辑关系"
+                                ><Pencil className="h-3.5 w-3.5"/></button>
+                              </td>
+                            )}
+                          </tr>
+                        );
+                      })}
+                      {filtered.length === 0 && (
+                        <tr><td colSpan={editable ? 6 : 5} className="px-4 py-8 text-center text-slate-400">无匹配的关系</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div data-testid="relation-graph">
+                  <div className="overflow-auto max-h-[46vh]">
+                    <RelationsGraph
+                      relations={filtered}
+                      typeById={typeById}
+                      selectedId={selRelationId}
+                      onSelect={(id) => select(id)}
+                    />
+                  </div>
+                  <div className="px-4 py-2.5 border-t border-slate-100 flex items-center gap-3 flex-wrap">
+                    {RELATION_CATEGORIES.map((c) => (
+                      <span key={c.id} className="inline-flex items-center gap-1 text-[10px] text-slate-500 font-semibold">
+                        <span className="inline-block h-0.5 w-4 rounded" style={{background: c.edge}}/>{c.label}
+                      </span>
+                    ))}
+                    <span className="ml-auto text-[10px] text-slate-400">节点 = 关系端点类型 · 连线颜色 = 类别 · 点击连线选中关系</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Inspector */}
             <aside className="w-full xl:w-96 shrink-0 bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
               {!current ? (
                 <div className="py-12 text-center space-y-2">
-                  <p className="text-xs text-slate-400">在表格或关系图中选择一个关系</p>
-                  <p className="text-[10.5px] text-slate-300">Inspector 与表格 / 关系图读取同一份 relations 数据</p>
+                  <LayoutGrid className="h-6 w-6 text-slate-200 mx-auto"/>
+                  <p className="text-xs text-slate-400">在表格或结构视图中选择一个关系</p>
+                  <p className="text-[10.5px] text-slate-300">Inspector 与两个视图读取同一份 relations 数据</p>
                 </div>
               ) : (
                 <RelationInspector
@@ -380,110 +432,135 @@ export default function RelationsPage() {
             </aside>
           </div>
 
-          {/* 关系图：与表格同一份数据 */}
+          {/* 相关约束摘要：只显示当前关系端点上的约束；“查看全部约束”进抽屉 */}
           <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
             <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
-              <h2 className="text-[13px] font-bold text-slate-700">关系图 <span className="font-mono text-slate-400">({relations.length})</span></h2>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                {RELATION_CATEGORIES.map((c) => (
-                  <span key={c.id} className="inline-flex items-center gap-1 text-[10px] text-slate-500 font-semibold">
-                    <span className="inline-block h-0.5 w-4 rounded" style={{background: c.edge}}/>{c.label}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <RelationsGraph
-                relations={relations}
-                typeById={typeById}
-                selectedId={selRelationId}
-                onSelect={(id) => select(id)}
-              />
-            </div>
-          </div>
-
-          {/* 约束 */}
-          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100">
-              <h2 className="text-[13px] font-bold text-slate-700">
-                约束定义 <span className="font-mono text-slate-400">({constraints.length})</span>
-                <span className="ml-2 text-[10.5px] font-normal text-slate-400">GET /models/{modelId}/constraints</span>
+              <h2 className="text-[13px] font-bold text-slate-700 flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-slate-400"/>
+                相关约束
+                <span className="font-mono text-slate-400">({relatedConstraints.length})</span>
+                <span className="ml-1 text-[10.5px] font-normal text-slate-400">GET /models/{modelId}/constraints</span>
               </h2>
+              <button
+                onClick={() => setAllConstraintsOpen(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-slate-800"
+              >
+                查看全部约束（{constraints.length}）
+              </button>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs min-w-[680px]">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 text-[10.5px] uppercase tracking-wide">
-                    <th className="text-left px-4 py-2 font-bold">约束</th>
-                    <th className="text-left px-3 py-2 font-bold">范围</th>
-                    <th className="text-left px-3 py-2 font-bold">目标类型</th>
-                    <th className="text-left px-3 py-2 font-bold">规则</th>
-                    <th className="text-left px-3 py-2 font-bold">表达式</th>
-                    {editable && <th className="px-4 py-2"/>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {constraints.map((c) => {
-                    const badge = SCOPE_BADGE[c.scope];
-                    const active = c.id === selConstraintId;
-                    return (
-                      <tr
-                        key={c.id}
-                        onClick={() => select(`c:${c.id}`)}
-                        className={`border-t border-slate-100 cursor-pointer ${active ? 'bg-blue-50/70' : 'hover:bg-slate-50/60'}`}
-                      >
-                        <td className="px-4 py-2.5">
-                          <p className="font-bold text-slate-700">{c.nameCn}</p>
-                          <p className="font-mono text-[9.5px] text-slate-400">{c.id}</p>
-                        </td>
-                        <td className="px-3 py-2.5">
-                          <span className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${badge.cls}`}>{badge.label}</span>
-                        </td>
-                        <td className="px-3 py-2.5"><TypeRef id={c.targetTypeId} type={typeById.get(c.targetTypeId)}/></td>
-                        <td className="px-3 py-2.5 font-mono text-[10.5px] text-slate-600">{c.ruleCode}</td>
-                        <td className="px-3 py-2.5 font-mono text-[10px] text-slate-400 max-w-[280px] truncate" title={JSON.stringify(c.expression)}>
-                          {JSON.stringify(c.expression)}
-                        </td>
-                        {editable && (
-                          <td className="px-4 py-2.5 text-right">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                select(`c:${c.id}`);
-                                setConstraintEdit(c);
-                                setConstraintDraft({nameCn: c.nameCn, definition: c.definition, expression: JSON.stringify(c.expression, null, 2)});
-                                setConstraintError(null);
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50"
-                              title="编辑约束"
-                            ><Pencil className="h-3.5 w-3.5"/></button>
-                          </td>
-                        )}
-                      </tr>
-                    );
-                  })}
-                  {constraints.length === 0 && (
-                    <tr><td colSpan={editable ? 6 : 5} className="px-4 py-8 text-center text-slate-400">当前视图没有约束</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-            {currentConstraint && (
-              <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60 space-y-2">
-                <p className="text-[12px] text-slate-700 leading-relaxed">{currentConstraint.definition}</p>
-                {currentConstraint.scope === 'GOVERNANCE_RECORD' ? (
-                  <p className="flex items-start gap-1.5 text-[11.5px] text-amber-700">
-                    <ShieldCheck className="h-3.5 w-3.5 shrink-0 mt-0.5"/>
-                    治理记录（GOVERNANCE_RECORD）：Mock 环境仅保证规则定义有效（表达式可解析、目标存在），
-                    不宣称治理实例已经验证或满足——实例验证需要真实治理运行时（本演示未连接）。
-                  </p>
-                ) : (
-                  <p className="text-[11.5px] text-slate-500">模型定义约束（MODEL_DEFINITION）：约束随模型定义一起版本化。</p>
-                )}
+            {!current ? (
+              <p className="px-4 py-6 text-center text-xs text-slate-400">选择一个关系后，这里显示其源 / 目标类型上挂载的约束摘要。</p>
+            ) : relatedConstraints.length === 0 ? (
+              <p className="px-4 py-6 text-center text-xs text-slate-400">
+                关系 <span className="font-mono text-slate-500">{current.id}</span> 的端点类型（{current.sourceTypeId} / {current.targetTypeId}）上没有挂载约束；
+                全部 {constraints.length} 条约束见「查看全部约束」。
+              </p>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {relatedConstraints.map((c) => {
+                  const badge = SCOPE_BADGE[c.scope];
+                  return (
+                    <div
+                      key={c.id}
+                      onClick={() => select(`c:${c.id}`)}
+                      className={`px-4 py-3 cursor-pointer transition-colors ${c.id === selConstraintId ? 'bg-blue-50/70' : 'hover:bg-slate-50/60'}`}
+                    >
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="min-w-0">
+                          <span className="text-[12.5px] font-bold text-slate-700">{c.nameCn}</span>
+                          <span className="ml-2 font-mono text-[9.5px] text-slate-400">{c.id}</span>
+                        </div>
+                        <span className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${badge.cls}`}>{badge.label}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-1">
+                        作用于端点 <TypeRef id={c.targetTypeId} type={typeById.get(c.targetTypeId)}/> ·
+                        规则 <span className="font-mono text-slate-600">{c.ruleCode}</span>
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         </>
+      )}
+
+      {/* 全部约束（次级抽屉，含编辑入口） */}
+      {allConstraintsOpen && (
+        <Drawer
+          title={`全部约束（${constraints.length}）`}
+          subtitle={`GET /models/${modelId}/constraints · 与关系同一 ViewReference。点击行选中；GOVERNANCE_RECORD 仅保证规则定义有效，不宣称治理实例已验证。`}
+          onClose={() => setAllConstraintsOpen(false)}
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs min-w-[560px]">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 text-[10.5px] uppercase tracking-wide">
+                  <th className="text-left px-3 py-2 font-bold">约束</th>
+                  <th className="text-left px-3 py-2 font-bold">范围</th>
+                  <th className="text-left px-3 py-2 font-bold">目标类型</th>
+                  <th className="text-left px-3 py-2 font-bold">规则</th>
+                  {editable && <th className="px-3 py-2"/>}
+                </tr>
+              </thead>
+              <tbody>
+                {constraints.map((c) => {
+                  const badge = SCOPE_BADGE[c.scope];
+                  const active = c.id === selConstraintId;
+                  return (
+                    <tr
+                      key={c.id}
+                      onClick={() => select(`c:${c.id}`)}
+                      className={`border-t border-slate-100 cursor-pointer ${active ? 'bg-blue-50/70' : 'hover:bg-slate-50/60'}`}
+                    >
+                      <td className="px-3 py-2.5">
+                        <p className="font-bold text-slate-700">{c.nameCn}</p>
+                        <p className="font-mono text-[9.5px] text-slate-400">{c.id}</p>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${badge.cls}`}>{badge.label}</span>
+                      </td>
+                      <td className="px-3 py-2.5"><TypeRef id={c.targetTypeId} type={typeById.get(c.targetTypeId)}/></td>
+                      <td className="px-3 py-2.5 font-mono text-[10.5px] text-slate-600">{c.ruleCode}</td>
+                      {editable && (
+                        <td className="px-3 py-2.5 text-right">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              select(`c:${c.id}`);
+                              setConstraintEdit(c);
+                              setConstraintDraft({nameCn: c.nameCn, definition: c.definition, expression: JSON.stringify(c.expression, null, 2)});
+                              setConstraintError(null);
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50"
+                            title="编辑约束"
+                          ><Pencil className="h-3.5 w-3.5"/></button>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
+                {constraints.length === 0 && (
+                  <tr><td colSpan={editable ? 5 : 4} className="px-3 py-8 text-center text-slate-400">当前视图没有约束</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          {currentConstraint && (
+            <div className="mt-3 px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+              <p className="text-[12px] text-slate-700 leading-relaxed">{currentConstraint.definition}</p>
+              {currentConstraint.scope === 'GOVERNANCE_RECORD' ? (
+                <p className="flex items-start gap-1.5 text-[11px] text-amber-700">
+                  <ShieldCheck className="h-3.5 w-3.5 shrink-0 mt-0.5"/>
+                  治理记录（GOVERNANCE_RECORD）：Mock 环境仅保证规则定义有效（表达式可解析、目标存在），
+                  不宣称治理实例已经验证或满足——实例验证需要真实治理运行时（本演示未连接）。
+                </p>
+              ) : (
+                <p className="text-[11px] text-slate-500">模型定义约束（MODEL_DEFINITION）：约束随模型定义一起版本化。</p>
+              )}
+            </div>
+          )}
+        </Drawer>
       )}
 
       {/* 关系编辑弹层 */}
@@ -682,7 +759,7 @@ function RelationsGraph({relations, typeById, selectedId, onSelect}: {
   }, [relations]);
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{minWidth: 640, maxWidth: 940, margin: '0 auto', display: 'block'}}>
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{minWidth: 640, maxWidth: 1100, margin: '0 auto', display: 'block'}}>
       {relations.map((r) => {
         const a = layout.get(r.sourceTypeId);
         const b = layout.get(r.targetTypeId);

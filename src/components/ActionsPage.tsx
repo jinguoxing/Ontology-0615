@@ -1,30 +1,43 @@
 /**
- * 行动契约页（Batch 3 · 05）。
+ * 行动契约页（Batch 3 · 05；Batch 3.5 三栏结构对齐）。
  *
  * - 读取：GET /models/:id/actions（同一 ViewReference）；默认选中
  *   confirmAssertion（URL selected 参数，可深链接复现）。
- * - 展示：输入 / 输出类型、IO Contract 引用、确认模式、前置条件、副作用、
- *   Owner Service 与定义——全部来自 HTTP 返回，不在组件内硬编码种子。
- * - 验证：GET /api/v1/ontology/action-fixtures + POST /models/:id/action-tests。
- *   结果明确标识 MOCK（realExecution=false、modelChanged=false），不改变模型
- *   revision，也不宣称连接了生产 Runtime。
- * - 本页没有“执行治理实例”入口：Action Contract 按钮不得直接执行治理动作；
+ * - 三栏：左 = 行动列表；中 = 行动定义、状态变化、前置条件、成功结果、
+ *   副作用；右 = 输入 / 输出合同、实现边界与安全边界。
+ * - 实现边界读取 GET /models/:id/implementation-bindings + GET /registry，
+ *   用 resolveBinding 对照（与实现绑定页 / 冒烟脚本同一实现）。
+ * - 验证（次级入口）：GET /api/v1/ontology/action-fixtures + POST
+ *   /models/:id/action-tests 在抽屉中运行。结果明确标识 MOCK
+ *   （realExecution=false、modelChanged=false），不改变模型 revision，
+ *   也不宣称连接了生产 Runtime。
+ * - 边界：行动契约不直接执行治理实例，不发布本体，不启动流程。
  *   没有 Fixture 的行动不显示任何测试成功状态。
  */
-import {useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState, type ReactNode} from 'react';
 import {
   AlertTriangle,
   Ban,
   CircleDot,
   FlaskConical,
   Loader2,
+  Lock,
   Play,
   Search,
   ShieldCheck,
 } from 'lucide-react';
 import type {ActionContract, ActionFixture, ActionTestResult, ObjectTypeDefinition} from '../api/ontology-v1/types.generated';
-import {useActionFixtures, useActions, useActorScope, useTestAction} from '../ontology/queries';
+import {
+  useActionFixtures,
+  useActions,
+  useActorScope,
+  useImplementationBindings,
+  useRegistry,
+  useTestAction,
+} from '../ontology/queries';
+import {resolveBinding} from '../ontology/compatibility';
 import {useModelContext} from '../ontology/ModelContext';
+import {Drawer} from '../ontology/draftWrite';
 
 const DEFAULT_ACTION_ID = 'confirmAssertion';
 
@@ -35,6 +48,9 @@ const SIDE_EFFECT_LABEL: Record<string, string> = {
   EXTERNAL_JOB: '外部作业',
   SOURCE_WRITE: '写入数据源',
 };
+
+/** 治理视角的副作用分级（用于安全边界说明，不改契约值）。 */
+const GOVERNED_SIDE_EFFECTS = new Set(['GOVERNANCE_STATE', 'SOURCE_WRITE', 'EXTERNAL_JOB']);
 
 const CONFIRMATION_LABEL: Record<ActionContract['confirmationMode'], string> = {
   NONE: '无需确认',
@@ -47,15 +63,20 @@ export default function ActionsPage() {
   const scope = useActorScope();
   const actionsQuery = useActions(scope, modelId, ctx.view);
   const fixturesQuery = useActionFixtures(scope);
+  const bindingsQuery = useImplementationBindings(scope, modelId, ctx.view);
+  const registryQuery = useRegistry(scope);
   const testAction = useTestAction(modelId);
 
   const [filter, setFilter] = useState('');
   const [fixtureId, setFixtureId] = useState<string | null>(null);
+  const [fixturesOpen, setFixturesOpen] = useState(false);
 
   const types = useMemo(() => resolvedView?.document.objectTypes ?? [], [resolvedView]);
   const typeById = useMemo(() => new Map(types.map((t) => [t.id, t])), [types]);
   const actions = actionsQuery.data?.items ?? [];
   const fixtures = fixturesQuery.data?.items ?? [];
+  const bindings = bindingsQuery.data?.items ?? [];
+  const registry = registryQuery.data;
 
   // 默认选中 confirmAssertion（仅当 URL 未携带 selected 时，replace 不产生历史）。
   useEffect(() => {
@@ -68,6 +89,11 @@ export default function ActionsPage() {
   const currentFixtures = useMemo(
     () => (current ? fixtures.filter((f) => f.actionId === current.id) : []),
     [fixtures, current],
+  );
+  // 当前行动的实现绑定（实现边界栏）。
+  const currentBindings = useMemo(
+    () => (current ? bindings.filter((b) => b.actionId === current.id) : []),
+    [bindings, current],
   );
 
   const q = filter.trim().toLowerCase();
@@ -82,12 +108,12 @@ export default function ActionsPage() {
 
   return (
     <div className="space-y-4">
-      {/* 页面边界声明：契约查看 + 用例验证，不是治理执行入口 */}
+      {/* 页面边界声明：契约查看 + 用例验证，不是治理执行 / 发布 / 流程入口 */}
       <div className="flex items-start gap-2 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-[12px] text-slate-600">
         <Ban className="h-4 w-4 shrink-0 mt-0.5 text-slate-400"/>
         <p>
-          本页只展示行动契约（Action Contract）并通过验证用例（Fixture）做<b>只读模拟验证</b>。
-          行动契约按钮不直接执行治理实例动作；治理执行需要真实治理运行时（本演示环境未连接）。
+          本页只维护行动契约并通过验证用例做<b>只读模拟验证</b>：行动契约<b>不直接执行治理实例、不发布本体、不启动流程</b>。
+          治理执行需要真实治理运行时，发布走发布流程（Batch 4），流程启动属于 Workflow Runtime（本演示均未连接）。
         </p>
       </div>
 
@@ -102,9 +128,9 @@ export default function ActionsPage() {
           <p>{(actionsQuery.error as Error).message}</p>
         </div>
       ) : (
-        <div className="flex flex-col lg:flex-row gap-4 items-start">
-          {/* 行动列表 */}
-          <aside className="w-full lg:w-80 shrink-0 bg-white border border-slate-200 rounded-2xl p-3 space-y-2">
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+          {/* 左栏：行动列表 */}
+          <aside className="w-full lg:w-72 shrink-0 bg-white border border-slate-200 rounded-2xl p-3 space-y-2 self-stretch">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"/>
               <input
@@ -117,13 +143,13 @@ export default function ActionsPage() {
             <p className="px-1 text-[10.5px] text-slate-400">
               行动契约 <span className="font-mono font-bold text-slate-500">{actions.length}</span> 个 · 默认选中 {DEFAULT_ACTION_ID}
             </p>
-            <div className="max-h-[560px] overflow-y-auto space-y-1 pr-0.5">
+            <div className="max-h-[640px] overflow-y-auto space-y-1 pr-0.5">
               {filtered.map((a) => {
                 const active = a.id === selectedId;
                 return (
                   <button
                     key={a.id}
-                    onClick={() => {select(a.id); setFixtureId(null);}}
+                    onClick={() => {select(a.id); setFixtureId(null); setFixturesOpen(false);}}
                     className={`w-full text-left px-2.5 py-2 rounded-lg border transition-all ${
                       active ? 'bg-blue-50 border-blue-300' : 'border-transparent hover:bg-slate-50 hover:border-slate-200'
                     }`}
@@ -144,14 +170,15 @@ export default function ActionsPage() {
             </div>
           </aside>
 
-          {/* Inspector + 验证 */}
-          <div className="flex-1 min-w-0 space-y-4">
-            {!current ? (
-              <div className="bg-white border border-dashed border-slate-300 rounded-2xl py-16 text-center text-xs text-slate-400">
-                在左侧选择一个行动契约{selectedId && <>（URL 中的 selected={selectedId} 不存在于当前视图）</>}
-              </div>
-            ) : (
-              <>
+          {/* 中栏 + 右栏 */}
+          {!current ? (
+            <div className="flex-1 bg-white border border-dashed border-slate-300 rounded-2xl py-16 text-center text-xs text-slate-400">
+              在左侧选择一个行动契约{selectedId && <>（URL 中的 selected={selectedId} 不存在于当前视图）</>}
+            </div>
+          ) : (
+            <>
+              {/* 中栏：行动定义 / 状态变化 / 前置条件 / 成功结果 / 副作用 */}
+              <div className="flex-1 min-w-0 space-y-4">
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
                   <div className="flex items-start justify-between gap-3 flex-wrap">
                     <div className="min-w-0">
@@ -162,45 +189,42 @@ export default function ActionsPage() {
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                         Owner {current.ownerService}
                       </span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                        current.confirmationMode === 'EXPLICIT' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-slate-100 text-slate-600 border-slate-200'
-                      }`}>
-                        确认模式 {CONFIRMATION_LABEL[current.confirmationMode]}
-                      </span>
+                      {/* Fixture 次级入口：抽屉，不占据主界面 */}
+                      <button
+                        onClick={() => setFixturesOpen(true)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10.5px] font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
+                        title="GET /action-fixtures · POST /action-tests · 只读模拟，不改变 revision"
+                      >
+                        <FlaskConical className="h-3 w-3"/>验证用例（{currentFixtures.length}）
+                      </button>
                     </div>
                   </div>
-                  <p className="text-[12.5px] text-slate-600 leading-relaxed">{current.definition}</p>
 
-                  <div className="grid sm:grid-cols-2 gap-3 pt-1">
-                    <FieldList
-                      label={`输入类型 inputTypeIds（${current.inputTypeIds.length}）`}
-                      ids={current.inputTypeIds}
-                      typeById={typeById}
-                      emptyText="无输入类型"
-                    />
-                    <FieldList
-                      label={`输出类型 outputTypeIds（${current.outputTypeIds.length}）`}
-                      ids={current.outputTypeIds}
-                      typeById={typeById}
-                      emptyText="无输出类型"
-                    />
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <MonoField label="输入 IO Contract" value={current.inputContractRef}/>
-                    <MonoField label="输出 IO Contract" value={current.outputContractRef}/>
-                  </div>
-                  <div className="space-y-1.5">
-                    <p className="text-[11px] font-bold text-slate-600">副作用 sideEffects</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {current.sideEffects.map((s) => (
-                        <span key={s} className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 font-mono">
-                          {s}{SIDE_EFFECT_LABEL[s] ? `（${SIDE_EFFECT_LABEL[s]}）` : ''}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <p className="text-[11px] font-bold text-slate-600">前置条件 preconditions（{current.preconditions.length}）</p>
+                  {/* 行动定义 */}
+                  <Section label="行动定义">
+                    <p className="text-[12.5px] text-slate-600 leading-relaxed">{current.definition}</p>
+                  </Section>
+
+                  {/* 状态变化：契约用 sideEffects 声明治理状态变化，Mock 环境不执行 */}
+                  <Section label="状态变化">
+                    {current.sideEffects.filter((s) => s !== 'NONE').length === 0 ? (
+                      <p className="text-[11.5px] text-slate-400">契约未声明状态变化（sideEffects 无治理 / 数据写入项）。</p>
+                    ) : (
+                      <div className="space-y-1.5">
+                        {current.sideEffects.filter((s) => s !== 'NONE').map((s) => (
+                          <p key={s} className="text-[12px] text-slate-600 flex items-center gap-1.5">
+                            <CircleDot className="h-3 w-3 text-slate-400 shrink-0"/>
+                            {SIDE_EFFECT_LABEL[s] ?? s}
+                            <span className="font-mono text-[9.5px] text-slate-400">{s}</span>
+                          </p>
+                        ))}
+                        <p className="text-[10.5px] text-slate-400">状态变化来自契约的 sideEffects 声明；本演示环境不执行任何真实状态写入。</p>
+                      </div>
+                    )}
+                  </Section>
+
+                  {/* 前置条件 */}
+                  <Section label="前置条件">
                     {current.preconditions.length === 0
                       ? <p className="text-[11.5px] text-slate-400">无前置条件</p>
                       : (
@@ -212,63 +236,177 @@ export default function ActionsPage() {
                           ))}
                         </ul>
                       )}
+                  </Section>
+
+                  {/* 成功结果：成功后产出对象（outputTypeIds），无虚构执行结果 */}
+                  <Section label="成功结果">
+                    {current.outputTypeIds.length === 0
+                      ? <p className="text-[11.5px] text-slate-400">契约未声明成功后产出的对象类型。</p>
+                      : (
+                        <div className="space-y-1">
+                          {current.outputTypeIds.map((id) => (
+                            <p key={id} className="text-[11.5px] text-slate-600">
+                              {typeById.get(id)?.nameCn ?? id}
+                              <span className="ml-1.5 font-mono text-[9.5px] text-slate-400">{id}</span>
+                              {typeById.get(id)?.origin === 'EXTERNAL' && <span className="ml-1 text-[9.5px] text-amber-600">外部引用</span>}
+                            </p>
+                          ))}
+                          <p className="text-[10.5px] text-slate-400">成功结果 = 契约声明的产出对象（outputTypeIds）；本页不展示虚构的执行结果。</p>
+                        </div>
+                      )}
+                  </Section>
+
+                  {/* 副作用 */}
+                  <Section label="副作用">
+                    <div className="flex flex-wrap gap-1.5">
+                      {current.sideEffects.map((s) => (
+                        <span key={s} className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 font-mono">
+                          {s}{SIDE_EFFECT_LABEL[s] ? `（${SIDE_EFFECT_LABEL[s]}）` : ''}
+                        </span>
+                      ))}
+                    </div>
+                  </Section>
+                </div>
+              </div>
+
+              {/* 右栏：输入 / 输出合同 · 实现边界 · 安全边界 */}
+              <aside className="w-full lg:w-80 shrink-0 space-y-4 self-stretch">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4">
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] font-bold text-slate-600">输入合同</p>
+                    <FieldList
+                      label={`输入对象（${current.inputTypeIds.length}）`}
+                      ids={current.inputTypeIds}
+                      typeById={typeById}
+                      emptyText="无输入类型"
+                    />
+                    <MonoField label="输入 IO Contract" value={current.inputContractRef}/>
+                  </div>
+                  <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                    <p className="text-[11px] font-bold text-slate-600">输出合同</p>
+                    <FieldList
+                      label={`产出对象（${current.outputTypeIds.length}）`}
+                      ids={current.outputTypeIds}
+                      typeById={typeById}
+                      emptyText="无输出类型"
+                    />
+                    <MonoField label="输出 IO Contract" value={current.outputContractRef}/>
                   </div>
                 </div>
 
-                {/* 验证用例 */}
-                <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                  <div className="px-5 py-3 border-b border-slate-100 space-y-1">
-                    <h3 className="text-[13px] font-bold text-slate-700 flex items-center gap-1.5">
-                      <FlaskConical className="h-3.5 w-3.5 text-slate-400"/>
-                      验证用例（Action Fixtures）
-                      <span className="font-mono text-[10px] font-normal text-slate-400">GET /action-fixtures · POST /action-tests</span>
-                    </h3>
-                    <p className="text-[11px] text-slate-400">
-                      用例按 actionId 过滤；验证是只读模拟，结果不改变模型 revision。
+                {/* 实现边界：该行动在当前视图的绑定与 Registry 对照 */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2.5">
+                  <p className="text-[11px] font-bold text-slate-600">实现边界</p>
+                  {currentBindings.length === 0 ? (
+                    <p className="text-[11.5px] text-slate-400">当前视图没有该行动的实现绑定（见「实现绑定」页）。</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {currentBindings.map((b) => {
+                        const r = resolveBinding(b, registry);
+                        return (
+                          <div key={b.id} className="px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-mono text-[10.5px] text-slate-600 truncate">{b.id}</span>
+                              {r.issues.length === 0
+                                ? <span className="px-1.5 py-0.5 rounded border text-[9.5px] font-bold bg-emerald-50 text-emerald-700 border-emerald-200 shrink-0">已解决</span>
+                                : <span className="px-1.5 py-0.5 rounded border text-[9.5px] font-bold bg-amber-50 text-amber-700 border-amber-200 shrink-0">未解决</span>}
+                            </div>
+                            <p className="font-mono text-[9.5px] text-slate-400">{b.implementationId}@{b.implementationVersionId}</p>
+                            {r.implementation && (
+                              <p className="text-[10.5px] text-slate-500">
+                                {r.implementation.transport === 'MOCK' ? '当前使用演示实现（MOCK）' : `transport ${r.implementation.transport}`}
+                                {!r.implementation.liveEndpointVerified && ' · 生产端点尚未验证'}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                      <p className="text-[10.5px] text-slate-400">绑定关系的维护在「实现绑定」页（仍经 ChangeSet 写入）。</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 安全边界 */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2.5">
+                  <p className="text-[11px] font-bold text-slate-600 flex items-center gap-1.5">
+                    <Lock className="h-3.5 w-3.5 text-slate-400"/>安全边界
+                  </p>
+                  <div className="space-y-1.5 text-[11.5px] text-slate-600">
+                    <p>
+                      确认模式：<b className={current.confirmationMode === 'EXPLICIT' ? 'text-amber-700' : ''}>{CONFIRMATION_LABEL[current.confirmationMode]}</b>
+                      <span className="font-mono text-[9.5px] text-slate-400 ml-1">{current.confirmationMode}</span>
                     </p>
-                  </div>
-                  <div className="p-5 space-y-3">
-                    {currentFixtures.length === 0 ? (
-                      <p className="text-[12px] text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
-                        该行动没有可用的验证用例（Fixture），本环境无法对其验证，也不显示任何测试成功状态。
+                    {current.sideEffects.some((s) => GOVERNED_SIDE_EFFECTS.has(s)) ? (
+                      <p className="text-slate-600">
+                        该行动声明了治理级副作用（{current.sideEffects.filter((s) => GOVERNED_SIDE_EFFECTS.has(s)).join('、')}），
+                        真实执行需治理审批与运行时权限；本演示不提供执行入口。
                       </p>
                     ) : (
-                      <div className="space-y-2">
-                        {currentFixtures.map((f) => (
-                          <div key={f.id} className="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                            <div className="min-w-0">
-                              <p className="text-[12px] font-bold text-slate-700">{f.nameCn}</p>
-                              <p className="font-mono text-[9.5px] text-slate-400 truncate">{f.id}</p>
-                            </div>
-                            <button
-                              onClick={() => runFixture(f)}
-                              disabled={testAction.isPending}
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 disabled:opacity-60 shrink-0"
-                            >
-                              {testAction.isPending && fixtureId === f.id
-                                ? <Loader2 className="h-3.5 w-3.5 animate-spin"/>
-                                : <Play className="h-3.5 w-3.5"/>}
-                              运行验证用例
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+                      <p className="text-slate-600">契约未声明治理级副作用（写入 / 外部作业）。</p>
                     )}
-                    {testAction.isError && (
-                      <p className="text-[12px] text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
-                        {(testAction.error as Error).message}
-                      </p>
-                    )}
-                    {testAction.data && <TestResultPanel result={testAction.data.data} fixtureName={
-                      currentFixtures.find((f) => f.id === testAction.data?.data.fixtureId)?.nameCn ?? testAction.data.data.fixtureId
-                    }/>}
+                    <p className="text-slate-500">安全边界由契约声明（confirmationMode + sideEffects）表达；运行时强制属于治理运行时职责。</p>
                   </div>
                 </div>
-              </>
-            )}
-          </div>
+              </aside>
+            </>
+          )}
         </div>
       )}
+
+      {/* 验证用例（次级抽屉入口） */}
+      {fixturesOpen && current && (
+        <Drawer
+          title={`验证用例 · ${current.nameCn}`}
+          subtitle="GET /action-fixtures · POST /action-tests。用例按 actionId 过滤；验证是只读模拟（MOCK），结果不改变模型 revision。"
+          onClose={() => setFixturesOpen(false)}
+        >
+          <div className="space-y-3">
+            {currentFixtures.length === 0 ? (
+              <p className="text-[12px] text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-4 py-3">
+                该行动没有可用的验证用例（Fixture），本环境无法对其验证，也不显示任何测试成功状态。
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {currentFixtures.map((f) => (
+                  <div key={f.id} className="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    <div className="min-w-0">
+                      <p className="text-[12px] font-bold text-slate-700">{f.nameCn}</p>
+                      <p className="font-mono text-[9.5px] text-slate-400 truncate">{f.id}</p>
+                    </div>
+                    <button
+                      onClick={() => runFixture(f)}
+                      disabled={testAction.isPending}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 disabled:opacity-60 shrink-0"
+                    >
+                      {testAction.isPending && fixtureId === f.id
+                        ? <Loader2 className="h-3.5 w-3.5 animate-spin"/>
+                        : <Play className="h-3.5 w-3.5"/>}
+                      运行验证用例
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {testAction.isError && (
+              <p className="text-[12px] text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
+                {(testAction.error as Error).message}
+              </p>
+            )}
+            {testAction.data && <TestResultPanel result={testAction.data.data} fixtureName={
+              currentFixtures.find((f) => f.id === testAction.data?.data.fixtureId)?.nameCn ?? testAction.data.data.fixtureId
+            }/>}
+          </div>
+        </Drawer>
+      )}
+    </div>
+  );
+}
+
+function Section({label, children}: {label: string; children: ReactNode}) {
+  return (
+    <div className="border-t border-slate-100 pt-3 space-y-1.5 first:border-0 first:pt-0">
+      <p className="text-[11px] font-bold text-slate-600">{label}</p>
+      {children}
     </div>
   );
 }
@@ -298,7 +436,7 @@ function TestResultPanel({result, fixtureName}: {result: ActionTestResult; fixtu
         </div>
         <div className="space-y-1">
           <p className="text-[11px] font-bold text-slate-600">检查项 checks</p>
-          <div className="grid sm:grid-cols-2 gap-1.5">
+          <div className="grid grid-cols-1 gap-1.5">
             {result.checks.map((c) => (
               <div key={c.name} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[11px] font-mono ${
                 c.passed ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'
@@ -354,8 +492,8 @@ function FieldList({label, ids, typeById, emptyText}: {
   emptyText: string;
 }) {
   return (
-    <div className="space-y-1.5">
-      <p className="text-[11px] font-bold text-slate-600">{label}</p>
+    <div className="space-y-1">
+      <p className="text-[10.5px] text-slate-400 font-semibold">{label}</p>
       {ids.length === 0
         ? <p className="text-[11.5px] text-slate-400">{emptyText}</p>
         : (
@@ -376,7 +514,7 @@ function FieldList({label, ids, typeById, emptyText}: {
 function MonoField({label, value}: {label: string; value: string}) {
   return (
     <div className="space-y-1">
-      <p className="text-[11px] font-bold text-slate-600">{label}</p>
+      <p className="text-[10.5px] text-slate-400 font-semibold">{label}</p>
       <p className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10.5px] font-mono text-slate-600 break-all">{value}</p>
     </div>
   );

@@ -281,6 +281,36 @@ export function Modal({title, subtitle, onClose, children}: {title: string; subt
   );
 }
 
+/**
+ * 右侧滑出抽屉（Batch 3.5）：次级信息的容器——验证用例、全部约束、
+ * 技术详情等不占据主区域的入口。与 Modal 同为展示层，不改变写入链路。
+ */
+export function Drawer({title, subtitle, onClose, children, width = 'max-w-xl'}: {
+  title: string;
+  subtitle?: string;
+  onClose: () => void;
+  children: ReactNode;
+  width?: string;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/25 flex justify-end" onClick={onClose}>
+      <div
+        className={`bg-white h-full w-full ${width} flex flex-col border-l border-slate-200 shadow-2xl`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-5 py-4 border-b border-slate-100 flex items-start justify-between gap-3 shrink-0">
+          <div className="min-w-0">
+            <h2 className="text-sm font-bold text-slate-800">{title}</h2>
+            {subtitle && <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">{subtitle}</p>}
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 shrink-0"><X className="h-4 w-4"/></button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-5">{children}</div>
+      </div>
+    </div>
+  );
+}
+
 export function InputField({label, hint, children}: {label: string; hint?: string; children: ReactNode}) {
   return (
     <label className="block space-y-1">
