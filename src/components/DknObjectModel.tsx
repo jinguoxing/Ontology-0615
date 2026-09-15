@@ -681,7 +681,7 @@ export default function DknObjectModel({
         ],
         links: wizardLinks,
         actions: wizardActions,
-        functions: wizardFunctions.map(f => f.name),
+        functions: wizardFunctions,
         workflows: [{ name: 'semantic_governance_workflow', badge: '8 steps' }]
       }
     });
@@ -1612,7 +1612,7 @@ export default function DknObjectModel({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
                               <span className="font-bold text-slate-700 text-[11.5px]">允许被其它对象引用</span>
-                              <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" title="开启后，其他高层或同层本体如DataAsset等可配置为此对象的所属节点" />
+                              <span title="开启后，其他高层或同层本体如DataAsset等可配置为此对象的所属节点"><Info className="w-3.5 h-3.5 text-slate-400 cursor-help" /></span>
                             </div>
                             <button
                               type="button"
@@ -1626,7 +1626,7 @@ export default function DknObjectModel({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
                               <span className="font-bold text-slate-700 text-[11.5px]">允许挂载动作</span>
-                              <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" title="开启后，此对象可作为 infer_field_semantics 等原子治理动作的输入端客体" />
+                              <span title="开启后，此对象可作为 infer_field_semantics 等原子治理动作的输入端客体"><Info className="w-3.5 h-3.5 text-slate-400 cursor-help" /></span>
                             </div>
                             <button
                               type="button"
@@ -1640,7 +1640,7 @@ export default function DknObjectModel({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
                               <span className="font-bold text-slate-700 text-[11.5px]">允许挂载函数</span>
-                              <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" title="是否支持在其字段变更和一致性核对流程中挂载底层映射计算或分析函数" />
+                              <span title="是否支持在其字段变更和一致性核对流程中挂载底层映射计算或分析函数"><Info className="w-3.5 h-3.5 text-slate-400 cursor-help" /></span>
                             </div>
                             <button
                               type="button"
@@ -2387,7 +2387,7 @@ export default function DknObjectModel({
                               <span className="flex items-center gap-1.5">
                                 <span className="w-1.5 h-3.5 bg-blue-600 rounded"></span>
                                 关系图谱预览
-                                <HelpCircle className="w-3.5 h-3.5 text-slate-400 cursor-pointer" title="查看图依赖网络说明" />
+                                <span title="查看图依赖网络说明"><HelpCircle className="w-3.5 h-3.5 text-slate-400 cursor-pointer" /></span>
                               </span>
                             </span>
 
@@ -2557,7 +2557,7 @@ export default function DknObjectModel({
                                     disabled
                                     className="w-full rounded-lg border border-slate-202 bg-slate-50 text-slate-500 pl-3 pr-8 py-2 font-semibold focus:outline-none cursor-not-allowed"
                                   />
-                                  <HelpCircle className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5" title="主域核心映射来源，当前编辑步骤默认为宿主 Field 对象（或血缘反向链接源）" />
+                                  <span title="主域核心映射来源，当前编辑步骤默认为宿主 Field 对象（或血缘反向链接源）"><HelpCircle className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-2.5" /></span>
                                 </div>
                               </div>
 
@@ -2679,7 +2679,7 @@ export default function DknObjectModel({
                               <div>
                                 <label className="block text-[11px] font-bold text-slate-550 mb-1 flex items-center gap-1">
                                   置信度
-                                  <HelpCircle className="w-3.5 h-3.5 text-slate-400" title="AI图推理置信评估分值，人工编辑后默认为100%" />
+                                  <span title="AI图推理置信评估分值，人工编辑后默认为100%"><HelpCircle className="w-3.5 h-3.5 text-slate-400" /></span>
                                 </label>
                                 <div className="space-y-1.5 pt-1">
                                   <div className="flex items-center gap-3">

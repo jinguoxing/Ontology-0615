@@ -1431,7 +1431,7 @@ export default function KnowledgeNetworkExplorer({ onNavigate }: KnowledgeNetwor
                             ? 'border-blue-500 ring-4 ring-blue-500/10'
                             : borderClass
                       }`}>
-                        {React.cloneElement(node.icon as React.ReactElement, {
+                        {React.cloneElement(node.icon as React.ReactElement<{className?: string}>, {
                           className: `w-5 h-5 ${isSelected || isHighlightedNow ? 'text-blue-600' : iconColorClass}`
                         })}
                       </div>

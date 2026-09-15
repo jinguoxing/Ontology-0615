@@ -27,7 +27,6 @@ import {
 import {ONTOLOGY_LIST_PATH, tabs, type OntologyTab} from '../api/ontology-v1/routeContext';
 import {ontologyKeys} from '../api/ontology-v1/queryKeys';
 import {ontologyV1} from '../api/ontology-v1/client';
-import RelationModel from '../components/RelationModel';
 import Overview from '../components/Overview';
 import ObjectModel from '../components/ObjectModel';
 import {DEMO_ACTORS, useDemoIdentity} from './identity';
@@ -175,7 +174,14 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
       <main className="max-w-[1440px] mx-auto px-6 py-6">
         {tab === 'overview' && <Overview/>}
         {tab === 'object-types' && <ObjectModel/>}
-        {tab === 'relations' && <RelationsTab ctx={ctx}/>}
+        {tab === 'relations' && (
+          <DeferredTab
+            ctx={ctx}
+            batch="Batch 3"
+            title="关系与约束"
+            description="关系（RelationDefinition）与约束（ConstraintDefinition）将直接通过 GET /relations、GET /constraints 读取，编辑经 ChangeSet operations（UPSERT / REMOVE）写入当前草稿。"
+          />
+        )}
         {tab === 'actions' && (
           <DeferredTab
             ctx={ctx}
@@ -330,34 +336,6 @@ function ViewStatusCard({ctx}: {ctx: ModelContextValue}) {
       </div>
       {switchError && <p className="text-[11px] text-red-600">{switchError}</p>}
     </div>
-  );
-}
-
-/** 关系 Tab：drkn-core 挂遗留只读视图；其他模型只读统计（遗留组件硬编码 drkn-core）。 */
-function RelationsTab({ctx}: {ctx: ModelContextValue}) {
-  const {modelId} = ctx;
-  if (modelId === 'drkn-core') {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-start gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-[12.5px] text-amber-800">
-          <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5"/>
-          <p>
-            本页为<strong> 遗留只读视图</strong>（数据经 HTTP 适配层读取 drkn-core 草稿）。
-            关系与约束的编辑保存将在 <strong>Batch 3</strong> 接入 ChangeSet operations，
-            当前<strong>保存 / 编辑 / 新建按钮已禁用</strong>，不会产生任何写入。
-          </p>
-        </div>
-        <RelationModel/>
-      </div>
-    );
-  }
-  return (
-    <DeferredTab
-      ctx={ctx}
-      batch="Batch 3"
-      title="关系与约束"
-      description="遗留关系编辑组件绑定 drkn-core 演示模型；本模型的关系与约束编辑界面将在 Batch 3 按 operations 合同统一接入。"
-    />
   );
 }
 

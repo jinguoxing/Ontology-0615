@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true
+  },
+  "include": [
+    "src/ontology",
+    "src/api/ontology-v1",
+    "src/components/OntologyModelsList.tsx",
+    "src/components/Overview.tsx",
+    "src/components/ObjectModel.tsx",
+    "scripts/smoke-batch2.ts"
+  ]
+}

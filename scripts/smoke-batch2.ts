@@ -184,6 +184,23 @@ const newDraft = await ontologyV1.getView('smoke-biz-model',
 assert(newDraft.data.document.objectTypes.length === 0 && newDraft.data.readOnly === false,
   '新建本体初始草稿视图为空且可写');
 
+// SYSTEM 模型不可经业务创建接口建立（服务端拒绝，profile 枚举仅 BUSINESS）。
+const sysModel = await expectApiError(() => ontologyV1.createModel(
+  {id: 'evil-system', name: '试图建系统模型', profile: 'SYSTEM' as never, ownerRef: 'x-team'},
+  newIdempotencyKey(),
+));
+assert(sysModel !== null && sysModel.status === 422,
+  'POST /models profile=SYSTEM → 422 服务端拒绝（系统模型不可自建）');
+
+// 每模型仅一个 OPEN 草稿：第二个变更集被 409 拒绝，UI 不会面对多 OPEN 歧义。
+const dupCs = await expectApiError(() => ontologyV1.createChangeSet(
+  'drkn-core',
+  {name: '第二个草稿探针', reason: 'smoke：多 OPEN 草稿拒绝', baseVersionId: 'v1.3.0', targetVersionId: 'v1.4.0'},
+  newIdempotencyKey(),
+));
+assert(dupCs !== null && dupCs.status === 409 && dupCs.code === 'OPEN_CHANGESET_EXISTS',
+  '已存在 OPEN 草稿时再建 → 409 OPEN_CHANGESET_EXISTS（无静默多选）');
+
 // 两模型视图互不串数据。
 const pubView = await ontologyV1.getView('public-service', {versionId: 'v1.0.0'});
 assert(pubView.data.modelId === 'public-service'

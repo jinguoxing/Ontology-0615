@@ -300,13 +300,7 @@ function ModelSection({title, description, models, canEdit, emptyHint}: {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {/* 项目未安装 @types/react（React 以 allowJs 推断类型），key 不能直接传给
-              自定义组件，因此放在 display:contents 的原生元素上，网格布局不受影响。 */}
-          {models.map((m) => (
-            <div key={m.id} className="contents">
-              <ModelCard model={m} canEdit={canEdit}/>
-            </div>
-          ))}
+          {models.map((m) => <ModelCard key={m.id} model={m} canEdit={canEdit}/>)}
         </div>
       )}
     </section>

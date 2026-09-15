@@ -63,7 +63,7 @@ export function useModelContext(): ModelContextValue {
   return ctx;
 }
 
-export function ModelContextProvider({children}: {children: ReactNode}) {
+export function ModelContextProvider({children}: {children: (value: ModelContextValue) => ReactNode}) {
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -95,6 +95,10 @@ export function ModelContextProvider({children}: {children: ReactNode}) {
           : null;
         if (!nextView && m.activeChangeSetId) {
           // 新建业务本体：尚无正式版本，落到初始 OPEN 草稿。
+          // 多 OPEN 歧义防护：这里只用 ModelSummary.activeChangeSetId 这一服务端
+          // 声明的活跃草稿指针；服务端保证每模型仅一个 OPEN 草稿（第二个返回
+          // 409 OPEN_CHANGESET_EXISTS，见 smoke-batch2），UI 绝不从 changesets
+          // 列表静默选取第一个。
           const cs = await queryClient.fetchQuery({
             queryKey: ontologyKeys.changeSet({...actorScope, modelId: m.id}, m.activeChangeSetId),
             queryFn: () => ontologyV1.getChangeSet(m.id, m.activeChangeSetId!),

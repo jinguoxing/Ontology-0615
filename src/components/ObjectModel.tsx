@@ -33,6 +33,7 @@ import {
 import {ontologyKeys} from '../api/ontology-v1/queryKeys';
 import {ontologyV1} from '../api/ontology-v1/client';
 import type {
+  ExternalContractRef,
   ObjectTypeDefinition,
   PropertyDefinition,
 } from '../api/ontology-v1/types.generated';
@@ -43,6 +44,7 @@ import {
   useApplyOperations,
   useCreateChangeSet,
 } from '../ontology/queries';
+import {editPolicy, SERVER_GUARD, type EditDenyReason} from '../ontology/editability';
 import {useModelContext} from '../ontology/ModelContext';
 
 const ID_PATTERN = /^[A-Za-z][A-Za-z0-9_.:-]*$/;
@@ -108,9 +110,15 @@ export default function ObjectModel() {
   }, [types]);
 
   const current = selectedId ? types.find((t) => t.id === selectedId) : undefined;
-  // 可编辑 = 草稿 + 权限 + 非外部引用。drkn-core 的内置类型 origin=SYSTEM，
-  // 同样允许 UPSERT（服务端只拒绝 EXTERNAL，错误码 EXTERNAL_READ_ONLY）。
-  const editable = canEdit && isDraft && current !== undefined && current.origin !== 'EXTERNAL';
+  // 编辑权限走统一策略：模型类型 + 草稿状态 + Session Capability（见 editability.ts）；
+  // 服务端保持最终裁决（403 ACTION_DENIED / EXTERNAL_READ_ONLY / 412 / 422）。
+  const editState = editPolicy({
+    origin: current?.origin,
+    model,
+    view: resolvedView,
+    capabilities: ctx.capabilities,
+  });
+  const editable = current !== undefined && editState.editable;
   const draftId = isDraft && 'changeSetId' in route.view ? route.view.changeSetId : null;
 
   // ---- 保存（UPSERT 完整类型定义） ----
@@ -408,7 +416,8 @@ export default function ObjectModel() {
               editable={editable}
               isDraft={isDraft}
               canEdit={canEdit}
-              readOnlyReason={ctx.readOnlyReason}
+              readOnlyReason={editState.reason}
+              originNote={editState.originNote}
               hasDraftChangeSet={Boolean(model?.activeChangeSetId)}
               draftBusy={draftBusy}
               createPending={createChangeSet.isPending}
@@ -502,9 +511,10 @@ function EmptyDetail({typesCount, canAdd, onAdd}: {typesCount: number; canAdd: b
   );
 }
 
-function ReadOnlyNote({reason, isDraft, hasDraftChangeSet, canEdit, draftBusy, createPending, goDraft, createDraftFromVersion}: {
-  reason: 'published-version' | 'viewer-permission' | null;
+function ReadOnlyNote({reason, isDraft, externalContract, hasDraftChangeSet, canEdit, draftBusy, createPending, goDraft, createDraftFromVersion}: {
+  reason: EditDenyReason | null;
   isDraft: boolean;
+  externalContract?: ExternalContractRef;
   hasDraftChangeSet: boolean;
   canEdit: boolean;
   draftBusy: boolean;
@@ -518,7 +528,7 @@ function ReadOnlyNote({reason, isDraft, hasDraftChangeSet, canEdit, draftBusy, c
         <Lock className="h-4 w-4 shrink-0 mt-0.5 text-slate-500"/>
         <div className="flex-1">
           <p className="font-bold">正在查看已发布正式版本（只读）</p>
-          <p className="mt-0.5 text-slate-500">已发布版本不可直接编辑；修改需进入 ChangeSet 草稿。</p>
+          <p className="mt-0.5 text-slate-500">{SERVER_GUARD['published-version']}。</p>
         </div>
         {canEdit && (
           <div className="shrink-0">
@@ -542,8 +552,22 @@ function ReadOnlyNote({reason, isDraft, hasDraftChangeSet, canEdit, draftBusy, c
         <Eye className="h-4 w-4 shrink-0 mt-0.5 text-slate-500"/>
         <p>
           当前演示身份 <span className="font-mono font-bold">demo-viewer</span> 仅具备
-          <span className="font-mono"> ontology.read</span>；写入接口返回 403 ACTION_DENIED，界面只读。
+          <span className="font-mono"> ontology.read</span>；{SERVER_GUARD['viewer-permission']}。
           {isDraft && ' 可在右上角切换为 demo-maintainer 后编辑。'}
+        </p>
+      </div>
+    );
+  }
+  if (reason === 'external-reference') {
+    return (
+      <div className="flex items-start gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-[12.5px] text-amber-800">
+        <ExternalLink className="h-4 w-4 shrink-0 mt-0.5"/>
+        <p>
+          外部类型引用（origin=EXTERNAL，只读）。权威定义在外部契约包
+          {externalContract && (
+            <span className="font-mono"> {externalContract.packageId}/{externalContract.typeId}@{externalContract.versionId ?? '未固定'} </span>
+          )}
+          ，{SERVER_GUARD['external-reference']}，只能升级固定版本引用。
         </p>
       </div>
     );
@@ -556,7 +580,8 @@ function TypeDetail(props: {
   editable: boolean;
   isDraft: boolean;
   canEdit: boolean;
-  readOnlyReason: 'published-version' | 'viewer-permission' | null;
+  readOnlyReason: EditDenyReason | null;
+  originNote: string;
   hasDraftChangeSet: boolean;
   draftBusy: boolean;
   createPending: boolean;
@@ -588,6 +613,7 @@ function TypeDetail(props: {
       <ReadOnlyNote
         reason={props.readOnlyReason}
         isDraft={props.isDraft}
+        externalContract={t.externalContract}
         hasDraftChangeSet={props.hasDraftChangeSet}
         canEdit={props.canEdit}
         draftBusy={props.draftBusy}
@@ -595,22 +621,6 @@ function TypeDetail(props: {
         goDraft={props.goDraft}
         createDraftFromVersion={props.createDraftFromVersion}
       />
-
-      {t.origin === 'EXTERNAL' && (
-        <div className="flex items-start gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-[12.5px] text-amber-800">
-          <ExternalLink className="h-4 w-4 shrink-0 mt-0.5"/>
-          <div>
-            <p className="font-bold">外部类型引用（origin=EXTERNAL，只读）</p>
-            <p className="mt-0.5">
-              权威定义在外部契约包
-              {t.externalContract && (
-                <span className="font-mono"> {t.externalContract.packageId}/{t.externalContract.typeId}@{t.externalContract.versionId ?? '未固定'} </span>
-              )}
-              ，只能升级固定版本引用；直接改写定义会被服务端拒绝（EXTERNAL_READ_ONLY）。
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* 基本信息 */}
       <div className="bg-white border border-slate-200 rounded-2xl p-5">
