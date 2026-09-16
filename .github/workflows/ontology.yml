@@ -1,0 +1,42 @@
+# Semovix Ontology CI（Batch 4.6 第十四节）。
+#
+# 每次 push / pull_request 运行本体产品基线的完整验收：
+# 类型检查（根 tsconfig + ontology 工程）→ 构建 → Mock 契约测试 →
+# 浏览器 E2E（编排脚本自起 mock + vite，按组显式 DIAG_ON / DIAG_OFF）。
+name: Semovix Ontology CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ontology:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 安装 Playwright 浏览器（chromium）
+        run: npx playwright install --with-deps chromium
+
+      - name: 类型检查（根工程）
+        run: npm run lint
+
+      - name: 类型检查（ontology 工程）
+        run: npm run lint:ontology
+
+      - name: 构建
+        run: npm run build
+
+      - name: Mock API 契约测试
+        run: npm run test:ontology-contract
+
+      - name: 本体 UI E2E
+        run: npm run test:e2e:ontology-ui

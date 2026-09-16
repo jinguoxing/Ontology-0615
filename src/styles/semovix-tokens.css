@@ -155,15 +155,10 @@
 /* 卡片圆角统一 12px（rounded-2xl=16px → 12px；小圆角抬到 12px 仅限卡片容器） */
 [data-testid='semovix-main'] .rounded-2xl { border-radius: var(--semovix-card-radius); }
 
-/* 禁止黑色操作按钮：区域内残留的 slate-800/700/900 实底按钮统一改为 Semovix Blue */
-[data-testid='semovix-main'] .bg-slate-800,
-[data-testid='semovix-main'] .bg-slate-700 {
-  background-color: var(--semovix-brand);
-}
-[data-testid='semovix-main'] .hover\:bg-slate-900:hover,
-[data-testid='semovix-main'] .hover\:bg-slate-800:hover {
-  background-color: var(--semovix-brand-strong);
-}
-[data-testid='semovix-main'] .border-slate-800 {
-  border-color: var(--semovix-brand);
-}
+/*
+ * Batch 4.6 第十节：删除对 .bg-slate-800 / .bg-slate-700 等工具类的全局覆盖。
+ * 这类选择器会污染区域内所有使用同名的组件（包括遮罩、终端示意等深色
+ * 元素）。本体产品页面的操作按钮一律使用 .semovix-btn-primary /
+ * .semovix-btn-outline / .semovix-btn-text 组件类；遗留页面的深色装饰
+ * 保持自身样式，不再被整域改写。
+ */

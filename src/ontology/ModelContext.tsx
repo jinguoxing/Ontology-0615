@@ -126,7 +126,7 @@ export function ModelContextProvider({children}: {children: (value: ModelContext
     return (
       <div className="p-8 text-sm text-slate-600">
         <p className="font-semibold text-slate-800 mb-2">未知的本体路径</p>
-        <p className="mb-4 text-slate-500">路径应为 /business-semantics/ontologies/:modelId/:tab</p>
+        <p className="mb-4 text-slate-500">请从业务本体列表进入模型（地址需包含模型与页面名称）。</p>
         <a href={ONTOLOGY_LIST_PATH} className="text-blue-600 underline">返回业务本体列表</a>
       </div>
     );

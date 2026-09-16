@@ -1,10 +1,11 @@
 /**
- * 模型摘要条（Batch 4.5 第四节）。
+ * 模型摘要条（Batch 4.5 第四节；Batch 4.6 第四节 SYSTEM / LOCAL 语义修正）。
  *
  * 取代 Batch 2 的六张大 KPI 统计卡：同一行紧凑呈现当前视图
  * （ResolvedView.document）的构件计数，点击数字进入对应能力页。
- * 数量仍来自当前 ResolvedView.document，不引入合同之外的指标
- * （无实例数量、健康分等伪造统计）。
+ * 对象类型按 origin 三类如实分列（SYSTEM ≠ LOCAL：系统定义不计入本地），
+ * 只显示实际存在的类别；数量仍来自当前 ResolvedView.document，
+ * 不引入合同之外的指标（无实例数量、健康分等伪造统计）。
  */
 import {
   Boxes,
@@ -21,11 +22,18 @@ export default function ModelSummaryStrip({doc, onGoTab}: {
   doc: ModelDocument | undefined;
   onGoTab: (tab: OntologyTab) => void;
 }) {
-  const local = doc ? doc.objectTypes.filter((t) => t.origin !== 'EXTERNAL').length : 0;
-  const external = doc ? doc.objectTypes.length - local : 0;
+  const system = doc ? doc.objectTypes.filter((t) => t.origin === 'SYSTEM').length : 0;
+  const local = doc ? doc.objectTypes.filter((t) => t.origin === 'LOCAL').length : 0;
+  const external = doc ? doc.objectTypes.filter((t) => t.origin === 'EXTERNAL').length : 0;
+  // 只呈现实际存在的来源类别；禁止把 SYSTEM 计入「本地」。
+  const originParts: string[] = [];
+  if (system > 0) originParts.push(`${system} 系统定义`);
+  if (local > 0) originParts.push(`${local} 本地定义`);
+  if (external > 0) originParts.push(`${external} 外部引用`);
+  const originSub = originParts.length > 0 ? originParts.join(' + ') : '暂无类型定义';
 
   const items: {label: string; value: number | string; sub: string; tab: OntologyTab; icon: typeof Boxes}[] = [
-    {label: '对象类型', value: doc?.objectTypes.length ?? '…', sub: `${local} 本地 + ${external} 外部引用`, tab: 'object-types', icon: Boxes},
+    {label: '对象类型', value: doc?.objectTypes.length ?? '…', sub: originSub, tab: 'object-types', icon: Boxes},
     {label: '关系', value: doc?.relations.length ?? '…', sub: '关系定义', tab: 'relations', icon: GitBranch},
     {label: '约束', value: doc?.constraints.length ?? '…', sub: '约束定义', tab: 'relations', icon: ShieldCheck},
     {label: '行动契约', value: doc?.actions.length ?? '…', sub: '输入 / 输出类型契约', tab: 'actions', icon: Zap},

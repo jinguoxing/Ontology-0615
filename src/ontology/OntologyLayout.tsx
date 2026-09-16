@@ -12,7 +12,8 @@
  * - 工程标识（contentHash、ETag、API Path、capabilities、Registry 原始值）
  *   移入「诊断信息」抽屉；入口收进右上角「更多」菜单，仅在开发构建显式
  *   开启 VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true 或会话具备
- *   ontology.diagnostics.read 能力时可见（Batch 4.5 第七节）。
+ *   ontology.diagnostics.read 能力时可见（Batch 4.5 第七节）；不可见时
+ *   「更多」菜单整体不渲染，不呈现空入口（Batch 4.6 第九节）。
  * - 八个 Tab 为本体详情内的能力页；validation / release 自 Batch 4 起为
  *   真实页面（异步校验 / 影响分析与版本发布，全部走 HTTP Mock 服务）。
  */
@@ -102,7 +103,7 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
       <div className="py-24 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-slate-500">
           <Loader2 className="h-6 w-6 animate-spin text-blue-500"/>
-          <p className="text-sm font-medium">正在加载模型（{modelId}）…</p>
+          <p className="text-sm font-medium">正在加载模型…</p>
         </div>
       </div>
     );
@@ -145,7 +146,7 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
             <div className="flex items-center gap-2 text-[12px] text-slate-400">
               <Link to={ONTOLOGY_LIST_PATH} className="hover:text-blue-600 font-medium">业务本体</Link>
               <span className="text-slate-300">/</span>
-              <span className="font-semibold text-slate-500">{model?.name ?? modelId}</span>
+              <span className="font-semibold text-slate-500">{model?.name ?? '当前模型'}</span>
             </div>
             <h1 className="semovix-page-title mt-1">{TAB_LABELS[tab]}</h1>
             {model && (
@@ -162,24 +163,25 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
             )}
           </div>
 
-          {/* 更多菜单：诊断信息入口只在此处，且仅在开发配置 / 诊断能力下可见 */}
-          <div className="relative shrink-0" ref={moreRef}>
-            <button
-              onClick={() => setMoreOpen((v) => !v)}
-              data-testid="ontology-more-menu"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-slate-800"
-              title="更多操作"
-              aria-haspopup="menu"
-              aria-expanded={moreOpen}
-            >
-              <MoreHorizontal className="h-4 w-4 text-slate-400"/>更多
-            </button>
-            {moreOpen && (
-              <div
-                role="menu"
-                className="absolute right-0 top-full mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-30"
+          {/* 更多菜单：诊断信息入口只在此处，且仅在开发配置 / 诊断能力下可见；
+              没有可用功能时不渲染空入口（Batch 4.6 第九节）。 */}
+          {showDiagnostics && (
+            <div className="relative shrink-0" ref={moreRef}>
+              <button
+                onClick={() => setMoreOpen((v) => !v)}
+                data-testid="ontology-more-menu"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-slate-800"
+                title="更多操作"
+                aria-haspopup="menu"
+                aria-expanded={moreOpen}
               >
-                {showDiagnostics ? (
+                <MoreHorizontal className="h-4 w-4 text-slate-400"/>更多
+              </button>
+              {moreOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 top-full mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-30"
+                >
                   <button
                     role="menuitem"
                     onClick={() => { setMoreOpen(false); setDiagOpen(true); }}
@@ -189,12 +191,10 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
                   >
                     <Stethoscope className="h-4 w-4 text-slate-400"/>查看诊断信息
                   </button>
-                ) : (
-                  <p className="px-3.5 py-2.5 text-[12px] text-slate-400">暂无更多操作</p>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 统一状态带 */}

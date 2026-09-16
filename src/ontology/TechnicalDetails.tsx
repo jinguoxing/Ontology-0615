@@ -14,6 +14,12 @@
  * - Raw JSON 维持字段白名单（implementations 仅 id/versionId/kind/transport/
  *   liveEndpointVerified/demoMode；workflows 仅登记元数据；ioContracts 仅 id）。
  *   不显示 Token、Secret、连接地址与凭证。
+ *
+ * Batch 4.6 第七节：workflows 白名单从“整对象透传”收紧为显式字段投影
+ * （id / versionId / ownerService / requiredActionIds / executable），
+ * 服务端返回的其余字段（如 internalEndpoint、secretRef 一类敏感登记值）
+ * 一律不进入诊断信息——即使响应里出现（安全测试以注入断言验证）。
+ * 第十一节：ownerRef 原始值只在此处呈现（产品层显示展示名称或中性提示）。
  */
 import {useState, type ReactNode} from 'react';
 import {AlertTriangle, Check, Copy, Loader2} from 'lucide-react';
@@ -110,6 +116,7 @@ function TechnicalDetailsContent({ctx, onClose}: {ctx: ModelContextValue; onClos
           <MonoRow label="contentHash" value={ctx.resolvedView?.contentHash ?? '…'} full copy/>
           <MonoRow label="ETag (If-Match)" value={ctx.resolvedView?.etag ?? '…'} full copy/>
           <MonoRow label="currentVersionId" value={ctx.model?.currentVersionId ?? '（尚未发布）'}/>
+          <MonoRow label="ownerRef" value={ctx.model?.ownerRef ?? '…'} full/>
         </Section>
 
         {/* API Path */}
@@ -161,7 +168,10 @@ function TechnicalDetailsContent({ctx, onClose}: {ctx: ModelContextValue; onClos
                 <pre className="mt-1.5 p-3 bg-slate-50 border border-slate-200 rounded-lg text-[12px] font-mono overflow-x-auto max-h-72 overflow-y-auto">{JSON.stringify({
                   implementations: registry.implementations.map(({id, versionId, kind, transport, liveEndpointVerified, demoMode}) =>
                     ({id, versionId, kind, transport, liveEndpointVerified, demoMode})),
-                  workflows: registry.workflows,
+                  // workflows 白名单（Batch 4.6 第七节）：显式字段投影，
+                  // 响应中的其余字段（internalEndpoint / secretRef 等）不进入诊断。
+                  workflows: registry.workflows.map(({id, versionId, ownerService, requiredActionIds, executable}) =>
+                    ({id, versionId, ownerService, requiredActionIds, executable})),
                   ioContracts: registry.ioContracts.map((c) => c.id),
                 }, null, 2)}</pre>
               </details>

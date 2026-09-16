@@ -1,8 +1,9 @@
 /**
- * 展示层辅助（Batch 4.5）：产品语言与工程值的边界。
+ * 展示层辅助（Batch 4.5 建立；Batch 4.6 第十一节收口）：产品语言与工程值的边界。
  *
- * - ownerDisplayName：产品界面显示责任方展示名称，原始 ownerRef 不再直接
- *   出现在模型头 / 列表（未登记的引用原样返回，不伪造名称）。
+ * - ownerDisplayName：产品界面显示责任方展示名称；未登记的引用不再原样
+ *   返回（那是工程值），回落为「未登记责任方」。原始 ownerRef 只进入
+ *   诊断信息（TechnicalDetails）。
  * - diagnosticsVisible：诊断信息入口的可见性裁决——开发构建且显式开启
  *   VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true，或会话具备
  *   ontology.diagnostics.read 能力（当前演示服务未发放该能力）。
@@ -10,14 +11,14 @@
  * - shortId：产品层只显示截断标识（前 8 位 + …），完整值在诊断信息抽屉。
  */
 
-/** 已知责任方的展示名称映射；未登记的引用原样返回。 */
+/** 已知责任方的展示名称映射；未登记的引用显示中性提示，不伪造名称。 */
 const OWNER_DISPLAY_NAMES: Record<string, string> = {
   'platform-team': '平台团队',
   'public-service-team': '公共服务团队',
 };
 
 export function ownerDisplayName(ownerRef: string): string {
-  return OWNER_DISPLAY_NAMES[ownerRef] ?? ownerRef;
+  return OWNER_DISPLAY_NAMES[ownerRef] ?? '未登记责任方';
 }
 
 /** 诊断入口是否可见（第七节）。 */

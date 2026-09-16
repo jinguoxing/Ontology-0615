@@ -2,22 +2,23 @@
  * Batch 4.5 Final Polish 浏览器 E2E（只读巡检，不写 Mock 服务）。
  *
  * 覆盖第九节新增断言：
- * - 全新演示库只显示两个种子模型（数据治理本体 / 公共服务业务本体），
+ * - 全新演示库只显示两个种子模型（数据治理领域本体 / 公共服务业务本体），
  *   不出现临时 test / hello 模型（演示数据只靠全新 MOCK_DB_PATH，不在
  *   服务端按名称过滤）。
  * - 业务本体列表：系统模型紧凑区域 + 业务本体紧凑表格，主操作按状态唯一
- *   （继续草稿 / 创建变更 / 继续建模），产品层不显示 modelId / changeSetId /
- *   ownerRef 原始值。
+ *   （继续草稿 / 创建变更 / 重新开始建模），产品层不显示 modelId /
+ *   changeSetId / ownerRef 原始值。
  * - 模型总览：紧凑摘要条取代六张 KPI 统计卡；默认不渲染全量节点交叉图
  *   （31 节点 / 39 关系的节点级图保留在「关系与约束」页）。
  * - 语义区域图：点击区域进入对象类型页并应用 group 过滤，可清除。
  * - 产品层（各 Tab 巡检）不出现完整 ChangeSet ID、完整 UUID、API Path。
  * - 诊断信息入口在关闭 VITE_ENABLE_ONTOLOGY_DIAGNOSTICS 时不可见
- *   （maintainer 与 viewer 一致；本组 vite 以关闭旗标启动）。
+ *   （maintainer 与 viewer 一致；本组 vite 以 DIAG_OFF 启动；Batch 4.6
+ *   第九节起「更多」菜单整体不渲染，不呈现空入口）。
  * - Batch 1~4 能力不回退：草稿状态带、关系表、校验运行入口仍存在。
  *
  * 运行前提：mock(4310, 全新 MOCK_DB_PATH) + vite dev(3000，诊断旗标关闭)
- * 已由 scripts/e2e-ontology.mjs ui 模式第三组启动。
+ * 已由 scripts/e2e-ontology.mjs ui 模式对应组启动。
  */
 import {expect, test} from '@playwright/test';
 
@@ -37,9 +38,9 @@ test.describe('Batch 4.5 Final Polish', () => {
   test('01 全新演示库：只显示种子模型，不出现临时 test/hello 模型', async ({page}) => {
     await page.goto(LIST_PATH);
     await expect(page.getByTestId('system-model-strip')).toBeVisible();
-    // 系统模型一行：数据治理本体（drkn-core 种子）。
+    // 系统模型一行：数据治理领域本体（drkn-core 种子）。
     await expect(page.getByTestId('system-model-row')).toHaveCount(1);
-    await expect(page.getByTestId('system-model-row')).toContainText('数据治理本体');
+    await expect(page.getByTestId('system-model-row')).toContainText('数据治理领域本体');
     // 业务本体一行：公共服务业务本体（public-service 种子）。
     await expect(page.getByTestId('ontology-models-table')).toBeVisible();
     await expect(page.getByTestId('ontology-model-row')).toHaveCount(1);
@@ -52,9 +53,9 @@ test.describe('Batch 4.5 Final Polish', () => {
   test('02 列表产品语言：主操作按状态唯一，原始 ID / ownerRef 不出现在产品层', async ({page}) => {
     await page.goto(LIST_PATH);
     await expect(page.getByTestId('ontology-models-table')).toBeVisible();
-    // public-service：有正式版本、无草稿 → 主操作「创建变更」，次操作「查看版本」。
+    // public-service：有正式版本、无草稿 → 主操作「创建变更」，次操作「查看正式版本」。
     await expect(page.getByTestId('ontology-model-row').getByRole('button', {name: '创建变更'})).toBeVisible();
-    await expect(page.getByTestId('ontology-model-row').getByRole('button', {name: '查看版本'})).toBeVisible();
+    await expect(page.getByTestId('ontology-model-row').getByRole('button', {name: '查看正式版本'})).toBeVisible();
     // 责任方用展示名称，原始 ownerRef / modelId 不显示。
     const text = await productText(page);
     expect(text).toContain('平台团队');
@@ -135,16 +136,14 @@ test.describe('Batch 4.5 Final Polish', () => {
   test('06 诊断信息：关闭配置时入口不可见（maintainer 与 viewer 一致）', async ({page}) => {
     await page.goto(draftUrl('overview'));
     await expect(page.getByTestId('semovix-main')).toBeVisible();
-    // 右上角不再常驻「技术详情」按钮；入口只在「更多」菜单且本组旗标关闭。
-    await page.getByTestId('ontology-more-menu').click();
-    await expect(page.getByTestId('diagnostics-entry')).toHaveCount(0);
-    await expect(page.getByText('暂无更多操作')).toBeVisible();
-    await page.keyboard.press('Escape');
+    // 右上角不再常驻「技术详情」按钮；关闭旗标时「更多」菜单整体不渲染
+    // （Batch 4.6 第九节：不呈现只有占位文案的空菜单）。
+    await expect(page.getByTestId('ontology-more-menu')).toHaveCount(0);
     await expect(page.getByTestId('diagnostics-drawer')).toHaveCount(0);
     // viewer（具备 ontology.read，但无人具备 ontology.diagnostics.read）同样不可见。
     await page.getByTestId('identity-select').selectOption('demo-viewer');
-    await page.getByTestId('ontology-more-menu').click();
-    await expect(page.getByTestId('diagnostics-entry')).toHaveCount(0);
+    await expect(page.getByTestId('ontology-more-menu')).toHaveCount(0);
+    await expect(page.getByTestId('diagnostics-drawer')).toHaveCount(0);
   });
 
   test('07 Batch 1~4 能力不回退：核心交互入口仍在（只读巡检）', async ({page}) => {

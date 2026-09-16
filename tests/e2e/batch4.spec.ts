@@ -159,8 +159,8 @@ test.describe('Batch 4 校验 / 影响 / 发布', () => {
     await expect(page.getByTestId('status-band')).toContainText('正式版本 v1.4.0');
     await expect(page.getByTestId('versions-panel').getByText('v1.3.0').first()).toBeVisible();
     await expect(page.getByTestId('versions-panel').getByText('当前', {exact: true}).first()).toBeVisible();
-    // 审计记录包含发布事件与 releaseNotes。
-    await expect(page.getByTestId('audit-events')).toContainText('ONTOLOGY_VERSION_PUBLISHED');
+    // 审计记录包含发布事件与 releaseNotes（事件类型走产品语言标签，Batch 4.6 第六节）。
+    await expect(page.getByTestId('audit-events')).toContainText('发布正式版本');
     await expect(page.getByTestId('audit-events')).toContainText('锁定 runtime 依赖版本，明确断言生命周期边界。');
   });
 
@@ -169,7 +169,7 @@ test.describe('Batch 4 校验 / 影响 / 发布', () => {
     await expect(page.getByTestId('status-band')).toContainText('正式版本 v1.4.0');
     await page.reload();
     await expect(page.getByTestId('status-band')).toContainText('正式版本 v1.4.0');
-    await expect(page.getByTestId('audit-events')).toContainText('ONTOLOGY_VERSION_PUBLISHED');
+    await expect(page.getByTestId('audit-events')).toContainText('发布正式版本');
     // 左侧切回 v1.3.0：只读历史版本。
     await page.getByTestId('versions-panel').getByRole('button', {name: /v1\.3\.0/}).click();
     await expect(page).toHaveURL(/versionId=v1\.3\.0/);

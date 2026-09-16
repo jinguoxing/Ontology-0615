@@ -1,5 +1,5 @@
 /**
- * 模型总览（Batch 2 重写；Batch 4.5 第四节收口）。
+ * 模型总览（Batch 2 重写；Batch 4.5 第四节收口；Batch 4.6 草稿基线修正）。
  *
  * 同一个 ViewReference（versionId 或 changeSetId+revision）驱动读取：
  * - GET /models/:id（模型头，由布局渲染）
@@ -11,19 +11,27 @@
  * 节点交叉图（31 节点 / 39 关系，改为 SemanticRegionMap 区域聚合视图）；
  * 完整节点级关系图保留在「关系与约束」页的结构视图中。不展示实例数量、
  * 健康分等合同之外或伪造的指标。
+ *
+ * Batch 4.6：草稿基线来源修正——草稿视图的 ResolvedView.versionId 恒为
+ * null，真实基线是 ChangeSet.baseVersionId（GET /changesets/:id），
+ * 「初始草稿」只在无基线版本时出现；最近事件走 auditPresentation
+ * 产品语言（原始 eventType / actorId 不出现在产品层）。
  */
 import {
   FileClock,
   History,
   Loader2,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   apiErrorMessage,
   useActorScope,
   useAuditEvents,
+  useChangeSet,
   useVersions,
 } from '../ontology/queries';
 import {useModelContext} from '../ontology/ModelContext';
+import {auditActorLabel, auditEventLabel, auditTargetLabel} from '../ontology/auditPresentation';
 import ModelSummaryStrip from './ModelSummaryStrip';
 import SemanticRegionMap from './SemanticRegionMap';
 
@@ -33,27 +41,41 @@ export default function Overview() {
   const actorScope = useActorScope();
   const versionsQuery = useVersions(actorScope, modelId);
   const auditQuery = useAuditEvents(actorScope, modelId);
+  // 草稿基线的真实来源：ChangeSet.baseVersionId（草稿视图的 versionId 恒为 null）。
+  const draftId = isDraft && 'changeSetId' in route.view ? route.view.changeSetId : null;
+  const changeSetQuery = useChangeSet(actorScope, modelId, draftId);
 
   const doc = resolvedView?.document;
+  const baseline = isDraft
+    ? changeSetQuery.data?.baseVersionId ?? (changeSetQuery.isLoading ? '…' : '初始草稿')
+    : null;
 
   return (
     <div className="space-y-5">
       {/* 草稿提示 */}
       {isDraft && (
-        <div className="flex items-start gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-[13px] text-blue-800">
+        <div className="flex items-start gap-2 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl text-[13px] text-blue-800" data-testid="draft-banner">
           <FileClock className="h-4 w-4 shrink-0 mt-0.5"/>
-          <p>
-            当前展示<strong>编辑草稿 · r{resolvedView?.revision}</strong>
-            （基于 {resolvedView?.versionId ?? '初始草稿'}）的未发布内容；摘要与区域图均来自该草稿视图。
-            {model?.currentVersionId && (
-              <button
-                onClick={() => navigateToView({versionId: model.currentVersionId!})}
-                className="ml-1 font-bold underline hover:text-blue-900"
-              >
-                切换到正式版本 {model.currentVersionId}
-              </button>
+          <div className="space-y-1">
+            <p className="font-bold">编辑草稿 · r{resolvedView?.revision}</p>
+            <p>基于 {baseline} 的未发布内容；摘要与区域图均来自该草稿视图。</p>
+            {model?.currentVersionId ? (
+              <p className="flex items-center gap-3 flex-wrap">
+                <span className="inline-flex items-center gap-1">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-500"/>
+                  正式版本 <span className="font-mono font-semibold">{model.currentVersionId}</span> 未受草稿影响
+                </span>
+                <button
+                  onClick={() => navigateToView({versionId: model.currentVersionId!})}
+                  className="font-bold underline hover:text-blue-900"
+                >
+                  切换到正式版本 {model.currentVersionId}
+                </button>
+              </p>
+            ) : (
+              <p>尚无正式发布版本；发布首个版本后正式记录出现在下方。</p>
             )}
-          </p>
+          </div>
         </div>
       )}
 
@@ -91,7 +113,7 @@ export default function Overview() {
             )}
             {versionsQuery.isSuccess && ((versionsQuery.data?.items ?? []).length === 0 ? (
               <p className="px-4 py-8 text-center text-[13px] text-slate-400">
-                尚无正式发布版本（新本体发布后出现在这里；正式发布流程在当前演示范围外）。
+                尚无正式发布版本。完成校验与影响分析后，可在“版本与发布”发布首个版本。
               </p>
             ) : (
               <table className="semovix-table">
@@ -143,16 +165,21 @@ export default function Overview() {
               </p>
             ) : (
               <ul className="space-y-2.5">
-                {(auditQuery.data?.items ?? []).slice(0, 8).map((e) => (
+                {[...(auditQuery.data?.items ?? [])]
+                  // 服务端列表按 id 排序不保证时间序；最近事件按发生时间倒序呈现。
+                  .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
+                  .slice(0, 8)
+                  .map((e) => (
                   <li key={e.id} className="flex items-start gap-2.5 text-[13px]">
                     <History className="h-3.5 w-3.5 text-slate-400 mt-0.5 shrink-0"/>
                     <div className="min-w-0">
+                      <p className="font-bold text-slate-800">{auditActorLabel(e.actorId)}</p>
                       <p className="text-slate-700">
-                        <span className="font-mono font-bold text-slate-800">{e.eventType}</span>
-                        <span className="text-slate-400"> · {e.actorId}</span>
+                        {auditEventLabel(e.eventType)}{' '}
+                        <span className="font-mono font-semibold">{auditTargetLabel(e.targetId)}</span>
                       </p>
                       <p className="text-slate-500 text-[12px] truncate" title={e.summary}>{e.summary}</p>
-                      <p className="text-slate-400 text-[12px] font-mono">{formatTime(e.occurredAt)}</p>
+                      <p className="text-slate-400 text-[12px]">{formatTime(e.occurredAt)}</p>
                     </div>
                   </li>
                 ))}

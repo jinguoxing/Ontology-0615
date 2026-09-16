@@ -292,7 +292,7 @@ export default function ObjectModel() {
     createChangeSet.mutate(
       {
         name: `从 ${baseVersionId ?? '当前版本'} 创建的变更`,
-        reason: '对象类型页：从正式版本进入编辑（Batch 2）',
+        reason: '从正式版本进入编辑',
         baseVersionId,
         targetVersionId: target,
       },

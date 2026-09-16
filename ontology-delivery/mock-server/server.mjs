@@ -33,7 +33,7 @@ const fail=(status,code,message,details)=>{throw new ApiError(status,code,messag
 function createWorkspace(isolation=false) {
   const document=clone(modelDoc);
   const date='2026-09-15T00:00:00.000Z';
-  const core={id:'drkn-core',name:isolation?'隔离测试数据治理模型':'数据治理本体',profile:'DATA_GOVERNANCE',origin:'SYSTEM',ownerRef:'platform-team',currentVersionId:'v1.3.0',versions:{},changeSets:{}};
+  const core={id:'drkn-core',name:isolation?'隔离测试数据治理模型':'数据治理领域本体',profile:'DATA_GOVERNANCE',origin:'SYSTEM',ownerRef:'platform-team',currentVersionId:'v1.3.0',versions:{},changeSets:{}};
   core.versions['v1.3.0']={id:'v1.3.0',modelId:core.id,document:clone(document),contentHash:hash(document),publishedAt:date,releaseNotes:'演示基线，非线上真实模型版本。',baseVersionId:null};
   const draft=clone(document);
   draft.objectTypes.find(t=>t.id==='SemanticAssertion').definition+=' 当前草稿明确 UNKNOWN、队列与生命周期边界。';

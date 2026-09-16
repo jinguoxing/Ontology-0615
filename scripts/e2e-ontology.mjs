@@ -1,21 +1,25 @@
 #!/usr/bin/env node
 /**
- * Batch 3.6 / 4.5 E2E 编排脚本。
+ * Batch 3.6 / 4.5 / 4.6 E2E 编排脚本。
  *
  * 两个入口（package.json）：
  * - test:e2e:ontology-ui           → batch35 + batch36 + batch4 + final-polish
+ *                                    + batch46 + diagnostics-security
  * - test:e2e:ontology-screenshots  → screenshots（01-09 正式截图 + 诊断截图组）
  *
  * 每个用例组 = {specs, grep?, viteEnv?}：
  * - 每组使用独立的一次性 MOCK_DB_PATH（mock 首次启动自动落种子）。
  * - viteEnv 按组注入（import.meta.env 在 dev server 启动时固化，env 变化
- *   必须重启 vite）：batch35/36 与 batch4 的诊断用例需要
- *   VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true；final-polish 与 01-09 正式截图
- *   必须在关闭诊断配置下运行；诊断截图（10-diagnostics）单独开旗标重跑。
+ *   必须重启 vite）：batch35/36、batch4 与 diagnostics-security 的诊断用例
+ *   需要 DIAG_ON；final-polish、batch46 与 01-09 正式截图必须 DIAG_OFF。
+ *   Batch 4.6 第八节：关闭必须显式写 'false'——空对象 {} 只表示“未设置”，
+ *   不能保证关闭（防止未来默认值变化引入误开）。诊断截图（10-diagnostics）
+ *   单独开旗标重跑。
  *
  * ui 模式分组说明：batch35+36 共用一个库（batch36 依赖 batch35 推进后的
  * revision），batch4 单独一个库（演示闭环必须从 r12 种子态开始），
- * final-polish 单独一个库（全新演示库断言只有种子模型）。
+ * final-polish / batch46 / diagnostics-security 各自一个库（batch46 会创建
+ * 并放弃业务本体草稿，diagnostics-security 只在网络层注入敏感字段）。
  * screenshots 模式两组：01-09 一个库；诊断截图重开旗标 + grep 只跑诊断用例。
  *
  * 端口默认 4310 / 3000；本机端口被其它软件（如 Docker 端口转发）占用时，
@@ -35,7 +39,9 @@ const VITE_PORT = Number(process.env.SEMOVIX_E2E_VITE_PORT || 3000);
 const BASE_URL = `http://127.0.0.1:${VITE_PORT}`;
 const READY_TIMEOUT_MS = 90_000;
 
+// 诊断旗标必须显式开 / 显式关；空对象 {} 不再用于表达“关闭”（Batch 4.6 第八节）。
 const DIAG_ON = {VITE_ENABLE_ONTOLOGY_DIAGNOSTICS: 'true'};
+const DIAG_OFF = {VITE_ENABLE_ONTOLOGY_DIAGNOSTICS: 'false'};
 
 const mode = process.argv[2];
 // 每组一次全新 mock DB + 按组 vite env（env 变化时重启 vite）。
@@ -43,10 +49,12 @@ const MODES = {
   ui: [
     {specs: ['tests/e2e/batch35.spec.ts', 'tests/e2e/batch36.spec.ts'], viteEnv: DIAG_ON},
     {specs: ['tests/e2e/batch4.spec.ts'], viteEnv: DIAG_ON},
-    {specs: ['tests/e2e/final-polish.spec.ts'], viteEnv: {}},
+    {specs: ['tests/e2e/final-polish.spec.ts'], viteEnv: DIAG_OFF},
+    {specs: ['tests/e2e/batch46.spec.ts'], viteEnv: DIAG_OFF},
+    {specs: ['tests/e2e/diagnostics-security.spec.ts'], viteEnv: DIAG_ON},
   ],
   screenshots: [
-    {specs: ['tests/e2e/screenshots.spec.ts'], viteEnv: {}},
+    {specs: ['tests/e2e/screenshots.spec.ts'], viteEnv: DIAG_OFF},
     {specs: ['tests/e2e/screenshots.spec.ts'], grep: '诊断信息', viteEnv: DIAG_ON},
   ],
 };
@@ -201,7 +209,10 @@ try {
   // （首次启动写入种子）→ 跑该组 Playwright → 杀 mock 删库。
   // 任何一组失败即停止（fail fast，退出码透传）。
   for (const group of MODES[mode]) {
-    await ensureVite(group.viteEnv ?? {});
+    // 诊断旗标必须显式声明（DIAG_ON / DIAG_OFF）；未声明的组直接报错，
+    // 防止以“未设置”悄悄进入不确定的默认态（Batch 4.6 第八节）。
+    if (!group.viteEnv) throw new Error('[e2e] 用例组缺少显式 viteEnv（DIAG_ON / DIAG_OFF）');
+    await ensureVite(group.viteEnv);
     if (await isPortOpen(MOCK_PORT)) {
       throw new Error(
         `[e2e] 127.0.0.1:${MOCK_PORT}（mock API）已被其它进程占用。` +

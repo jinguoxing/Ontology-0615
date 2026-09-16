@@ -1,5 +1,6 @@
 /**
- * 业务本体列表（Batch 2 重写；Batch 3.5 并入 Semovix 外壳；Batch 4.5 收口）。
+ * 业务本体列表（Batch 2 重写；Batch 3.5 并入 Semovix 外壳；Batch 4.5 收口；
+ * Batch 4.6 系统模型状态动作统一 + 创建表单产品语言）。
  *
  * 数据只来自 GET /models（契约 Mock 服务）。区分系统模型（origin=SYSTEM，
  * 数据治理域，不可新建，紧凑基础模型区域）与业务本体（origin=TENANT，
@@ -8,16 +9,22 @@
  * 真实写路径：
  * - 新建业务本体：POST /models → 服务端返回初始 OPEN 草稿 → 直接进入该草稿。
  * - 创建变更：POST /models/:id/changesets（基于当前正式版本）。
- * - 继续草稿 / 继续建模：读取 GET /models/:id/changesets/:cid 获取最新修订号后跳转。
+ * - 继续草稿 / 重新开始建模：读取 GET /models/:id/changesets/:cid 获取最新
+ *   修订号后跳转；无版本无草稿时先创建初始 ChangeSet（ModelPrimaryAction）。
  * 产品层默认隐藏 modelId、changeSetId、ownerRef 原始值（Batch 4.5 第三节）；
- * 不伪造更新时间、业务域与健康评分。loading、error、empty、无权限（viewer）
- * 均有明确状态；顶部导航 / 演示标识 / 身份切换由 SemovixShell 提供。
+ * 创建表单只呈现产品字段（本体名称 / 责任归属），系统标识收进默认关闭的
+ * 「高级设置」（Batch 4.6 第五节）。不伪造更新时间、业务域与健康评分。
+ * loading、error、empty、无权限（viewer）均有明确状态；顶部导航 / 演示标识 /
+ * 身份切换由 SemovixShell 提供。
  */
 import {useState, type ReactNode} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {
   AlertTriangle,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  FileClock,
   GitBranch,
   Loader2,
   Plus,
@@ -36,8 +43,14 @@ import {
 } from '../ontology/queries';
 import {ownerDisplayName} from '../ontology/presentation';
 import OntologyModelsTable from './OntologyModelsTable';
+import ModelPrimaryAction, {CreateChangeSetForm} from './ModelPrimaryAction';
 
 const ID_PATTERN = /^[A-Za-z][A-Za-z0-9_.:-]*$/;
+
+/** 系统标识默认自动生成（接口要求稳定标识；用户可在高级设置中修改）。 */
+function suggestModelId(): string {
+  return `ontology-${Date.now().toString(36)}`;
+}
 
 export default function OntologyModelsList() {
   const actorScope = useActorScope();
@@ -47,6 +60,7 @@ export default function OntologyModelsList() {
   const navigate = useNavigate();
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [form, setForm] = useState({id: '', name: '', ownerRef: ''});
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -57,10 +71,17 @@ export default function OntologyModelsList() {
   const systemModels = models.filter((m) => m.origin === 'SYSTEM');
   const tenantModels = models.filter((m) => m.origin === 'TENANT');
 
+  const openCreate = () => {
+    setCreateOpen(true);
+    setFormError(null);
+    setAdvancedOpen(false);
+    setForm({id: suggestModelId(), name: '', ownerRef: ''});
+  };
+
   const submitCreate = () => {
     setFormError(null);
     if (!ID_PATTERN.test(form.id)) {
-      setFormError('模型 ID 需以字母开头，可含数字与 _ . : -');
+      setFormError('系统标识需以字母开头，可含数字与 _ . : -');
       return;
     }
     if (!form.name.trim()) {
@@ -69,6 +90,12 @@ export default function OntologyModelsList() {
     }
     if (!form.ownerRef.trim()) {
       setFormError('请填写责任归属');
+      return;
+    }
+    // 接口合同要求 ownerRef 为标识符格式（^[A-Za-z][A-Za-z0-9_.:-]*$）；
+    // 提交前用产品语言校验，避免用户输入中文展示名后收到合同错误。
+    if (!ID_PATTERN.test(form.ownerRef.trim())) {
+      setFormError('责任归属标识需以字母开头，可含数字与 _ . : -（例如 crm-team）');
       return;
     }
     createModel.mutate(
@@ -102,7 +129,7 @@ export default function OntologyModelsList() {
             </p>
           </div>
           <button
-            onClick={() => { setCreateOpen(true); setFormError(null); }}
+            onClick={openCreate}
             disabled={!canEdit}
             title={canEdit ? '创建业务本体并获得初始草稿' : '当前演示身份为只读，无创建权限'}
             className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-[13px] font-bold rounded-lg ${
@@ -141,8 +168,8 @@ export default function OntologyModelsList() {
 
         {modelsQuery.isSuccess && (
           <>
-            {/* 系统模型：紧凑基础模型区域（非卡片栅格） */}
-            <SystemModelStrip models={systemModels}/>
+            {/* 系统模型：紧凑基础模型区域（状态动作与业务本体统一） */}
+            <SystemModelStrip models={systemModels} canEdit={canEdit}/>
 
             {/* 业务本体：紧凑表格（主操作按状态唯一） */}
             <section className="space-y-3">
@@ -174,14 +201,6 @@ export default function OntologyModelsList() {
                 服务端会为新本体创建初始草稿，创建成功后直接进入该草稿。
               </p>
               <div className="space-y-3">
-                <Field label="模型 ID" hint="字母开头，可含数字与 _ . : -">
-                  <input
-                    value={form.id}
-                    onChange={(e) => setForm((f) => ({...f, id: e.target.value}))}
-                    placeholder="例如 marketing-ontology"
-                    className="w-full px-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono"
-                  />
-                </Field>
                 <Field label="本体名称">
                   <input
                     value={form.name}
@@ -190,14 +209,37 @@ export default function OntologyModelsList() {
                     className="w-full px-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
                   />
                 </Field>
-                <Field label="责任归属">
+                {/* 责任归属：接口合同要求标识符格式；中文展示名由展示层映射 */}
+                <Field label="责任归属" hint="责任归属标识（字母开头，可含数字与 _ . : -，例如 crm-team）">
                   <input
                     value={form.ownerRef}
                     onChange={(e) => setForm((f) => ({...f, ownerRef: e.target.value}))}
-                    placeholder="例如 marketing-team"
-                    className="w-full px-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
+                    placeholder="例如 crm-team"
+                    className="w-full px-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono"
                   />
                 </Field>
+                {/* 高级设置：默认收起；系统标识（接口要求的稳定标识）默认自动生成 */}
+                <div className="border-t border-slate-100 pt-2">
+                  <button
+                    onClick={() => setAdvancedOpen((v) => !v)}
+                    className="inline-flex items-center gap-1 text-[12px] font-bold text-slate-500 hover:text-slate-700"
+                    aria-expanded={advancedOpen}
+                  >
+                    {advancedOpen ? <ChevronDown className="h-3.5 w-3.5"/> : <ChevronRight className="h-3.5 w-3.5"/>}
+                    高级设置
+                  </button>
+                  {advancedOpen && (
+                    <div className="mt-2">
+                      <Field label="系统标识" hint="用于接口与集成的稳定标识，默认自动生成">
+                        <input
+                          value={form.id}
+                          onChange={(e) => setForm((f) => ({...f, id: e.target.value}))}
+                          className="w-full px-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500 font-mono"
+                        />
+                      </Field>
+                    </div>
+                  )}
+                </div>
               </div>
               {formError && (
                 <p className="text-[12px] text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{formError}</p>
@@ -228,11 +270,10 @@ export default function OntologyModelsList() {
 
 /**
  * 系统模型紧凑区域：数据治理域内置模型一行一条（名称 / 责任方 / 当前版本 /
- * 查看入口），不使用卡片栅格，也不显示原始 modelId / ownerRef。
+ * 草稿状态 / 状态动作），不使用卡片栅格，也不显示原始 modelId / ownerRef。
+ * 状态动作与业务本体统一（ModelPrimaryAction）：存在编辑草稿 → 继续草稿。
  */
-function SystemModelStrip({models}: {models: ModelSummary[]}) {
-  const navigate = useNavigate();
-
+function SystemModelStrip({models, canEdit}: {models: ModelSummary[]; canEdit: boolean}) {
   return (
     <section className="space-y-3" data-testid="system-model-strip">
       <div className="flex items-baseline gap-3">
@@ -245,35 +286,65 @@ function SystemModelStrip({models}: {models: ModelSummary[]}) {
         </div>
       ) : (
         <div className="semovix-card divide-y divide-slate-100">
-          {models.map((m) => (
-            <div key={m.id} className="flex items-center gap-4 px-4 py-3 flex-wrap" data-testid="system-model-row">
-              <ShieldCheck className="h-4 w-4 text-slate-400 shrink-0"/>
-              <div className="min-w-0 flex-1">
-                <span className="block text-[13px] font-bold text-slate-800">{m.name}</span>
-                <span className="block text-[12px] text-slate-400 mt-0.5">
-                  数据治理系统模型 · 系统内置 · 责任方 {ownerDisplayName(m.ownerRef)}
-                </span>
-              </div>
-              {m.currentVersionId ? (
-                <span className="inline-flex items-center gap-1 font-mono text-[12px] font-semibold text-emerald-700 shrink-0">
-                  <CheckCircle2 className="h-3.5 w-3.5"/>{m.currentVersionId}
-                </span>
-              ) : (
-                <span className="text-[12px] text-slate-400 shrink-0">尚未发布版本</span>
-              )}
-              {m.currentVersionId && (
-                <button
-                  onClick={() => navigate(ontologyLocation({modelId: m.id, tab: 'overview', view: {versionId: m.currentVersionId!}}))}
-                  className="semovix-btn-text shrink-0"
-                >
-                  查看版本
-                </button>
-              )}
-            </div>
-          ))}
+          {models.map((m) => <SystemModelRow key={m.id} model={m} canEdit={canEdit}/>)}
         </div>
       )}
     </section>
+  );
+}
+
+function SystemModelRow({model, canEdit}: {model: ModelSummary; canEdit: boolean}) {
+  const navigate = useNavigate();
+  const [changeFormOpen, setChangeFormOpen] = useState(false);
+
+  const goVersion = () => {
+    if (!model.currentVersionId) return;
+    navigate(ontologyLocation({modelId: model.id, tab: 'overview', view: {versionId: model.currentVersionId}}));
+  };
+
+  return (
+    <div className="px-4 py-3.5 space-y-2" data-testid="system-model-row">
+      <div className="flex items-center gap-4 flex-wrap">
+        <ShieldCheck className="h-4 w-4 text-slate-400 shrink-0"/>
+        <div className="min-w-0 flex-1">
+          <span className="block text-[13px] font-bold text-slate-800">{model.name}</span>
+          <span className="block text-[12px] text-slate-400 mt-0.5">
+            数据治理系统模型 · 系统内置 · 责任方 {ownerDisplayName(model.ownerRef)}
+          </span>
+        </div>
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          {model.currentVersionId ? (
+            <span className="inline-flex items-center gap-1 font-mono text-[12px] font-semibold text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5"/>当前版本 {model.currentVersionId}
+            </span>
+          ) : (
+            <span className="text-[12px] text-slate-400">尚未发布版本</span>
+          )}
+          {model.activeChangeSetId && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[12px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+              <FileClock className="h-3 w-3"/>存在编辑草稿
+            </span>
+          )}
+        </div>
+        <div className="inline-flex items-center gap-3 shrink-0">
+          <ModelPrimaryAction
+            model={model}
+            canEdit={canEdit}
+            onRequestCreateChange={() => { setChangeFormOpen((v) => !v); }}
+          />
+          {model.currentVersionId && (
+            <button
+              onClick={goVersion}
+              className="semovix-btn-text shrink-0"
+              title={`查看 ${model.currentVersionId}`}
+            >
+              查看正式版本
+            </button>
+          )}
+        </div>
+      </div>
+      {changeFormOpen && <CreateChangeSetForm model={model} onDone={() => setChangeFormOpen(false)}/>}
+    </div>
   );
 }
 
@@ -282,7 +353,7 @@ function Field({label, hint, children}: {label: string; hint?: string; children:
     <label className="block space-y-1">
       <span className="text-[12px] font-bold text-slate-600">{label}</span>
       {children}
-      {hint && <span className="block text-[12px] text-slate-400 font-mono">{hint}</span>}
+      {hint && <span className="block text-[12px] text-slate-400">{hint}</span>}
     </label>
   );
 }

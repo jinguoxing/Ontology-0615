@@ -28,6 +28,7 @@ import {
 } from '../ontology/queries';
 import {decodeReportSelection} from '../ontology/reportSelection';
 import {shortId} from '../ontology/presentation';
+import {auditActorLabel, auditEventLabel, auditTargetLabel} from '../ontology/auditPresentation';
 
 const COLLECTION_LABELS: Record<DiffItem['collection'], string> = {
   objectTypes: '对象类型',
@@ -152,7 +153,11 @@ export default function ReleasePage() {
     .map((c) => ({collection: c, items: diffItems.filter((d) => d.collection === c)}))
     .filter((g) => g.items.length > 0);
 
-  const audits = [...(auditQuery.data?.items ?? [])].reverse().slice(0, 8);
+  // 「最近 8 条」按发生时间倒序取真实最近事件（服务端列表按 id 排序，
+  // 不保证时间序；展示层负责排序，不改动接口合同）。
+  const audits = [...(auditQuery.data?.items ?? [])]
+    .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
+    .slice(0, 8);
 
   return (
     <div className="space-y-4">
@@ -379,11 +384,16 @@ export default function ReleasePage() {
             <div className="divide-y divide-slate-100">
               {audits.map((a) => (
                 <div key={a.id} className="py-2 flex items-start gap-2.5">
-                  <span className="shrink-0 mt-0.5 px-1.5 py-0.5 rounded text-[12px] font-bold font-mono bg-slate-100 text-slate-500 border border-slate-200">{a.eventType}</span>
+                  <span
+                    className="shrink-0 mt-0.5 px-1.5 py-0.5 rounded text-[12px] font-bold bg-slate-100 text-slate-500 border border-slate-200"
+                    title="事件类型（原始值见诊断信息）"
+                  >
+                    {auditEventLabel(a.eventType)}
+                  </span>
                   <div className="min-w-0 flex-1">
                     <p className="text-[13px] text-slate-700">{a.summary}</p>
                     <p className="text-[12px] text-slate-400 mt-0.5">
-                      {a.actorId} · {fmtTime(a.occurredAt)} · <span className="font-mono" title="目标标识（完整值见诊断信息）">{shortId(a.targetId)}</span>
+                      {auditActorLabel(a.actorId)} · {fmtTime(a.occurredAt)} · <span className="font-mono" title="目标标识（完整值见诊断信息）">{auditTargetLabel(a.targetId)}</span>
                     </p>
                   </div>
                 </div>

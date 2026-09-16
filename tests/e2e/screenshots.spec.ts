@@ -198,10 +198,13 @@ test.describe('Batch 4 截图（1920×1080）', () => {
     // 入口只在开发配置（VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true）或诊断能力下
     // 可见；01~09 正式截图组（旗标关闭）运行时本用例跳过——正式截图不打开
     // 诊断抽屉。10 号截图由编排脚本开旗标单独重跑本用例产出。
-    await page.getByTestId('ontology-more-menu').click();
-    if (!(await page.getByTestId('diagnostics-entry').isVisible())) {
+    // Batch 4.6 第九节：旗标关闭时「更多」菜单整体不渲染（无空入口），
+    // 因此以菜单是否存在作为跳过判据，而不是点击后再看入口。
+    const moreMenu = page.getByTestId('ontology-more-menu');
+    if ((await moreMenu.count()) === 0) {
       test.skip(true, '诊断入口在关闭配置的运行中不可见（正式截图组不拍诊断页）');
     }
+    await moreMenu.click();
     await page.getByTestId('diagnostics-entry').click();
     await expect(page.getByRole('heading', {name: '诊断信息'})).toBeVisible();
     await expect(page.getByTestId('diagnostics-drawer')).toContainText('cs-drkn-demo');

@@ -11,7 +11,7 @@
         "contractVersion": "1.0.0"
       },
       "meta": {
-        "requestId": "req-0046fbea-baa3-426d-a95c-532d3e9fdd64",
+        "requestId": "req-8335711f-adc0-4f16-b86c-a522ecc6d863",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -27,7 +27,7 @@
         "items": [
           {
             "id": "drkn-core",
-            "name": "数据治理本体",
+            "name": "数据治理领域本体",
             "profile": "DATA_GOVERNANCE",
             "origin": "SYSTEM",
             "ownerRef": "platform-team",
@@ -51,7 +51,7 @@
         "limit": 50
       },
       "meta": {
-        "requestId": "req-fdc39c9d-d825-41fb-af56-f84f50af377a",
+        "requestId": "req-70bbc12c-9b1d-43ea-84b2-559e1193e310",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -75,7 +75,7 @@
         "mode": "DEMO"
       },
       "meta": {
-        "requestId": "req-c8a9b5f6-1429-4e87-a9dd-af8ba91ee2f2",
+        "requestId": "req-8fd6190c-4eb6-4d14-853a-e3e3a8ff26f3",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -3278,7 +3278,7 @@
         "currentVersionId": "v1.3.0"
       },
       "meta": {
-        "requestId": "req-a1b3406b-b75a-4704-87f3-6e686717bbfb",
+        "requestId": "req-3f33da18-aaf7-4f00-b459-0370aaa4e80e",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -4777,7 +4777,7 @@
         "limit": 200
       },
       "meta": {
-        "requestId": "req-ed4d84a3-e68d-45f9-a706-ed7c0a489efa",
+        "requestId": "req-9d4f057d-fd68-4a91-9f6f-ba5b173a77dc",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -5460,7 +5460,7 @@
         "limit": 200
       },
       "meta": {
-        "requestId": "req-6f997bfe-8ded-4b53-a532-b02dd857ab82",
+        "requestId": "req-d8223fad-effc-4610-a9e9-b54cc3904470",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -5507,7 +5507,7 @@
         "limit": 200
       },
       "meta": {
-        "requestId": "req-a29ac5b7-d6e3-4160-88a6-795f65e5b238",
+        "requestId": "req-0c6e6679-8bff-4900-a732-c7b67c3cbcbb",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -6104,7 +6104,7 @@
         "limit": 200
       },
       "meta": {
-        "requestId": "req-4e3f2286-0ccc-404b-bbc1-697d755f3565",
+        "requestId": "req-82714aca-b9ec-446d-a6b9-92b30951eb8d",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -6463,7 +6463,7 @@
         "limit": 200
       },
       "meta": {
-        "requestId": "req-d379ec16-76d2-44d8-9ab1-5e0154d24832",
+        "requestId": "req-1b4e3e2b-1984-47db-931c-67947c3019a4",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -6546,7 +6546,7 @@
         "limit": 200
       },
       "meta": {
-        "requestId": "req-9ea2a244-d4f5-40f4-b16e-3f07a170f598",
+        "requestId": "req-b680f453-18c7-407d-83e5-78fdf3d58a8a",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7385,7 +7385,7 @@
         ]
       },
       "meta": {
-        "requestId": "req-55d0c24a-f2f5-4578-973d-1bd9e088ede2",
+        "requestId": "req-7ea47624-a6c8-4413-a8be-68eb6e20d3d6",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7440,7 +7440,7 @@
         "currentVersionId": "v1.0.0"
       },
       "meta": {
-        "requestId": "req-701100d0-19f7-469c-b46a-daace47359ef",
+        "requestId": "req-6845fd8d-01e8-45ba-bb1f-a3ba139dcc24",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7463,7 +7463,7 @@
         "activeChangeSetId": "cs-drkn-demo"
       },
       "meta": {
-        "requestId": "req-e20e0adb-f527-4965-9fb0-047e52d2ed86",
+        "requestId": "req-1b7a09ff-e5ea-4487-b967-487ad1527510",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7481,7 +7481,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-15906168-e59d-4a4f-9663-677742cde14e",
+        "requestId": "req-18bd1d6f-b148-420c-8933-ac041be8c49f",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7499,7 +7499,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-2531ce57-ccd1-40c5-995d-fa3c822e708e",
+        "requestId": "req-b467b0fb-56d6-4b1b-aa09-d4621686e2a0",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7517,7 +7517,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-bcd1fd27-cf03-4066-8363-16551852d24b",
+        "requestId": "req-e4494fd0-bd28-4d90-a723-de7c40cf0405",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7535,7 +7535,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-b636df54-da5f-4d5e-bd31-e3269c49cc9d",
+        "requestId": "req-e6f2f37a-fd1b-4f87-8e00-0ce9133163c0",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7553,7 +7553,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-6bd28266-dbe4-45c8-a819-3ee7a6080a37",
+        "requestId": "req-79de8faf-3013-486e-b9ea-8382c969a3c7",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7571,7 +7571,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-8d1383a5-55bc-4b24-a3d7-8e1eefce9145",
+        "requestId": "req-b6fb3d72-ec5e-4ed1-aff1-ba4bf888e17e",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -7589,7 +7589,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-336808e5-3466-44a5-adeb-47e45b7b89d4",
+        "requestId": "req-631cbd1d-df56-4e71-af5b-e9ee621a34a3",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -10792,7 +10792,7 @@
         "currentVersionId": "v1.3.0"
       },
       "meta": {
-        "requestId": "req-e4364b87-311c-4c1f-8bc5-04f7a20fb757",
+        "requestId": "req-00bf9bd1-0642-41e8-8e20-d6b7f0e00fba",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -10812,7 +10812,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-35c139e2-b2ad-4df6-b97e-bb39998d61e3",
+        "requestId": "req-9f1f5ac3-aba1-4efc-ad89-07b2b366e80b",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -10832,7 +10832,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-bef5c6d5-a989-4e49-af72-65cb0ba095b7",
+        "requestId": "req-6bce746c-d23c-48b1-885f-6c0f52908468",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -10855,7 +10855,7 @@
         }
       },
       "meta": {
-        "requestId": "req-d4fa402a-062c-4417-b0b2-375c99704b89",
+        "requestId": "req-81b8cb49-d908-444e-9a91-26cc7b9fdb1f",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -10870,7 +10870,7 @@
     },
     "response": {
       "data": {
-        "id": "job-35c7195e-82fb-47b3-9a2d-6b0976a21a0f",
+        "id": "job-b33c214c-cfd9-4996-ace3-30ba0ef3de52",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -10878,14 +10878,14 @@
         "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.467Z",
+        "createdAt": "2026-09-16T02:35:13.086Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-678ef8c1-eb41-4330-867e-6064f437dd4f",
+        "requestId": "req-2489b595-dc4b-4bf0-aba4-adc21884971c",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -10893,12 +10893,40 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-35c7195e-82fb-47b3-9a2d-6b0976a21a0f",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-b33c214c-cfd9-4996-ace3-30ba0ef3de52",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-35c7195e-82fb-47b3-9a2d-6b0976a21a0f",
+        "id": "job-b33c214c-cfd9-4996-ace3-30ba0ef3de52",
+        "kind": "VALIDATION",
+        "modelId": "drkn-core",
+        "changeSetId": "cs-drkn-demo",
+        "revision": 12,
+        "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
+        "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
+        "status": "RUNNING",
+        "createdAt": "2026-09-16T02:35:13.086Z",
+        "completedAt": null,
+        "isCurrent": true,
+        "result": null,
+        "error": null
+      },
+      "meta": {
+        "requestId": "req-4355e305-ecf8-4280-8a46-743167aa579b",
+        "dataMode": "MOCK",
+        "contractVersion": "1.0.0"
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-b33c214c-cfd9-4996-ace3-30ba0ef3de52",
+    "status": 200,
+    "request": null,
+    "response": {
+      "data": {
+        "id": "job-b33c214c-cfd9-4996-ace3-30ba0ef3de52",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -10906,8 +10934,8 @@
         "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:56.467Z",
-        "completedAt": "2026-09-16T01:10:56.499Z",
+        "createdAt": "2026-09-16T02:35:13.086Z",
+        "completedAt": "2026-09-16T02:35:13.121Z",
         "isCurrent": true,
         "result": {
           "passed": false,
@@ -10941,7 +10969,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-f6c4cf7e-e128-45f4-9709-2d1fca84981b",
+        "requestId": "req-bdc10c29-df04-4192-b86b-5da6972a143d",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -10956,7 +10984,7 @@
     },
     "response": {
       "data": {
-        "id": "job-659fe14b-f8f0-46aa-8a56-34451248b664",
+        "id": "job-3534504b-2edb-4373-b7b3-b7cfa3a7bb4e",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -10964,14 +10992,14 @@
         "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.527Z",
+        "createdAt": "2026-09-16T02:35:13.159Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-1deb67c9-a905-46d2-ba1f-98dd879a43af",
+        "requestId": "req-d603539f-bebc-41de-a27a-7641c14cb191",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -10979,12 +11007,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-659fe14b-f8f0-46aa-8a56-34451248b664",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-3534504b-2edb-4373-b7b3-b7cfa3a7bb4e",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-659fe14b-f8f0-46aa-8a56-34451248b664",
+        "id": "job-3534504b-2edb-4373-b7b3-b7cfa3a7bb4e",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -10992,14 +11020,14 @@
         "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.527Z",
+        "createdAt": "2026-09-16T02:35:13.159Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-2819ee5f-6aea-409a-9e93-c9c2500accc3",
+        "requestId": "req-b6c854f3-99bf-4e5d-a2a7-91e1a2b3c29a",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11007,12 +11035,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-659fe14b-f8f0-46aa-8a56-34451248b664",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-3534504b-2edb-4373-b7b3-b7cfa3a7bb4e",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-659fe14b-f8f0-46aa-8a56-34451248b664",
+        "id": "job-3534504b-2edb-4373-b7b3-b7cfa3a7bb4e",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -11020,8 +11048,8 @@
         "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:56.527Z",
-        "completedAt": "2026-09-16T01:10:56.569Z",
+        "createdAt": "2026-09-16T02:35:13.159Z",
+        "completedAt": "2026-09-16T02:35:13.197Z",
         "isCurrent": true,
         "result": {
           "passed": false,
@@ -11055,7 +11083,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-437081ae-eaba-4ecd-9365-2198a76046d7",
+        "requestId": "req-1948b2b3-8cc1-4577-b719-b2106fe1fa4d",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11070,7 +11098,7 @@
     },
     "response": {
       "data": {
-        "id": "job-eb71e514-7c8b-469e-98ed-fc02e5cb68bc",
+        "id": "job-739f31c4-dae2-474b-a39a-a4e6cb2146ea",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -11078,14 +11106,14 @@
         "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.589Z",
+        "createdAt": "2026-09-16T02:35:13.207Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-814b6f63-3a9a-404c-bfb8-3038ed84fa01",
+        "requestId": "req-9b9f8154-f29f-4976-b8c0-0970bf529b44",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11093,12 +11121,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-eb71e514-7c8b-469e-98ed-fc02e5cb68bc",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-739f31c4-dae2-474b-a39a-a4e6cb2146ea",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-eb71e514-7c8b-469e-98ed-fc02e5cb68bc",
+        "id": "job-739f31c4-dae2-474b-a39a-a4e6cb2146ea",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -11106,14 +11134,14 @@
         "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.589Z",
+        "createdAt": "2026-09-16T02:35:13.207Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-fc6ec4a2-9cd4-45da-8279-a0dd07ceef3c",
+        "requestId": "req-cedbd285-03ea-446e-b07d-13367a4adfe8",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11121,12 +11149,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-eb71e514-7c8b-469e-98ed-fc02e5cb68bc",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-739f31c4-dae2-474b-a39a-a4e6cb2146ea",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-eb71e514-7c8b-469e-98ed-fc02e5cb68bc",
+        "id": "job-739f31c4-dae2-474b-a39a-a4e6cb2146ea",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -11134,8 +11162,8 @@
         "contentHash": "973f542e0bdc1b4a4a8a800dd2d1c4ada118fb570eeab373acde066bd48895b9",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:56.589Z",
-        "completedAt": "2026-09-16T01:10:56.642Z",
+        "createdAt": "2026-09-16T02:35:13.207Z",
+        "completedAt": "2026-09-16T02:35:13.237Z",
         "isCurrent": true,
         "result": {
           "items": [
@@ -11634,7 +11662,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-819c93c3-a836-4702-b408-f832cd52ba94",
+        "requestId": "req-5209700b-b84a-4e26-8bf8-3e5c2b85c756",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11646,8 +11674,8 @@
     "status": 409,
     "request": {
       "revision": 12,
-      "validationRunId": "job-659fe14b-f8f0-46aa-8a56-34451248b664",
-      "impactAnalysisId": "job-eb71e514-7c8b-469e-98ed-fc02e5cb68bc",
+      "validationRunId": "job-3534504b-2edb-4373-b7b3-b7cfa3a7bb4e",
+      "impactAnalysisId": "job-739f31c4-dae2-474b-a39a-a4e6cb2146ea",
       "releaseNotes": "演示发布",
       "acknowledgePartialCoverage": true
     },
@@ -11669,7 +11697,7 @@
         }
       },
       "meta": {
-        "requestId": "req-f4e2d501-de68-48a3-bb60-b570344a1a3c",
+        "requestId": "req-39df1db4-59fb-40d8-bcab-e796a83e9c34",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11701,7 +11729,7 @@
         }
       },
       "meta": {
-        "requestId": "req-7a1a1c2b-4585-4b8b-8f64-25634c6f0571",
+        "requestId": "req-bc56fe73-22a7-4bb2-a933-cadc72f9f89f",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11745,7 +11773,7 @@
         }
       },
       "meta": {
-        "requestId": "req-98b74ae4-207a-4ad2-a399-84e9eebc72bc",
+        "requestId": "req-8e15b8c3-a4c4-424e-8811-689f3280b5bd",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11781,7 +11809,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-f7129b7e-8bca-4acb-b9b1-b6ca33320692",
+        "requestId": "req-dcb39c44-0bf3-4982-a894-370cfeb3aa07",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -11807,7 +11835,7 @@
         "createdAt": "2026-09-15T00:00:00.000Z"
       },
       "meta": {
-        "requestId": "req-5665fc9e-2331-4a36-ad13-0c1782defc23",
+        "requestId": "req-67d8e02b-b4a9-4752-9db7-d0e035afb359",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -15007,7 +15035,7 @@
         "baseVersionId": null
       },
       "meta": {
-        "requestId": "req-336d3ed9-514d-4c45-bc47-1112a685eacd",
+        "requestId": "req-c4025a48-90e8-45f0-bffa-f7365c581f14",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -15046,7 +15074,7 @@
         "createdAt": "2026-09-15T00:00:00.000Z"
       },
       "meta": {
-        "requestId": "req-5954b545-99b5-417f-bc81-ba18fcd62734",
+        "requestId": "req-e858930a-a8ae-4e87-8146-1a21eca04420",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -18246,7 +18274,7 @@
         "baseVersionId": null
       },
       "meta": {
-        "requestId": "req-812ffa74-4970-466f-b521-fabb5febbb98",
+        "requestId": "req-31e8b9e7-598b-41f1-8f12-222a5cd49b19",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21449,7 +21477,7 @@
         "currentVersionId": "v1.3.0"
       },
       "meta": {
-        "requestId": "req-6b2dd690-e8a7-4d1a-9c1b-c3876df8bddc",
+        "requestId": "req-ab3918dc-df86-439d-9ba6-97b86651d325",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21464,7 +21492,7 @@
     },
     "response": {
       "data": {
-        "id": "job-db42d4c2-f70f-4f39-85f6-76c2f6308189",
+        "id": "job-97534d0a-bf8a-41e3-af0c-bfaf8c164d0d",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -21472,14 +21500,14 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.741Z",
+        "createdAt": "2026-09-16T02:35:13.290Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-b150af64-c611-4921-b866-9d3e81979ddd",
+        "requestId": "req-3e0013d5-f143-49a1-b96d-ebaa12802589",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21487,12 +21515,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-db42d4c2-f70f-4f39-85f6-76c2f6308189",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-97534d0a-bf8a-41e3-af0c-bfaf8c164d0d",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-db42d4c2-f70f-4f39-85f6-76c2f6308189",
+        "id": "job-97534d0a-bf8a-41e3-af0c-bfaf8c164d0d",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -21500,14 +21528,14 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.741Z",
+        "createdAt": "2026-09-16T02:35:13.290Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-40ddae28-0192-438f-b8cf-b1cb80812af6",
+        "requestId": "req-02b20b64-055d-44d0-8a66-719810ba4be1",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21515,12 +21543,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-db42d4c2-f70f-4f39-85f6-76c2f6308189",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-97534d0a-bf8a-41e3-af0c-bfaf8c164d0d",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-db42d4c2-f70f-4f39-85f6-76c2f6308189",
+        "id": "job-97534d0a-bf8a-41e3-af0c-bfaf8c164d0d",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -21528,8 +21556,8 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:56.741Z",
-        "completedAt": "2026-09-16T01:10:56.777Z",
+        "createdAt": "2026-09-16T02:35:13.290Z",
+        "completedAt": "2026-09-16T02:35:13.318Z",
         "isCurrent": true,
         "result": {
           "passed": true,
@@ -21554,7 +21582,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-437d69fe-58ab-413b-9637-3c3654795e61",
+        "requestId": "req-6d5d8e2e-72be-4a91-b28e-9c510f99213a",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21583,7 +21611,7 @@
         }
       },
       "meta": {
-        "requestId": "req-3f42dc54-8ecf-4489-b672-67d53533eec2",
+        "requestId": "req-c35c9f4c-330c-48f0-8249-f8e4bbdaa4de",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21863,7 +21891,7 @@
         ]
       },
       "meta": {
-        "requestId": "req-080b966d-53ee-4101-978b-aa37a42ea309",
+        "requestId": "req-509afb80-66c5-4209-a785-e29aa6f1394b",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21878,7 +21906,7 @@
     },
     "response": {
       "data": {
-        "id": "job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
+        "id": "job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -21886,14 +21914,14 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.816Z",
+        "createdAt": "2026-09-16T02:35:13.339Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-f9e0d38a-f525-4926-979a-6d8327689781",
+        "requestId": "req-427aa68f-1f44-41c7-ad45-eb201019bea1",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21901,12 +21929,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
+        "id": "job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -21914,14 +21942,14 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.816Z",
+        "createdAt": "2026-09-16T02:35:13.339Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-9feef588-d554-4d82-a0c4-4bc024d51f3d",
+        "requestId": "req-086f5bf9-0fea-4d27-b083-3a41502aaa14",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21929,12 +21957,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
+        "id": "job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -21942,8 +21970,8 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:56.816Z",
-        "completedAt": "2026-09-16T01:10:56.852Z",
+        "createdAt": "2026-09-16T02:35:13.339Z",
+        "completedAt": "2026-09-16T02:35:13.368Z",
         "isCurrent": true,
         "result": {
           "passed": true,
@@ -21968,7 +21996,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-65178557-980d-48f2-8fe2-c832a3e71ef4",
+        "requestId": "req-4cc028c5-c9ac-4fa5-a303-46a6491846c8",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -21983,7 +22011,7 @@
     },
     "response": {
       "data": {
-        "id": "job-10a45afd-e906-4ad5-87da-077c4074a496",
+        "id": "job-37ac3c0c-9dee-4c85-8914-9b125f8fc01a",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -21991,14 +22019,14 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.873Z",
+        "createdAt": "2026-09-16T02:35:13.380Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-4959aa08-b617-4cc7-a50d-387590554b50",
+        "requestId": "req-19e83529-ceca-48ef-8f78-f47f01de00bd",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -22006,12 +22034,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-10a45afd-e906-4ad5-87da-077c4074a496",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-37ac3c0c-9dee-4c85-8914-9b125f8fc01a",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-10a45afd-e906-4ad5-87da-077c4074a496",
+        "id": "job-37ac3c0c-9dee-4c85-8914-9b125f8fc01a",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -22019,14 +22047,14 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.873Z",
+        "createdAt": "2026-09-16T02:35:13.380Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-f1ce40c9-9a49-4720-98bc-ef0689fc1daa",
+        "requestId": "req-f605f42c-64ee-427d-ae2b-afc9cb03d483",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -22034,12 +22062,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-10a45afd-e906-4ad5-87da-077c4074a496",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-37ac3c0c-9dee-4c85-8914-9b125f8fc01a",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-10a45afd-e906-4ad5-87da-077c4074a496",
+        "id": "job-37ac3c0c-9dee-4c85-8914-9b125f8fc01a",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -22047,8 +22075,8 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:56.873Z",
-        "completedAt": "2026-09-16T01:10:56.917Z",
+        "createdAt": "2026-09-16T02:35:13.380Z",
+        "completedAt": "2026-09-16T02:35:13.411Z",
         "isCurrent": true,
         "result": {
           "items": [
@@ -22267,7 +22295,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-5d40bb8a-a655-48fe-a534-8278d3c4f1b4",
+        "requestId": "req-e644b55b-4fa7-43c6-9335-89356f2fa697",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -25470,7 +25498,7 @@
         "currentVersionId": "v1.3.0"
       },
       "meta": {
-        "requestId": "req-92f4164a-f8c8-47ff-bede-9a279a5dda6b",
+        "requestId": "req-cc979e56-0a23-468b-9098-5005c6c86686",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -25560,7 +25588,7 @@
         "createdAt": "2026-09-15T00:00:00.000Z"
       },
       "meta": {
-        "requestId": "req-c0621608-542c-482f-b007-0cfe8c952b66",
+        "requestId": "req-ed485ced-6134-410a-8877-1c7265286087",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -25568,12 +25596,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
+        "id": "job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -25581,8 +25609,8 @@
         "contentHash": "38a2bbb83e9fc82e38302401076dd3d35f966d4c7ac8fdb8ab93a54b6a212ab6",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:56.816Z",
-        "completedAt": "2026-09-16T01:10:56.852Z",
+        "createdAt": "2026-09-16T02:35:13.339Z",
+        "completedAt": "2026-09-16T02:35:13.368Z",
         "isCurrent": false,
         "result": {
           "passed": true,
@@ -25607,7 +25635,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-e7da2e64-9ebb-4ac3-866d-87ac8f065504",
+        "requestId": "req-2495cef7-9fe5-4b9f-9353-81df10f4d4ce",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -25619,8 +25647,8 @@
     "status": 409,
     "request": {
       "revision": 14,
-      "validationRunId": "job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
-      "impactAnalysisId": "job-10a45afd-e906-4ad5-87da-077c4074a496",
+      "validationRunId": "job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
+      "impactAnalysisId": "job-37ac3c0c-9dee-4c85-8914-9b125f8fc01a",
       "releaseNotes": "过期报告",
       "acknowledgePartialCoverage": true
     },
@@ -25631,7 +25659,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-2124436e-29be-4d34-bb6c-43e8f2f6b1e3",
+        "requestId": "req-edf54ec5-9531-4bbc-b8aa-6ec2d3476c8c",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -25646,7 +25674,7 @@
     },
     "response": {
       "data": {
-        "id": "job-5a0072b3-94ce-4259-917d-e322caaa95c5",
+        "id": "job-c4cd407f-552a-456d-be97-34ee5e7a9449",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -25654,14 +25682,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.989Z",
+        "createdAt": "2026-09-16T02:35:13.452Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-949fc2ab-7ff8-45f1-af15-85bec234d3d1",
+        "requestId": "req-10387343-990f-4b73-b28e-5941b2a4677b",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -25669,12 +25697,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-5a0072b3-94ce-4259-917d-e322caaa95c5",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-c4cd407f-552a-456d-be97-34ee5e7a9449",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-5a0072b3-94ce-4259-917d-e322caaa95c5",
+        "id": "job-c4cd407f-552a-456d-be97-34ee5e7a9449",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -25682,14 +25710,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:56.989Z",
+        "createdAt": "2026-09-16T02:35:13.452Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-f596cf50-b359-4790-9cb4-b92791a20cf7",
+        "requestId": "req-41b73f2f-a9c8-4bdb-a21a-cf669f9cc4ee",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -25697,12 +25725,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-5a0072b3-94ce-4259-917d-e322caaa95c5",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-c4cd407f-552a-456d-be97-34ee5e7a9449",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-5a0072b3-94ce-4259-917d-e322caaa95c5",
+        "id": "job-c4cd407f-552a-456d-be97-34ee5e7a9449",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -25710,8 +25738,8 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:56.989Z",
-        "completedAt": "2026-09-16T01:10:57.029Z",
+        "createdAt": "2026-09-16T02:35:13.452Z",
+        "completedAt": "2026-09-16T02:35:13.485Z",
         "isCurrent": true,
         "result": {
           "items": [
@@ -25979,7 +26007,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-5b95427a-8052-40d5-b87b-ee9db879505f",
+        "requestId": "req-aee48579-6523-4710-8640-26c7fb525d02",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -25994,7 +26022,7 @@
     },
     "response": {
       "data": {
-        "id": "job-f9c6035c-c7f4-4984-9fa0-0e30999ca749",
+        "id": "job-bf15f8cb-b6c3-4fd1-91ba-718f18cdea40",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26002,14 +26030,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:57.050Z",
+        "createdAt": "2026-09-16T02:35:13.502Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-9c7c92e2-6b4b-4f27-8f47-ea7d0c6d377c",
+        "requestId": "req-92153fe4-e198-4443-b6b3-fe0f862a04e2",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26017,12 +26045,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-f9c6035c-c7f4-4984-9fa0-0e30999ca749",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-bf15f8cb-b6c3-4fd1-91ba-718f18cdea40",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-f9c6035c-c7f4-4984-9fa0-0e30999ca749",
+        "id": "job-bf15f8cb-b6c3-4fd1-91ba-718f18cdea40",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26030,14 +26058,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:57.050Z",
+        "createdAt": "2026-09-16T02:35:13.502Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-c40dc615-24ba-4510-9fea-3f9f9a9a92de",
+        "requestId": "req-6917c84b-b261-427a-9c75-3852015b2e8c",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26045,12 +26073,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-f9c6035c-c7f4-4984-9fa0-0e30999ca749",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-bf15f8cb-b6c3-4fd1-91ba-718f18cdea40",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-f9c6035c-c7f4-4984-9fa0-0e30999ca749",
+        "id": "job-bf15f8cb-b6c3-4fd1-91ba-718f18cdea40",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26058,8 +26086,8 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:57.050Z",
-        "completedAt": "2026-09-16T01:10:57.089Z",
+        "createdAt": "2026-09-16T02:35:13.502Z",
+        "completedAt": "2026-09-16T02:35:13.535Z",
         "isCurrent": true,
         "result": {
           "passed": true,
@@ -26084,7 +26112,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-ca4da278-b6a5-432e-9a84-ae3a2981e5ff",
+        "requestId": "req-c2335254-2ecf-4321-83f8-9fb9dfff26b5",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26099,7 +26127,7 @@
     },
     "response": {
       "data": {
-        "id": "job-099a6f21-97eb-49d2-abf1-ec8721b691ca",
+        "id": "job-e714d682-9be5-4d12-a03a-870cadc919c4",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26107,14 +26135,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:57.108Z",
+        "createdAt": "2026-09-16T02:35:13.550Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-6344382d-18e2-408f-9c28-c1b53233076d",
+        "requestId": "req-226e83e8-3725-49dd-896c-371721bf6be1",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26122,12 +26150,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-099a6f21-97eb-49d2-abf1-ec8721b691ca",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-e714d682-9be5-4d12-a03a-870cadc919c4",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-099a6f21-97eb-49d2-abf1-ec8721b691ca",
+        "id": "job-e714d682-9be5-4d12-a03a-870cadc919c4",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26135,14 +26163,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:57.108Z",
+        "createdAt": "2026-09-16T02:35:13.550Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-430c3967-a950-41aa-ab8d-b3adf2f4804b",
+        "requestId": "req-5b7bbe8a-125a-4595-8756-4c25739bb5a0",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26150,12 +26178,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-099a6f21-97eb-49d2-abf1-ec8721b691ca",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-e714d682-9be5-4d12-a03a-870cadc919c4",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-099a6f21-97eb-49d2-abf1-ec8721b691ca",
+        "id": "job-e714d682-9be5-4d12-a03a-870cadc919c4",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26163,8 +26191,8 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:57.108Z",
-        "completedAt": "2026-09-16T01:10:57.145Z",
+        "createdAt": "2026-09-16T02:35:13.550Z",
+        "completedAt": "2026-09-16T02:35:13.603Z",
         "isCurrent": true,
         "result": {
           "items": [
@@ -26432,7 +26460,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-84efcecc-342e-46a7-8e57-431230699f86",
+        "requestId": "req-1afa379b-9438-45ce-be1f-23786d9ac0ab",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26444,8 +26472,8 @@
     "status": 409,
     "request": {
       "revision": 14,
-      "validationRunId": "job-f9c6035c-c7f4-4984-9fa0-0e30999ca749",
-      "impactAnalysisId": "job-099a6f21-97eb-49d2-abf1-ec8721b691ca",
+      "validationRunId": "job-bf15f8cb-b6c3-4fd1-91ba-718f18cdea40",
+      "impactAnalysisId": "job-e714d682-9be5-4d12-a03a-870cadc919c4",
       "releaseNotes": "测试",
       "acknowledgePartialCoverage": false
     },
@@ -26456,7 +26484,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-5afb3599-db1a-4ff1-a504-2c516398a72a",
+        "requestId": "req-d37ebcbe-62fb-46c3-be19-081b6b831e42",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26471,7 +26499,7 @@
     },
     "response": {
       "data": {
-        "id": "job-193243c4-e703-4010-9a55-0e3f282d6dca",
+        "id": "job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26479,14 +26507,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:57.173Z",
+        "createdAt": "2026-09-16T02:35:13.638Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-9865e353-de6d-4a9c-9436-ae93a868706c",
+        "requestId": "req-7ed96760-3d67-4aea-9354-9468e2666042",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26494,12 +26522,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-193243c4-e703-4010-9a55-0e3f282d6dca",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-193243c4-e703-4010-9a55-0e3f282d6dca",
+        "id": "job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26507,14 +26535,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:57.173Z",
+        "createdAt": "2026-09-16T02:35:13.638Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-27340320-e935-48e1-a95f-5a70ea0560d8",
+        "requestId": "req-481103b0-5157-41c0-91d0-8450621b37da",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26522,12 +26550,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-193243c4-e703-4010-9a55-0e3f282d6dca",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-193243c4-e703-4010-9a55-0e3f282d6dca",
+        "id": "job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26535,8 +26563,8 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:57.173Z",
-        "completedAt": "2026-09-16T01:10:57.213Z",
+        "createdAt": "2026-09-16T02:35:13.638Z",
+        "completedAt": "2026-09-16T02:35:13.671Z",
         "isCurrent": true,
         "result": {
           "passed": true,
@@ -26561,7 +26589,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-fd340a1a-1382-4887-986e-2e8d932d3241",
+        "requestId": "req-bee1eac2-9e03-4691-93cf-92f7d1636d22",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26576,7 +26604,7 @@
     },
     "response": {
       "data": {
-        "id": "job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
+        "id": "job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26584,14 +26612,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:57.230Z",
+        "createdAt": "2026-09-16T02:35:13.687Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-4e0383bf-f752-432d-ad0f-38cff8326e4c",
+        "requestId": "req-7d2ae290-e2e9-4af2-a11b-da3e8a4c84e6",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26599,12 +26627,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
+        "id": "job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26612,14 +26640,14 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:57.230Z",
+        "createdAt": "2026-09-16T02:35:13.687Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-36a526db-18b8-46ce-8e75-8eb3a1a509fe",
+        "requestId": "req-23b6bd19-77aa-4cc2-9fc8-b461c5b5956d",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26627,12 +26655,12 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
+        "id": "job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
         "kind": "IMPACT",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -26640,8 +26668,8 @@
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:57.230Z",
-        "completedAt": "2026-09-16T01:10:57.268Z",
+        "createdAt": "2026-09-16T02:35:13.687Z",
+        "completedAt": "2026-09-16T02:35:13.718Z",
         "isCurrent": true,
         "result": {
           "items": [
@@ -26909,7 +26937,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-d06f1637-2059-4c8a-90a7-9ffd124938bb",
+        "requestId": "req-79643360-20f3-4b4e-887b-903552749139",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26921,25 +26949,25 @@
     "status": 201,
     "request": {
       "revision": 14,
-      "validationRunId": "job-193243c4-e703-4010-9a55-0e3f282d6dca",
-      "impactAnalysisId": "job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
+      "validationRunId": "job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
+      "impactAnalysisId": "job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
       "releaseNotes": "成功演示",
       "acknowledgePartialCoverage": true
     },
     "response": {
       "data": {
-        "id": "pub-df7639cb-7795-4ee5-acc3-b8d0f4aa0d89",
+        "id": "pub-daac4ea3-7446-4eec-9f76-0358f60edf4f",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
         "versionId": "v1.4.0",
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
-        "publishedAt": "2026-09-16T01:10:57.286Z",
+        "publishedAt": "2026-09-16T02:35:13.730Z",
         "workflowStarted": false,
         "consumerPinsUpdated": false,
-        "outboxEventId": "event-684afe41-1d5a-4fb3-bf4b-14f3683fef84"
+        "outboxEventId": "event-1dfaf27d-3e33-4069-8cd6-1affc79a9358"
       },
       "meta": {
-        "requestId": "req-7e6ac790-5a11-4c70-bf36-85b7d94e212b",
+        "requestId": "req-bcbdef5f-1a42-4d2b-8ee1-60e85b2866d0",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26951,25 +26979,25 @@
     "status": 201,
     "request": {
       "revision": 14,
-      "validationRunId": "job-193243c4-e703-4010-9a55-0e3f282d6dca",
-      "impactAnalysisId": "job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
+      "validationRunId": "job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
+      "impactAnalysisId": "job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
       "releaseNotes": "成功演示",
       "acknowledgePartialCoverage": true
     },
     "response": {
       "data": {
-        "id": "pub-df7639cb-7795-4ee5-acc3-b8d0f4aa0d89",
+        "id": "pub-daac4ea3-7446-4eec-9f76-0358f60edf4f",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
         "versionId": "v1.4.0",
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
-        "publishedAt": "2026-09-16T01:10:57.286Z",
+        "publishedAt": "2026-09-16T02:35:13.730Z",
         "workflowStarted": false,
         "consumerPinsUpdated": false,
-        "outboxEventId": "event-684afe41-1d5a-4fb3-bf4b-14f3683fef84"
+        "outboxEventId": "event-1dfaf27d-3e33-4069-8cd6-1affc79a9358"
       },
       "meta": {
-        "requestId": "req-76d08c6c-ca38-4bc0-a1c9-2480d238d3d4",
+        "requestId": "req-41948c28-9be9-4ece-b912-6295ee3113ab",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -26981,8 +27009,8 @@
     "status": 409,
     "request": {
       "revision": 14,
-      "validationRunId": "job-193243c4-e703-4010-9a55-0e3f282d6dca",
-      "impactAnalysisId": "job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
+      "validationRunId": "job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
+      "impactAnalysisId": "job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
       "releaseNotes": "不同参数",
       "acknowledgePartialCoverage": true
     },
@@ -26993,7 +27021,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-0ded4051-b30a-438a-986b-87077fba1493",
+        "requestId": "req-22b0a51d-64da-4612-8e3c-14ac828938b2",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -27007,7 +27035,7 @@
     "response": {
       "data": {
         "id": "drkn-core",
-        "name": "数据治理本体",
+        "name": "数据治理领域本体",
         "profile": "DATA_GOVERNANCE",
         "origin": "SYSTEM",
         "ownerRef": "platform-team",
@@ -27016,7 +27044,7 @@
         "activeChangeSetId": null
       },
       "meta": {
-        "requestId": "req-7f5f6355-b7c4-414b-a73c-2601888f7ab7",
+        "requestId": "req-eaea602f-fd05-459e-973e-360156194498",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -27042,7 +27070,7 @@
         "createdAt": "2026-09-15T00:00:00.000Z"
       },
       "meta": {
-        "requestId": "req-edb2c860-ea20-43cb-9617-66efe1b8b224",
+        "requestId": "req-32244711-05c7-47a7-9d0d-970fe05ef57a",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -30970,7 +30998,7 @@
         ]
       },
       "meta": {
-        "requestId": "req-7e2ef242-2456-4d70-b7cd-5a69b9789095",
+        "requestId": "req-ddd31717-9849-4fff-bc24-f92207037794",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -30996,7 +31024,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-e990a1dd-8fdc-4d1f-95ca-c3222cd85189",
+        "requestId": "req-8afd1e85-e9be-4912-a8f8-b8bdf94539da",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -37380,7 +37408,7 @@
               ]
             },
             "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
-            "publishedAt": "2026-09-16T01:10:57.286Z",
+            "publishedAt": "2026-09-16T02:35:13.730Z",
             "releaseNotes": "成功演示",
             "baseVersionId": "v1.3.0"
           }
@@ -37390,7 +37418,7 @@
         "limit": 50
       },
       "meta": {
-        "requestId": "req-2b9623db-8aa0-4ba0-92e6-af5e3b4f9b58",
+        "requestId": "req-63865ce8-06ee-4f43-aa0a-ba2baef9750a",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -37405,130 +37433,130 @@
       "data": {
         "items": [
           {
-            "id": "audit-09e44ea3-71fc-42cf-afcf-840a6b1b0965",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "IMPACT_STARTED",
-            "targetId": "job-1afa228c-6b96-4fb0-b47f-dc404173fb10",
-            "summary": "针对 r14 计算",
-            "occurredAt": "2026-09-16T01:10:57.231Z"
-          },
-          {
-            "id": "audit-19bee810-3477-4b50-917f-93f831b45bba",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "IMPACT_STARTED",
-            "targetId": "job-eb71e514-7c8b-469e-98ed-fc02e5cb68bc",
-            "summary": "针对 r12 计算",
-            "occurredAt": "2026-09-16T01:10:56.589Z"
-          },
-          {
-            "id": "audit-23edf30e-f3fc-4760-8d70-40314860538a",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "IMPACT_STARTED",
-            "targetId": "job-099a6f21-97eb-49d2-abf1-ec8721b691ca",
-            "summary": "针对 r14 计算",
-            "occurredAt": "2026-09-16T01:10:57.109Z"
-          },
-          {
-            "id": "audit-285e0f6a-370d-498b-8272-800c03e2bf93",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "VALIDATION_STARTED",
-            "targetId": "job-659fe14b-f8f0-46aa-8a56-34451248b664",
-            "summary": "针对 r12 计算",
-            "occurredAt": "2026-09-16T01:10:56.527Z"
-          },
-          {
-            "id": "audit-4d10a5db-2df3-47cc-8048-caa0b03fbcf6",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "VALIDATION_STARTED",
-            "targetId": "job-db42d4c2-f70f-4f39-85f6-76c2f6308189",
-            "summary": "针对 r13 计算",
-            "occurredAt": "2026-09-16T01:10:56.741Z"
-          },
-          {
-            "id": "audit-6395049c-9284-43e7-934a-a1665541d15e",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "MODEL_DRAFT_CHANGED",
-            "targetId": "cs-drkn-demo",
-            "summary": "保存草稿 r14，正式版本未变化",
-            "occurredAt": "2026-09-16T01:10:56.950Z"
-          },
-          {
-            "id": "audit-794ffcf0-ee77-4e38-ad92-443714ae8414",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "MODEL_DRAFT_CHANGED",
-            "targetId": "cs-drkn-demo",
-            "summary": "保存草稿 r13，正式版本未变化",
-            "occurredAt": "2026-09-16T01:10:56.708Z"
-          },
-          {
-            "id": "audit-97848fa9-5c57-4daf-8f78-ea63050b6069",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "VALIDATION_STARTED",
-            "targetId": "job-35c7195e-82fb-47b3-9a2d-6b0976a21a0f",
-            "summary": "针对 r12 计算",
-            "occurredAt": "2026-09-16T01:10:56.468Z"
-          },
-          {
-            "id": "audit-9b30b48a-acb1-4f95-b8c6-5b65d4e98c1d",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "IMPACT_STARTED",
-            "targetId": "job-5a0072b3-94ce-4259-917d-e322caaa95c5",
-            "summary": "针对 r14 计算",
-            "occurredAt": "2026-09-16T01:10:56.989Z"
-          },
-          {
-            "id": "audit-9e692d33-733f-48a6-af6f-a8d2d188e863",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "VALIDATION_STARTED",
-            "targetId": "job-f9c6035c-c7f4-4984-9fa0-0e30999ca749",
-            "summary": "针对 r14 计算",
-            "occurredAt": "2026-09-16T01:10:57.050Z"
-          },
-          {
-            "id": "audit-bfea14ea-07a5-481a-ade6-a45d3471b5b5",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "IMPACT_STARTED",
-            "targetId": "job-10a45afd-e906-4ad5-87da-077c4074a496",
-            "summary": "针对 r13 计算",
-            "occurredAt": "2026-09-16T01:10:56.873Z"
-          },
-          {
-            "id": "audit-c131c4f8-d48a-40fa-95d4-e69dd6c2ebed",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "VALIDATION_STARTED",
-            "targetId": "job-d8aa7477-f034-4c2f-8768-7730bbf32c32",
-            "summary": "针对 r13 计算",
-            "occurredAt": "2026-09-16T01:10:56.816Z"
-          },
-          {
-            "id": "audit-d27f6eb0-d4f5-4ecf-b2eb-fce0f281c3c0",
-            "actorId": "demo-maintainer",
-            "modelId": "drkn-core",
-            "eventType": "VALIDATION_STARTED",
-            "targetId": "job-193243c4-e703-4010-9a55-0e3f282d6dca",
-            "summary": "针对 r14 计算",
-            "occurredAt": "2026-09-16T01:10:57.173Z"
-          },
-          {
-            "id": "audit-d30931ac-87c0-458d-b1a4-e63950eda3c7",
+            "id": "audit-20a6123f-acdf-4ed7-8fa1-3e0dd4f73122",
             "actorId": "demo-maintainer",
             "modelId": "drkn-core",
             "eventType": "ONTOLOGY_VERSION_PUBLISHED",
             "targetId": "v1.4.0",
             "summary": "成功演示",
-            "occurredAt": "2026-09-16T01:10:57.287Z"
+            "occurredAt": "2026-09-16T02:35:13.730Z"
+          },
+          {
+            "id": "audit-2c6185de-5769-45f9-9d0c-96f8fcdcee04",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "IMPACT_STARTED",
+            "targetId": "job-739f31c4-dae2-474b-a39a-a4e6cb2146ea",
+            "summary": "针对 r12 计算",
+            "occurredAt": "2026-09-16T02:35:13.207Z"
+          },
+          {
+            "id": "audit-2e8b0831-f465-4af0-8c8d-c32c24863b71",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "IMPACT_STARTED",
+            "targetId": "job-c4cd407f-552a-456d-be97-34ee5e7a9449",
+            "summary": "针对 r14 计算",
+            "occurredAt": "2026-09-16T02:35:13.452Z"
+          },
+          {
+            "id": "audit-30e001a6-3ecd-444d-b871-6455bbb9902c",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "VALIDATION_STARTED",
+            "targetId": "job-b33c214c-cfd9-4996-ace3-30ba0ef3de52",
+            "summary": "针对 r12 计算",
+            "occurredAt": "2026-09-16T02:35:13.086Z"
+          },
+          {
+            "id": "audit-341f81e4-15cf-4172-ad29-52283be01cd7",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "IMPACT_STARTED",
+            "targetId": "job-e714d682-9be5-4d12-a03a-870cadc919c4",
+            "summary": "针对 r14 计算",
+            "occurredAt": "2026-09-16T02:35:13.550Z"
+          },
+          {
+            "id": "audit-56063a2f-610c-4488-a640-571c79d23ee8",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "VALIDATION_STARTED",
+            "targetId": "job-97534d0a-bf8a-41e3-af0c-bfaf8c164d0d",
+            "summary": "针对 r13 计算",
+            "occurredAt": "2026-09-16T02:35:13.290Z"
+          },
+          {
+            "id": "audit-786afbb6-50dd-4e72-aa32-d6496c29f66d",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "MODEL_DRAFT_CHANGED",
+            "targetId": "cs-drkn-demo",
+            "summary": "保存草稿 r13，正式版本未变化",
+            "occurredAt": "2026-09-16T02:35:13.266Z"
+          },
+          {
+            "id": "audit-7a85f1b7-666f-40ca-b345-578ff977ad97",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "IMPACT_STARTED",
+            "targetId": "job-37ac3c0c-9dee-4c85-8914-9b125f8fc01a",
+            "summary": "针对 r13 计算",
+            "occurredAt": "2026-09-16T02:35:13.380Z"
+          },
+          {
+            "id": "audit-947236c1-1d97-49ba-a797-47e846d808a4",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "VALIDATION_STARTED",
+            "targetId": "job-09d6f0ed-2e99-46ed-bc2f-f723120376ff",
+            "summary": "针对 r14 计算",
+            "occurredAt": "2026-09-16T02:35:13.638Z"
+          },
+          {
+            "id": "audit-a1c83ab0-83a1-4661-9668-0d38624d188b",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "MODEL_DRAFT_CHANGED",
+            "targetId": "cs-drkn-demo",
+            "summary": "保存草稿 r14，正式版本未变化",
+            "occurredAt": "2026-09-16T02:35:13.430Z"
+          },
+          {
+            "id": "audit-c67075cc-52e5-4b3c-90ad-f54a018f1a78",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "VALIDATION_STARTED",
+            "targetId": "job-bf15f8cb-b6c3-4fd1-91ba-718f18cdea40",
+            "summary": "针对 r14 计算",
+            "occurredAt": "2026-09-16T02:35:13.502Z"
+          },
+          {
+            "id": "audit-cf9ffdfd-9005-49a3-87b4-e4ad2fd344ec",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "VALIDATION_STARTED",
+            "targetId": "job-dc77f57c-2d89-400b-8854-ff6dc0718d36",
+            "summary": "针对 r13 计算",
+            "occurredAt": "2026-09-16T02:35:13.339Z"
+          },
+          {
+            "id": "audit-e2b72da3-153e-4a1f-976a-a2ea1c34f040",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "VALIDATION_STARTED",
+            "targetId": "job-3534504b-2edb-4373-b7b3-b7cfa3a7bb4e",
+            "summary": "针对 r12 计算",
+            "occurredAt": "2026-09-16T02:35:13.161Z"
+          },
+          {
+            "id": "audit-eb1319c3-8b85-429f-9d0c-efda8b03f245",
+            "actorId": "demo-maintainer",
+            "modelId": "drkn-core",
+            "eventType": "IMPACT_STARTED",
+            "targetId": "job-bd8d2848-b496-4ab6-af62-becdc82d49c5",
+            "summary": "针对 r14 计算",
+            "occurredAt": "2026-09-16T02:35:13.687Z"
           }
         ],
         "total": 14,
@@ -37536,7 +37564,7 @@
         "limit": 200
       },
       "meta": {
-        "requestId": "req-f7a64a0e-b585-43fd-bc08-2bb25e8a7a98",
+        "requestId": "req-926cfb7f-65f8-4271-9291-aea0b6f1e580",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -37550,7 +37578,7 @@
     "response": {
       "data": {
         "id": "drkn-core",
-        "name": "数据治理本体",
+        "name": "数据治理领域本体",
         "profile": "DATA_GOVERNANCE",
         "origin": "SYSTEM",
         "ownerRef": "platform-team",
@@ -37559,7 +37587,7 @@
         "activeChangeSetId": null
       },
       "meta": {
-        "requestId": "req-5e423c8f-8f88-47ff-9f03-ba4c7b6aa198",
+        "requestId": "req-f5bfcc30-31c0-4970-b81d-d6b0ce9d335f",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -37585,7 +37613,7 @@
         "createdAt": "2026-09-15T00:00:00.000Z"
       },
       "meta": {
-        "requestId": "req-cddbffeb-709f-4687-8b99-f4c57152a6e8",
+        "requestId": "req-3e331b97-7c5e-4f14-a89a-ccdf8b5eb43b",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -37608,7 +37636,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-6de65d68-143c-438b-ba08-b85a2cc10822",
+        "requestId": "req-bdc8f0a7-3d7b-4ee2-b060-e63fbf5d7188",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -37627,7 +37655,7 @@
     },
     "response": {
       "data": {
-        "id": "cs-39a83eb6-a9a0-446d-aba8-bfe2f03691ef",
+        "id": "cs-e5b78938-17e8-44c9-8040-b85dcef38cd9",
         "modelId": "drkn-core",
         "name": "回到历史结构的修订",
         "reason": "显示回退影响",
@@ -37635,12 +37663,12 @@
         "targetVersionId": "v1.5.0",
         "revision": 0,
         "status": "OPEN",
-        "etag": "\"cs-39a83eb6-a9a0-446d-aba8-bfe2f03691ef:r0\"",
+        "etag": "\"cs-e5b78938-17e8-44c9-8040-b85dcef38cd9:r0\"",
         "contentHash": "ba9695596492f5a1fa9012be65d27153679c80b0d898fdea423261f018703ee7",
-        "createdAt": "2026-09-16T01:10:57.550Z"
+        "createdAt": "2026-09-16T02:35:13.843Z"
       },
       "meta": {
-        "requestId": "req-b590091e-0d46-4b5e-8db8-3e83c551c1e4",
+        "requestId": "req-571b3774-b2bf-4049-b555-d6020ea110ec",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -37648,7 +37676,7 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/view?changeSetId=cs-39a83eb6-a9a0-446d-aba8-bfe2f03691ef&revision=0",
+    "url": "/api/v1/ontology/models/drkn-core/view?changeSetId=cs-e5b78938-17e8-44c9-8040-b85dcef38cd9&revision=0",
     "status": 200,
     "request": null,
     "response": {
@@ -37656,7 +37684,7 @@
         "modelId": "drkn-core",
         "mode": "DRAFT",
         "versionId": null,
-        "changeSetId": "cs-39a83eb6-a9a0-446d-aba8-bfe2f03691ef",
+        "changeSetId": "cs-e5b78938-17e8-44c9-8040-b85dcef38cd9",
         "revision": 0,
         "contentHash": "ba9695596492f5a1fa9012be65d27153679c80b0d898fdea423261f018703ee7",
         "document": {
@@ -40839,11 +40867,11 @@
           ]
         },
         "readOnly": false,
-        "etag": "\"cs-39a83eb6-a9a0-446d-aba8-bfe2f03691ef:r0\"",
+        "etag": "\"cs-e5b78938-17e8-44c9-8040-b85dcef38cd9:r0\"",
         "currentVersionId": "v1.4.0"
       },
       "meta": {
-        "requestId": "req-edcafb43-e8ca-4982-8c28-9299d044aa6d",
+        "requestId": "req-ad0977f8-8acf-41dd-b1b6-eb48021deed6",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44043,7 +44071,7 @@
         "baseVersionId": null
       },
       "meta": {
-        "requestId": "req-17642411-d0f8-4ac9-83fb-f04dad379fa5",
+        "requestId": "req-a1ec3d23-4d0c-4aee-8b61-8650794e58a0",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44051,14 +44079,14 @@
   },
   {
     "method": "POST",
-    "url": "/api/v1/ontology/models/drkn-core/changesets/cs-39a83eb6-a9a0-446d-aba8-bfe2f03691ef/abandon",
+    "url": "/api/v1/ontology/models/drkn-core/changesets/cs-e5b78938-17e8-44c9-8040-b85dcef38cd9/abandon",
     "status": 200,
     "request": {
       "reason": "演示结束"
     },
     "response": {
       "data": {
-        "id": "cs-39a83eb6-a9a0-446d-aba8-bfe2f03691ef",
+        "id": "cs-e5b78938-17e8-44c9-8040-b85dcef38cd9",
         "modelId": "drkn-core",
         "name": "回到历史结构的修订",
         "reason": "显示回退影响",
@@ -44066,12 +44094,12 @@
         "targetVersionId": "v1.5.0",
         "revision": 0,
         "status": "ABANDONED",
-        "etag": "\"cs-39a83eb6-a9a0-446d-aba8-bfe2f03691ef:r0\"",
+        "etag": "\"cs-e5b78938-17e8-44c9-8040-b85dcef38cd9:r0\"",
         "contentHash": "ba9695596492f5a1fa9012be65d27153679c80b0d898fdea423261f018703ee7",
-        "createdAt": "2026-09-16T01:10:57.550Z"
+        "createdAt": "2026-09-16T02:35:13.843Z"
       },
       "meta": {
-        "requestId": "req-19a66404-ea18-4653-99a3-036e532a6ae7",
+        "requestId": "req-b0b26a7f-662f-4563-bfbf-7488ce9af984",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44085,7 +44113,7 @@
     "response": {
       "data": {
         "id": "drkn-core",
-        "name": "数据治理本体",
+        "name": "数据治理领域本体",
         "profile": "DATA_GOVERNANCE",
         "origin": "SYSTEM",
         "ownerRef": "platform-team",
@@ -44094,7 +44122,7 @@
         "activeChangeSetId": null
       },
       "meta": {
-        "requestId": "req-8b9557d3-88c4-488b-8614-9ccf8e74004c",
+        "requestId": "req-665890a7-a927-4c5d-b6b2-728af040737f",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44120,10 +44148,10 @@
           "ownerRef": "demo-team",
           "currentVersionId": null,
           "currentVersionHash": null,
-          "activeChangeSetId": "cs-ed0859fc-4f64-44cf-8290-23c7241185e9"
+          "activeChangeSetId": "cs-c6f35d02-7b3b-4e7b-9ddb-52875803946e"
         },
         "changeSet": {
-          "id": "cs-ed0859fc-4f64-44cf-8290-23c7241185e9",
+          "id": "cs-c6f35d02-7b3b-4e7b-9ddb-52875803946e",
           "modelId": "new-business",
           "name": "初始模型草稿",
           "reason": "新建业务本体",
@@ -44131,13 +44159,13 @@
           "targetVersionId": "v1.0.0",
           "revision": 0,
           "status": "OPEN",
-          "etag": "\"cs-ed0859fc-4f64-44cf-8290-23c7241185e9:r0\"",
+          "etag": "\"cs-c6f35d02-7b3b-4e7b-9ddb-52875803946e:r0\"",
           "contentHash": "47eab8c6ed59df47ff080bba26f7dec3fec455e2bf5407611fd1fdea1497ed4a",
-          "createdAt": "2026-09-16T01:10:57.619Z"
+          "createdAt": "2026-09-16T02:35:13.874Z"
         }
       },
       "meta": {
-        "requestId": "req-6fb01f3a-9c35-4e56-a07a-3b6e41c20c63",
+        "requestId": "req-223f090b-18d2-4fb6-bb5c-71e2b419e925",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44152,7 +44180,7 @@
       "data": {
         "items": [
           {
-            "id": "cs-ed0859fc-4f64-44cf-8290-23c7241185e9",
+            "id": "cs-c6f35d02-7b3b-4e7b-9ddb-52875803946e",
             "modelId": "new-business",
             "name": "初始模型草稿",
             "reason": "新建业务本体",
@@ -44160,9 +44188,9 @@
             "targetVersionId": "v1.0.0",
             "revision": 0,
             "status": "OPEN",
-            "etag": "\"cs-ed0859fc-4f64-44cf-8290-23c7241185e9:r0\"",
+            "etag": "\"cs-c6f35d02-7b3b-4e7b-9ddb-52875803946e:r0\"",
             "contentHash": "47eab8c6ed59df47ff080bba26f7dec3fec455e2bf5407611fd1fdea1497ed4a",
-            "createdAt": "2026-09-16T01:10:57.619Z"
+            "createdAt": "2026-09-16T02:35:13.874Z"
           }
         ],
         "total": 1,
@@ -44170,7 +44198,7 @@
         "limit": 50
       },
       "meta": {
-        "requestId": "req-e11d039f-9598-4ec9-8bd6-cacdb504ed35",
+        "requestId": "req-85c14bd1-a300-4251-a715-a1d9e0ed5626",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44188,7 +44216,7 @@
         "details": {}
       },
       "meta": {
-        "requestId": "req-bd55f74f-28f4-4fcb-ba1c-c9c47520dc51",
+        "requestId": "req-5b487142-fbae-4336-90c7-62be43514d5f",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44202,7 +44230,7 @@
     "response": {
       "data": {
         "id": "drkn-core",
-        "name": "数据治理本体",
+        "name": "数据治理领域本体",
         "profile": "DATA_GOVERNANCE",
         "origin": "SYSTEM",
         "ownerRef": "platform-team",
@@ -44211,7 +44239,7 @@
         "activeChangeSetId": null
       },
       "meta": {
-        "requestId": "req-360c7959-68bd-4dd2-ac9f-de1334648514",
+        "requestId": "req-99a706bd-0b04-46a7-a774-fedae8ff55e5",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44230,7 +44258,7 @@
     },
     "response": {
       "data": {
-        "id": "simulation-6064221a-bbf3-4dcc-9be2-585997f3e395",
+        "id": "simulation-f92a5eb0-a269-47e0-a9eb-649a1c2951d0",
         "modelId": "drkn-core",
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "actionId": "confirmAssertion",
@@ -44272,7 +44300,7 @@
         ]
       },
       "meta": {
-        "requestId": "req-49c86bb5-b1e5-4965-bb20-b46aa1cc3120",
+        "requestId": "req-fe900be7-e502-4446-9772-a24409fa3e31",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44291,7 +44319,7 @@
     },
     "response": {
       "data": {
-        "id": "simulation-3e6481f3-7efc-4ff5-b6be-1861c2aff5c9",
+        "id": "simulation-b86fe601-1355-4ec9-90fe-3a3dd3e115fb",
         "modelId": "drkn-core",
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "actionId": "confirmAssertion",
@@ -44325,7 +44353,7 @@
         ]
       },
       "meta": {
-        "requestId": "req-5414f4b6-b49c-457e-af5a-067b0a1f6c7d",
+        "requestId": "req-80615f47-55ac-4682-ade2-d1b00023ebcc",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44344,7 +44372,7 @@
     },
     "response": {
       "data": {
-        "id": "simulation-ccc0af01-9e83-41c4-9ed6-fdad536df4a5",
+        "id": "simulation-af3eafac-fbf0-4196-8b73-f5350d84a801",
         "modelId": "drkn-core",
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "actionId": "confirmAssertion",
@@ -44378,7 +44406,7 @@
         ]
       },
       "meta": {
-        "requestId": "req-7c7f5256-672e-4678-80db-b3ebf453ee99",
+        "requestId": "req-c2826296-b4f0-40a1-a073-fb2eeacde76a",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44392,7 +44420,7 @@
     "response": {
       "data": {
         "id": "drkn-core",
-        "name": "数据治理本体",
+        "name": "数据治理领域本体",
         "profile": "DATA_GOVERNANCE",
         "origin": "SYSTEM",
         "ownerRef": "platform-team",
@@ -44401,7 +44429,7 @@
         "activeChangeSetId": null
       },
       "meta": {
-        "requestId": "req-66f99e64-c94f-46c1-ab15-08e700be30d4",
+        "requestId": "req-04295e97-1692-4fac-9a05-f2335c895b30",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44420,7 +44448,7 @@
     },
     "response": {
       "data": {
-        "id": "simulation-f8d54ca2-ea83-4373-9245-7dc7799f97d0",
+        "id": "simulation-6c4d0758-4e02-48b1-bf67-2c3f0c3b6ce6",
         "modelId": "drkn-core",
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "actionId": "createDataSource",
@@ -44453,7 +44481,7 @@
         ]
       },
       "meta": {
-        "requestId": "req-949fd11f-2ba6-4097-901d-dbea30f47f73",
+        "requestId": "req-f3b390e8-305a-4f73-a978-543431ba0c69",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44472,7 +44500,7 @@
     },
     "response": {
       "data": {
-        "id": "simulation-20910fbf-c844-428f-abca-d0c9472081b5",
+        "id": "simulation-ccc67401-d625-4cfa-b340-85d0d532c1b3",
         "modelId": "drkn-core",
         "contentHash": "9a1c12d04fd006d947ac6c02f8b0ff7a0cfab44bdd430e1d939a13371e637e9a",
         "actionId": "startMetadataScan",
@@ -44498,7 +44526,7 @@
         ]
       },
       "meta": {
-        "requestId": "req-3e9d29ac-f8d9-4207-b57e-5ff85d4f49af",
+        "requestId": "req-25ddd865-e5c9-47cf-8261-fed8414f5356",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44581,7 +44609,7 @@
         "limit": 50
       },
       "meta": {
-        "requestId": "req-113c7cc8-80a2-482d-8ebd-58a203e40774",
+        "requestId": "req-86c8c293-086f-4fa5-83e4-c8ed25f171b9",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44600,7 +44628,7 @@
         "scenario": "dependency-blocked"
       },
       "meta": {
-        "requestId": "req-5e6905a4-8375-4f83-a48f-472e4357f9d6",
+        "requestId": "req-8151853a-0a1f-41df-9c2c-bffc3b0a5465",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -44639,7 +44667,7 @@
         "createdAt": "2026-09-15T00:00:00.000Z"
       },
       "meta": {
-        "requestId": "req-7bed5fe0-30cf-401c-a858-f3d2ca479ac1",
+        "requestId": "req-6b6aebfe-b2b8-4982-a5df-2737a36717b0",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -47842,7 +47870,7 @@
         "currentVersionId": "v1.3.0"
       },
       "meta": {
-        "requestId": "req-a527f66b-7b26-415b-a6d2-28b484728842",
+        "requestId": "req-0e6f0c5f-fbe3-4a22-869e-128248728356",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -47910,7 +47938,7 @@
         "createdAt": "2026-09-15T00:00:00.000Z"
       },
       "meta": {
-        "requestId": "req-5ff28f46-662f-4164-b2f6-36316d9177c2",
+        "requestId": "req-729d2d65-3edf-4f5b-9182-1b718a3cff5c",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -47925,7 +47953,7 @@
     },
     "response": {
       "data": {
-        "id": "job-6afb882c-ee57-4187-9358-64825ad10412",
+        "id": "job-7b521e40-1f43-4c03-9d57-bebb2693906e",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -47933,14 +47961,14 @@
         "contentHash": "ef282ad39c38df0e050f9ab207bf6b9ba13c70e8ea0d13b7d1de0bfd7b59ab29",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "RUNNING",
-        "createdAt": "2026-09-16T01:10:58.330Z",
+        "createdAt": "2026-09-16T02:35:14.028Z",
         "completedAt": null,
         "isCurrent": true,
         "result": null,
         "error": null
       },
       "meta": {
-        "requestId": "req-e26d23c1-d3a6-4589-bda4-a4e7ef1abcac",
+        "requestId": "req-dcd44f1c-09ca-4d34-87db-f8fbd4a4d757",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -47948,12 +47976,40 @@
   },
   {
     "method": "GET",
-    "url": "/api/v1/ontology/models/drkn-core/jobs/job-6afb882c-ee57-4187-9358-64825ad10412",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-7b521e40-1f43-4c03-9d57-bebb2693906e",
     "status": 200,
     "request": null,
     "response": {
       "data": {
-        "id": "job-6afb882c-ee57-4187-9358-64825ad10412",
+        "id": "job-7b521e40-1f43-4c03-9d57-bebb2693906e",
+        "kind": "VALIDATION",
+        "modelId": "drkn-core",
+        "changeSetId": "cs-drkn-demo",
+        "revision": 14,
+        "contentHash": "ef282ad39c38df0e050f9ab207bf6b9ba13c70e8ea0d13b7d1de0bfd7b59ab29",
+        "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
+        "status": "RUNNING",
+        "createdAt": "2026-09-16T02:35:14.028Z",
+        "completedAt": null,
+        "isCurrent": true,
+        "result": null,
+        "error": null
+      },
+      "meta": {
+        "requestId": "req-d145d86a-cc69-4355-95c1-65f1517be7a0",
+        "dataMode": "MOCK",
+        "contractVersion": "1.0.0"
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "url": "/api/v1/ontology/models/drkn-core/jobs/job-7b521e40-1f43-4c03-9d57-bebb2693906e",
+    "status": 200,
+    "request": null,
+    "response": {
+      "data": {
+        "id": "job-7b521e40-1f43-4c03-9d57-bebb2693906e",
         "kind": "VALIDATION",
         "modelId": "drkn-core",
         "changeSetId": "cs-drkn-demo",
@@ -47961,8 +48017,8 @@
         "contentHash": "ef282ad39c38df0e050f9ab207bf6b9ba13c70e8ea0d13b7d1de0bfd7b59ab29",
         "dependencyDigest": "48084b1237526df74aceec71acbab8bb31faefe021e35e440dbf35ca79b777ec",
         "status": "SUCCEEDED",
-        "createdAt": "2026-09-16T01:10:58.330Z",
-        "completedAt": "2026-09-16T01:10:58.379Z",
+        "createdAt": "2026-09-16T02:35:14.028Z",
+        "completedAt": "2026-09-16T02:35:14.057Z",
         "isCurrent": true,
         "result": {
           "passed": false,
@@ -48020,7 +48076,7 @@
         "error": null
       },
       "meta": {
-        "requestId": "req-2d9508af-3c9b-4151-bbde-87223a69a316",
+        "requestId": "req-aad96914-cd74-41d2-aa18-642483089d34",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -48050,7 +48106,7 @@
         }
       },
       "meta": {
-        "requestId": "req-65eceab3-63e2-4b22-ab85-f10f0b953745",
+        "requestId": "req-c30e5f11-47cb-49ee-bbe9-196899cb0f46",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -48069,7 +48125,7 @@
         "scenario": "dependency-blocked"
       },
       "meta": {
-        "requestId": "req-ff3b3828-1957-48a4-a534-bfc2ff6e0ca6",
+        "requestId": "req-8afa2c3f-bb82-421a-b5e2-ad46f4301c98",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -48083,7 +48139,7 @@
     "response": {
       "data": {
         "id": "drkn-core",
-        "name": "数据治理本体",
+        "name": "数据治理领域本体",
         "profile": "DATA_GOVERNANCE",
         "origin": "SYSTEM",
         "ownerRef": "platform-team",
@@ -48092,7 +48148,7 @@
         "activeChangeSetId": "cs-drkn-demo"
       },
       "meta": {
-        "requestId": "req-d9dc12c8-be80-4950-8122-9f850abfb77e",
+        "requestId": "req-45952158-7226-4a45-876a-d9d6ce15e2dc",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -48118,7 +48174,7 @@
         "createdAt": "2026-09-15T00:00:00.000Z"
       },
       "meta": {
-        "requestId": "req-cac44b93-032f-4364-940a-67f4d08ea3ff",
+        "requestId": "req-953a3df3-c2eb-4552-ace5-de1d663e8761",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }
@@ -48141,7 +48197,7 @@
         "activeChangeSetId": "cs-drkn-demo"
       },
       "meta": {
-        "requestId": "req-a82ba3b5-f97f-40ff-8d17-5d39e8629572",
+        "requestId": "req-f99f5a00-8bd0-42a9-b370-88284cb66e58",
         "dataMode": "MOCK",
         "contractVersion": "1.0.0"
       }

@@ -1,5 +1,5 @@
 /**
- * 语义区域图（Batch 4.5 第四节）。
+ * 语义区域图（Batch 4.5 第四节；Batch 4.6 第十二节规模控制）。
  *
  * 取代模型总览默认的全量节点交叉图（31 节点 / 39 关系的完整节点级关系图
  * 保留在「关系与约束」页的结构视图中）。这里按 ObjectTypeDefinition.group
@@ -9,6 +9,8 @@
  *   不渲染节点级连线；
  * - 点击区域卡片 → 对象类型页并应用当前分组过滤（URL group 参数）；
  * - 点击关系摘要 → 关系与约束页。
+ * - 规模控制（Batch 4.6）：按类型数量降序最多呈现 6 个主要区域，其余聚合
+ *   为「其他 N 个区域」摘要（不逐格平铺，完整区域仍可经对象类型页分组查看）。
  * 数量全部来自当前 ResolvedView.document 的实时计算，不缓存、不伪造。
  */
 import {useMemo} from 'react';
@@ -28,6 +30,18 @@ interface RegionLinkDatum {
   from: string;
   to: string;
   count: number;
+}
+
+/** 主要区域上限：其余聚合为「其他区域」摘要。 */
+const MAX_REGIONS = 6;
+
+/** 区域内来源计数：只呈现实际存在的类别（SYSTEM ≠ LOCAL，禁把系统计入本地）。 */
+function originCounts(r: RegionDatum): string {
+  const parts: string[] = [];
+  if (r.localCount > 0) parts.push(`${r.localCount} 本地`);
+  if (r.systemCount > 0) parts.push(`${r.systemCount} 系统`);
+  if (r.externalCount > 0) parts.push(`${r.externalCount} 外部引用`);
+  return parts.join(' + ') || '暂无类型';
 }
 
 export default function SemanticRegionMap({doc, onEnterRegion, onEnterRelations}: {
@@ -94,11 +108,16 @@ export default function SemanticRegionMap({doc, onEnterRegion, onEnterRelations}
     );
   }
 
+  // 规模控制：按类型数量降序取前 MAX_REGIONS 个主要区域，其余聚合摘要。
+  const visibleRegions = regions.slice(0, MAX_REGIONS);
+  const otherRegions = regions.slice(MAX_REGIONS);
+  const otherTypeCount = otherRegions.reduce((n, r) => n + r.types.length, 0);
+
   return (
     <div className="space-y-3" data-testid="region-map">
       {/* 区域卡片：点击进入对象类型页并应用分组过滤 */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-        {regions.map((r) => (
+        {visibleRegions.map((r) => (
           <button
             key={r.name}
             onClick={() => onEnterRegion(r.name)}
@@ -115,9 +134,7 @@ export default function SemanticRegionMap({doc, onEnterRegion, onEnterRelations}
             </div>
             <p className="text-[12px] text-slate-500 mt-1.5">
               <span className="font-mono font-bold text-slate-700">{r.types.length}</span> 个类型
-              <span className="text-slate-400">
-                （{r.localCount} 本地{r.systemCount > 0 && ` + ${r.systemCount} 系统`}{r.externalCount > 0 && ` + ${r.externalCount} 外部引用`}）
-              </span>
+              <span className="text-slate-400">（{originCounts(r)}）</span>
             </p>
             {/* 类型名称摘要：最多 6 个，其余计数 */}
             <p className="text-[12px] text-slate-400 mt-1 leading-relaxed">
@@ -131,6 +148,22 @@ export default function SemanticRegionMap({doc, onEnterRegion, onEnterRelations}
             </p>
           </button>
         ))}
+        {/* 未进入主要区域的分组：聚合摘要，不平铺 */}
+        {otherRegions.length > 0 && (
+          <div
+            className="semovix-card p-4 border-dashed flex items-start gap-2.5"
+            data-testid="region-others"
+            title={`未展开的区域：${otherRegions.map((r) => r.name).join('、')}`}
+          >
+            <MapIcon className="h-4 w-4 text-slate-300 shrink-0 mt-0.5"/>
+            <div className="min-w-0">
+              <p className="text-[13px] font-bold text-slate-600">其他 {otherRegions.length} 个区域</p>
+              <p className="text-[12px] text-slate-400 mt-1">
+                共 {otherTypeCount} 个类型 · 按类型数量仅展示前 {MAX_REGIONS} 个主要区域，完整分组可在「对象类型」页查看。
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 区域级关系摘要：点击进入关系与约束页（完整节点级图在那里） */}
