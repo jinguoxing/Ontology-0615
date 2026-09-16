@@ -33,6 +33,7 @@ import {
   useStartImpact, useStartValidation,
 } from '../ontology/queries';
 import {decodeReportSelection, encodeReportSelection} from '../ontology/reportSelection';
+import {shortId} from '../ontology/presentation';
 
 const SEVERITY_LABELS: Record<ValidationIssue['severity'], string> = {
   ERROR: '阻断',
@@ -201,11 +202,11 @@ export default function ValidationImpactPage() {
       {/* 运行控制：仅草稿 + 编辑权限 + 最新修订 */}
       {isDraft && (
         <div className="bg-white border border-slate-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
-          <div className="text-[12px] text-slate-600">
+          <div className="text-[13px] text-slate-600">
             <p className="font-bold text-slate-800">对当前草稿修订运行</p>
             <p className="text-slate-500 mt-0.5">
-              目标：<span className="font-mono font-semibold">{changeSetId}</span> · r<span className="font-mono font-semibold">{revision}</span>
-              {!isOpen && <span className="ml-2 px-1.5 py-0.5 rounded text-[10.5px] font-bold bg-slate-100 text-slate-500">草稿已结束（不可再运行）</span>}
+              目标：编辑草稿 · r<span className="font-mono font-semibold">{revision}</span>
+              {!isOpen && <span className="ml-2 px-1.5 py-0.5 rounded text-[12px] font-bold bg-slate-100 text-slate-500">草稿已结束（不可再运行）</span>}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -223,7 +224,7 @@ export default function ValidationImpactPage() {
               disabled={!canStart || startImpact.isPending}
               data-testid="start-impact"
               title={canStart ? '启动影响分析（只读任务，带 If-Match 与幂等键）' : '需草稿视图、编辑权限且处于最新修订'}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-bold bg-slate-700 text-white rounded-lg hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[13px] font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {startImpact.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin"/> : <FileSearch className="h-3.5 w-3.5"/>}运行影响分析
             </button>
@@ -420,7 +421,7 @@ export default function ValidationImpactPage() {
       {(inspectIssue || inspectImpact) && (
         <Drawer
           title={inspectIssue ? '问题详情' : '受影响项详情'}
-          subtitle="code、位置、原因、修复建议与依赖路径（技术语义；原始值见「技术详情」抽屉）。"
+          subtitle="code、位置、原因、修复建议与依赖路径（技术语义；原始值见「诊断信息」抽屉）。"
           onClose={() => { setInspectIssue(null); setInspectImpact(null); }}
         >
           {inspectIssue && (
@@ -559,12 +560,12 @@ function JobStatusPill({job, testid}: {job: AsyncJob; testid: string}) {
 /** 报告绑定：revision + 内容校验值 + 依赖指纹（任务实体自带，服务端裁决依据）。 */
 function JobBindingRow({job}: {job: AsyncJob}) {
   return (
-    <div className="flex items-center gap-2 flex-wrap text-[10.5px] text-slate-400">
+    <div className="flex items-center gap-2 flex-wrap text-[12px] text-slate-400">
       <span>绑定 <span className="font-mono font-semibold text-slate-500">r{job.revision}</span></span>
-      <span title="contentHash（内容校验值，完整值见技术详情）">内容校验值 <span className="font-mono">{hash8(job.contentHash)}</span></span>
-      <span title="dependencyDigest（依赖登记指纹，完整值见技术详情）">依赖指纹 <span className="font-mono">{hash8(job.dependencyDigest)}</span></span>
-      <span className="font-mono">{job.id}</span>
-      <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+      <span title="contentHash（内容校验值，完整值见诊断信息）">内容校验值 <span className="font-mono">{hash8(job.contentHash)}</span></span>
+      <span title="dependencyDigest（依赖登记指纹，完整值见诊断信息）">依赖指纹 <span className="font-mono">{hash8(job.dependencyDigest)}</span></span>
+      <span className="font-mono" title="任务标识（完整值见诊断信息）">{shortId(job.id)}</span>
+      <span className={`px-1.5 py-0.5 rounded text-[12px] font-bold ${
         job.isCurrent ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
       }`}>
         {job.isCurrent ? '对当前修订有效' : '已失效'}

@@ -27,6 +27,7 @@ import {
   useJobPolling, usePublishVersion, useVersions,
 } from '../ontology/queries';
 import {decodeReportSelection} from '../ontology/reportSelection';
+import {shortId} from '../ontology/presentation';
 
 const COLLECTION_LABELS: Record<DiffItem['collection'], string> = {
   objectTypes: '对象类型',
@@ -178,8 +179,8 @@ export default function ReleasePage() {
             <CheckCircle2 className="h-5 w-5"/>
             <p className="font-bold text-[13.5px]">发布成功：{lastPublication.versionId} 已成为当前正式版本</p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap text-[11.5px] text-emerald-900/80">
-            <span>发布记录 <span className="font-mono">{lastPublication.id}</span></span>
+          <div className="flex items-center gap-2 flex-wrap text-[12px] text-emerald-900/80">
+            <span>发布记录 <span className="font-mono" title="发布记录标识（完整值见诊断信息）">{shortId(lastPublication.id)}</span></span>
             <span>·</span>
             <span>版本 <span className="font-mono font-bold">{lastPublication.versionId}</span></span>
             <span>·</span>
@@ -204,8 +205,8 @@ export default function ReleasePage() {
             <div className="bg-white border border-blue-200 rounded-2xl p-4">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">目标版本</p>
               <p className="mt-1 text-lg font-bold text-blue-700 font-mono">{csQuery.data?.targetVersionId ?? '…'}</p>
-              <p className="mt-1 text-[11.5px] text-slate-500">
-                草稿 <span className="font-mono">{changeSetId}</span> · r<span className="font-mono font-semibold">{revision}</span>
+              <p className="mt-1 text-[12px] text-slate-500">
+                编辑草稿 · r<span className="font-mono font-semibold">{revision}</span>
                 {csQuery.data?.baseVersionId && <> · 基线 <span className="font-mono">{csQuery.data.baseVersionId}</span></>}
               </p>
               <p className="mt-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
@@ -378,11 +379,11 @@ export default function ReleasePage() {
             <div className="divide-y divide-slate-100">
               {audits.map((a) => (
                 <div key={a.id} className="py-2 flex items-start gap-2.5">
-                  <span className="shrink-0 mt-0.5 px-1.5 py-0.5 rounded text-[9.5px] font-bold font-mono bg-slate-100 text-slate-500 border border-slate-200">{a.eventType}</span>
+                  <span className="shrink-0 mt-0.5 px-1.5 py-0.5 rounded text-[12px] font-bold font-mono bg-slate-100 text-slate-500 border border-slate-200">{a.eventType}</span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[12px] text-slate-700">{a.summary}</p>
-                    <p className="text-[10.5px] text-slate-400 mt-0.5">
-                      {a.actorId} · {fmtTime(a.occurredAt)} · <span className="font-mono">{a.targetId}</span>
+                    <p className="text-[13px] text-slate-700">{a.summary}</p>
+                    <p className="text-[12px] text-slate-400 mt-0.5">
+                      {a.actorId} · {fmtTime(a.occurredAt)} · <span className="font-mono" title="目标标识（完整值见诊断信息）">{shortId(a.targetId)}</span>
                     </p>
                   </div>
                 </div>
@@ -454,7 +455,7 @@ function ReportRow({label, jobId, state}: {
           ) : (
             <span className="text-[11.5px] text-slate-400">读取中…</span>
           )}
-          <span className="text-[10.5px] font-mono text-slate-400 truncate">{jobId}</span>
+          <span className="text-[12px] font-mono text-slate-400 truncate" title="任务标识（完整值见诊断信息）">{shortId(jobId)}</span>
         </div>
       )}
     </div>

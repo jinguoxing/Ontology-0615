@@ -49,10 +49,12 @@ export interface ModelContextValue {
   canEdit: boolean;
   /** 编辑被禁用的原因（用于界面解释，而不是静默灰掉）。 */
   readOnlyReason: 'published-version' | 'viewer-permission' | null;
-  navigateToView: (view: ViewReference, opts?: {tab?: OntologyTab; selectedId?: string; replace?: boolean}) => void;
+  navigateToView: (view: ViewReference, opts?: {tab?: OntologyTab; selectedId?: string; group?: string | null; replace?: boolean}) => void;
   navigateToTab: (tab: OntologyTab) => void;
   select: (id: string | undefined) => void;
   retry: () => void;
+  /** 对象类型页的分组过滤（URL group 参数；语义区域图下钻入口写入）。 */
+  group: string | undefined;
 }
 
 const ModelContext = createContext<ModelContextValue | null>(null);
@@ -112,7 +114,7 @@ export function ModelContextProvider({children}: {children: (value: ModelContext
           return;
         }
         resolvedFor.current = key;
-        navigate(ontologyLocation({modelId: m.id, tab: path.tab, view: nextView, selectedId: path.selectedId}), {replace: true});
+        navigate(ontologyLocation({modelId: m.id, tab: path.tab, view: nextView, selectedId: path.selectedId, group: path.group}), {replace: true});
       } catch (e) {
         if (!cancelled) setResolveError(apiErrorMessage(e));
       }
@@ -170,17 +172,30 @@ export function ModelContextProvider({children}: {children: (value: ModelContext
         tab: opts?.tab ?? path.tab,
         view: nextView,
         selectedId: opts?.selectedId ?? path.selectedId,
+        // group 仅在对象类型页有意义；opts.group === null 显式清除，
+        // 未给出（undefined）且停留在对象类型页时保留当前分组。
+        group: opts?.group !== undefined
+          ? (opts.group ?? undefined)
+          : (opts?.tab === undefined && path.tab === 'object-types' ? path.group : undefined),
       }), {replace: opts?.replace ?? false});
     },
     navigateToTab: (tab) => {
       if (!route) return;
-      navigate(ontologyLocation({modelId, tab, view: route.view, selectedId: route.selectedId}));
+      navigate(ontologyLocation({
+        modelId,
+        tab,
+        view: route.view,
+        selectedId: route.selectedId,
+        // 分组过滤只保留在对象类型页；切到其它能力页即清空。
+        group: tab === 'object-types' ? route.group : undefined,
+      }));
     },
     select: (id) => {
       if (!route) return;
       // 选择对象只替换 selected 参数，不产生历史记录。
-      navigate(ontologyLocation({modelId, tab: route.tab, view: route.view, selectedId: id}), {replace: true});
+      navigate(ontologyLocation({modelId, tab: route.tab, view: route.view, selectedId: id, group: route.group}), {replace: true});
     },
+    group: path.group,
     retry: () => {
       resolvedFor.current = null;
       setResolveError(null);

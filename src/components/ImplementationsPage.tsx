@@ -257,8 +257,8 @@ export default function ImplementationsPage() {
                 <button
                   key={k.id}
                   onClick={() => setKindFilter(k.id)}
-                  className={`px-2.5 py-1 rounded-full text-[10.5px] font-bold border transition-colors ${
-                    kindFilter === k.id ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                  className={`px-2.5 py-1 rounded-full text-[12px] font-bold border transition-colors ${
+                    kindFilter === k.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
                   }`}
                 >
                   {k.label}

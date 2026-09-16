@@ -257,7 +257,7 @@ export default function WorkflowsPage() {
                     const action = actionById.get(aid);
                     return (
                       <li key={aid} className="flex items-start gap-3">
-                        <span className="shrink-0 mt-0.5 h-6 w-6 rounded-full bg-slate-800 text-white text-[11px] font-bold flex items-center justify-center font-mono">
+                        <span className="shrink-0 mt-0.5 h-6 w-6 rounded-full bg-blue-600 text-white text-[12px] font-bold flex items-center justify-center font-mono">
                           {i + 1}
                         </span>
                         <div className="min-w-0 flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl">

@@ -7,13 +7,20 @@
   "include": [
     "src/ontology",
     "src/api/ontology-v1",
+    "src/vite-env.d.ts",
     "src/components/OntologyModelsList.tsx",
+    "src/components/OntologyModelsTable.tsx",
+    "src/components/ModelSummaryStrip.tsx",
+    "src/components/SemanticRegionMap.tsx",
+    "src/components/TypeUsageSummary.tsx",
     "src/components/Overview.tsx",
     "src/components/ObjectModel.tsx",
     "src/components/RelationsPage.tsx",
     "src/components/ActionsPage.tsx",
     "src/components/ImplementationsPage.tsx",
     "src/components/WorkflowsPage.tsx",
+    "src/components/ValidationImpactPage.tsx",
+    "src/components/ReleasePage.tsx",
     "scripts/smoke-batch2.ts",
     "scripts/smoke-batch3.ts"
   ]

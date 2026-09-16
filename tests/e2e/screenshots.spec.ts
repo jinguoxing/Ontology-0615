@@ -1,5 +1,5 @@
 /**
- * 浏览器截图（第七节视觉验证）。
+ * 浏览器截图（第七节视觉验证；Batch 4.5 后收口）。
  *
  * batch-3.6：7 张独立 1920×1080 viewport 截图（不拼接、非 fullPage）：
  * 01 Models / 02 Overview / 03 Object Types / 04 Relations / 05 Actions /
@@ -9,13 +9,19 @@
  * 09 版本与发布（r12 草稿 Diff + 发布表单前置检查）。两张都停在 r12
  * 草稿态（运行报告不推进修订），种子 diff（类型 + 外部依赖两组）完整可见。
  *
+ * batch-4（Batch 4.5 新增）：10 诊断信息抽屉（开发配置专用）。
+ * 01~09 正式截图在诊断旗标关闭的 vite 下拍摄（不打开诊断抽屉）；
+ * 10 由编排脚本以 VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true 重启 vite 后
+ * 单独（--grep 诊断信息）拍摄；旗标关闭时该用例自动跳过。
+ *
  * 每张截图共享的 Semovix 外壳元素逐张断言后再截图：
  * 官方 Semovix Logo、七项一级导航（业务语义高亮）、业务语义完整左侧
  * 子菜单（业务本体高亮）；模型详情页另断言当前本体 Tab、页面主标题与
  * 草稿/正式状态带。
  *
  * 运行前提：截图前以全新 MOCK_DB_PATH 重启 mock(4310)，保证 cs-drkn-demo
- * 回到 r12 种子态；vite dev(3000) 运行中。
+ * 回到 r12 种子态；vite dev(3000) 运行中（诊断旗标分组由
+ * scripts/e2e-ontology.mjs 管理）。
  */
 import {expect, test, type Page} from '@playwright/test';
 import {mkdirSync} from 'node:fs';
@@ -78,6 +84,9 @@ test.describe('Batch 3.6 截图（1920×1080）', () => {
     await page.goto('/business-semantics/ontologies');
     await expect(page.getByRole('heading', {name: '系统模型', exact: true})).toBeVisible();
     await expect(page.getByRole('heading', {name: '业务本体', exact: true, level: 2})).toBeVisible();
+    // Batch 4.5：系统模型紧凑区域 + 业务本体紧凑表格。
+    await expect(page.getByTestId('system-model-strip')).toBeVisible();
+    await expect(page.getByTestId('ontology-models-table')).toBeVisible();
     await assertShell(page);
     await page.screenshot({path: path.join(OUT_DIR, '01-models.png')});
   });
@@ -87,6 +96,9 @@ test.describe('Batch 3.6 截图（1920×1080）', () => {
     await settled(page);
     await assertShell(page);
     await assertDetail(page, '模型总览');
+    // Batch 4.5：紧凑摘要条 + 语义区域图（不再有 KPI 卡与全量节点图）。
+    await expect(page.getByTestId('model-summary-strip')).toBeVisible();
+    await expect(page.getByTestId('region-map')).toBeVisible();
     await page.screenshot({path: path.join(OUT_DIR, '02-overview.png')});
   });
 
@@ -176,5 +188,25 @@ test.describe('Batch 4 截图（1920×1080）', () => {
     await expect(page.getByTestId('publish-button')).toBeDisabled();
     await expect(page.getByTestId('publish-form')).toContainText('前往「校验与影响」运行');
     await page.screenshot({path: path.join(OUT_DIR_B4, '09-release.png')});
+  });
+
+  test('10 Diagnostics — 诊断信息抽屉（仅开发配置可见）', async ({page}) => {
+    await page.goto(draftUrl('relations'));
+    await settled(page);
+    await assertShell(page);
+    await assertDetail(page, '关系与约束');
+    // 入口只在开发配置（VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true）或诊断能力下
+    // 可见；01~09 正式截图组（旗标关闭）运行时本用例跳过——正式截图不打开
+    // 诊断抽屉。10 号截图由编排脚本开旗标单独重跑本用例产出。
+    await page.getByTestId('ontology-more-menu').click();
+    if (!(await page.getByTestId('diagnostics-entry').isVisible())) {
+      test.skip(true, '诊断入口在关闭配置的运行中不可见（正式截图组不拍诊断页）');
+    }
+    await page.getByTestId('diagnostics-entry').click();
+    await expect(page.getByRole('heading', {name: '诊断信息'})).toBeVisible();
+    await expect(page.getByTestId('diagnostics-drawer')).toContainText('cs-drkn-demo');
+    await expect(page.getByTestId('diagnostics-drawer')).toContainText('API Path');
+    await expect(page.getByTestId('diagnostics-drawer')).toContainText('Registry 原始值');
+    await page.screenshot({path: path.join(OUT_DIR_B4, '10-diagnostics-development-only.png')});
   });
 });

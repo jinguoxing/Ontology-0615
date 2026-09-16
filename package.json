@@ -11,6 +11,7 @@
     "lint": "tsc --noEmit",
     "lint:ontology": "tsc -p tsconfig.ontology.json --noEmit",
     "dev:mock-api": "node ontology-delivery/mock-server/server.mjs",
+    "demo:reset": "node scripts/reset-ontology-demo.mjs",
     "test:ontology-contract": "node --test ontology-delivery/tests/api.test.mjs",
     "test:e2e:ontology-ui": "node scripts/e2e-ontology.mjs ui",
     "test:e2e:ontology-screenshots": "node scripts/e2e-ontology.mjs screenshots"

@@ -1,18 +1,22 @@
 #!/usr/bin/env node
 /**
- * Batch 3.6 E2E 编排脚本（第五节）。
+ * Batch 3.6 / 4.5 E2E 编排脚本。
  *
  * 两个入口（package.json）：
- * - test:e2e:ontology-ui           → batch35 + batch36 + batch4（校验/影响/发布闭环，会写 Mock 并发布版本）
- * - test:e2e:ontology-screenshots  → screenshots（batch-3.6 7 张 + batch-4 2 张 1920×1080 截图）
+ * - test:e2e:ontology-ui           → batch35 + batch36 + batch4 + final-polish
+ * - test:e2e:ontology-screenshots  → screenshots（01-09 正式截图 + 诊断截图组）
  *
- * 每个用例组使用独立的一次性 MOCK_DB_PATH（mock 首次启动自动落种子）：
- * ui 模式分两组——batch35+36 共用一个库（batch36 依赖 batch35 推进后的
- * revision），batch4 单独一个库（演示闭环必须从 r12 种子态开始：batch35
- * 的两次保存会把 cs-drkn-demo 推到 r14+）；screenshots 模式整组一个库。
- * 组间在同一端口重启 mock（vite 代理端口不变，只起一次）。
- * 步骤：起 vite → 每组：全新库起 mock → 端口可达后跑 Playwright → 杀 mock
- * 删临时库；无论成败都杀掉子进程树；任何一步失败以非零码退出。
+ * 每个用例组 = {specs, grep?, viteEnv?}：
+ * - 每组使用独立的一次性 MOCK_DB_PATH（mock 首次启动自动落种子）。
+ * - viteEnv 按组注入（import.meta.env 在 dev server 启动时固化，env 变化
+ *   必须重启 vite）：batch35/36 与 batch4 的诊断用例需要
+ *   VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true；final-polish 与 01-09 正式截图
+ *   必须在关闭诊断配置下运行；诊断截图（10-diagnostics）单独开旗标重跑。
+ *
+ * ui 模式分组说明：batch35+36 共用一个库（batch36 依赖 batch35 推进后的
+ * revision），batch4 单独一个库（演示闭环必须从 r12 种子态开始），
+ * final-polish 单独一个库（全新演示库断言只有种子模型）。
+ * screenshots 模式两组：01-09 一个库；诊断截图重开旗标 + grep 只跑诊断用例。
  *
  * 端口默认 4310 / 3000；本机端口被其它软件（如 Docker 端口转发）占用时，
  * 可用 SEMOVIX_E2E_MOCK_PORT / SEMOVIX_E2E_VITE_PORT 覆盖（vite 代理与
@@ -31,14 +35,20 @@ const VITE_PORT = Number(process.env.SEMOVIX_E2E_VITE_PORT || 3000);
 const BASE_URL = `http://127.0.0.1:${VITE_PORT}`;
 const READY_TIMEOUT_MS = 90_000;
 
+const DIAG_ON = {VITE_ENABLE_ONTOLOGY_DIAGNOSTICS: 'true'};
+
 const mode = process.argv[2];
-// 每组一次全新 mock DB（组内共享状态演进，组间互不影响）。
+// 每组一次全新 mock DB + 按组 vite env（env 变化时重启 vite）。
 const MODES = {
   ui: [
-    ['tests/e2e/batch35.spec.ts', 'tests/e2e/batch36.spec.ts'],
-    ['tests/e2e/batch4.spec.ts'],
+    {specs: ['tests/e2e/batch35.spec.ts', 'tests/e2e/batch36.spec.ts'], viteEnv: DIAG_ON},
+    {specs: ['tests/e2e/batch4.spec.ts'], viteEnv: DIAG_ON},
+    {specs: ['tests/e2e/final-polish.spec.ts'], viteEnv: {}},
   ],
-  screenshots: [['tests/e2e/screenshots.spec.ts']],
+  screenshots: [
+    {specs: ['tests/e2e/screenshots.spec.ts'], viteEnv: {}},
+    {specs: ['tests/e2e/screenshots.spec.ts'], grep: '诊断信息', viteEnv: DIAG_ON},
+  ],
 };
 if (!mode || !MODES[mode]) {
   console.error(`用法: node scripts/e2e-ontology.mjs <ui|screenshots>`);
@@ -69,7 +79,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
   });
 }
 
-/** 监听子进程提前退出；组间重启 mock 前先置 plannedStop 再杀，不算失败。 */
+/** 监听子进程提前退出；组间重启前先置 plannedStop 再杀，不算失败。 */
 function watchChild(child, label) {
   child.once('exit', (code) => {
     if (!cleanedUp && !child.plannedStop) {
@@ -80,20 +90,22 @@ function watchChild(child, label) {
   });
 }
 
-/** 计划内停止一个 mock：杀进程组 → 等端口释放 → 删该组临时 DB。 */
-function stopMock(mock, tmpDir) {
-  mock.plannedStop = true;
+/** 计划内停止一个 detached 子进程：杀进程组 → 等端口释放 → 删该组临时 DB。 */
+function stopServer(proc, port, label, tmpDir) {
+  proc.plannedStop = true;
   try {
-    process.kill(-mock.pid, 'SIGTERM');
+    process.kill(-proc.pid, 'SIGTERM');
   } catch {
-    try {mock.kill('SIGTERM');} catch {}
+    try {proc.kill('SIGTERM');} catch {}
   }
   return new Promise((resolve) => {
     const deadline = Date.now() + 5000;
     const attempt = () => {
-      isPortOpen(MOCK_PORT).then((open) => {
+      isPortOpen(port).then((open) => {
         if (!open || Date.now() > deadline) {
-          try {fs.rmSync(tmpDir, {recursive: true, force: true});} catch {}
+          if (tmpDir) {
+            try {fs.rmSync(tmpDir, {recursive: true, force: true});} catch {}
+          }
           resolve();
         } else {
           setTimeout(attempt, 200);
@@ -136,9 +148,10 @@ function waitForPort(port, label) {
   });
 }
 
-function runPlaywright(specs) {
+function runPlaywright(specs, grep) {
   return new Promise((resolve) => {
-    const pw = spawn('npx', ['playwright', 'test', ...specs], {
+    const args = grep ? ['playwright', 'test', '--grep', grep, ...specs] : ['playwright', 'test', ...specs];
+    const pw = spawn('npx', args, {
       cwd: ROOT,
       env: {...process.env, E2E_BASE_URL: BASE_URL},
       stdio: 'inherit',
@@ -150,20 +163,28 @@ function runPlaywright(specs) {
 
 const tmpDirs = [];
 
-try {
-  // 0) 预检 vite 端口（mock 端口在每组启动前单独预检）。
+/** 当前 vite 进程与其 env 指纹（import.meta.env 在启动时固化，变化需重启）。 */
+let vite = null;
+let viteEnvKey = null;
+
+async function ensureVite(envObj) {
+  const key = JSON.stringify(Object.entries(envObj).sort(([a], [b]) => a.localeCompare(b)));
+  if (vite && viteEnvKey === key) return;
+  if (vite) {
+    console.log('[e2e] vite env 变化，重启 dev server…');
+    await stopServer(vite, VITE_PORT, 'vite', null);
+    vite = null;
+  }
   if (await isPortOpen(VITE_PORT)) {
     throw new Error(
       `[e2e] 127.0.0.1:${VITE_PORT}（vite）已被其它进程占用。` +
       `请释放该端口，或用 SEMOVIX_E2E_VITE_PORT 指定其它端口后重试。`,
     );
   }
-
-  // 1) Vite dev 只起一次（strictPort；代理目标固定指向 mock 端口，
-  //    组间重启 mock 不影响代理）。baseURL 由脚本统一指向该端口。
-  const vite = spawn('npx', ['vite', '--port', String(VITE_PORT), '--strictPort', '--host', '127.0.0.1'], {
+  // strictPort；代理目标固定指向 mock 端口（组间重启 mock 不影响代理）。
+  vite = spawn('npx', ['vite', '--port', String(VITE_PORT), '--strictPort', '--host', '127.0.0.1'], {
     cwd: ROOT,
-    env: {...process.env, SEMOVIX_MOCK_ORIGIN: `http://127.0.0.1:${MOCK_PORT}`},
+    env: {...process.env, ...envObj, SEMOVIX_MOCK_ORIGIN: `http://127.0.0.1:${MOCK_PORT}`},
     stdio: ['ignore', 'pipe', 'pipe'],
     detached: true,
   });
@@ -172,10 +193,15 @@ try {
   vite.stdout.on('data', (d) => process.stdout.write(`[vite] ${d}`));
   vite.stderr.on('data', (d) => process.stderr.write(`[vite] ${d}`));
   await waitForPort(VITE_PORT, 'vite');
+  viteEnvKey = key;
+}
 
-  // 2) 逐组：全新临时 DB 起 mock（首次启动写入种子）→ 跑该组 Playwright →
-  //    杀 mock 删库。任何一组失败即停止（fail fast，退出码透传）。
-  for (const specs of MODES[mode]) {
+try {
+  // 逐组：按需（重新）启动 vite（env 指纹变化时）→ 全新临时 DB 起 mock
+  // （首次启动写入种子）→ 跑该组 Playwright → 杀 mock 删库。
+  // 任何一组失败即停止（fail fast，退出码透传）。
+  for (const group of MODES[mode]) {
+    await ensureVite(group.viteEnv ?? {});
     if (await isPortOpen(MOCK_PORT)) {
       throw new Error(
         `[e2e] 127.0.0.1:${MOCK_PORT}（mock API）已被其它进程占用。` +
@@ -196,10 +222,11 @@ try {
     mock.stdout.on('data', (d) => process.stdout.write(`[mock] ${d}`));
     mock.stderr.on('data', (d) => process.stderr.write(`[mock] ${d}`));
     await waitForPort(MOCK_PORT, 'mock API');
-    console.log(`[e2e] mock(${MOCK_PORT}) + vite(${VITE_PORT}) 就绪，db=${dbPath} → ${specs.join(' + ')}`);
+    const label = group.grep ? `${group.specs.join(' + ')} (grep: ${group.grep})` : group.specs.join(' + ');
+    console.log(`[e2e] mock(${MOCK_PORT}) + vite(${VITE_PORT}, env=${viteEnvKey}) 就绪，db=${dbPath} → ${label}`);
 
-    const code = await runPlaywright(specs);
-    await stopMock(mock, tmpDir);
+    const code = await runPlaywright(group.specs, group.grep);
+    await stopServer(mock, MOCK_PORT, 'mock-server', tmpDir);
     if (code !== 0) {
       process.exitCode = code;
       break;
@@ -210,7 +237,7 @@ try {
   process.exitCode = 1;
 } finally {
   cleanup();
-  // 杀完进程再清残留临时 DB（正常路径已在 stopMock 内删除）。
+  // 杀完进程再清残留临时 DB（正常路径已在 stopServer 内删除）。
   setTimeout(() => {
     for (const dir of tmpDirs) {
       try {fs.rmSync(dir, {recursive: true, force: true});} catch {}

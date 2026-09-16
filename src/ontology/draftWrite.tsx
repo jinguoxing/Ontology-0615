@@ -61,7 +61,7 @@ export function useDraftWrite(input: {
       },
       {
         onSuccess: (cs) => {
-          setBanner({kind: 'success', text: `${note} 已提交到草稿 ${cs.data.id} r${cs.data.revision}`});
+          setBanner({kind: 'success', text: `${note} 已提交到草稿 r${cs.data.revision}（草稿完整标识见诊断信息）`});
           // URL revision 更新为服务端返回值；tab 由 ModelContext 保持。
           const nextSelected = opts && 'selectedId' in opts ? opts.selectedId : input.selectedId;
           input.navigateToView(
@@ -248,13 +248,13 @@ export function DraftGateNotice({reason, canEdit, enter}: {
   );
 }
 
-/** 草稿上下文提示条（当前写入目标）。 */
-export function DraftTargetNote({draftId, revision}: {draftId: string; revision: number | undefined}) {
+/** 草稿上下文提示条（当前写入目标；完整草稿标识见诊断信息）。 */
+export function DraftTargetNote({draftId: _draftId, revision}: {draftId: string; revision: number | undefined}) {
   return (
-    <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 border border-blue-200 rounded-xl text-[12px] text-blue-800">
+    <div className="flex items-center gap-2 px-4 py-2.5 bg-blue-50/60 border border-blue-200 rounded-xl text-[13px] text-blue-800">
       <FileClock className="h-3.5 w-3.5 shrink-0"/>
       <p>
-        修改将提交到当前草稿 <span className="font-mono font-bold">{draftId}</span>
+        修改将提交到当前编辑草稿
         {revision !== undefined && <> · r<span className="font-mono font-bold">{revision}</span></>}
         。草稿需经校验与发布才会成为正式版本。
       </p>

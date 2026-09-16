@@ -3,9 +3,11 @@
  *
  * 覆盖第十节清单：深链接和刷新、Tab 切换、selected 保留、revision 保存、
  * 412 冲突、viewer 只读、关系视图切换、Fixture 抽屉、Implementation 筛选、
- * Workflow 切换、Technical Details 抽屉。
+ * Workflow 切换、诊断信息抽屉（Batch 4.5：入口在「更多」菜单，仅开发
+ * 配置 VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true 下可见）。
  *
- * 运行前提：mock(4310, 全新 MOCK_DB_PATH) + vite dev(3000) 已在外部启动。
+ * 运行前提：mock(4310, 全新 MOCK_DB_PATH) + vite dev(3000,
+ * VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true) 已在外部启动。
  * 本 spec 会把 cs-drkn-demo 从 r12 推进（保存 ×2）；截图 spec 之前需重启
  * mock 恢复种子。
  */
@@ -42,7 +44,8 @@ function revisionOf(url: string): number {
  */
 async function enterDraftHead(page: Page) {
   await page.goto(`${DRAFT_BASE}/relations`);
-  await page.getByRole('button', {name: /继续草稿 cs-drkn-demo/}).click();
+  // Batch 4.5：状态带主操作只显示「继续草稿」（完整 ChangeSet ID 在诊断信息）。
+  await page.getByTestId('status-continue-draft').click();
   await expect(page.getByTestId('relation-table')).toBeVisible();
   await expect(page.getByTestId('status-band')).toContainText('草稿');
   await expect(page.locator('button[title="编辑关系"]').first()).toBeVisible();
@@ -54,7 +57,9 @@ test.describe('Batch 3.5 交互回归', () => {
     await page.goto(`${DRAFT_BASE}/relations?changeSetId=cs-drkn-demo&revision=12`);
     await expect(page.getByTestId('semovix-main')).toBeVisible();
     await expect(page.getByTestId('status-band')).toContainText('草稿');
-    await expect(page.getByTestId('status-band')).toContainText('cs-drkn-demo');
+    // Batch 4.5：草稿状态带显示「编辑草稿 · rN」，不再出现完整 ChangeSet ID。
+    await expect(page.getByTestId('status-band')).toContainText('编辑草稿');
+    await expect(page.getByTestId('status-band')).not.toContainText('cs-drkn-demo');
     await page.reload();
     await expect(page.getByTestId('relation-table')).toBeVisible();
     await expect(page.getByTestId('status-band')).toContainText('r12');
@@ -171,13 +176,18 @@ test.describe('Batch 3.5 交互回归', () => {
     await expect(page.getByText('所需对象')).toBeVisible();
   });
 
-  test('11 Technical Details 抽屉：工程原始值集中呈现', async ({page}) => {
-    await page.goto(`${DRAFT_BASE}/relations`);
+  test('11 诊断信息抽屉：入口在「更多」菜单，工程原始值集中呈现', async ({page}) => {
+    // 草稿视图：诊断信息里的视图引用包含完整 ChangeSet ID（与产品层形成对照）。
+    await page.goto(`${DRAFT_BASE}/relations?changeSetId=cs-drkn-demo&revision=12`);
     await expect(page.getByTestId('relation-table')).toBeVisible();
-    await page.getByTestId('technical-details').click();
-    await expect(page.getByRole('heading', {name: '技术详情'})).toBeVisible();
+    // Batch 4.5：右上角不再常驻「技术详情」按钮，入口收进「更多」菜单。
+    await page.getByTestId('ontology-more-menu').click();
+    await page.getByTestId('diagnostics-entry').click();
+    await expect(page.getByRole('heading', {name: '诊断信息'})).toBeVisible();
     await expect(page.getByText('视图引用（URL 为唯一事实来源）')).toBeVisible();
     await expect(page.getByText('Registry 原始值（GET /registry）')).toBeVisible();
     await expect(page.getByText(/生产端点尚未验证/).first()).toBeVisible();
+    // 完整 ChangeSet ID 只出现在诊断信息，不在产品层。
+    await expect(page.getByTestId('diagnostics-drawer')).toContainText('cs-drkn-demo');
   });
 });

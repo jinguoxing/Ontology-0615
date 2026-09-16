@@ -1,18 +1,22 @@
 /**
- * 本体模型空间布局（Batch 2 建立，Batch 3.5 结构对齐）。
+ * 本体模型空间布局（Batch 2 建立，Batch 3.5 结构对齐，Batch 4.5 收口）。
  *
  * - 在 Semovix 产品外壳内渲染（一级菜单高亮“业务语义”，左侧子菜单
  *   高亮“业务本体”，见 SemovixShell）。
- * - 统一页面头：主标题为当前功能名称（Tab 名），标题下显示当前模型
- *   （名称 / id / profile / origin / 责任方），不再把模型名当页面标题。
- * - 统一状态带：草稿视图显示草稿 ID、基线版本、目标版本（ChangeSet
- *   登记值）、revision 与“正式版本未受草稿影响”；正式版本显示只读状态。
- * - 工程标识（contentHash、ETag、API Path、capabilities、transport、
- *   Registry 原始值）移入“技术详情”抽屉，不占用主界面。
+ * - 统一页面头：主标题为当前功能名称（Tab 名，22px），标题下显示当前模型
+ *   （名称 / profile / origin / 责任方展示名称）。产品层默认不显示
+ *   model.id 与原始 ownerRef（Batch 4.5 第六节），完整值在诊断信息内。
+ * - 统一状态带：草稿视图显示「编辑草稿 · rN」、基线版本、目标版本与
+ *   「正式版本未受草稿影响」；正式版本显示只读状态。完整 ChangeSet ID
+ *   移入诊断信息。
+ * - 工程标识（contentHash、ETag、API Path、capabilities、Registry 原始值）
+ *   移入「诊断信息」抽屉；入口收进右上角「更多」菜单，仅在开发构建显式
+ *   开启 VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true 或会话具备
+ *   ontology.diagnostics.read 能力时可见（Batch 4.5 第七节）。
  * - 八个 Tab 为本体详情内的能力页；validation / release 自 Batch 4 起为
  *   真实页面（异步校验 / 影响分析与版本发布，全部走 HTTP Mock 服务）。
  */
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {useQueryClient} from '@tanstack/react-query';
 import {
@@ -22,9 +26,10 @@ import {
   Eye,
   FileClock,
   Loader2,
+  MoreHorizontal,
   RefreshCw,
   ShieldCheck,
-  Terminal,
+  Stethoscope,
 } from 'lucide-react';
 import {ONTOLOGY_LIST_PATH, tabs, type OntologyTab} from '../api/ontology-v1/routeContext';
 import {ontologyKeys} from '../api/ontology-v1/queryKeys';
@@ -40,6 +45,7 @@ import ReleasePage from '../components/ReleasePage';
 import {useActorScope, useChangeSet} from './queries';
 import {ModelContextProvider, useModelContext, type ModelContextValue} from './ModelContext';
 import {TechnicalDetailsDrawer} from './TechnicalDetails';
+import {diagnosticsVisible, ownerDisplayName} from './presentation';
 
 const TAB_LABELS: Record<OntologyTab, string> = {
   'overview': '模型总览',
@@ -68,7 +74,28 @@ export default function OntologyLayout() {
 
 function LayoutShell({ctx}: {ctx: ModelContextValue}) {
   const {model, viewLoading, error, retry, tab, modelId} = ctx;
-  const [techOpen, setTechOpen] = useState(false);
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+
+  const showDiagnostics = diagnosticsVisible(ctx.capabilities);
+
+  // 点击菜单外部或 Escape 收起「更多」菜单（不承载任何业务状态）。
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMoreOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [moreOpen]);
 
   if (viewLoading) {
     return (
@@ -84,7 +111,7 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
   if (error) {
     return (
       <div className="py-16 px-8 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white border border-slate-200 rounded-2xl p-6 space-y-4">
+        <div className="max-w-md w-full bg-white border border-slate-200 rounded-xl p-6 space-y-4">
           <div className="flex items-center gap-2 text-red-600">
             <AlertTriangle className="h-5 w-5"/>
             <span className="font-bold">模型视图加载失败</span>
@@ -111,38 +138,63 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
 
   return (
     <div className="min-h-full">
-      {/* 统一页面头：主标题 = 当前功能名称；标题下显示当前模型 */}
+      {/* 统一页面头：主标题 = 当前功能名称（22px）；标题下显示当前模型 */}
       <div className="bg-white border-b border-slate-200/70 px-8 pt-5 pb-0 space-y-3">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-[11px] text-slate-400">
+            <div className="flex items-center gap-2 text-[12px] text-slate-400">
               <Link to={ONTOLOGY_LIST_PATH} className="hover:text-blue-600 font-medium">业务本体</Link>
               <span className="text-slate-300">/</span>
               <span className="font-semibold text-slate-500">{model?.name ?? modelId}</span>
             </div>
-            <h1 className="text-xl font-bold text-slate-800 mt-1">{TAB_LABELS[tab]}</h1>
+            <h1 className="semovix-page-title mt-1">{TAB_LABELS[tab]}</h1>
             {model && (
               <div className="flex items-center gap-2 flex-wrap mt-1.5">
-                <span className="text-[12px] font-semibold text-slate-600">{model.name}</span>
-                <span className="text-[10.5px] font-mono text-slate-400">{model.id}</span>
-                <span className="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                <span className="text-[13px] font-semibold text-slate-600">{model.name}</span>
+                <span className="px-2 py-0.5 rounded-full text-[12px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                   {PROFILE_LABELS[model.profile] ?? model.profile}
                 </span>
-                <span className="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                <span className="px-2 py-0.5 rounded-full text-[12px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
                   {ORIGIN_LABELS[model.origin] ?? model.origin}
                 </span>
-                <span className="text-[11px] text-slate-400">责任归属 <span className="font-semibold text-slate-500">{model.ownerRef}</span></span>
+                <span className="text-[12px] text-slate-400">责任归属 <span className="font-semibold text-slate-500">{ownerDisplayName(model.ownerRef)}</span></span>
               </div>
             )}
           </div>
-          <button
-            onClick={() => setTechOpen(true)}
-            data-testid="technical-details"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[11.5px] font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-slate-800 shrink-0"
-            title="查看当前页面与视图的工程标识（接口、内容校验值与登记原始值）"
-          >
-            <Terminal className="h-3.5 w-3.5 text-slate-400"/>技术详情
-          </button>
+
+          {/* 更多菜单：诊断信息入口只在此处，且仅在开发配置 / 诊断能力下可见 */}
+          <div className="relative shrink-0" ref={moreRef}>
+            <button
+              onClick={() => setMoreOpen((v) => !v)}
+              data-testid="ontology-more-menu"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-slate-800"
+              title="更多操作"
+              aria-haspopup="menu"
+              aria-expanded={moreOpen}
+            >
+              <MoreHorizontal className="h-4 w-4 text-slate-400"/>更多
+            </button>
+            {moreOpen && (
+              <div
+                role="menu"
+                className="absolute right-0 top-full mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-30"
+              >
+                {showDiagnostics ? (
+                  <button
+                    role="menuitem"
+                    onClick={() => { setMoreOpen(false); setDiagOpen(true); }}
+                    data-testid="diagnostics-entry"
+                    className="w-full text-left px-3.5 py-2.5 text-[13px] font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                    title="查看当前页面与视图的工程标识（接口、内容校验值与登记原始值）"
+                  >
+                    <Stethoscope className="h-4 w-4 text-slate-400"/>查看诊断信息
+                  </button>
+                ) : (
+                  <p className="px-3.5 py-2.5 text-[12px] text-slate-400">暂无更多操作</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 统一状态带 */}
@@ -178,15 +230,15 @@ function LayoutShell({ctx}: {ctx: ModelContextValue}) {
         {tab === 'release' && <ReleasePage/>}
       </main>
 
-      <TechnicalDetailsDrawer open={techOpen} onClose={() => setTechOpen(false)}/>
+      {showDiagnostics && <TechnicalDetailsDrawer open={diagOpen} onClose={() => setDiagOpen(false)}/>}
     </div>
   );
 }
 
 /**
- * 统一状态带：产品语义在这里，工程原始值在技术详情抽屉。
- * - 草稿：草稿 ID、基线版本、目标版本（GET /changesets/:id 登记值）、revision、
- *   正式版本未受草稿影响。
+ * 统一状态带：产品语义在这里，工程原始值在诊断信息抽屉。
+ * - 草稿：「编辑草稿 · rN」（完整 ChangeSet ID 见诊断信息）、基线版本、
+ *   目标版本（GET /changesets/:id 登记值）、正式版本未受草稿影响。
  * - 正式版本：只读状态与进入草稿的入口。
  */
 function StatusBand({ctx}: {ctx: ModelContextValue}) {
@@ -219,12 +271,12 @@ function StatusBand({ctx}: {ctx: ModelContextValue}) {
   };
 
   return (
-    <div className="flex items-center gap-2 flex-wrap text-[11.5px]" data-testid="status-band">
+    <div className="flex items-center gap-2 flex-wrap text-[12px]" data-testid="status-band">
       {isDraft ? (
         <>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold bg-blue-50 text-blue-700 border border-blue-200">
             <FileClock className="h-3 w-3"/>
-            草稿 <span className="font-mono">{resolvedView?.changeSetId}</span> · r<span className="font-mono">{resolvedView?.revision}</span>
+            编辑草稿 · r<span className="font-mono">{resolvedView?.revision}</span>
           </span>
           <BandField label="基线版本" value={csQuery.data?.baseVersionId ?? resolvedView?.versionId ?? '初始草稿（无基线）'}/>
           <BandField label="目标版本" value={csQuery.data?.targetVersionId ?? (csQuery.isLoading ? '…' : '—')} mono/>
@@ -256,9 +308,10 @@ function StatusBand({ctx}: {ctx: ModelContextValue}) {
             <button
               onClick={() => void goDraft()}
               disabled={switching}
+              data-testid="status-continue-draft"
               className="font-semibold text-blue-600 hover:underline disabled:opacity-50"
             >
-              {switching ? '读取草稿…' : `继续草稿 ${model.activeChangeSetId}`}
+              {switching ? '读取草稿…' : '继续草稿'}
             </button>
           )}
         </>

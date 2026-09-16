@@ -46,6 +46,7 @@ import {
 } from '../ontology/queries';
 import {editPolicy, SERVER_GUARD, type EditDenyReason} from '../ontology/editability';
 import {useModelContext} from '../ontology/ModelContext';
+import TypeUsageSummary from './TypeUsageSummary';
 
 const ID_PATTERN = /^[A-Za-z][A-Za-z0-9_.:-]*$/;
 const VALUE_TYPES: PropertyDefinition['valueType'][] = [
@@ -57,6 +58,18 @@ const ORIGIN_BADGE: Record<string, {label: string; cls: string}> = {
   SYSTEM: {label: '系统', cls: 'bg-slate-100 text-slate-600 border-slate-200'},
   EXTERNAL: {label: '外部引用', cls: 'bg-amber-50 text-amber-700 border-amber-200'},
 };
+
+/**
+ * 来源徽章只作为例外状态呈现（Batch 4.5 第五节）：SYSTEM 是常态不显示，
+ * LOCAL / EXTERNAL 显示例外徽章（外部引用只读，本地为租户自定义）。
+ */
+function OriginBadge({origin}: {origin: string}) {
+  if (origin === 'SYSTEM') return null;
+  const badge = ORIGIN_BADGE[origin] ?? ORIGIN_BADGE.LOCAL;
+  return (
+    <span className={`px-1.5 py-0.5 rounded text-[12px] font-bold border shrink-0 ${badge.cls}`}>{badge.label}</span>
+  );
+}
 
 type Banner =
   | {kind: 'success'; text: string}
@@ -79,7 +92,7 @@ const emptyPropertyDraft: PropertyDraft = {
 
 export default function ObjectModel() {
   const ctx = useModelContext();
-  const {route, resolvedView, model, isDraft, canEdit, select, selectedId, navigateToView} = ctx;
+  const {route, resolvedView, model, isDraft, canEdit, select, selectedId, navigateToView, group} = ctx;
   const actorScope = useActorScope();
   const queryClient = useQueryClient();
   const applyOps = useApplyOperations(actorScope, ctx.modelId);
@@ -135,7 +148,7 @@ export default function ObjectModel() {
       },
       {
         onSuccess: (cs) => {
-          setBanner({kind: 'success', text: `${note} 已提交到草稿 ${cs.data.id} r${cs.data.revision}（服务端修订号）`});
+          setBanner({kind: 'success', text: `${note} 已提交到草稿 r${cs.data.revision}（服务端修订号；草稿完整标识见诊断信息）`});
           // URL revision 更新为服务端返回值；selected 保持当前类型。
           navigateToView({changeSetId: cs.data.id, revision: cs.data.revision}, {selectedId: definition.id, replace: true});
           after?.();
@@ -299,13 +312,15 @@ export default function ObjectModel() {
 
   // ---- 渲染 ----
 
+  // 分组过滤（URL group 参数，语义区域图下钻）+ 客户端文本过滤真实数据。
+  const groupedByParam = group ? groups.filter((g) => g.name === group) : groups;
   const filteredGroups = filter.trim()
-    ? groups
+    ? groupedByParam
         .map((g) => ({...g, items: g.items.filter((t) =>
           t.id.toLowerCase().includes(filter.toLowerCase()) ||
           t.nameCn.includes(filter))}))
         .filter((g) => g.items.length > 0)
-    : groups;
+    : groupedByParam;
 
   return (
     <div className="space-y-4">
@@ -352,14 +367,29 @@ export default function ObjectModel() {
       <div className="flex flex-col lg:flex-row gap-4 items-start">
         {/* 左：分组类型列表 */}
         <aside className="w-full lg:w-72 shrink-0 bg-white border border-slate-200 rounded-2xl p-3 space-y-3">
+          {group && (
+            <div className="flex items-center justify-between gap-2 px-2.5 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-[12px] font-bold text-blue-800 truncate">
+                分组过滤：{group}
+              </p>
+              <button
+                onClick={() => navigateToView(route.view, {group: null})}
+                className="shrink-0 text-blue-500 hover:text-blue-700"
+                title="清除分组过滤（显示全部分组）"
+                data-testid="clear-group-filter"
+              >
+                <X className="h-3.5 w-3.5"/>
+              </button>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"/>
               <input
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                placeholder="按 ID / 名称过滤（客户端过滤真实数据）"
-                className="w-full pl-8 pr-2 py-1.5 text-[11.5px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
+                placeholder="搜索类型名称或标识"
+                className="w-full pl-8 pr-2 py-1.5 text-[12px] border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
@@ -372,17 +402,16 @@ export default function ObjectModel() {
             </button>
           )}
           {filteredGroups.length === 0 && (
-            <p className="text-center text-[11.5px] text-slate-400 py-6">
-              {types.length === 0 ? '当前视图没有对象类型' : '无匹配的类型'}
+            <p className="text-center text-[12px] text-slate-400 py-6">
+              {types.length === 0 ? '当前视图没有对象类型' : group ? `分组「${group}」下没有类型` : '无匹配的类型'}
             </p>
           )}
           {filteredGroups.map((g) => (
             <div key={g.name} className="space-y-1">
-              <p className="px-1 text-[10.5px] font-bold text-slate-400 uppercase tracking-wide">
+              <p className="px-1 text-[12px] font-bold text-slate-400 uppercase tracking-wide">
                 {g.name} <span className="font-mono">({g.items.length})</span>
               </p>
               {g.items.map((t) => {
-                const badge = ORIGIN_BADGE[t.origin] ?? ORIGIN_BADGE.LOCAL;
                 const active = t.id === selectedId;
                 return (
                   <button
@@ -395,10 +424,10 @@ export default function ObjectModel() {
                     }`}
                   >
                     <span className="flex items-center justify-between gap-2">
-                      <span className={`text-[12px] font-bold truncate ${active ? 'text-blue-800' : 'text-slate-700'}`}>{t.nameCn}</span>
-                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold border shrink-0 ${badge.cls}`}>{badge.label}</span>
+                      <span className={`text-[13px] font-bold truncate ${active ? 'text-blue-800' : 'text-slate-700'}`}>{t.nameCn}</span>
+                      <OriginBadge origin={t.origin}/>
                     </span>
-                    <span className="block text-[9.5px] font-mono text-slate-400 truncate">{t.id} · {t.properties.length} 属性</span>
+                    <span className="block text-[12px] font-mono text-slate-400 truncate">{t.id} · {t.properties.length} 属性</span>
                   </button>
                 );
               })}
@@ -407,10 +436,13 @@ export default function ObjectModel() {
         </aside>
 
         {/* 右：类型详情 */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-4">
           {!current ? (
             <EmptyDetail typesCount={types.length} canAdd={canEdit && isDraft} onAdd={() => { setAddTypeOpen(true); setTypeDraft({id: '', nameCn: '', group: groups[0]?.name ?? '', ownerService: 'platform-team', definition: ''}); }}/>
           ) : (
+            <>
+            {/* 使用统计：当前视图实时计算（入向 / 出向关系、约束、行动、流程引用） */}
+            <TypeUsageSummary typeId={current.id} doc={resolvedView?.document} onGoTab={ctx.navigateToTab}/>
             <TypeDetail
               type={current}
               editable={editable}
@@ -441,6 +473,7 @@ export default function ObjectModel() {
               goDraft={() => void goDraft()}
               createDraftFromVersion={createDraftFromVersion}
             />
+            </>
           )}
         </div>
       </div>
@@ -605,7 +638,6 @@ function TypeDetail(props: {
   createDraftFromVersion: () => void;
 }) {
   const {type: t} = props;
-  const badge = ORIGIN_BADGE[t.origin] ?? ORIGIN_BADGE.LOCAL;
 
   return (
     <div className="space-y-4">
@@ -648,9 +680,9 @@ function TypeDetail(props: {
               <>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-base font-bold text-slate-800">{t.nameCn}</h2>
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${badge.cls}`}>{badge.label}</span>
+                  <OriginBadge origin={t.origin}/>
                 </div>
-                <p className="text-[11px] font-mono text-slate-400 mt-1">{t.id} · 分组 {t.group} · 责任方 {t.ownerService}</p>
+                <p className="text-[12px] font-mono text-slate-400 mt-1">{t.id} · 分组 {t.group} · 责任方 {t.ownerService}</p>
                 <p className="text-[12.5px] text-slate-600 mt-2 leading-relaxed">{t.definition}</p>
               </>
             )}

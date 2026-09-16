@@ -290,11 +290,11 @@ export default function RelationsPage() {
                     <div className="inline-flex items-center rounded-lg border border-slate-200 overflow-hidden" data-testid="relation-view-toggle">
                       <button
                         onClick={() => setViewMode('table')}
-                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-bold transition-colors ${viewMode === 'table' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[12px] font-bold transition-colors ${viewMode === 'table' ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                       ><Table2 className="h-3 w-3"/>表格视图</button>
                       <button
                         onClick={() => setViewMode('graph')}
-                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-bold transition-colors border-l border-slate-200 ${viewMode === 'graph' ? 'bg-slate-800 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-[12px] font-bold transition-colors border-l border-slate-200 ${viewMode === 'graph' ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
                       ><Share2 className="h-3 w-3"/>结构视图</button>
                     </div>
                     <div className="relative">
@@ -320,13 +320,13 @@ export default function RelationsPage() {
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <button
                     onClick={() => setCategoryFilter('ALL')}
-                    className={`px-2 py-0.5 rounded-full text-[10.5px] font-bold border ${categoryFilter === 'ALL' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
+                    className={`px-2 py-0.5 rounded-full text-[12px] font-bold border ${categoryFilter === 'ALL' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'}`}
                   >全部 {relations.length}</button>
                   {RELATION_CATEGORIES.map((c) => (
                     <button
                       key={c.id}
                       onClick={() => setCategoryFilter(c.id)}
-                      className={`px-2 py-0.5 rounded-full text-[10.5px] font-bold border ${categoryFilter === c.id ? 'bg-slate-800 text-white border-slate-800' : `${c.cls} hover:opacity-80`}`}
+                      className={`px-2 py-0.5 rounded-full text-[12px] font-bold border ${categoryFilter === c.id ? 'bg-blue-600 text-white border-blue-600' : `${c.cls} hover:opacity-80`}`}
                     >
                       {c.label} {categoryCounts.get(c.id) ?? 0}
                     </button>

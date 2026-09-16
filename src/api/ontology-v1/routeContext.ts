@@ -1,19 +1,19 @@
 import type {ViewReference} from './types.generated';
 export const tabs=['overview','object-types','relations','actions','implementations','workflows','validation','release'] as const;
 export type OntologyTab=typeof tabs[number];
-export interface OntologyRoute {modelId:string; tab:OntologyTab; view:ViewReference; selectedId?:string}
+export interface OntologyRoute {modelId:string; tab:OntologyTab; view:ViewReference; selectedId?:string; /** 对象类型页的分组过滤（Batch 4.5 语义区域图下钻，纯前端路由参数，不属于 HTTP 契约）。 */ group?:string}
 /** 规范本体列表入口（无 modelId，不属于 OntologyRoute）。 */
 export const ONTOLOGY_LIST_PATH='/business-semantics/ontologies';
 export function isOntologyUrl(pathname:string):boolean {
  return pathname===ONTOLOGY_LIST_PATH||pathname.startsWith(ONTOLOGY_LIST_PATH+'/');
 }
 /** 不含视图参数的路径解析：URL 可能还未携带 versionId/changeSetId（由 ModelContext 补齐）。 */
-export interface OntologyPath {modelId:string; tab:OntologyTab; selectedId?:string}
+export interface OntologyPath {modelId:string; tab:OntologyTab; selectedId?:string; group?:string}
 export function parseOntologyPath(pathname:string,search:string):OntologyPath|null {
  const p=pathname.match(/^\/business-semantics\/ontologies\/([^/]+)\/([^/]+)$/);
  if(!p||!tabs.includes(p[2] as OntologyTab))return null;
- const selectedId=new URLSearchParams(search).get('selected')||undefined;
- return {modelId:decodeURIComponent(p[1]),tab:p[2] as OntologyTab,selectedId};
+ const q=new URLSearchParams(search);
+ return {modelId:decodeURIComponent(p[1]),tab:p[2] as OntologyTab,selectedId:q.get('selected')||undefined,group:q.get('group')||undefined};
 }
 export function parseOntologyRoute(pathname:string,search:string):OntologyRoute|null {
  const p=pathname.match(/^\/business-semantics\/ontologies\/([^/]+)\/([^/]+)$/);
@@ -23,10 +23,11 @@ export function parseOntologyRoute(pathname:string,search:string):OntologyRoute|
  const revision=rv===null?NaN:Number(rv);
  if(changeSetId&&(!/^\d+$/.test(rv||'')||!Number.isSafeInteger(revision)))return null;
  const view:ViewReference=versionId?{versionId}:{changeSetId:changeSetId!,revision};
- return {modelId:decodeURIComponent(p[1]),tab:p[2] as OntologyTab,view,selectedId:q.get('selected')||undefined};
+ return {modelId:decodeURIComponent(p[1]),tab:p[2] as OntologyTab,view,selectedId:q.get('selected')||undefined,group:q.get('group')||undefined};
 }
 export function ontologyLocation(r:OntologyRoute):string {
  const q=new URLSearchParams(Object.entries(r.view).map(([k,v])=>[k,String(v)]));
  if(r.selectedId)q.set('selected',r.selectedId);
+ if(r.group)q.set('group',r.group);
  return `/business-semantics/ontologies/${encodeURIComponent(r.modelId)}/${r.tab}?${q}`;
 }

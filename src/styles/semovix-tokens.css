@@ -1,0 +1,169 @@
+/*
+ * Semovix 设计令牌（Batch 4.5 第二节 · 设计系统收口）。
+ *
+ * 约定：
+ * - 这里定义本体产品界面的字号 / 圆角 / 主色规范，与 index.css 的 @theme
+ *   语义色板配合使用：@theme 提供 bg-brand 等工具类，本文件提供
+ *   .semovix-* 组件类与旧页面残留样式的“下限覆盖”。
+ * - 下限覆盖只作用于本体产品区域（[data-testid='semovix-main'] 子树，
+ *   含其内部渲染的弹层 / 抽屉），不改变其它演示路由的既有视觉。
+ *   选择器特异性（属性 + 类）高于 Tailwind 任意值工具类，无需逐处改类名。
+ *
+ * 规范（第二节）：
+ * - 页面主标题 22px；区块标题 16px。
+ * - 正文与表格不低于 13px；辅助文字不低于 12px。
+ * - 表格行高 44–48px；卡片圆角统一 12px。
+ * - 主按钮统一 Semovix Blue（#2563eb）；普通操作使用白底描边或文本按钮，
+ *   禁止黑色按钮。
+ * - 减少卡片套卡片与大面积阴影（卡片仅 1px 描边 + 悬停轻阴影）。
+ */
+:root {
+  /* 字号刻度 */
+  --semovix-page-title-size: 22px;
+  --semovix-section-title-size: 16px;
+  --semovix-body-size: 13px;
+  --semovix-aux-size: 12px;
+
+  /* 表格与卡片 */
+  --semovix-table-row-min: 44px;
+  --semovix-card-radius: 12px;
+
+  /* 主色（Semovix Blue，与 @theme --color-brand 一致） */
+  --semovix-brand: #2563eb;
+  --semovix-brand-strong: #1d4ed8;
+  --semovix-brand-soft: #eff6ff;
+}
+
+/* ---- 组件类：新组件（列表表格 / 摘要条 / 区域图 / 使用统计）直接使用 ---- */
+
+/* 页面主标题（本体列表页、各能力页页头） */
+.semovix-page-title {
+  font-size: var(--semovix-page-title-size);
+  line-height: 1.3;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+}
+
+/* 区块标题（卡片/分区标题） */
+.semovix-section-title {
+  font-size: var(--semovix-section-title-size);
+  line-height: 1.4;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* 卡片：12px 圆角、描边即可，不叠加大面积阴影 */
+.semovix-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--semovix-card-radius);
+}
+
+/* 主按钮：Semovix Blue，每个视图仅一个主操作 */
+.semovix-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: var(--semovix-body-size);
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--semovix-brand);
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.semovix-btn-primary:hover { background: var(--semovix-brand-strong); }
+.semovix-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 次操作：白底描边 */
+.semovix-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: var(--semovix-body-size);
+  font-weight: 700;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+.semovix-btn-outline:hover { border-color: #94a3b8; background: #f8fafc; color: #0f172a; }
+.semovix-btn-outline:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 次操作：文本按钮 */
+.semovix-btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--semovix-body-size);
+  font-weight: 700;
+  color: var(--semovix-brand);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+}
+.semovix-btn-text:hover { text-decoration: underline; }
+.semovix-btn-text:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 表格：正文 13px、行高 ≥44px（12px 上下内边距 + 13px 行高） */
+.semovix-table { font-size: var(--semovix-body-size); width: 100%; }
+.semovix-table thead th {
+  font-size: var(--semovix-aux-size);
+  font-weight: 700;
+  color: #64748b;
+  text-align: left;
+  padding: 10px 16px;
+  background: #f8fafc;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.semovix-table tbody td {
+  padding: 12px 16px;
+  vertical-align: middle;
+}
+.semovix-table tbody tr { border-top: 1px solid #f1f5f9; }
+.semovix-table tbody tr:hover { background: rgba(248, 250, 252, 0.7); }
+
+/* ---- 下限覆盖：只作用于本体产品区域（含区域内渲染的弹层 / 抽屉） ---- */
+
+/* 字号下限：辅助文字 ≥12px（旧的 9.5–11.5px 一律抬到 12px） */
+[data-testid='semovix-main'] .text-\[9px\],
+[data-testid='semovix-main'] .text-\[9\.5px\],
+[data-testid='semovix-main'] .text-\[10px\],
+[data-testid='semovix-main'] .text-\[10\.5px\],
+[data-testid='semovix-main'] .text-\[11px\],
+[data-testid='semovix-main'] .text-\[11\.5px\] {
+  font-size: var(--semovix-aux-size);
+}
+
+/* 正文下限：本体区域内 12px 正文与 text-xs 统一抬到 13px */
+[data-testid='semovix-main'] .text-xs,
+[data-testid='semovix-main'] .text-\[12px\],
+[data-testid='semovix-main'] .text-\[12\.5px\],
+[data-testid='semovix-main'] .text-\[13\.5px\] {
+  font-size: var(--semovix-body-size);
+}
+
+/* 表格行高下限：区域内所有表格 ≥44px（覆盖旧 py-2 / py-2.5） */
+[data-testid='semovix-main'] table thead th { padding-block: 10px; }
+[data-testid='semovix-main'] table tbody td { padding-block: 12px; }
+
+/* 卡片圆角统一 12px（rounded-2xl=16px → 12px；小圆角抬到 12px 仅限卡片容器） */
+[data-testid='semovix-main'] .rounded-2xl { border-radius: var(--semovix-card-radius); }
+
+/* 禁止黑色操作按钮：区域内残留的 slate-800/700/900 实底按钮统一改为 Semovix Blue */
+[data-testid='semovix-main'] .bg-slate-800,
+[data-testid='semovix-main'] .bg-slate-700 {
+  background-color: var(--semovix-brand);
+}
+[data-testid='semovix-main'] .hover\:bg-slate-900:hover,
+[data-testid='semovix-main'] .hover\:bg-slate-800:hover {
+  background-color: var(--semovix-brand-strong);
+}
+[data-testid='semovix-main'] .border-slate-800 {
+  border-color: var(--semovix-brand);
+}

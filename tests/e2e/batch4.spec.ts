@@ -5,12 +5,14 @@
  * （锁定 runtime → r13）、旧报告失效横幅、重新校验、报告携带到发布页、
  * 前置检查与 PARTIAL 风险知悉、发布成功切换只读版本视图（未自动启动流程 /
  * 消费方固定版本未自动升级）、旧版本保留、审计记录、刷新可复现、正式版本只读、
- * viewer 禁用、技术详情真实端点。
+ * viewer 禁用、诊断信息真实端点（Batch 4.5：入口在「更多」菜单，仅开发
+ * 配置 VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true 下可见）。
  *
  * 服务端错误码（REPORT_STALE / IMPACT_ACK_REQUIRED / 412 / 403 / 幂等重放等）
  * 由 scripts/smoke-batch4.ts 在 HTTP 层覆盖——UI 前置检查使按钮不可达是设计行为。
  *
- * 运行前提：mock(4310, 全新 MOCK_DB_PATH) + vite dev(3000) 已在外部启动；
+ * 运行前提：mock(4310, 全新 MOCK_DB_PATH) + vite dev(3000,
+ * VITE_ENABLE_ONTOLOGY_DIAGNOSTICS=true) 已在外部启动；
  * 本 spec 会把 cs-drkn-demo 从 r12 推进到 r13 并发布 v1.4.0。
  */
 import {expect, test, type Page} from '@playwright/test';
@@ -186,16 +188,19 @@ test.describe('Batch 4 校验 / 影响 / 发布', () => {
     await expect(page.getByTestId('audit-events')).toBeVisible();
   });
 
-  test('10 技术详情：两个新页面呈现真实端点与任务标识', async ({page}) => {
+  test('10 诊断信息：两个新页面呈现真实端点与任务标识', async ({page}) => {
     await page.goto(draftUrl('validation'));
-    await page.getByTestId('technical-details').click();
-    await expect(page.getByRole('heading', {name: '技术详情'})).toBeVisible();
+    // Batch 4.5：入口在「更多」菜单（开发配置下可见）。
+    await page.getByTestId('ontology-more-menu').click();
+    await page.getByTestId('diagnostics-entry').click();
+    await expect(page.getByRole('heading', {name: '诊断信息'})).toBeVisible();
     await expect(page.getByText('POST /api/v1/ontology/models/{modelId}/validation-runs')).toBeVisible();
     await expect(page.getByText('POST /api/v1/ontology/models/{modelId}/impact-analyses')).toBeVisible();
     await expect(page.getByText('GET /api/v1/ontology/models/{modelId}/jobs/{jobId}')).toBeVisible();
     await page.keyboard.press('Escape');
     await page.goto(draftUrl('release'));
-    await page.getByTestId('technical-details').click();
+    await page.getByTestId('ontology-more-menu').click();
+    await page.getByTestId('diagnostics-entry').click();
     await expect(page.getByText('POST /api/v1/ontology/models/{modelId}/publications')).toBeVisible();
     await expect(page.getByText('GET /api/v1/ontology/models/{modelId}/versions', {exact: true})).toBeVisible();
     await expect(page.getByText('GET /api/v1/ontology/models/{modelId}/audit-events')).toBeVisible();
